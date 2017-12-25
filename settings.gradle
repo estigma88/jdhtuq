@@ -1,0 +1,8 @@
+include 'chord'
+include 'communication'
+include 'desktop-gui'
+include 'dhash'
+include 'lookup-service'
+include 'storage-service'
+
+rootProject.name = 'jdhtuq'

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://www.DHT-UQ.org/message" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:dht="http://www.DHT-UQ.org/message">
+
+    <complexType name="Address">
+    	<attribute name="source" type="string" use="required"></attribute>
+    	<attribute name="destination" type="string" use="optional"></attribute>
+    </complexType>
+
+    <complexType name="Type">
+
+    	<attribute name="name" type="string" use="required"></attribute>
+    	<attribute name="amountParams" use="required">
+    		<simpleType>
+    			<restriction base="int">
+
+    				<minInclusive value="0"></minInclusive>
+    			</restriction>
+    		</simpleType>
+    	</attribute>
+    </complexType>
+
+
+    <complexType name="Param">
+    	<attribute name="name" type="string" use="required"></attribute>
+    </complexType>
+
+    <complexType name="Params">
+    	<sequence>
+    		<element name="param" type="dht:Param" minOccurs="0" maxOccurs="unbounded"></element>
+    	</sequence>
+    </complexType>
+    
+
+    <complexType name="Message">
+    	<sequence>
+    		<element name="type" type="dht:Type" minOccurs="1"
+    			maxOccurs="1">
+    		</element>
+    		<element name="address" type="dht:Address" minOccurs="1"
+    			maxOccurs="1">
+    		</element>
+    		<element name="params" type="dht:Params" minOccurs="1"
+    			maxOccurs="1">
+    		</element>
+    	</sequence>
+    	<attribute name="sendType" use="required">
+    		<simpleType>
+    			<restriction base="string">
+    				<enumeration value="REQUEST"></enumeration>
+    				<enumeration value="RESPONSE"></enumeration>
+    			</restriction>
+    		</simpleType>
+    	</attribute>
+    	<attribute name="sequenceNumber" use="required">
+    		<simpleType>
+    			<restriction base="long">
+    				<minInclusive value="1"></minInclusive>
+    			</restriction>
+    		</simpleType>
+    	</attribute>
+    </complexType>
+
+
+    <complexType name="BigMessage">
+    	<complexContent>
+    		<extension base="dht:Message">
+    			<sequence>
+
+    				<element name="datas" type="dht:Datas"></element>
+    			</sequence>
+    		</extension>
+    	</complexContent>
+    </complexType>
+
+    <element name="message" type="dht:Message"></element>
+
+    <element name="bigMessage" type="dht:BigMessage"></element>
+
+    <complexType name="Data">
+    	<sequence>
+    		<element name="bytes" type="base64Binary" minOccurs="1" maxOccurs="1"></element>
+    	</sequence>
+    	<attribute name="name" type="string" use="required"></attribute>
+    </complexType>
+
+    <complexType name="Datas">
+    	<sequence>
+    		<element name="data" type="dht:Data" minOccurs="1" maxOccurs="unbounded"></element>
+    	</sequence>
+    </complexType>
+</schema>
