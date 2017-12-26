@@ -5,6 +5,8 @@ repositories {
     mavenCentral()
 }
 
+version = '1.5.0'
+
 dependencies {
     compile project(':chord')
     compile project(':communication')
@@ -14,3 +16,9 @@ dependencies {
 }
 
 mainClassName = "co.edu.uniquindio.dht.Main"
+
+distributions {
+    main {
+        baseName = 'jDHTUQ'
+    }
+}

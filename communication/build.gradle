@@ -4,6 +4,8 @@ repositories {
     mavenCentral()
 }
 
+version = '1.1.1'
+
 dependencies {
     compile group: 'log4j', name: 'log4j', version: '1.2.16'
 }
