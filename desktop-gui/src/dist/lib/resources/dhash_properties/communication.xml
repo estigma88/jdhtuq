@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<communication xmlns="http://www.DHT-UQ.org/communication"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.DHT-UQ.org/communication communication.xsd ">
+	<instance
+		class="co.edu.uniquindio.utils.communication.transfer.structure.CommunicationManagerStructure" />
+
+
+	<!--	<instance-->
+	<!--
+		class="co.edu.uniquindio.utils.communication.transfer.network.CommunicationManagerTCP"
+		/>
+	-->
+
+	<time waitingResult="2000" />
+	<params>
+		<param name="BUFFER_SIZE_MULTICAST">1024</param>
+		<param name="IP_MULTICAST">224.0.0.1</param>
+		<param name="PORT_MULTICAST">2000</param>
+		<param name="PORT_TCP_RESOURCE">2001</param>
+		<param name="PORT_TCP">2002</param>
+		<param name="PORT_UDP">2003</param>
+		<param name="BUFFER_SIZE_UDP">1024</param>
+	</params>
+</communication>

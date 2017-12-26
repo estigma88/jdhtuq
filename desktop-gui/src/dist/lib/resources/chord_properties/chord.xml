@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chord xmlns="http://www.DHT-UQ.org/chord" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.DHT-UQ.org/chord chord.xsd ">
+  <time stableRing="2000"/>
+  <successorList amount="3"/>
+</chord>
