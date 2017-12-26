@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'application'
 
 repositories {
     mavenCentral()
@@ -11,3 +12,5 @@ dependencies {
     compile project(':dhash')
     compile project(':lookup-service')
 }
+
+mainClassName = "co.edu.uniquindio.dht.Main"
