@@ -22,7 +22,7 @@ import java.util.Arrays;
 
 import co.edu.uniquindio.dhash.resource.ResourceAlreadyExistException;
 import co.edu.uniquindio.utils.hashing.Key;
-import co.edu.uniquindio.utils.logger.LoggerDHT;
+import org.apache.log4j.Logger;
 
 /**
  * The <code>ReAssignObserver</code> class is notify when overlay node leave and
@@ -40,7 +40,7 @@ public class ReAssignObserver extends OverlayObserver {
 	/**
 	 * Logger
 	 */
-	private static final LoggerDHT logger = LoggerDHT
+	private static final Logger logger = Logger
 			.getLogger(ReAssignObserver.class);
 
 	/*

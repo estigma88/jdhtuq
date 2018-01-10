@@ -18,7 +18,7 @@ import co.edu.uniquindio.dht.gui.PanelDhash;
 import co.edu.uniquindio.storage.StorageNode;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.StorageNodeFactory;
-import co.edu.uniquindio.utils.logger.LoggerDHT;
+import org.apache.log4j.Logger;
 //TODO Documentar
 @SuppressWarnings("serial")
 public class NetworkWindow extends JFrame implements WindowListener {
@@ -31,7 +31,7 @@ public class NetworkWindow extends JFrame implements WindowListener {
 	//TODO Documentar
 	public static final String DHASH_CLASS = "co.edu.uniquindio.dhash.node.DHashNodeFactory";
 	// TODO Adicionar documentacion
-	private static final LoggerDHT logger = LoggerDHT
+	private static final Logger logger = Logger
 			.getLogger(ChordNode.class);
 	//TODO Documentar
 	static {

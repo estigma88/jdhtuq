@@ -52,7 +52,7 @@ import co.edu.uniquindio.utils.communication.message.MessageXML;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerCache;
 import co.edu.uniquindio.utils.hashing.Key;
-import co.edu.uniquindio.utils.logger.LoggerDHT;
+import org.apache.log4j.Logger;
 
 /**
  * The {@code DHashNode} class implements the services of {@code put} and
@@ -69,7 +69,7 @@ public class DHashNode implements StorageNode {
 	/**
 	 * Logger
 	 */
-	private static final LoggerDHT logger = LoggerDHT
+	private static final Logger logger = Logger
 			.getLogger(DHashNode.class);
 
 	/**
@@ -195,7 +195,7 @@ public class DHashNode implements StorageNode {
 
 		Key key = new Key(resource.getKey());
 
-		logger.fine("Resource to put: [" + resource.getKey() + "] Hashing: ["
+		logger.debug("Resource to put: [" + resource.getKey() + "] Hashing: ["
 				+ key.getStringHashing() + "]");
 
 		Key lookupKey = overlayNode.lookUp(key);
@@ -208,7 +208,7 @@ public class DHashNode implements StorageNode {
 					+ resource.getKey() + " in this moment");
 		}
 
-		logger.fine("Lookup key for " + key.getStringHashing() + ": ["
+		logger.debug("Lookup key for " + key.getStringHashing() + ": ["
 				+ lookupKey.getValue() + "]");
 
 		put(resource, lookupKey, true);
@@ -228,10 +228,10 @@ public class DHashNode implements StorageNode {
 
 		for (int i = 0; i < Math.min(replicationFactor, succesorList.length); i++) {
 			logger
-					.fine("Replicate File: [" + resource.getKey()
+					.debug("Replicate File: [" + resource.getKey()
 							+ "] Hashing: ["
 							+ succesorList[i].getStringHashing() + "]");
-			logger.finest("Replicate to " + succesorList[i].getStringHashing());
+			logger.debug("Replicate to " + succesorList[i].getStringHashing());
 
 			put(resource, succesorList[i], false);
 		}
@@ -301,7 +301,7 @@ public class DHashNode implements StorageNode {
 		Set<String> resourcesNames = objectManager.getResourcesNames();
 
 		logger.info("Relocating Files...");
-		logger.fine("Number of files: [" + resourcesNames.size() + "]");
+		logger.debug("Number of files: [" + resourcesNames.size() + "]");
 		int filesRelocated = 0;
 
 		for (String name : resourcesNames) {
@@ -331,7 +331,7 @@ public class DHashNode implements StorageNode {
 			Set<String> resourcesNames = objectManager.getResourcesNames();
 
 			logger.info("Leaving...");
-			logger.fine("Number of files to transfer: ["
+			logger.debug("Number of files to transfer: ["
 					+ resourcesNames.size() + "]");
 
 			if (!key.equals(overlayNode.getKey())) {

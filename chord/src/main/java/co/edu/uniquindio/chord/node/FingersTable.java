@@ -23,7 +23,7 @@ import java.math.BigInteger;
 import java.util.Arrays;
 
 import co.edu.uniquindio.utils.hashing.Key;
-import co.edu.uniquindio.utils.logger.LoggerDHT;
+import org.apache.log4j.Logger;
 
 /**
  * The <code>FingersTable</code> class represents a routing table with up to
@@ -48,7 +48,7 @@ public class FingersTable {
 	/**
 	 * Logger
 	 */
-	private static final LoggerDHT logger = LoggerDHT
+	private static final Logger logger = Logger
 			.getLogger(FingersTable.class);
 
 	/**
@@ -123,10 +123,10 @@ public class FingersTable {
 			fingersTable[next] = chordNode.getSuccessor();
 		}
 
-		logger.fine("Node: " + chordNode.getKey().getValue() + " Next: " + next
+		logger.debug("Node: " + chordNode.getKey().getValue() + " Next: " + next
 				+ " Key: " + createNext(chordNode.getKey()));
 
-		logger.finest("Fingers: " + Arrays.asList(fingersTable));
+		logger.debug("Fingers: " + Arrays.asList(fingersTable));
 	}
 
 	/**

@@ -18,20 +18,19 @@
 
 package co.edu.uniquindio.utils.communication.transfer.network;
 
+import co.edu.uniquindio.utils.communication.message.BigMessageXML;
+import co.edu.uniquindio.utils.communication.message.MalformedMessageException;
+import co.edu.uniquindio.utils.communication.message.Message;
+import co.edu.uniquindio.utils.communication.message.MessageXML;
+import co.edu.uniquindio.utils.communication.transfer.Communicator;
+import org.apache.log4j.Logger;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
-
-import co.edu.uniquindio.utils.communication.message.BigMessageXML;
-import co.edu.uniquindio.utils.communication.message.MalformedMessageException;
-import co.edu.uniquindio.utils.communication.message.Message;
-import co.edu.uniquindio.utils.communication.message.MessageXML;
-import co.edu.uniquindio.utils.communication.transfer.Communicator;
-import co.edu.uniquindio.utils.logger.LoggerDHT;
-import org.apache.log4j.Logger;
 
 /**
  * The <code>UnicastBigManagerTCP</code> class is an
@@ -48,7 +47,7 @@ public class UnicastBigManagerTCP implements Communicator {
 	/**
 	 * Logger
 	 */
-	private static final Logger logger = LoggerDHT
+	private static final Logger logger = Logger
 			.getLogger(UnicastBigManagerTCP.class);
 	/**
 	 * The server socket that will be waiting for connection.

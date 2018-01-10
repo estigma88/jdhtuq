@@ -32,7 +32,7 @@ import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerCache;
 import co.edu.uniquindio.utils.hashing.HashingGenerator;
 import co.edu.uniquindio.utils.hashing.Key;
-import co.edu.uniquindio.utils.logger.LoggerDHT;
+import org.apache.log4j.Logger;
 
 /**
  * The <code>ChordNodeFactory</code> class creates nodes <code>ChordNode</code>.
@@ -52,7 +52,7 @@ public class ChordNodeFactory extends OverlayNodeFactory {
 	/**
 	 * Logger
 	 */
-	private static final LoggerDHT logger = LoggerDHT
+	private static final Logger logger = Logger
 			.getLogger(ChordNodeFactory.class);
 	
 	/**

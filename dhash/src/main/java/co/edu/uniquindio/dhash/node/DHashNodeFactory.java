@@ -32,7 +32,7 @@ import co.edu.uniquindio.utils.communication.configurations.CommunicationPropert
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerCache;
 import co.edu.uniquindio.utils.hashing.DigestGenerator;
-import co.edu.uniquindio.utils.logger.LoggerDHT;
+import org.apache.log4j.Logger;
 
 /**
  * The <code>DHashNodeFactory</code> class creates nodes for storage management
@@ -50,7 +50,7 @@ public class DHashNodeFactory extends StorageNodeFactory {
 	/**
 	 * Logger
 	 */
-	private static final LoggerDHT logger = LoggerDHT
+	private static final Logger logger = Logger
 			.getLogger(DHashNodeFactory.class);
 
 	/**
@@ -148,7 +148,7 @@ public class DHashNodeFactory extends StorageNodeFactory {
 
 		communicationManager.addObserver(dHashEnviroment);
 
-		logger.finest("DHash Node " + name + " Created");
+		logger.debug("DHash Node " + name + " Created");
 
 		return dhashNode;
 	}

@@ -18,138 +18,136 @@
 
 package co.edu.uniquindio.utils.communication.transfer;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import co.edu.uniquindio.utils.communication.configurations.CommunicationProperties;
 import co.edu.uniquindio.utils.communication.transfer.network.CommunicationManagerNetworkLAN;
 import co.edu.uniquindio.utils.communication.transfer.network.CommunicationManagerTCP;
 import co.edu.uniquindio.utils.communication.transfer.network.CommunicationManagerUDP;
 import co.edu.uniquindio.utils.communication.transfer.structure.CommunicationManagerStructure;
-import co.edu.uniquindio.utils.logger.LoggerDHT;
+import org.apache.log4j.Logger;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The {@code ComunicationManagerCache} class is used to create
  * CommunicationManagerWaitingResult and have centralized access these instances
- * 
+ *
  * @author Daniel Pelaez
  * @author Hector Hurtado
  * @author Daniel Lopez
  * @version 1.0.2, 17/06/2010
- * @since 1.0.2
  * @see CommunicationManagerWaitingResult
  * @see CommunicationManagerStructure
  * @see CommunicationManagerNetworkLAN
  * @see CommunicationManagerTCP
  * @see CommunicationManagerUDP
  * @see CommunicationManager
+ * @since 1.0.2
  */
 public class CommunicationManagerCache {
 
-	/**
-	 * Logger
-	 */
-	private static final LoggerDHT logger = LoggerDHT
-			.getLogger(CommunicationManagerCache.class);
+    /**
+     * Logger
+     */
+    private static final Logger logger = Logger
+            .getLogger(CommunicationManagerCache.class);
 
-	/**
-	 * Map of instances of communication manager
-	 */
-	private static Map<String, CommunicationManager> communicationManagers;
+    /**
+     * Map of instances of communication manager
+     */
+    private static Map<String, CommunicationManager> communicationManagers;
 
-	/**
-	 * Builds an CommunicationManagerCache
-	 */
-	private CommunicationManagerCache() {
-		communicationManagers = new HashMap<String, CommunicationManager>();
-	}
+    /**
+     * Builds an CommunicationManagerCache
+     */
+    private CommunicationManagerCache() {
+        communicationManagers = new HashMap<String, CommunicationManager>();
+    }
 
-	/**
-	 * Gets the single instance of the communication manager.
-	 * 
-	 * @return The single instance of the {@link CommunicationManagert}
-	 */
+    /**
+     * Gets the single instance of the communication manager.
+     *
+     */
 
-	public static CommunicationManager createCommunicationManager(
-			String instanceName, CommunicationProperties communicationProperties) {
+    public static CommunicationManager createCommunicationManager(
+            String instanceName, CommunicationProperties communicationProperties) {
 
-		if (communicationManagers == null) {
-			communicationManagers = new HashMap<String, CommunicationManager>();
-		}
-		if (communicationManagers.containsKey(instanceName)) {
+        if (communicationManagers == null) {
+            communicationManagers = new HashMap<String, CommunicationManager>();
+        }
+        if (communicationManagers.containsKey(instanceName)) {
 
-			communicationProperties.getParams().put(
-					"RESPONSE_TIME",
-					String.valueOf(communicationProperties.getTime()
-							.getWaitingResult()));
+            communicationProperties.getParams().put(
+                    "RESPONSE_TIME",
+                    String.valueOf(communicationProperties.getTime()
+                            .getWaitingResult()));
 
-			communicationManagers.get(instanceName).setCommunicationProperties(
-					communicationProperties.getParams());
+            communicationManagers.get(instanceName).setCommunicationProperties(
+                    communicationProperties.getParams());
 
-			logger.warn("Changed properties of '" + instanceName + "'");
+            logger.warn("Changed properties of '" + instanceName + "'");
 
-			return communicationManagers.get(instanceName);
-		}
+            return communicationManagers.get(instanceName);
+        }
 
-		CommunicationManagerWaitingResult communicationManagerWaitingResult = null;
-		Class<?> classIn;
+        CommunicationManagerWaitingResult communicationManagerWaitingResult = null;
+        Class<?> classIn;
 
-		try {
+        try {
 
-			classIn = Class.forName(communicationProperties.getInstance()
-					.getClazz());
-			communicationManagerWaitingResult = (CommunicationManagerWaitingResult) classIn
-					.newInstance();
+            classIn = Class.forName(communicationProperties.getInstance()
+                    .getClazz());
+            communicationManagerWaitingResult = (CommunicationManagerWaitingResult) classIn
+                    .newInstance();
 
-			communicationProperties.getParams().put(
-					"RESPONSE_TIME",
-					String.valueOf(communicationProperties.getTime()
-							.getWaitingResult()));
+            communicationProperties.getParams().put(
+                    "RESPONSE_TIME",
+                    String.valueOf(communicationProperties.getTime()
+                            .getWaitingResult()));
 
-			communicationManagerWaitingResult
-					.setCommunicationProperties(communicationProperties
-							.getParams());
+            communicationManagerWaitingResult
+                    .setCommunicationProperties(communicationProperties
+                            .getParams());
 
-			communicationManagerWaitingResult.init();
+            communicationManagerWaitingResult.init();
 
-			communicationManagers.put(instanceName,
-					communicationManagerWaitingResult);
+            communicationManagers.put(instanceName,
+                    communicationManagerWaitingResult);
 
-		} catch (ClassNotFoundException e) {
-			CommunicationManagerException exception = new CommunicationManagerException(
-					"Class not bound ", e);
-			logger.fatal("Class not bound ", exception);
-		} catch (InstantiationException e) {
-			CommunicationManagerException exception = new CommunicationManagerException(
-					"Error instantiating class ", e);
-			logger.fatal("Error instantiating class", exception);
-		} catch (IllegalAccessException e) {
-			CommunicationManagerException exception = new CommunicationManagerException(
-					"Permission error ", e);
-			logger.fatal("Permission error ", exception);
-		} catch (ClassCastException e) {
-			CommunicationManagerException exception = new CommunicationManagerException(
-					"The class '"
-							+ communicationProperties.getInstance().getClazz()
-							+ "' is not instance of "
-							+ CommunicationManager.class.getName(), e);
-			logger.fatal(e.getMessage(), exception);
-		}
+        } catch (ClassNotFoundException e) {
+            CommunicationManagerException exception = new CommunicationManagerException(
+                    "Class not bound ", e);
+            logger.fatal("Class not bound ", exception);
+        } catch (InstantiationException e) {
+            CommunicationManagerException exception = new CommunicationManagerException(
+                    "Error instantiating class ", e);
+            logger.fatal("Error instantiating class", exception);
+        } catch (IllegalAccessException e) {
+            CommunicationManagerException exception = new CommunicationManagerException(
+                    "Permission error ", e);
+            logger.fatal("Permission error ", exception);
+        } catch (ClassCastException e) {
+            CommunicationManagerException exception = new CommunicationManagerException(
+                    "The class '"
+                            + communicationProperties.getInstance().getClazz()
+                            + "' is not instance of "
+                            + CommunicationManager.class.getName(), e);
+            logger.fatal(e.getMessage(), exception);
+        }
 
-		return communicationManagerWaitingResult;
+        return communicationManagerWaitingResult;
 
-	}
+    }
 
-	/**
-	 * Gets instance of CommunicationManager by instance name
-	 * 
-	 * @param instanceName
-	 *            Instance name
-	 * @return CommunicationManager instance
-	 */
-	public static CommunicationManager getCommunicationManager(
-			String instanceName) {
+    /**
+     * Gets instance of CommunicationManager by instance name
+     *
+     * @param instanceName Instance name
+     * @return CommunicationManager instance
+     */
+    public static CommunicationManager getCommunicationManager(
+            String instanceName) {
 
-		return communicationManagers.get(instanceName);
-	}
+        return communicationManagers.get(instanceName);
+    }
 }

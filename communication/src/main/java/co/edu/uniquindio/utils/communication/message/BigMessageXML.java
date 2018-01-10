@@ -23,34 +23,28 @@
 
 package co.edu.uniquindio.utils.communication.message;
 
-import co.edu.uniquindio.utils.logger.LoggerDHT;
 import org.apache.log4j.Logger;
-
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Iterator;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  * The <code>BigMesseage</code> encapsulates all services from big message.
  * <p>
  * Java class for BigMessage complex type.
- * 
+ * <p>
  * <p>
  * The following schema fragment specifies the expected content contained within
  * this class.
- * 
+ * <p>
  * <pre>
  * &lt;complexType name="BigMessage">
  *   &lt;complexContent>
@@ -62,221 +56,193 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "BigMessage", propOrder = { "datas" })
+@XmlType(name = "BigMessage", propOrder = {"datas"})
 @XmlRootElement(name = "bigMessage")
 public class BigMessageXML extends MessageXML implements BigMessage {
 
 
-	/**
-	 * Logger
-	 */
-	private static final Logger logger = LoggerDHT
-			.getLogger(BigMessageXML.class);
+    /**
+     * Logger
+     */
+    private static final Logger logger = Logger
+            .getLogger(BigMessageXML.class);
 
 
-	/**
-	 * JAXB Processor
-	 */
-	private static JAXBContext jaxbContext;
+    /**
+     * JAXB Processor
+     */
+    private static JAXBContext jaxbContext;
 
-	/**
-	 * Hash map of names with datas
-	 */
-	@XmlElement(required = true)
-	@XmlJavaTypeAdapter(XmlAdapterDatasMap.class)
-	private HashMap<String, byte[]> datas;
+    /**
+     * Hash map of names with datas
+     */
+    @XmlElement(required = true)
+    @XmlJavaTypeAdapter(XmlAdapterDatasMap.class)
+    private HashMap<String, byte[]> datas;
 
-	/**
-	 * Builds BigMessage.
-	 * 
-	 * @param messageType
-	 *            Message Type
-	 * @param destination
-	 *            Destination name
-	 * @param source
-	 *            Source name
-	 * @param param
-	 *            Params
-	 * @param datasBytes
-	 *            Datas
-	 * @throws MalformedMessageException
-	 *             throw when an message is malformed
-	 */
-	public BigMessageXML(MessageType messageType, String destination,
-			String source) {
-		super(messageType, destination, source);
+    /**
+     * Builds BigMessage.
+     *
+     * @param messageType Message Type
+     * @param destination Destination name
+     * @param source      Source name
+     * @throws MalformedMessageException throw when an message is malformed
+     */
+    public BigMessageXML(MessageType messageType, String destination,
+                         String source) {
+        super(messageType, destination, source);
 
-		datas = new HashMap<String, byte[]>();
-	}
+        datas = new HashMap<String, byte[]>();
+    }
 
-	/**
-	 * Builds big message empty
-	 */
-	BigMessageXML() {
-	}
+    /**
+     * Builds big message empty
+     */
+    public BigMessageXML() {
+    }
 
-	/**
-	 * Builds BigMessage.
-	 * 
-	 * @param sequenceNumber
-	 *            Sequence number
-	 * @param sendType
-	 *            Send type
-	 * @param messageType
-	 *            Message Type
-	 * @param destination
-	 *            Destination name
-	 * @param source
-	 *            Source name
-	 * @param param
-	 *            Params
-	 * @param datasBytes
-	 *            Datas
-	 * @throws MalformedMessageException
-	 *             throw when an message is malformed
-	 */
-	public BigMessageXML(long sequenceNumber, SendType sendType,
-			MessageType messageType, String destination, String source) {
-		super(sequenceNumber, sendType, messageType, destination, source);
+    /**
+     * Builds BigMessage.
+     *
+     * @param sequenceNumber Sequence number
+     * @param sendType       Send type
+     * @param messageType    Message Type
+     * @param destination    Destination name
+     * @param source         Source name
+     * @throws MalformedMessageException throw when an message is malformed
+     */
+    public BigMessageXML(long sequenceNumber, SendType sendType,
+                         MessageType messageType, String destination, String source) {
+        super(sequenceNumber, sendType, messageType, destination, source);
 
-		datas = new HashMap<String, byte[]>();
-	}
+        datas = new HashMap<String, byte[]>();
+    }
 
 
-	/**
-	 * Instanciate JAXBContext
-	 */
-	static {
-		try {
-			jaxbContext = JAXBContext.newInstance(BigMessageXML.class);
-		} catch (JAXBException e) {
-			logger.error("Not should create unmarshaller", e);
-		}
-	}
+    /**
+     * Instanciate JAXBContext
+     */
+    static {
+        try {
+            jaxbContext = JAXBContext.newInstance(BigMessageXML.class);
+        } catch (JAXBException e) {
+            logger.error("Not should create unmarshaller", e);
+        }
+    }
 
-	/**
-	 * Builds a message by string. The string must strictly comply from
-	 * message.xsd
-	 *
-	 * @param message
-	 *            Message in XML
-	 * @return Message object
-	 * @throws MalformedMessageException
-	 *             throw when message is malformed
-	 */
-	public static BigMessageXML valueOf(String message)
-			throws MalformedMessageException {
-		try {
+    /**
+     * Builds a message by string. The string must strictly comply from
+     * message.xsd
+     *
+     * @param message Message in XML
+     * @return Message object
+     * @throws MalformedMessageException throw when message is malformed
+     */
+    public static BigMessageXML valueOf(String message)
+            throws MalformedMessageException {
+        try {
 
-			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 
-			StringReader stringReader = new StringReader(message);
+            StringReader stringReader = new StringReader(message);
 
-			BigMessageXML messageDecode = (BigMessageXML) unmarshaller
-					.unmarshal(stringReader);
+            BigMessageXML messageDecode = (BigMessageXML) unmarshaller
+                    .unmarshal(stringReader);
 
-			if (messageDecode.getMessageType().getAmountParams() != messageDecode
-					.getAmountParams()) {
-				throw new MalformedMessageException("The bigmessage is malformed");
-			}
+            if (messageDecode.getMessageType().getAmountParams() != messageDecode
+                    .getAmountParams()) {
+                throw new MalformedMessageException("The bigmessage is malformed");
+            }
 
-			return messageDecode;
+            return messageDecode;
 
-		} catch (JAXBException e) {
-			throw new MalformedMessageException("The bigmessage is malformed", e);
-		}
-	}
+        } catch (JAXBException e) {
+            throw new MalformedMessageException("The bigmessage is malformed", e);
+        }
+    }
 
 
-	/**
-	 * Gets data by name
-	 * 
-	 * @param name
-	 *            Data name
-	 * @return Data
-	 */
-	public byte[] getData(String name) {
-		if (!datas.containsKey(name)) {
-			throw new IllegalArgumentException("The big message type "
-					+ messageType.getName() + " not contains param '" + name
-					+ "'");
-		} else {
-			return datas.get(name);
-		}
-	}
+    /**
+     * Gets data by name
+     *
+     * @param name Data name
+     * @return Data
+     */
+    public byte[] getData(String name) {
+        if (!datas.containsKey(name)) {
+            throw new IllegalArgumentException("The big message type "
+                    + messageType.getName() + " not contains param '" + name
+                    + "'");
+        } else {
+            return datas.get(name);
+        }
+    }
 
-	/**
-	 * Gets the value of the datas property.
-	 * 
-	 * @return possible object is {@link Datas }
-	 * 
-	 */
-	public HashMap<String, byte[]> getDatas() {
-		return datas;
-	}
+    /**
+     * Gets the value of the datas property.
+     *
+     * @return possible object is {@link Datas }
+     */
+    public HashMap<String, byte[]> getDatas() {
+        return datas;
+    }
 
-	/**
-	 * Sets the value of the datas property.
-	 * 
-	 * @param value
-	 *            allowed object is {@link Datas }
-	 * 
-	 */
-	public void setDatas(HashMap<String, byte[]> value) {
-		this.datas = value;
-	}
+    /**
+     * Sets the value of the datas property.
+     *
+     * @param value allowed object is {@link Datas }
+     */
+    public void setDatas(HashMap<String, byte[]> value) {
+        this.datas = value;
+    }
 
-	/**
-	 * Adds data to message
-	 * 
-	 * @param name
-	 *            Data name
-	 * @param data
-	 *            Data value
-	 */
-	public void addData(String name, byte[] data) {
-		datas.put(name, data);
-	}
+    /**
+     * Adds data to message
+     *
+     * @param name Data name
+     * @param data Data value
+     */
+    public void addData(String name, byte[] data) {
+        datas.put(name, data);
+    }
 
-	/**
-	 * Gets keys of datas
-	 * 
-	 * @return Data keys
-	 */
-	public Iterator<String> getDatasKey() {
-		return datas.keySet().iterator();
-	}
+    /**
+     * Gets keys of datas
+     *
+     * @return Data keys
+     */
+    public Iterator<String> getDatasKey() {
+        return datas.keySet().iterator();
+    }
 
-	/**
-	 * Builds XML string from object message using jaxb
-	 *
-	 * @return Message in XML
-	 */
-	public String toXML() {
-		try {
+    /**
+     * Builds XML string from object message using jaxb
+     *
+     * @return Message in XML
+     */
+    public String toXML() {
+        try {
 
-			Marshaller marshaller = jaxbContext.createMarshaller();
+            Marshaller marshaller = jaxbContext.createMarshaller();
 
-			StringWriter stringWriter = new StringWriter();
+            StringWriter stringWriter = new StringWriter();
 
-			marshaller.marshal(this, stringWriter);
+            marshaller.marshal(this, stringWriter);
 
-			return stringWriter.toString();
+            return stringWriter.toString();
 
-		} catch (JAXBException e) {
-			logger.error("The message is malformed",
-					new MalformedMessageException("The message is malformed"));
-		}
+        } catch (JAXBException e) {
+            logger.error("The message is malformed",
+                    new MalformedMessageException("The message is malformed"));
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	public String toString() {
-		return toXML();
-	}
+    public String toString() {
+        return toXML();
+    }
 
 }

@@ -1,27 +1,59 @@
 package co.edu.uniquindio.dht;
 
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-
 import co.edu.uniquindio.dht.gui.MainFrame;
+import org.apache.log4j.xml.DOMConfigurator;
 
-//TODO Documentar
+import javax.swing.*;
+import javax.xml.parsers.FactoryConfigurationError;
+import java.io.File;
+import java.net.URISyntaxException;
+import java.security.CodeSource;
+
 public class Main {
-	//TODO Documentar
-	public static void main(String[] args) {
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (UnsupportedLookAndFeelException e) {
+    /**
+     * Path for properties fiel
+     */
+    private static final String PROPERTIES = "resources/logger.xml";
 
-		} catch (ClassNotFoundException e) {
+    public static void main(String[] args) {
+        try {
+            loadLoggerProperties();
 
-		} catch (InstantiationException e) {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (UnsupportedLookAndFeelException e) {
 
-		} catch (IllegalAccessException e) {
+        } catch (ClassNotFoundException e) {
 
-		}
+        } catch (InstantiationException e) {
 
-		MainFrame mainFrame=new MainFrame();
-		mainFrame.setVisible(true);
-	}
+        } catch (IllegalAccessException e) {
+
+        }
+
+        MainFrame mainFrame = new MainFrame();
+        mainFrame.setVisible(true);
+    }
+
+    private static void loadLoggerProperties() throws FactoryConfigurationError {
+        try {
+            CodeSource codeSource = Main.class.getProtectionDomain()
+                    .getCodeSource();
+            File jarFile;
+
+            jarFile = new File(codeSource.getLocation().toURI().getPath());
+
+            File jarDir = jarFile.getParentFile();
+
+            File propFile = null;
+            if (jarDir != null && jarDir.isDirectory()) {
+                propFile = new File(jarDir, PROPERTIES);
+            }
+
+            DOMConfigurator.configure(propFile.getPath());
+
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+    }
 }
+

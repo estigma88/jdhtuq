@@ -41,7 +41,7 @@ import co.edu.uniquindio.utils.communication.message.MessageXML;
 import co.edu.uniquindio.utils.communication.message.Message.SendType;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerCache;
-import co.edu.uniquindio.utils.logger.LoggerDHT;
+import org.apache.log4j.Logger;
 
 /**
  * The <code>DHashEnviroment</code> class is the node responsible for handling
@@ -60,7 +60,7 @@ public class DHashEnvironment implements Observer<Message> {
 	/**
 	 * Logger
 	 */
-	private static final LoggerDHT logger = LoggerDHT
+	private static final Logger logger = Logger
 			.getLogger(DHashEnvironment.class);
 
 	/**
@@ -88,16 +88,14 @@ public class DHashEnvironment implements Observer<Message> {
 
 	/**
 	 * This method is called when a new message has arrived, and uses a
-	 * {@link TransferManager} to receive the messages.
-	 * 
-	 * @param transferManager
+	 * TransferManagerto receive the messages
 	 *            The interface that will be used for receiving the messages.
 	 */
 	public void update(Message message) {
 
-		logger.finest("Message to: " + dHashNode.getName() + " Message:["
+		logger.debug("Message to: " + dHashNode.getName() + " Message:["
 				+ message.toString() + "]");
-		logger.fine("Node " + dHashNode.getName() + ", arrived message of "
+		logger.debug("Node " + dHashNode.getName() + ", arrived message of "
 				+ message.getType());
 
 		if (message.getType().equals(Protocol.PUT.getName())) {
@@ -220,8 +218,8 @@ public class DHashEnvironment implements Observer<Message> {
 
 		communicationManager.sendMessageUnicast(getResponseMessage);
 
-		logger.fine("Node " + dHashNode.getName() + ", confirmation for ");
-		logger.finest("Response message: [" + getResponseMessage.toString()
+		logger.debug("Node " + dHashNode.getName() + ", confirmation for ");
+		logger.debug("Response message: [" + getResponseMessage.toString()
 				+ "]");
 	}
 

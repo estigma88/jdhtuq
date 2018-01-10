@@ -23,7 +23,7 @@ import co.edu.uniquindio.chord.node.command.CheckPredecessorCommand;
 import co.edu.uniquindio.chord.node.command.FixFingersCommand;
 import co.edu.uniquindio.chord.node.command.FixSuccessorsCommand;
 import co.edu.uniquindio.chord.node.command.StabilizeCommand;
-import co.edu.uniquindio.utils.logger.LoggerDHT;
+import org.apache.log4j.Logger;
 
 /**
  * The {@code StableRing} class is responsible for periodically execute commands
@@ -41,7 +41,7 @@ public class StableRing implements Runnable {
 	/**
 	 * Logger
 	 */
-	private static final LoggerDHT logger = LoggerDHT
+	private static final Logger logger = Logger
 			.getLogger(StableRing.class);
 
 	/**

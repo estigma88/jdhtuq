@@ -25,7 +25,7 @@ import co.edu.uniquindio.utils.communication.message.MessageXML;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerCache;
 import co.edu.uniquindio.utils.hashing.Key;
-import co.edu.uniquindio.utils.logger.LoggerDHT;
+import org.apache.log4j.Logger;
 
 /**
  * The <code>BootStrap</code> class is responsible for initializing a node
@@ -44,7 +44,7 @@ public class BootStrap {
 	/**
 	 * Logger
 	 */
-	private static final LoggerDHT logger = LoggerDHT
+	private static final Logger logger = Logger
 			.getLogger(BootStrap.class);
 
 	/**
@@ -78,12 +78,12 @@ public class BootStrap {
 
 		if (findNode == null) {
 			/* When no other node is found */
-			LoggerDHT.getLogger(BootStrap.class).fine(
+			Logger.getLogger(BootStrap.class).debug(
 					"Node '" + nodeChord.getKey().getValue() + "' found '"
 							+ null + "'");
 			nodeChord.createRing();
 		} else {
-			logger.fine("Node '" + nodeChord.getKey().getValue() + "' found '"
+			logger.debug("Node '" + nodeChord.getKey().getValue() + "' found '"
 					+ findNode.getValue() + "'");
 			nodeChord.join(findNode);
 

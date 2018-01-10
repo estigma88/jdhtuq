@@ -25,7 +25,7 @@ import co.edu.uniquindio.utils.communication.message.MessageXML;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerCache;
 import co.edu.uniquindio.utils.hashing.Key;
-import co.edu.uniquindio.utils.logger.LoggerDHT;
+import org.apache.log4j.Logger;
 
 /**
  * The <code>SuccessorList</code> class represents a list of <code>m</code>
@@ -44,7 +44,7 @@ public class SuccessorList {
 	/**
 	 * Logger
 	 */
-	private static final LoggerDHT logger = LoggerDHT
+	private static final Logger logger = Logger
 			.getLogger(SuccessorList.class);
 
 	/**
@@ -113,7 +113,7 @@ public class SuccessorList {
 			keyList[i] = new Key(successors[i - 1]);
 		}
 
-		logger.finest("Node: " + chordNode.getKey().getValue()
+		logger.debug("Node: " + chordNode.getKey().getValue()
 				+ " Successors: " + toString());
 	}
 
@@ -135,7 +135,7 @@ public class SuccessorList {
 	public void setSuccessor(Key successor) {
 		keyList[0] = successor;
 
-		logger.finest("Node: " + chordNode.getKey().getValue()
+		logger.debug("Node: " + chordNode.getKey().getValue()
 				+ " New successor: " + successor);
 	}
 

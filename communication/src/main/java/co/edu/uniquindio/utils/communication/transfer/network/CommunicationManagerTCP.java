@@ -19,7 +19,7 @@
 package co.edu.uniquindio.utils.communication.transfer.network;
 
 import co.edu.uniquindio.utils.communication.transfer.Communicator;
-import co.edu.uniquindio.utils.logger.LoggerDHT;
+import org.apache.log4j.Logger;
 
 /**
  * The <code>CommunicationManagerTCP</code> class is an
@@ -50,7 +50,7 @@ public class CommunicationManagerTCP extends CommunicationManagerNetworkLAN {
 	/**
 	 * Logger
 	 */
-	private static final LoggerDHT logger = LoggerDHT
+	private static final Logger logger = Logger
 			.getLogger(CommunicationManagerTCP.class);
 
 	/**
