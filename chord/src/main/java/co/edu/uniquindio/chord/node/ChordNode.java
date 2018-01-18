@@ -113,6 +113,16 @@ public class ChordNode implements Chord {
 		logger.info("New ChordNode created = " + key);
 	}
 
+	ChordNode(CommunicationManager communicationManager, Key successor, Key predecessor, FingersTable fingersTable, SuccessorList successorList, Key key, Observable<Object> observable) {
+		this.communicationManager = communicationManager;
+		this.successor = successor;
+		this.predecessor = predecessor;
+		this.fingersTable = fingersTable;
+		this.successorList = successorList;
+		this.key = key;
+		this.observable = observable;
+	}
+
 	/**
 	 * Makes a look up of the given key.
 	 * 
