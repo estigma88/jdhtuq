@@ -249,7 +249,7 @@ public class ChordNode implements Chord {
 	 * Clear the node's predecessor pointer if <code>predecessor</code> has
 	 * failed.
 	 */
-	public void checkPredeccesor() {
+	public void checkPredecessor() {
 		if (predecessor == null) {
 			return;
 		}

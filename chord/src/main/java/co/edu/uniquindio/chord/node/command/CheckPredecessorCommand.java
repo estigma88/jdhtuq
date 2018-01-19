@@ -26,7 +26,7 @@ import co.edu.uniquindio.chord.node.StableRing;
  * 
  * 
  * The <code>CheckPredecessorCommand</code> class is responsible for executing
- * the method {@code ChordNode.checkPredeccesor} in the chord node at once.
+ * the method {@code ChordNode.checkPredecessor} in the chord node at once.
  * 
  * Instantiated periodically in {@link StableRing}.
  * 
@@ -50,12 +50,12 @@ public class CheckPredecessorCommand extends ChordNodeCommand {
 	}
 
 	/**
-	 * Executes the method {@code ChordNode.checkPredeccesor} on the chord node
+	 * Executes the method {@code ChordNode.checkPredecessor} on the chord node
 	 * at once.
 	 */
 	@Override
 	public void run() {
-		nodeChord.checkPredeccesor();
+		nodeChord.checkPredecessor();
 	}
 
 }

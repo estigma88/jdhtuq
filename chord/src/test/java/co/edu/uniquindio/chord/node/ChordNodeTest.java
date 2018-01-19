@@ -183,4 +183,41 @@ public class ChordNodeTest {
 
         verify(observable).notifyMessage(message);
     }
+
+    @Test
+    public void checkPredecessor_predecessorIsNotNull_doNothing(){
+        chordNode = new ChordNode(communicationManager, successor, null, fingersTable, successorList, key, observable);
+
+        chordNode.checkPredecessor();
+
+        verifyZeroInteractions(communicationManager);
+    }
+
+    @Test
+    public void checkPredecessor_pingSuccess_predecessorNotNull(){
+        when(communicationManager.sendMessageUnicast(anyObject(),
+                eq(Boolean.class))).thenReturn(true);
+
+        chordNode.checkPredecessor();
+
+        verify(communicationManager).sendMessageUnicast(messageCaptor.capture(),
+                eq(Boolean.class));
+
+
+        assertThat(chordNode.getPredecessor()).isEqualTo(predecessor);
+    }
+
+    @Test
+    public void checkPredecessor_pingNoSuccess_predecessorNull(){
+        when(communicationManager.sendMessageUnicast(anyObject(),
+                eq(Boolean.class))).thenReturn(null);
+
+        chordNode.checkPredecessor();
+
+        verify(communicationManager).sendMessageUnicast(messageCaptor.capture(),
+                eq(Boolean.class));
+
+
+        assertThat(chordNode.getPredecessor()).isNull();
+    }
 }

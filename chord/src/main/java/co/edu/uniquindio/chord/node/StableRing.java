@@ -67,7 +67,7 @@ public class StableRing implements Runnable {
 
 	/**
 	 * Is the command responsible for executing the method
-	 * <code>ChordNode.checkPredeccesor</code> on the chord node.
+	 * <code>ChordNode.checkPredecessor</code> on the chord node.
 	 */
 	private CheckPredecessorCommand checkPredecessorCommand;
 

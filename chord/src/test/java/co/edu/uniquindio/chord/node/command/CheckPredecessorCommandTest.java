@@ -20,7 +20,7 @@ public class CheckPredecessorCommandTest {
     public void run_chordNode_checkPredeccesor(){
         checkPredecessorCommand.run();
 
-        verify(chordNode).checkPredeccesor();
+        verify(chordNode).checkPredecessor();
     }
 
 
