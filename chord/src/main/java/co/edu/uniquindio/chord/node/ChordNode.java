@@ -102,7 +102,7 @@ public class ChordNode implements Chord {
 	 *            identifier on ring.
 	 */
 	ChordNode(Key key) {
-		this.fingersTable = new FingersTable(this);
+		this.fingersTable = newFingersTable();
 		this.successorList = new SuccessorList(this);
 		this.key = key;
 		this.observable = new Observable<Object>();
@@ -311,9 +311,9 @@ public class ChordNode implements Chord {
 				logger.error("Node: " + key.getValue()
 						+ ", successor list failed... new bootstrap");
 
-				fingersTable = new FingersTable(this);
+				fingersTable = newFingersTable();
 
-				BootStrap.boot(this);
+				bootUp();
 			}
 		} else {
 			/*
@@ -347,6 +347,14 @@ public class ChordNode implements Chord {
 
 			communicationManager.sendMessageUnicast(notifyMessage);
 		}
+	}
+
+	void bootUp() {
+		BootStrap.boot(this);
+	}
+
+	FingersTable newFingersTable() {
+		return new FingersTable(this);
 	}
 
 	/**

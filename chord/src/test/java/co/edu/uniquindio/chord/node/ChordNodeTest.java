@@ -5,6 +5,7 @@ import co.edu.uniquindio.utils.communication.Observable;
 import co.edu.uniquindio.utils.communication.message.MessageXML;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.hashing.Key;
+import com.sun.org.apache.xpath.internal.WhitespaceStrippingElementMatcher;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,7 +42,7 @@ public class ChordNodeTest {
 
     @Before
     public void before() {
-        chordNode = new ChordNode(communicationManager, successor, predecessor, fingersTable, successorList, key, observable);
+        chordNode = spy(new ChordNode(communicationManager, successor, predecessor, fingersTable, successorList, key, observable));
     }
 
     @Test
@@ -197,6 +198,8 @@ public class ChordNodeTest {
     public void checkPredecessor_pingSuccess_predecessorNotNull(){
         when(communicationManager.sendMessageUnicast(anyObject(),
                 eq(Boolean.class))).thenReturn(true);
+        when(predecessor.getValue()).thenReturn("hashPredecessor");
+        when(key.getValue()).thenReturn("hashKey");
 
         chordNode.checkPredecessor();
 
@@ -205,19 +208,248 @@ public class ChordNodeTest {
 
 
         assertThat(chordNode.getPredecessor()).isEqualTo(predecessor);
+        assertThat(messageCaptor.getValue().getMessageType()).isEqualTo(Protocol.PING);
+        assertThat(messageCaptor.getValue().getAddress().getDestination()).isEqualTo("hashPredecessor");
+        assertThat(messageCaptor.getValue().getAddress().getSource()).isEqualTo("hashKey");
     }
 
     @Test
     public void checkPredecessor_pingNoSuccess_predecessorNull(){
         when(communicationManager.sendMessageUnicast(anyObject(),
                 eq(Boolean.class))).thenReturn(null);
+        when(predecessor.getValue()).thenReturn("hashPredecessor");
+        when(key.getValue()).thenReturn("hashKey");
 
         chordNode.checkPredecessor();
 
         verify(communicationManager).sendMessageUnicast(messageCaptor.capture(),
                 eq(Boolean.class));
 
+        assertThat(chordNode.getPredecessor()).isNull();
+        assertThat(messageCaptor.getValue().getMessageType()).isEqualTo(Protocol.PING);
+        assertThat(messageCaptor.getValue().getAddress().getDestination()).isEqualTo("hashPredecessor");
+        assertThat(messageCaptor.getValue().getAddress().getSource()).isEqualTo("hashKey");
+    }
+
+    @Test
+    public void stabilize_pingSuccessorNotNullNotPredecessor_notifyChange(){
+        Key getPredecessor = null;
+
+        when(communicationManager.sendMessageUnicast(anyObject(),
+                eq(Boolean.class))).thenReturn(true);
+        when(successor.getValue()).thenReturn("hashSuccessor");
+        when(key.getValue()).thenReturn("hashKey");
+        when(communicationManager.sendMessageUnicast(anyObject(),
+                eq(Key.class))).thenReturn(getPredecessor);
+
+        chordNode.stabilize();
+
+        assertThat(chordNode.getSuccessor()).isEqualTo(successor);
+
+        verifyZeroInteractions(successorList);
+        verifyZeroInteractions(fingersTable);
+
+        verify(communicationManager).sendMessageUnicast(messageCaptor.capture(),
+                eq(Boolean.class));
+        verify(communicationManager).sendMessageUnicast(messageCaptor.capture(),
+                eq(Key.class));
+        verify(communicationManager).sendMessageUnicast(messageCaptor.capture());
+
+        assertThat(messageCaptor.getAllValues().get(0).getMessageType()).isEqualTo(Protocol.PING);
+        assertThat(messageCaptor.getAllValues().get(0).getAddress().getDestination()).isEqualTo("hashSuccessor");
+        assertThat(messageCaptor.getAllValues().get(0).getAddress().getSource()).isEqualTo("hashKey");
+        assertThat(messageCaptor.getAllValues().get(1).getMessageType()).isEqualTo(Protocol.GET_PREDECESSOR);
+        assertThat(messageCaptor.getAllValues().get(1).getAddress().getDestination()).isEqualTo("hashSuccessor");
+        assertThat(messageCaptor.getAllValues().get(1).getAddress().getSource()).isEqualTo("hashKey");
+        assertThat(messageCaptor.getAllValues().get(2).getMessageType()).isEqualTo(Protocol.NOTIFY);
+        assertThat(messageCaptor.getAllValues().get(2).getAddress().getDestination()).isEqualTo("hashSuccessor");
+        assertThat(messageCaptor.getAllValues().get(2).getAddress().getSource()).isEqualTo("hashKey");
+    }
+
+    @Test
+    public void stabilize_pingSuccessorNotNullGetPredecessorNotBetweenNotKey_notifyChange(){
+        Key getPredecessor = mock(Key.class);
+
+        when(communicationManager.sendMessageUnicast(anyObject(),
+                eq(Boolean.class))).thenReturn(true);
+        when(successor.getValue()).thenReturn("hashSuccessor");
+        when(key.getValue()).thenReturn("hashKey");
+        when(communicationManager.sendMessageUnicast(anyObject(),
+                eq(Key.class))).thenReturn(getPredecessor);
+
+        chordNode.stabilize();
+
+        assertThat(chordNode.getSuccessor()).isEqualTo(successor);
+
+        verifyZeroInteractions(successorList);
+        verifyZeroInteractions(fingersTable);
+
+        verify(communicationManager).sendMessageUnicast(messageCaptor.capture(),
+                eq(Boolean.class));
+        verify(communicationManager).sendMessageUnicast(messageCaptor.capture(),
+                eq(Key.class));
+        verify(communicationManager).sendMessageUnicast(messageCaptor.capture());
+
+        assertThat(messageCaptor.getAllValues().get(0).getMessageType()).isEqualTo(Protocol.PING);
+        assertThat(messageCaptor.getAllValues().get(0).getAddress().getDestination()).isEqualTo("hashSuccessor");
+        assertThat(messageCaptor.getAllValues().get(0).getAddress().getSource()).isEqualTo("hashKey");
+        assertThat(messageCaptor.getAllValues().get(1).getMessageType()).isEqualTo(Protocol.GET_PREDECESSOR);
+        assertThat(messageCaptor.getAllValues().get(1).getAddress().getDestination()).isEqualTo("hashSuccessor");
+        assertThat(messageCaptor.getAllValues().get(1).getAddress().getSource()).isEqualTo("hashKey");
+        assertThat(messageCaptor.getAllValues().get(2).getMessageType()).isEqualTo(Protocol.NOTIFY);
+        assertThat(messageCaptor.getAllValues().get(2).getAddress().getDestination()).isEqualTo("hashSuccessor");
+        assertThat(messageCaptor.getAllValues().get(2).getAddress().getSource()).isEqualTo("hashKey");
+    }
+
+    @Test
+    public void stabilize_pingSuccessorNotNullGetPredecessorIsBetweenNotKey_notifyChange(){
+        Key getPredecessor = mock(Key.class);
+
+        when(getPredecessor.isBetween(key, successor)).thenReturn(true);
+        when(communicationManager.sendMessageUnicast(anyObject(),
+                eq(Boolean.class))).thenReturn(true);
+        when(successor.getValue()).thenReturn("hashSuccessor");
+        when(getPredecessor.getValue()).thenReturn("hashGetPredecessor");
+        when(key.getValue()).thenReturn("hashKey");
+        when(communicationManager.sendMessageUnicast(anyObject(),
+                eq(Key.class))).thenReturn(getPredecessor);
+
+        chordNode.stabilize();
+
+        assertThat(chordNode.getSuccessor()).isEqualTo(getPredecessor);
+
+        verify(successorList).setSuccessor(getPredecessor);
+        verify(fingersTable).setSuccessor(getPredecessor);
+        verify(communicationManager).sendMessageUnicast(messageCaptor.capture(),
+                eq(Boolean.class));
+        verify(communicationManager).sendMessageUnicast(messageCaptor.capture(),
+                eq(Key.class));
+        verify(communicationManager).sendMessageUnicast(messageCaptor.capture());
+
+        assertThat(messageCaptor.getAllValues().get(0).getMessageType()).isEqualTo(Protocol.PING);
+        assertThat(messageCaptor.getAllValues().get(0).getAddress().getDestination()).isEqualTo("hashSuccessor");
+        assertThat(messageCaptor.getAllValues().get(0).getAddress().getSource()).isEqualTo("hashKey");
+        assertThat(messageCaptor.getAllValues().get(1).getMessageType()).isEqualTo(Protocol.GET_PREDECESSOR);
+        assertThat(messageCaptor.getAllValues().get(1).getAddress().getDestination()).isEqualTo("hashSuccessor");
+        assertThat(messageCaptor.getAllValues().get(1).getAddress().getSource()).isEqualTo("hashKey");
+        assertThat(messageCaptor.getAllValues().get(2).getMessageType()).isEqualTo(Protocol.NOTIFY);
+        assertThat(messageCaptor.getAllValues().get(2).getAddress().getDestination()).isEqualTo("hashGetPredecessor");
+        assertThat(messageCaptor.getAllValues().get(2).getAddress().getSource()).isEqualTo("hashKey");
+    }
+
+    @Test
+    public void stabilize_pingSuccessorNotNullGetPredecessorNotBetweenKeyEqual_notifyChange(){
+        Key getPredecessor = mock(Key.class);
+
+        chordNode = new ChordNode(communicationManager, successor, predecessor, fingersTable, successorList, successor, observable);
+
+        when(communicationManager.sendMessageUnicast(anyObject(),
+                eq(Boolean.class))).thenReturn(true);
+        when(successor.getValue()).thenReturn("hashSuccessor");
+        when(getPredecessor.getValue()).thenReturn("hashGetPredecessor");
+        when(key.getValue()).thenReturn("hashKey");
+        when(communicationManager.sendMessageUnicast(anyObject(),
+                eq(Key.class))).thenReturn(getPredecessor);
+
+        chordNode.stabilize();
+
+        assertThat(chordNode.getSuccessor()).isEqualTo(getPredecessor);
+
+        verify(successorList).setSuccessor(getPredecessor);
+        verify(fingersTable).setSuccessor(getPredecessor);
+        verify(communicationManager).sendMessageUnicast(messageCaptor.capture(),
+                eq(Boolean.class));
+        verify(communicationManager).sendMessageUnicast(messageCaptor.capture(),
+                eq(Key.class));
+        verify(communicationManager).sendMessageUnicast(messageCaptor.capture());
+
+        assertThat(messageCaptor.getAllValues().get(0).getMessageType()).isEqualTo(Protocol.PING);
+        assertThat(messageCaptor.getAllValues().get(0).getAddress().getDestination()).isEqualTo("hashSuccessor");
+        assertThat(messageCaptor.getAllValues().get(0).getAddress().getSource()).isEqualTo("hashSuccessor");
+        assertThat(messageCaptor.getAllValues().get(1).getMessageType()).isEqualTo(Protocol.GET_PREDECESSOR);
+        assertThat(messageCaptor.getAllValues().get(1).getAddress().getDestination()).isEqualTo("hashSuccessor");
+        assertThat(messageCaptor.getAllValues().get(1).getAddress().getSource()).isEqualTo("hashSuccessor");
+        assertThat(messageCaptor.getAllValues().get(2).getMessageType()).isEqualTo(Protocol.NOTIFY);
+        assertThat(messageCaptor.getAllValues().get(2).getAddress().getDestination()).isEqualTo("hashGetPredecessor");
+        assertThat(messageCaptor.getAllValues().get(2).getAddress().getSource()).isEqualTo("hashSuccessor");
+    }
+
+    @Test
+    public void stabilize_pingSuccessorNull_setNextSuccessor(){
+        Key successorNew = mock(Key.class);
+
+        when(successorList.getNextSuccessorAvailable()).thenReturn(successorNew);
+        when(communicationManager.sendMessageUnicast(anyObject(),
+                eq(Boolean.class))).thenReturn(null);
+
+        chordNode.stabilize();
+
+        assertThat(chordNode.getSuccessor()).isEqualTo(successorNew);
+
+        verify(successorList).setSuccessor(successorNew);
+        verify(fingersTable).setSuccessor(successorNew);
+    }
+
+    @Test
+    public void stabilize_pingSuccessorNull_bootUp(){
+        Key successorNew = null;
+        FingersTable fingersTable = mock(FingersTable.class);
+
+        when(successorList.getNextSuccessorAvailable()).thenReturn(successorNew);
+        doReturn(fingersTable).when(chordNode).newFingersTable();
+        doNothing().when(chordNode).bootUp();
+
+        chordNode.stabilize();
+
+        verify(chordNode).newFingersTable();
+        verify(chordNode).bootUp();
+    }
+
+    @Test
+    public void setSuccessor_set_newSuccessor(){
+        Key successorNew = mock(Key.class);
+
+        chordNode.setSuccessor(successorNew);
+
+        verify(successorList).setSuccessor(successorNew);
+        verify(fingersTable).setSuccessor(successorNew);
+    }
+
+    @Test
+    public void setPredecessor_predecessorNotEqualKey_setNewPredecessor(){
+        Key predecessorNew = mock(Key.class);
+
+        chordNode.setPredecessor(predecessorNew);
+
+        assertThat(chordNode.getPredecessor()).isEqualTo(predecessorNew);
+    }
+
+    @Test
+    public void setPredecessor_predecessorEqualKey_setNull(){
+        Key predecessorNew = mock(Key.class);
+
+        chordNode = new ChordNode(communicationManager, successor, predecessor, fingersTable, successorList, predecessorNew, observable);
+
+        chordNode.setPredecessor(predecessorNew);
 
         assertThat(chordNode.getPredecessor()).isNull();
+    }
+
+    @Test
+    public void leave_predecessorNotEqualKey_setNewPredecessor(){
+        Key[] keys = {mock(Key.class), mock(Key.class)};
+
+        when(key.getValue()).thenReturn("hashKey");
+        when(successorList.getKeyList()).thenReturn(keys);
+
+        Key[] keysResult = chordNode.leave();
+
+        verify(communicationManager).sendMessageUnicast(messageCaptor.capture());
+
+        assertThat(messageCaptor.getValue().getMessageType()).isEqualTo(Protocol.LEAVE);
+        assertThat(messageCaptor.getValue().getAddress().getDestination()).isEqualTo("hashKey");
+        assertThat(messageCaptor.getValue().getAddress().getSource()).isEqualTo("hashKey");
+
+        assertThat(keysResult).isEqualTo(keys);
     }
 }
