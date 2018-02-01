@@ -85,6 +85,13 @@ public class FingersTable {
 		this.fingersTable = new Key[size];
 	}
 
+	FingersTable(Key[] fingersTable, ChordNode chordNode, int next, int size) {
+		this.fingersTable = fingersTable;
+		this.chordNode = chordNode;
+		this.next = next;
+		this.size = size;
+	}
+
 	/**
 	 * Find the closest key in its fingers list that is before a given key.
 	 * 
@@ -150,7 +157,7 @@ public class FingersTable {
 	 *            Node's key
 	 * @return {@link Key} The key to be test in the fingers table.
 	 */
-	private Key createNext(Key key) {
+	Key createNext(Key key) {
 		Key nextKey;
 		BigInteger nextValue;
 		BigInteger twoPow;

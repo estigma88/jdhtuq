@@ -5,14 +5,13 @@ import co.edu.uniquindio.utils.communication.Observable;
 import co.edu.uniquindio.utils.communication.message.MessageXML;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.hashing.Key;
-import com.sun.org.apache.xpath.internal.WhitespaceStrippingElementMatcher;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.anyObject;
@@ -118,7 +117,7 @@ public class ChordNodeTest {
     }
 
     @Test
-    public void notify_predecessorNotNullAndIsNotBetween_notNotify(){
+    public void notify_predecessorNotNullAndIsNotBetween_notNotify() {
         Key node = mock(Key.class);
 
         when(node.isBetween(predecessor, key)).thenReturn(false);
@@ -129,7 +128,7 @@ public class ChordNodeTest {
     }
 
     @Test
-    public void notify_predecessorIsNullAndNodeEqualKey_predecessorNull(){
+    public void notify_predecessorIsNullAndNodeEqualKey_predecessorNull() {
         Key node = key;
 
         chordNode = new ChordNode(communicationManager, successor, null, fingersTable, successorList, key, observable);
@@ -140,7 +139,7 @@ public class ChordNodeTest {
     }
 
     @Test
-    public void notify_predecessorIsNullIsBetweenAndNodeEqualKey_predecessorNull(){
+    public void notify_predecessorIsNullIsBetweenAndNodeEqualKey_predecessorNull() {
         Key node = key;
 
         when(node.isBetween(predecessor, key)).thenReturn(true);
@@ -151,7 +150,7 @@ public class ChordNodeTest {
     }
 
     @Test
-    public void notify_predecessorIsNullAndNodeNotEqualKey_predecessorNull(){
+    public void notify_predecessorIsNullAndNodeNotEqualKey_predecessorNull() {
         Key node = mock(Key.class);
 
         chordNode = new ChordNode(communicationManager, successor, null, fingersTable, successorList, key, observable);
@@ -168,7 +167,7 @@ public class ChordNodeTest {
     }
 
     @Test
-    public void notify_predecessorIsNotNullAndNodeNotEqualKey_predecessorNull(){
+    public void notify_predecessorIsNotNullAndNodeNotEqualKey_predecessorNull() {
         Key node = mock(Key.class);
 
         String[] message = new String[2];
@@ -186,7 +185,7 @@ public class ChordNodeTest {
     }
 
     @Test
-    public void checkPredecessor_predecessorIsNotNull_doNothing(){
+    public void checkPredecessor_predecessorIsNotNull_doNothing() {
         chordNode = new ChordNode(communicationManager, successor, null, fingersTable, successorList, key, observable);
 
         chordNode.checkPredecessor();
@@ -195,7 +194,7 @@ public class ChordNodeTest {
     }
 
     @Test
-    public void checkPredecessor_pingSuccess_predecessorNotNull(){
+    public void checkPredecessor_pingSuccess_predecessorNotNull() {
         when(communicationManager.sendMessageUnicast(anyObject(),
                 eq(Boolean.class))).thenReturn(true);
         when(predecessor.getValue()).thenReturn("hashPredecessor");
@@ -214,7 +213,7 @@ public class ChordNodeTest {
     }
 
     @Test
-    public void checkPredecessor_pingNoSuccess_predecessorNull(){
+    public void checkPredecessor_pingNoSuccess_predecessorNull() {
         when(communicationManager.sendMessageUnicast(anyObject(),
                 eq(Boolean.class))).thenReturn(null);
         when(predecessor.getValue()).thenReturn("hashPredecessor");
@@ -232,7 +231,7 @@ public class ChordNodeTest {
     }
 
     @Test
-    public void stabilize_pingSuccessorNotNullNotPredecessor_notifyChange(){
+    public void stabilize_pingSuccessorNotNullNotPredecessor_notifyChange() {
         Key getPredecessor = null;
 
         when(communicationManager.sendMessageUnicast(anyObject(),
@@ -267,7 +266,7 @@ public class ChordNodeTest {
     }
 
     @Test
-    public void stabilize_pingSuccessorNotNullGetPredecessorNotBetweenNotKey_notifyChange(){
+    public void stabilize_pingSuccessorNotNullGetPredecessorNotBetweenNotKey_notifyChange() {
         Key getPredecessor = mock(Key.class);
 
         when(communicationManager.sendMessageUnicast(anyObject(),
@@ -302,7 +301,7 @@ public class ChordNodeTest {
     }
 
     @Test
-    public void stabilize_pingSuccessorNotNullGetPredecessorIsBetweenNotKey_notifyChange(){
+    public void stabilize_pingSuccessorNotNullGetPredecessorIsBetweenNotKey_notifyChange() {
         Key getPredecessor = mock(Key.class);
 
         when(getPredecessor.isBetween(key, successor)).thenReturn(true);
@@ -338,7 +337,7 @@ public class ChordNodeTest {
     }
 
     @Test
-    public void stabilize_pingSuccessorNotNullGetPredecessorNotBetweenKeyEqual_notifyChange(){
+    public void stabilize_pingSuccessorNotNullGetPredecessorNotBetweenKeyEqual_notifyChange() {
         Key getPredecessor = mock(Key.class);
 
         chordNode = new ChordNode(communicationManager, successor, predecessor, fingersTable, successorList, successor, observable);
@@ -347,7 +346,6 @@ public class ChordNodeTest {
                 eq(Boolean.class))).thenReturn(true);
         when(successor.getValue()).thenReturn("hashSuccessor");
         when(getPredecessor.getValue()).thenReturn("hashGetPredecessor");
-        when(key.getValue()).thenReturn("hashKey");
         when(communicationManager.sendMessageUnicast(anyObject(),
                 eq(Key.class))).thenReturn(getPredecessor);
 
@@ -375,7 +373,7 @@ public class ChordNodeTest {
     }
 
     @Test
-    public void stabilize_pingSuccessorNull_setNextSuccessor(){
+    public void stabilize_pingSuccessorNull_setNextSuccessor() {
         Key successorNew = mock(Key.class);
 
         when(successorList.getNextSuccessorAvailable()).thenReturn(successorNew);
@@ -391,7 +389,7 @@ public class ChordNodeTest {
     }
 
     @Test
-    public void stabilize_pingSuccessorNull_bootUp(){
+    public void stabilize_pingSuccessorNull_bootUp() {
         Key successorNew = null;
         FingersTable fingersTable = mock(FingersTable.class);
 
@@ -406,7 +404,7 @@ public class ChordNodeTest {
     }
 
     @Test
-    public void setSuccessor_set_newSuccessor(){
+    public void setSuccessor_set_newSuccessor() {
         Key successorNew = mock(Key.class);
 
         chordNode.setSuccessor(successorNew);
@@ -416,7 +414,7 @@ public class ChordNodeTest {
     }
 
     @Test
-    public void setPredecessor_predecessorNotEqualKey_setNewPredecessor(){
+    public void setPredecessor_predecessorNotEqualKey_setNewPredecessor() {
         Key predecessorNew = mock(Key.class);
 
         chordNode.setPredecessor(predecessorNew);
@@ -425,7 +423,7 @@ public class ChordNodeTest {
     }
 
     @Test
-    public void setPredecessor_predecessorEqualKey_setNull(){
+    public void setPredecessor_predecessorEqualKey_setNull() {
         Key predecessorNew = mock(Key.class);
 
         chordNode = new ChordNode(communicationManager, successor, predecessor, fingersTable, successorList, predecessorNew, observable);
@@ -436,7 +434,7 @@ public class ChordNodeTest {
     }
 
     @Test
-    public void leave_predecessorNotEqualKey_setNewPredecessor(){
+    public void leave_predecessorNotEqualKey_setNewPredecessor() {
         Key[] keys = {mock(Key.class), mock(Key.class)};
 
         when(key.getValue()).thenReturn("hashKey");
