@@ -95,6 +95,12 @@ class NodeEnvironment implements Observer<Message> {
 				.getCommunicationManager(ChordNodeFactory.CHORD);
 	}
 
+	NodeEnvironment(CommunicationManager communicationManager, ChordNode chordNode, StableRing stableRing) {
+		this.communicationManager = communicationManager;
+		this.chordNode = chordNode;
+		this.stableRing = stableRing;
+	}
+
 	@Override
 	/**
 	 * This method is called when a new message has arrived.
@@ -414,4 +420,7 @@ class NodeEnvironment implements Observer<Message> {
 		return chordNode.getKey().getValue();
 	}
 
+	void setProcess(boolean process) {
+		this.process = process;
+	}
 }
