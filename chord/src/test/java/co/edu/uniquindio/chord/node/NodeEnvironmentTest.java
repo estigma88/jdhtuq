@@ -1,6 +1,8 @@
 package co.edu.uniquindio.chord.node;
 
 import co.edu.uniquindio.chord.protocol.Protocol;
+import co.edu.uniquindio.overlay.OverlayException;
+import co.edu.uniquindio.overlay.OverlayNodeFactory;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.MessageXML;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
@@ -9,7 +11,9 @@ import co.edu.uniquindio.utils.hashing.Key;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -19,16 +23,17 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
-@PrepareForTest(HashingGenerator.class)
+@PrepareForTest({HashingGenerator.class, OverlayNodeFactory.class})
 @RunWith(PowerMockRunner.class)
 public class NodeEnvironmentTest {
     @Mock
     private Key found;
     @Mock
     private Key key;
+    @Mock
+    private Key successor;
     @Mock
     private Message message;
     @Mock
@@ -47,9 +52,13 @@ public class NodeEnvironmentTest {
     private HashingGenerator hashingGenerator;
     @Mock
     private Key predecesor;
+    @Mock
+    private OverlayNodeFactory overlayNodeFactory;
+    @Mock
+    private SuccessorList successorList;
 
     @Before
-    public void before(){
+    public void before() {
         when(key.getValue()).thenReturn("key");
         when(chordNode.getKey()).thenReturn(key);
 
@@ -221,5 +230,103 @@ public class NodeEnvironmentTest {
         assertThat(messageCaptor.getValue().getAddress().getDestination()).isEqualTo("source");
         assertThat(messageCaptor.getValue().getAddress().getSource()).isEqualTo("key");
         assertThat(messageCaptor.getValue().getParam(Protocol.BootStrapResponseParams.NODE_FIND.name())).isEqualTo("key");
+    }
+
+    @Test
+    public void update_LEAVEMessageAndSuccessorEqualsKey_onlyDestroyNode() throws OverlayException {
+        mockStatic(OverlayNodeFactory.class);
+        when(OverlayNodeFactory.getInstance()).thenReturn(overlayNodeFactory);
+        when(message.getMessageSource()).thenReturn("source");
+        when(message.getType()).thenReturn(Protocol.LEAVE.getName());
+        when(chordNode.getSuccessor()).thenReturn(key);
+        when(chordNode.getKey()).thenReturn(key);
+
+        nodeEnvironment.update(message);
+
+        verify(stableRing).setRun(false);
+        verify(overlayNodeFactory).destroyNode("key");
+        verifyZeroInteractions(communicationManager);
+    }
+
+    @Test
+    public void update_LEAVEMessageAndSuccessorNotEqualsKey_nnotifyAndDestroyNode() throws OverlayException {
+        mockStatic(OverlayNodeFactory.class);
+        when(OverlayNodeFactory.getInstance()).thenReturn(overlayNodeFactory);
+        when(message.getMessageSource()).thenReturn("source");
+        when(message.getType()).thenReturn(Protocol.LEAVE.getName());
+        when(successor.getValue()).thenReturn("successor");
+        when(chordNode.getSuccessor()).thenReturn(successor);
+        when(predecesor.getValue()).thenReturn("predecesor");
+        when(chordNode.getPredecessor()).thenReturn(predecesor);
+        when(chordNode.getKey()).thenReturn(key);
+
+        nodeEnvironment.update(message);
+
+        verify(stableRing).setRun(false);
+        verify(overlayNodeFactory).destroyNode("key");
+
+        verify(communicationManager, times(2)).sendMessageUnicast(messageCaptor.capture());
+
+        assertThat(messageCaptor.getAllValues().get(0).getSendType()).isEqualTo(Message.SendType.REQUEST);
+        assertThat(messageCaptor.getAllValues().get(0).getMessageType()).isEqualTo(Protocol.SET_SUCCESSOR);
+        assertThat(messageCaptor.getAllValues().get(0).getAddress().getDestination()).isEqualTo("predecesor");
+        assertThat(messageCaptor.getAllValues().get(0).getAddress().getSource()).isEqualTo("key");
+        assertThat(messageCaptor.getAllValues().get(0).getParam(Protocol.SetSuccessorParams.SUCCESSOR.name())).isEqualTo("successor");
+
+        assertThat(messageCaptor.getAllValues().get(1).getSendType()).isEqualTo(Message.SendType.REQUEST);
+        assertThat(messageCaptor.getAllValues().get(1).getMessageType()).isEqualTo(Protocol.SET_PREDECESSOR);
+        assertThat(messageCaptor.getAllValues().get(1).getAddress().getDestination()).isEqualTo("successor");
+        assertThat(messageCaptor.getAllValues().get(1).getAddress().getSource()).isEqualTo("key");
+        assertThat(messageCaptor.getAllValues().get(1).getParam(Protocol.SetPredecessorParams.PREDECESSOR.name())).isEqualTo("predecesor");
+    }
+
+    @Test
+    public void update_SET_PREDECESSORMessage_changePredecesor() {
+        mockStatic(HashingGenerator.class);
+        when(HashingGenerator.getInstance()).thenReturn(hashingGenerator);
+
+        when(message.getMessageSource()).thenReturn("source");
+        when(message.getType()).thenReturn(Protocol.SET_PREDECESSOR.getName());
+        when(message.getParam(Protocol.SetPredecessorParams.PREDECESSOR.name())).thenReturn("predecesor");
+
+        nodeEnvironment.update(message);
+
+        verify(chordNode).setPredecessor(keyCaptor.capture());
+
+        assertThat(keyCaptor.getValue().getValue()).isEqualTo("predecesor");
+    }
+
+    @Test
+    public void update_SET_SUCCESSORMessage_changeSuccessor() {
+        mockStatic(HashingGenerator.class);
+        when(HashingGenerator.getInstance()).thenReturn(hashingGenerator);
+
+        when(message.getMessageSource()).thenReturn("source");
+        when(message.getType()).thenReturn(Protocol.SET_SUCCESSOR.getName());
+        when(message.getParam(Protocol.SetSuccessorParams.SUCCESSOR.name())).thenReturn("successor");
+
+        nodeEnvironment.update(message);
+
+        verify(chordNode).setSuccessor(keyCaptor.capture());
+
+        assertThat(keyCaptor.getValue().getValue()).isEqualTo("successor");
+    }
+
+    @Test
+    public void update_GET_SUCCESSOR_LISTMessageAndSourceNotEqualKey_responseBoostrap() {
+        when(message.getMessageSource()).thenReturn("source");
+        when(message.getType()).thenReturn(Protocol.GET_SUCCESSOR_LIST.getName());
+        when(successorList.toString()).thenReturn("successorList");
+        when(chordNode.getSuccessorList()).thenReturn(successorList);
+
+        nodeEnvironment.update(message);
+
+        verify(communicationManager).sendMessageUnicast(messageCaptor.capture());
+
+        assertThat(messageCaptor.getValue().getSendType()).isEqualTo(Message.SendType.RESPONSE);
+        assertThat(messageCaptor.getValue().getMessageType()).isEqualTo(Protocol.GET_SUCCESSOR_LIST_RESPONSE);
+        assertThat(messageCaptor.getValue().getAddress().getDestination()).isEqualTo("source");
+        assertThat(messageCaptor.getValue().getAddress().getSource()).isEqualTo("key");
+        assertThat(messageCaptor.getValue().getParam(Protocol.GetSuccessorListResponseParams.SUCCESSOR_LIST.name())).isEqualTo("successorList");
     }
 }
