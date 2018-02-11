@@ -68,6 +68,11 @@ public class ResourceManager {
 		this.name = name;
 	}
 
+	ResourceManager(Map<String, Resource> resources, String name) {
+		this.resources = resources;
+		this.name = name;
+	}
+
 	/**
 	 * Stores a new reference of a resource with its name.
 	 * 

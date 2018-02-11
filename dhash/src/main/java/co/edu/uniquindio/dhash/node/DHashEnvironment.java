@@ -86,6 +86,11 @@ public class DHashEnvironment implements Observer<Message> {
 				.getCommunicationManager(DHashNodeFactory.DHASH);
 	}
 
+	DHashEnvironment(CommunicationManager communicationManager, DHashNode dHashNode) {
+		this.communicationManager = communicationManager;
+		this.dHashNode = dHashNode;
+	}
+
 	/**
 	 * This method is called when a new message has arrived, and uses a
 	 * TransferManagerto receive the messages

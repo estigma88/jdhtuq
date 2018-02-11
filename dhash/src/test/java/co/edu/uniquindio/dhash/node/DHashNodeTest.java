@@ -247,4 +247,40 @@ public class DHashNodeTest {
         verify(resourceManager).deleteResources();
         verify(dhashNodeFactory).destroyNode("key");
     }
+
+    @Test
+    public void replicateData_neighborsListEqualReplicationFactor_replicateAll() throws ResourceAlreadyExistException, OverlayException {
+        when(overlayNode.getNeighborsList()).thenReturn(new Key[]{fileKey1, fileKey2, fileKey3});
+        doNothing().when(dHashNode).put(any(), any(), anyBoolean());
+
+        dHashNode.replicateData(serializableResource);
+
+        verify(dHashNode).put(serializableResource, fileKey1, false);
+        verify(dHashNode).put(serializableResource, fileKey2, false);
+        verify(dHashNode).put(serializableResource, fileKey3, false);
+    }
+
+    @Test
+    public void replicateData_neighborsListLessThanReplicationFactor_replicate2() throws ResourceAlreadyExistException, OverlayException {
+        when(overlayNode.getNeighborsList()).thenReturn(new Key[]{fileKey1, fileKey2});
+        doNothing().when(dHashNode).put(any(), any(), anyBoolean());
+
+        dHashNode.replicateData(serializableResource);
+
+        verify(dHashNode).put(serializableResource, fileKey1, false);
+        verify(dHashNode).put(serializableResource, fileKey2, false);
+    }
+
+    @Test
+    public void replicateData_neighborsListGreaterThanReplicationFactor_replicate3() throws ResourceAlreadyExistException, OverlayException {
+        when(overlayNode.getNeighborsList()).thenReturn(new Key[]{fileKey1, fileKey2, fileKey3, key});
+        doNothing().when(dHashNode).put(any(), any(), anyBoolean());
+
+        dHashNode.replicateData(serializableResource);
+
+        verify(dHashNode).put(serializableResource, fileKey1, false);
+        verify(dHashNode).put(serializableResource, fileKey2, false);
+        verify(dHashNode).put(serializableResource, fileKey3, false);
+        verify(dHashNode, times(0)).put(serializableResource, key, false);
+    }
 }
