@@ -104,6 +104,11 @@ public class DHashNodeFactory extends StorageNodeFactory {
 		DigestGenerator.load(DIGEST_CLASS);
 	}
 
+	DHashNodeFactory(CommunicationManager communicationManager, OverlayNodeFactory overlayNodeFactory) {
+		this.communicationManager = communicationManager;
+		this.overlayNodeFactory = overlayNodeFactory;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -142,15 +147,23 @@ public class DHashNodeFactory extends StorageNodeFactory {
 		DHashNode dhashNode;
 		DHashEnvironment dHashEnviroment;
 
-		dhashNode = new DHashNode(overlayNode, EscapeChars.forHTML(name, false));
+		dhashNode = getDhashNode(name, overlayNode);
 
-		dHashEnviroment = new DHashEnvironment(dhashNode);
+		dHashEnviroment = getdHashEnviroment(dhashNode);
 
 		communicationManager.addObserver(dHashEnviroment);
 
 		logger.debug("DHash Node " + name + " Created");
 
 		return dhashNode;
+	}
+
+	DHashEnvironment getdHashEnviroment(DHashNode dhashNode) {
+		return new DHashEnvironment(dhashNode);
+	}
+
+	DHashNode getDhashNode(String name, OverlayNode overlayNode) {
+		return new DHashNode(overlayNode, EscapeChars.forHTML(name, false));
 	}
 
 	/*
