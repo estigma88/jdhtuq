@@ -19,7 +19,7 @@
 package co.edu.uniquindio.dhash.node;
 
 import co.edu.uniquindio.utils.communication.Observer;
-import co.edu.uniquindio.utils.logger.LoggerDHT;
+import org.apache.log4j.Logger;
 
 /**
  * The <code>OverlayObserver</code> abstract class have methods for instanciate
@@ -38,7 +38,7 @@ public abstract class OverlayObserver implements Observer<Object> {
 	/**
 	 * Logger
 	 */
-	private static final LoggerDHT logger = LoggerDHT
+	private static final Logger logger = Logger
 			.getLogger(OverlayObserver.class);
 
 	/**

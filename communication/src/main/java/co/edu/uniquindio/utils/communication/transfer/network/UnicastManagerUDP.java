@@ -18,148 +18,142 @@
 
 package co.edu.uniquindio.utils.communication.transfer.network;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-
 import co.edu.uniquindio.utils.communication.message.MalformedMessageException;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.MessageXML;
 import co.edu.uniquindio.utils.communication.transfer.Communicator;
-import co.edu.uniquindio.utils.logger.LoggerDHT;
+import org.apache.log4j.Logger;
+
+import java.io.IOException;
+import java.net.*;
 
 /**
  * The <code>UnicastManagerUDP</code> class implemented transfer message based
  * in UDP
- * 
+ *
  * @author Daniel Pelaez
  * @version 1.0, 17/06/2010
  * @since 1.0
- * 
  */
 public class UnicastManagerUDP implements Communicator {
-	/**
-	 * Logger
-	 */
-	private static final LoggerDHT logger = LoggerDHT
-			.getLogger(UnicastManagerUDP.class);
-	/**
-	 * Is the {@code DatagramSocket} used for sending and receiving messages.
-	 */
-	private DatagramSocket datagramSocket;
+    /**
+     * Logger
+     */
+    private static final Logger logger = Logger
+            .getLogger(UnicastManagerUDP.class);
+    /**
+     * Is the {@code DatagramSocket} used for sending and receiving messages.
+     */
+    private DatagramSocket datagramSocket;
 
-	/**
-	 * Is the buffer used for the datagramSocket when reading a message.
-	 */
-	private long bufferSize;
+    /**
+     * Is the buffer used for the datagramSocket when reading a message.
+     */
+    private long bufferSize;
 
-	/**
-	 * Stores the value of the port used for the UDP communication.
-	 */
-	private int portUdp;
+    /**
+     * Stores the value of the port used for the UDP communication.
+     */
+    private int portUdp;
 
-	public UnicastManagerUDP(int portUdp, long bufferUdp) {
-		this.portUdp = portUdp;
-		this.bufferSize = bufferUdp;
+    public UnicastManagerUDP(int portUdp, long bufferUdp) {
+        this.portUdp = portUdp;
+        this.bufferSize = bufferUdp;
 
-		try {
-			this.datagramSocket = new DatagramSocket(portUdp);
-		} catch (SocketException e) {
-			logger.error("Error creating DatagramSocket", e);
-		}
-	}
+        try {
+            this.datagramSocket = new DatagramSocket(portUdp);
+        } catch (SocketException e) {
+            logger.error("Error creating DatagramSocket", e);
+        }
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * co.edu.uniquindio.utils.communication.transfer.Communicator#reciever()
-	 */
-	public Message reciever() {
-		DatagramPacket datagramPacket;
-		String string;
-		Message message;
-		byte[] buffer;
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * co.edu.uniquindio.utils.communication.transfer.Communicator#reciever()
+     */
+    public Message reciever() {
+        DatagramPacket datagramPacket;
+        String string;
+        Message message;
+        byte[] buffer;
 
-		buffer = new byte[(int) bufferSize];
+        buffer = new byte[(int) bufferSize];
 
-		datagramPacket = new DatagramPacket(buffer, buffer.length);
+        datagramPacket = new DatagramPacket(buffer, buffer.length);
 
-		try {
-			datagramSocket.receive(datagramPacket);
+        try {
+            datagramSocket.receive(datagramPacket);
 
-			string = new String(datagramPacket.getData(), 0, datagramPacket
-					.getLength());
+            string = new String(datagramPacket.getData(), 0, datagramPacket
+                    .getLength());
 
-			message = MessageXML.valueOf(string);
+            message = MessageXML.valueOf(string);
 
-			return message;
-		} catch (IOException e) {
-			logger.error("Error reading DatagramSocket", e);
-		} catch (MalformedMessageException e) {
-			logger.error("Error reading message", e);
-		}
+            return message;
+        } catch (IOException e) {
+            logger.error("Error reading DatagramSocket", e);
+        } catch (MalformedMessageException e) {
+            logger.error("Error reading message", e);
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * co.edu.uniquindio.utils.communication.transfer.Communicator#send(co.edu
-	 * .uniquindio.utils.communication.message.Message)
-	 */
-	public void send(Message message) {
-		InetAddress destinationAddress;
-		DatagramPacket datagramPacket;
-		String string;
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * co.edu.uniquindio.utils.communication.transfer.Communicator#send(co.edu
+     * .uniquindio.utils.communication.message.Message)
+     */
+    public void send(Message message) {
+        InetAddress destinationAddress;
+        DatagramPacket datagramPacket;
+        String string;
 
-		try {
-			destinationAddress = InetAddress.getByName(message.getMessageDestination());
+        try {
+            destinationAddress = InetAddress.getByName(message.getMessageDestination());
 
-			string = message.toString();
+            string = message.toString();
 
-			datagramPacket = new DatagramPacket(string.getBytes(), string
-					.length(), destinationAddress, portUdp);
+            datagramPacket = new DatagramPacket(string.getBytes(), string
+                    .length(), destinationAddress, portUdp);
 
-			datagramSocket.send(datagramPacket);
-		} catch (UnknownHostException e) {
-			logger.error("Error writting DatagramSocket", e);
-		} catch (IOException e) {
-			logger.error("Error writting DatagramSocket", e);
-		}
-	}
+            datagramSocket.send(datagramPacket);
+        } catch (UnknownHostException e) {
+            logger.error("Error writting DatagramSocket", e);
+        } catch (IOException e) {
+            logger.error("Error writting DatagramSocket", e);
+        }
+    }
 
-	/**
-	 * Gets port UDP
-	 * 
-	 * @return Port UDP
-	 */
-	public int getPortUdp() {
-		return portUdp;
-	}
+    /**
+     * Gets port UDP
+     *
+     * @return Port UDP
+     */
+    public int getPortUdp() {
+        return portUdp;
+    }
 
-	/**
-	 * Sets por UDP
-	 * 
-	 * @param portUdp
-	 *            Port UDP
-	 */
-	public void setPortUdp(int portUdp) {
-		this.portUdp = portUdp;
-	}
+    /**
+     * Sets por UDP
+     *
+     * @param portUdp Port UDP
+     */
+    public void setPortUdp(int portUdp) {
+        this.portUdp = portUdp;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see co.edu.uniquindio.utils.communication.transfer.Stoppable#stop()
-	 */
-	public void stop() {
-		datagramSocket.close();
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see co.edu.uniquindio.utils.communication.transfer.Stoppable#stop()
+     */
+    public void stop() {
+        datagramSocket.close();
+    }
 
 }

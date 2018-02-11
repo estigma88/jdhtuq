@@ -28,7 +28,7 @@ import co.edu.uniquindio.utils.communication.message.MessageXML;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerCache;
 import co.edu.uniquindio.utils.hashing.Key;
-import co.edu.uniquindio.utils.logger.LoggerDHT;
+import org.apache.log4j.Logger;
 
 /**
  * The <code>ChordNode</code> class represents a node in the Chord network. It
@@ -55,7 +55,7 @@ public class ChordNode implements Chord {
 	/**
 	 * Logger
 	 */
-	private static final LoggerDHT logger = LoggerDHT
+	private static final Logger logger = Logger
 			.getLogger(ChordNode.class);
 
 	/**
@@ -102,7 +102,7 @@ public class ChordNode implements Chord {
 	 *            identifier on ring.
 	 */
 	ChordNode(Key key) {
-		this.fingersTable = new FingersTable(this);
+		this.fingersTable = newFingersTable();
 		this.successorList = new SuccessorList(this);
 		this.key = key;
 		this.observable = new Observable<Object>();
@@ -111,6 +111,16 @@ public class ChordNode implements Chord {
 				.getCommunicationManager(ChordNodeFactory.CHORD);
 
 		logger.info("New ChordNode created = " + key);
+	}
+
+	ChordNode(CommunicationManager communicationManager, Key successor, Key predecessor, FingersTable fingersTable, SuccessorList successorList, Key key, Observable<Object> observable) {
+		this.communicationManager = communicationManager;
+		this.successor = successor;
+		this.predecessor = predecessor;
+		this.fingersTable = fingersTable;
+		this.successorList = successorList;
+		this.key = key;
+		this.observable = observable;
 	}
 
 	/**
@@ -225,7 +235,7 @@ public class ChordNode implements Chord {
 
 			observable.notifyMessage(message);
 
-			logger.fine("Node: '" + key.getValue()
+			logger.debug("Node: '" + key.getValue()
 					+ "' Predecessor changed for '" + predecessor.getValue());
 		}
 
@@ -239,7 +249,7 @@ public class ChordNode implements Chord {
 	 * Clear the node's predecessor pointer if <code>predecessor</code> has
 	 * failed.
 	 */
-	public void checkPredeccesor() {
+	public void checkPredecessor() {
 		if (predecessor == null) {
 			return;
 		}
@@ -261,10 +271,10 @@ public class ChordNode implements Chord {
 	 * Called periodically in {@link StableRing }.
 	 * 
 	 * Each time node <code>n</code> runs <code>stabilize</code>, it asks its
-	 * successor for the successor’s predecessor <code>x</code>, and decides
-	 * whether <code>x</code> should be n’s successor instead. This would be the
+	 * successor for the successorï¿½s predecessor <code>x</code>, and decides
+	 * whether <code>x</code> should be nï¿½s successor instead. This would be the
 	 * case if node <code>x</code> recently joined the system. In addition,
-	 * <code>stabilize</code> notifies node n’s successor of n’s existence,
+	 * <code>stabilize</code> notifies node nï¿½s successor of nï¿½s existence,
 	 * giving the successor the chance to change its predecessor to n. The
 	 * successor does this only if it knows of no closer predecessor than n.
 	 */
@@ -301,9 +311,9 @@ public class ChordNode implements Chord {
 				logger.error("Node: " + key.getValue()
 						+ ", successor list failed... new bootstrap");
 
-				fingersTable = new FingersTable(this);
+				fingersTable = newFingersTable();
 
-				BootStrap.boot(this);
+				bootUp();
 			}
 		} else {
 			/*
@@ -329,7 +339,7 @@ public class ChordNode implements Chord {
 					+ "' stabilized, its succesor is '" + successor.getValue()
 					+ "'");
 
-			logger.finest("Node '" + key.getValue() + "' Succesor list '"
+			logger.debug("Node '" + key.getValue() + "' Succesor list '"
 					+ successorList + "'");
 
 			notifyMessage = new MessageXML(Protocol.NOTIFY, successor
@@ -337,6 +347,14 @@ public class ChordNode implements Chord {
 
 			communicationManager.sendMessageUnicast(notifyMessage);
 		}
+	}
+
+	void bootUp() {
+		BootStrap.boot(this);
+	}
+
+	FingersTable newFingersTable() {
+		return new FingersTable(this);
 	}
 
 	/**

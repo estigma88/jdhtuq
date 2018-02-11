@@ -32,7 +32,7 @@ import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerCache;
 import co.edu.uniquindio.utils.hashing.HashingGenerator;
 import co.edu.uniquindio.utils.hashing.Key;
-import co.edu.uniquindio.utils.logger.LoggerDHT;
+import org.apache.log4j.Logger;
 
 /**
  * The <code>ChordNodeFactory</code> class creates nodes <code>ChordNode</code>.
@@ -52,7 +52,7 @@ public class ChordNodeFactory extends OverlayNodeFactory {
 	/**
 	 * Logger
 	 */
-	private static final LoggerDHT logger = LoggerDHT
+	private static final Logger logger = Logger
 			.getLogger(ChordNodeFactory.class);
 	
 	/**
@@ -111,6 +111,11 @@ public class ChordNodeFactory extends OverlayNodeFactory {
 
 	}
 
+	ChordNodeFactory(CommunicationManager communicationManager, Set<String> names) {
+		this.communicationManager = communicationManager;
+		this.names = names;
+	}
+
 	/**
 	 * Creates a ChordNode with a default name and starts the node.
 	 * 
@@ -150,14 +155,14 @@ public class ChordNodeFactory extends OverlayNodeFactory {
 			throw exception;
 		}
 
-		key = new Key(name);
-		nodeChord = new ChordNode(key);
+		key = getKey(name);
+		nodeChord = getNodeChord(key);
 
 		logger.info("Created node with name '" + nodeChord.getKey().getValue()
 				+ "' and hashing '" + nodeChord.getKey().getStringHashing()
 				+ "'");
 
-		nodeEnviroment = new NodeEnvironment(nodeChord);
+		nodeEnviroment = getNodeEnviroment(nodeChord);
 
 		communicationManager.addObserver(nodeEnviroment);
 
@@ -166,6 +171,18 @@ public class ChordNodeFactory extends OverlayNodeFactory {
 		nodeEnviroment.startStableRing();
 
 		return nodeChord;
+	}
+
+	Key getKey(String name) {
+		return new Key(name);
+	}
+
+	NodeEnvironment getNodeEnviroment(ChordNode nodeChord) {
+		return new NodeEnvironment(nodeChord);
+	}
+
+	ChordNode getNodeChord(Key key) {
+		return new ChordNode(key);
 	}
 
 	/**
@@ -187,5 +204,9 @@ public class ChordNodeFactory extends OverlayNodeFactory {
 	public OverlayNode createNode(InetAddress inetAddress)
 			throws ChordNodeFactoryException {
 		return createNode(inetAddress.getHostAddress());
+	}
+
+	Set<String> getNames() {
+		return names;
 	}
 }

@@ -27,7 +27,7 @@ import co.edu.uniquindio.storage.resource.Resource;
 import co.edu.uniquindio.storage.resource.ResourceException;
 import co.edu.uniquindio.storage.resource.SerializableResource;
 import co.edu.uniquindio.storage.resource.SerializableResource.ResourceParams;
-import co.edu.uniquindio.utils.logger.LoggerDHT;
+import org.apache.log4j.Logger;
 
 /**
  * The {@code ResourceManager} class is responsible for managing the resources
@@ -45,7 +45,7 @@ public class ResourceManager {
 	/**
 	 * Logger
 	 */
-	private static final LoggerDHT logger = LoggerDHT
+	private static final Logger logger = Logger
 			.getLogger(ResourceManager.class);
 
 	/**
@@ -61,11 +61,15 @@ public class ResourceManager {
 	/**
 	 * Is the constructor of the class. Sets the idDHashNode and creates the
 	 * paths where the files will be store.
-	 * 
-	 * @param idDHashNode
+	 *
 	 */
 	public ResourceManager(String name) {
 		this.resources = new HashMap<String, Resource>();
+		this.name = name;
+	}
+
+	ResourceManager(Map<String, Resource> resources, String name) {
+		this.resources = resources;
 		this.name = name;
 	}
 
@@ -110,7 +114,7 @@ public class ResourceManager {
 			logger.error("Error persist", e);
 		}
 
-		logger.fine("Resource in node: " + name + " " + resources.toString());
+		logger.debug("Resource in node: " + name + " " + resources.toString());
 
 		logger.info("Resource in node: " + name);
 	}
@@ -171,7 +175,7 @@ public class ResourceManager {
 
 				resource.delete(params);
 
-				logger.fine("Delete Resource: '" + resource.getKey() + "'");
+				logger.debug("Delete Resource: '" + resource.getKey() + "'");
 
 				return true;
 			} catch (ResourceException e) {

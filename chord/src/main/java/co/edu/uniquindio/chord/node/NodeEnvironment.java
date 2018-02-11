@@ -37,7 +37,7 @@ import co.edu.uniquindio.utils.communication.message.Message.SendType;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerCache;
 import co.edu.uniquindio.utils.hashing.Key;
-import co.edu.uniquindio.utils.logger.LoggerDHT;
+import org.apache.log4j.Logger;
 
 /**
  * The <code>NodeEnvironment</code> class is the node responsible for handling
@@ -57,7 +57,7 @@ class NodeEnvironment implements Observer<Message> {
 	/**
 	 * Logger
 	 */
-	private static final LoggerDHT logger = LoggerDHT
+	private static final Logger logger = Logger
 			.getLogger(NodeEnvironment.class);
 
 	/**
@@ -95,6 +95,12 @@ class NodeEnvironment implements Observer<Message> {
 				.getCommunicationManager(ChordNodeFactory.CHORD);
 	}
 
+	NodeEnvironment(CommunicationManager communicationManager, ChordNode chordNode, StableRing stableRing) {
+		this.communicationManager = communicationManager;
+		this.chordNode = chordNode;
+		this.stableRing = stableRing;
+	}
+
 	@Override
 	/**
 	 * This method is called when a new message has arrived.
@@ -103,7 +109,7 @@ class NodeEnvironment implements Observer<Message> {
 	 */
 	public void update(Message message) {
 
-		logger.finest("Message to '" + chordNode.getKey().getValue() + "', ["
+		logger.debug("Message to '" + chordNode.getKey().getValue() + "', ["
 				+ message.toString());
 
 		/*
@@ -414,4 +420,7 @@ class NodeEnvironment implements Observer<Message> {
 		return chordNode.getKey().getValue();
 	}
 
+	void setProcess(boolean process) {
+		this.process = process;
+	}
 }

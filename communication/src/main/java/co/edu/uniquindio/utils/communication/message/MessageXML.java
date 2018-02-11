@@ -23,26 +23,18 @@
 
 package co.edu.uniquindio.utils.communication.message;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Set;
+import org.apache.log4j.Logger;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
-import co.edu.uniquindio.utils.logger.LoggerDHT;
-import org.apache.log4j.Logger;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Set;
 
 /**
  * The <code>Message</code> class encapsulated all message to send. This class
@@ -94,7 +86,7 @@ public class MessageXML implements Message {
 	/**
 	 * Logger
 	 */
-	private static final Logger logger = LoggerDHT
+	private static final Logger logger = Logger
 			.getLogger(MessageXML.class);
 
 	/**

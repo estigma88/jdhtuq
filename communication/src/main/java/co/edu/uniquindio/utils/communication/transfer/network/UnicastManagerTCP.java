@@ -18,6 +18,12 @@
 
 package co.edu.uniquindio.utils.communication.transfer.network;
 
+import co.edu.uniquindio.utils.communication.message.MalformedMessageException;
+import co.edu.uniquindio.utils.communication.message.Message;
+import co.edu.uniquindio.utils.communication.message.MessageXML;
+import co.edu.uniquindio.utils.communication.transfer.Communicator;
+import org.apache.log4j.Logger;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -25,154 +31,145 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import co.edu.uniquindio.utils.communication.message.MalformedMessageException;
-import co.edu.uniquindio.utils.communication.message.Message;
-import co.edu.uniquindio.utils.communication.message.MessageXML;
-import co.edu.uniquindio.utils.communication.transfer.Communicator;
-import co.edu.uniquindio.utils.logger.LoggerDHT;
-
 /**
  * The <code>UnicastManagerTCP</code> class implemented transfer message based
  * in TCP
- * 
+ *
  * @author Daniel Pelaez
  * @version 1.0, 17/06/2010
  * @since 1.0
- * 
  */
 public class UnicastManagerTCP implements Communicator {
 
-	/**
-	 * Logger
-	 */
-	private static final LoggerDHT logger = LoggerDHT
-			.getLogger(UnicastManagerTCP.class);
+    /**
+     * Logger
+     */
+    private static final Logger logger = Logger
+            .getLogger(UnicastManagerTCP.class);
 
-	/**
-	 * The server socket that will be waiting for connection.
-	 */
-	private ServerSocket serverSocket;
+    /**
+     * The server socket that will be waiting for connection.
+     */
+    private ServerSocket serverSocket;
 
-	/**
-	 * The value of the port used to create the socket.
-	 */
-	private int portTcp;
+    /**
+     * The value of the port used to create the socket.
+     */
+    private int portTcp;
 
-	/**
-	 * Builds a UnicastManagerTCP
-	 * 
-	 * @param portTcp
-	 *            Port TCP number
-	 */
-	public UnicastManagerTCP(int portTcp) {
-		this.portTcp = portTcp;
+    /**
+     * Builds a UnicastManagerTCP
+     *
+     * @param portTcp Port TCP number
+     */
+    public UnicastManagerTCP(int portTcp) {
+        this.portTcp = portTcp;
 
-		try {
-			this.serverSocket = new ServerSocket(portTcp);
-		} catch (IOException e) {
-			logger.error("Error creating server socket", e);
-		}
-	}
+        try {
+            this.serverSocket = new ServerSocket(portTcp);
+        } catch (IOException e) {
+            logger.error("Error creating server socket", e);
+        }
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * co.edu.uniquindio.utils.communication.transfer.Communicator#reciever()
-	 */
-	public Message reciever() {
-		Socket socket = null;
-		String stringMessage;
-		Message message = null;
-		ObjectInputStream objectInputStream;
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * co.edu.uniquindio.utils.communication.transfer.Communicator#reciever()
+     */
+    public Message reciever() {
+        Socket socket = null;
+        String stringMessage;
+        Message message = null;
+        ObjectInputStream objectInputStream;
 
-		try {
-			socket = serverSocket.accept();
+        try {
+            socket = serverSocket.accept();
 
-			objectInputStream = new ObjectInputStream(socket.getInputStream());
-			stringMessage = (String) objectInputStream.readObject();
+            objectInputStream = new ObjectInputStream(socket.getInputStream());
+            stringMessage = (String) objectInputStream.readObject();
 
-			message = MessageXML.valueOf(stringMessage);
+            message = MessageXML.valueOf(stringMessage);
 
-		} catch (IOException e) {
-			logger.error("Error reading socket", e);
-		} catch (ClassNotFoundException e) {
-			logger.error("Error reading socket", e);
-		} catch (MalformedMessageException e) {
-			logger.error("Error reading message", e);
-		} finally {
-			try {
-				socket.close();
-			} catch (IOException e) {
-				logger.error("Error closed socket", e);
-			}
-		}
+        } catch (IOException e) {
+            logger.error("Error reading socket", e);
+        } catch (ClassNotFoundException e) {
+            logger.error("Error reading socket", e);
+        } catch (MalformedMessageException e) {
+            logger.error("Error reading message", e);
+        } finally {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                logger.error("Error closed socket", e);
+            }
+        }
 
-		return message;
-	}
+        return message;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * co.edu.uniquindio.utils.communication.transfer.Communicator#send(co.edu
-	 * .uniquindio.utils.communication.message.Message)
-	 */
-	public void send(Message message) {
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * co.edu.uniquindio.utils.communication.transfer.Communicator#send(co.edu
+     * .uniquindio.utils.communication.message.Message)
+     */
+    public void send(Message message) {
 
-		Socket socket = null;
-		try {
-			socket = new Socket(message.getMessageDestination(), portTcp);
+        Socket socket = null;
+        try {
+            socket = new Socket(message.getMessageDestination(), portTcp);
 
-			ObjectOutputStream objectOutputStream = new ObjectOutputStream(
-					socket.getOutputStream());
-			objectOutputStream.writeObject(message.toString());
-			objectOutputStream.flush();
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(
+                    socket.getOutputStream());
+            objectOutputStream.writeObject(message.toString());
+            objectOutputStream.flush();
 
-		} catch (UnknownHostException e) {
-			logger.error("Error writting socket", e);
-		} catch (IOException e) {
-			logger.error("Error writting socket", e);
-		} finally {
-			try {
-				socket.close();
-			} catch (IOException e) {
-				logger.error("Error closed socket", e);
-			}
-		}
+        } catch (UnknownHostException e) {
+            logger.error("Error writting socket", e);
+        } catch (IOException e) {
+            logger.error("Error writting socket", e);
+        } finally {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                logger.error("Error closed socket", e);
+            }
+        }
 
-	}
+    }
 
-	/**
-	 * Gets port TCP
-	 * 
-	 * @return Port TCP
-	 */
-	public int getPortTcp() {
-		return portTcp;
-	}
+    /**
+     * Gets port TCP
+     *
+     * @return Port TCP
+     */
+    public int getPortTcp() {
+        return portTcp;
+    }
 
-	/**
-	 * Sets port TCP
-	 * 
-	 * @param portTcp
-	 *            Port TCP
-	 */
-	public void setPortTcp(int portTcp) {
-		this.portTcp = portTcp;
-	}
+    /**
+     * Sets port TCP
+     *
+     * @param portTcp Port TCP
+     */
+    public void setPortTcp(int portTcp) {
+        this.portTcp = portTcp;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see co.edu.uniquindio.utils.communication.transfer.Stoppable#stop()
-	 */
-	public void stop() {
-		try {
-			serverSocket.close();
-		} catch (IOException e) {
-			logger.error("Error closed server socket", e);
-		}
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see co.edu.uniquindio.utils.communication.transfer.Stoppable#stop()
+     */
+    public void stop() {
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            logger.error("Error closed server socket", e);
+        }
+    }
 
 }

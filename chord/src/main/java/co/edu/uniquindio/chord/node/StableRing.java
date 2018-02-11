@@ -23,7 +23,7 @@ import co.edu.uniquindio.chord.node.command.CheckPredecessorCommand;
 import co.edu.uniquindio.chord.node.command.FixFingersCommand;
 import co.edu.uniquindio.chord.node.command.FixSuccessorsCommand;
 import co.edu.uniquindio.chord.node.command.StabilizeCommand;
-import co.edu.uniquindio.utils.logger.LoggerDHT;
+import org.apache.log4j.Logger;
 
 /**
  * The {@code StableRing} class is responsible for periodically execute commands
@@ -41,7 +41,7 @@ public class StableRing implements Runnable {
 	/**
 	 * Logger
 	 */
-	private static final LoggerDHT logger = LoggerDHT
+	private static final Logger logger = Logger
 			.getLogger(StableRing.class);
 
 	/**
@@ -57,7 +57,7 @@ public class StableRing implements Runnable {
 	/**
 	 * Determines the state of execution
 	 */
-	private boolean run;
+	private volatile boolean run;
 
 	/**
 	 * Is the command responsible for executing the method
@@ -67,7 +67,7 @@ public class StableRing implements Runnable {
 
 	/**
 	 * Is the command responsible for executing the method
-	 * <code>ChordNode.checkPredeccesor</code> on the chord node.
+	 * <code>ChordNode.checkPredecessor</code> on the chord node.
 	 */
 	private CheckPredecessorCommand checkPredecessorCommand;
 
@@ -98,27 +98,53 @@ public class StableRing implements Runnable {
 				.getStableRing();
 	}
 
+	StableRing(ChordNode node, long executeTime, boolean run) {
+		this.node = node;
+		this.executeTime = executeTime;
+		this.run = run;
+	}
+
 	/**
 	 * Executes all the commands periodically while <code>run==true</code>.
 	 */
 	public void run() {
 		while (run) {
-			stabilizeCommand = new StabilizeCommand(node);
-			checkPredecessorCommand = new CheckPredecessorCommand(node);
-			fixFingersCommand = new FixFingersCommand(node);
-			fixSuccessorsCommand = new FixSuccessorsCommand(node);
-
-			stabilizeCommand.execute();
-			checkPredecessorCommand.execute();
-			fixFingersCommand.execute();
-			fixSuccessorsCommand.execute();
-
-			try {
-				Thread.sleep(executeTime);
-			} catch (InterruptedException e) {
-				logger.fatal(e.getMessage(), e);
-			}
+			runCommands();
 		}
+	}
+
+	void runCommands() {
+		stabilizeCommand = getStabilizeCommand();
+		checkPredecessorCommand = getCheckPredecessorCommand();
+		fixFingersCommand = getFixFingersCommand();
+		fixSuccessorsCommand = getFixSuccessorsCommand();
+
+		stabilizeCommand.execute();
+		checkPredecessorCommand.execute();
+		fixFingersCommand.execute();
+		fixSuccessorsCommand.execute();
+
+		try {
+            Thread.sleep(executeTime);
+        } catch (InterruptedException e) {
+            logger.fatal(e.getMessage(), e);
+        }
+	}
+
+	FixSuccessorsCommand getFixSuccessorsCommand() {
+		return new FixSuccessorsCommand(node);
+	}
+
+	FixFingersCommand getFixFingersCommand() {
+		return new FixFingersCommand(node);
+	}
+
+	CheckPredecessorCommand getCheckPredecessorCommand() {
+		return new CheckPredecessorCommand(node);
+	}
+
+	StabilizeCommand getStabilizeCommand() {
+		return new StabilizeCommand(node);
 	}
 
 	/**

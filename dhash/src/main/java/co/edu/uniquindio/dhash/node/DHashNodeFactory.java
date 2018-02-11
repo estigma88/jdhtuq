@@ -32,7 +32,7 @@ import co.edu.uniquindio.utils.communication.configurations.CommunicationPropert
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerCache;
 import co.edu.uniquindio.utils.hashing.DigestGenerator;
-import co.edu.uniquindio.utils.logger.LoggerDHT;
+import org.apache.log4j.Logger;
 
 /**
  * The <code>DHashNodeFactory</code> class creates nodes for storage management
@@ -50,7 +50,7 @@ public class DHashNodeFactory extends StorageNodeFactory {
 	/**
 	 * Logger
 	 */
-	private static final LoggerDHT logger = LoggerDHT
+	private static final Logger logger = Logger
 			.getLogger(DHashNodeFactory.class);
 
 	/**
@@ -104,6 +104,11 @@ public class DHashNodeFactory extends StorageNodeFactory {
 		DigestGenerator.load(DIGEST_CLASS);
 	}
 
+	DHashNodeFactory(CommunicationManager communicationManager, OverlayNodeFactory overlayNodeFactory) {
+		this.communicationManager = communicationManager;
+		this.overlayNodeFactory = overlayNodeFactory;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -142,15 +147,23 @@ public class DHashNodeFactory extends StorageNodeFactory {
 		DHashNode dhashNode;
 		DHashEnvironment dHashEnviroment;
 
-		dhashNode = new DHashNode(overlayNode, EscapeChars.forHTML(name, false));
+		dhashNode = getDhashNode(name, overlayNode);
 
-		dHashEnviroment = new DHashEnvironment(dhashNode);
+		dHashEnviroment = getdHashEnviroment(dhashNode);
 
 		communicationManager.addObserver(dHashEnviroment);
 
-		logger.finest("DHash Node " + name + " Created");
+		logger.debug("DHash Node " + name + " Created");
 
 		return dhashNode;
+	}
+
+	DHashEnvironment getdHashEnviroment(DHashNode dhashNode) {
+		return new DHashEnvironment(dhashNode);
+	}
+
+	DHashNode getDhashNode(String name, OverlayNode overlayNode) {
+		return new DHashNode(overlayNode, EscapeChars.forHTML(name, false));
 	}
 
 	/*
