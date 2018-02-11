@@ -257,7 +257,7 @@ public class DHashNode implements StorageNode {
 	 *            Determines if the file will be replicated.
 	 * @throws ResourceAlreadyExistException
 	 */
-	private void put(Resource resource, Key lookupKey, boolean replicate)
+	void put(Resource resource, Key lookupKey, boolean replicate)
 			throws ResourceAlreadyExistException {
 
 		Message resourceCompareMessage;
@@ -316,7 +316,7 @@ public class DHashNode implements StorageNode {
 		for (String name : resourcesNames) {
 			Resource resource = objectManager.get(name);
 
-			Key fileKey = new Key(name);
+			Key fileKey = getFileKey(name);
 
 			if (!fileKey.isBetween(key, overlayNode.getKey())) {
 				put(resource, key, false);
@@ -326,6 +326,10 @@ public class DHashNode implements StorageNode {
 		}
 
 		logger.info("Files relocated: [" + filesRelocated + "]");
+	}
+
+	Key getFileKey(String name) {
+		return new Key(name);
 	}
 
 	/*

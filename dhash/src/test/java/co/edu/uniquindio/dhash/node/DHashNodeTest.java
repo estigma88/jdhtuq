@@ -4,8 +4,10 @@ import co.edu.uniquindio.dhash.protocol.Protocol;
 import co.edu.uniquindio.dhash.resource.ResourceAlreadyExistException;
 import co.edu.uniquindio.dhash.resource.ResourceManager;
 import co.edu.uniquindio.dhash.resource.ResourceNotFoundException;
+import co.edu.uniquindio.overlay.OverlayException;
 import co.edu.uniquindio.overlay.OverlayNode;
 import co.edu.uniquindio.storage.StorageException;
+import co.edu.uniquindio.storage.StorageNodeFactory;
 import co.edu.uniquindio.storage.resource.Resource;
 import co.edu.uniquindio.storage.resource.SerializableResource;
 import co.edu.uniquindio.utils.communication.message.BigMessage;
@@ -27,6 +29,8 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -34,7 +38,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
-@PrepareForTest({HashingGenerator.class, SerializableResource.class})
+@PrepareForTest({HashingGenerator.class, SerializableResource.class, DHashNodeFactory.class})
 @RunWith(PowerMockRunner.class)
 public class DHashNodeTest {
     @Rule
@@ -54,7 +58,21 @@ public class DHashNodeTest {
     @Mock
     private Key key;
     @Mock
+    private Key fileKey1;
+    @Mock
+    private Key fileKey2;
+    @Mock
+    private Key fileKey3;
+    @Mock
     private BigMessage bigMessage;
+    @Mock
+    private Resource resource1;
+    @Mock
+    private Resource resource2;
+    @Mock
+    private Resource resource3;
+    @Mock
+    private StorageNodeFactory dhashNodeFactory;
     @Captor
     private ArgumentCaptor<Key> keyCaptor;
     @Captor
@@ -71,7 +89,7 @@ public class DHashNodeTest {
         when(key.getValue()).thenReturn("key");
         when(key.getStringHashing()).thenReturn("key");
 
-        dHashNode = new DHashNode(communicationManager, overlayNode, resourceManager, 3, "dhash", overlayObserver);
+        dHashNode = spy(new DHashNode(communicationManager, overlayNode, resourceManager, 3, "dhash", overlayObserver));
     }
 
     @Test
@@ -171,5 +189,62 @@ public class DHashNodeTest {
         assertThat(bigMessageCaptor.getAllValues().get(0).getAddress().getSource()).isEqualTo("dhash");
         assertThat(bigMessageCaptor.getAllValues().get(0).getParam(Protocol.PutParams.RESOURCE_KEY.name())).isEqualTo("resourceKey");
         assertThat(bigMessageCaptor.getAllValues().get(0).getParam(Protocol.PutParams.REPLICATE.name())).isEqualTo("true");
+    }
+
+    @Test
+    public void relocateAllResources_put_relocate2() throws ResourceAlreadyExistException {
+        Set<String> resourcesNames = new HashSet<>();
+        resourcesNames.add("resource1");
+        resourcesNames.add("resource2");
+        resourcesNames.add("resource3");
+
+        Key relocateKey = mock(Key.class);
+
+        when(resourceManager.getResourcesNames()).thenReturn(resourcesNames);
+        when(resourceManager.get("resource1")).thenReturn(resource1);
+        when(resourceManager.get("resource2")).thenReturn(resource2);
+        when(resourceManager.get("resource3")).thenReturn(resource3);
+        when(overlayNode.getKey()).thenReturn(key);
+        doReturn(fileKey1).when(dHashNode).getFileKey("resource1");
+        doReturn(fileKey2).when(dHashNode).getFileKey("resource2");
+        doReturn(fileKey3).when(dHashNode).getFileKey("resource3");
+        when(fileKey1.isBetween(relocateKey, key)).thenReturn(false);
+        when(fileKey2.isBetween(relocateKey, key)).thenReturn(true);
+        when(fileKey3.isBetween(relocateKey, key)).thenReturn(false);
+        doNothing().when(dHashNode).put(any(), any(), anyBoolean());
+
+        dHashNode.relocateAllResources(relocateKey);
+
+        verify(dHashNode).put(resource1, relocateKey, false);
+        verify(dHashNode).put(resource3, relocateKey, false);
+        verify(dHashNode, times(0)).put(resource2, relocateKey, false);
+    }
+
+    @Test
+    public void leave_put_relocate2() throws StorageException, OverlayException {
+        mockStatic(StorageNodeFactory.class);
+        when(StorageNodeFactory.getInstance()).thenReturn(dhashNodeFactory);
+
+        Set<String> resourcesNames = new HashSet<>();
+        resourcesNames.add("resource1");
+        resourcesNames.add("resource2");
+        resourcesNames.add("resource3");
+
+        when(overlayNode.leave()).thenReturn(new Key[]{key, fileKey1, fileKey2});
+        when(overlayNode.getKey()).thenReturn(key);
+        when(key.getValue()).thenReturn("key");
+        when(resourceManager.getResourcesNames()).thenReturn(resourcesNames);
+        when(resourceManager.get("resource1")).thenReturn(resource1);
+        when(resourceManager.get("resource2")).thenReturn(resource2);
+        when(resourceManager.get("resource3")).thenReturn(resource3);
+        doNothing().when(dHashNode).put(any(), any(), anyBoolean());
+
+        dHashNode.leave();
+
+        verify(dHashNode).put(resource1, key, false);
+        verify(dHashNode).put(resource2, key, false);
+        verify(dHashNode).put(resource3, key, false);
+        verify(resourceManager).deleteResources();
+        verify(dhashNodeFactory).destroyNode("key");
     }
 }
