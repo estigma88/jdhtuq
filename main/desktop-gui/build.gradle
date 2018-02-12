@@ -8,6 +8,8 @@ repositories {
 version = '1.5.0'
 
 dependencies {
+    compile("org.springframework.boot:spring-boot-starter:1.5.10.RELEASE")
+
     compile project(':p2p:chord')
     compile project(':communication:socket-communication')
     compile project(':storage:storage-service')
