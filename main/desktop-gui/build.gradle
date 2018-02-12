@@ -8,11 +8,11 @@ repositories {
 version = '1.5.0'
 
 dependencies {
-    compile project(':chord')
-    compile project(':communication')
-    compile project(':storage-service')
-    compile project(':dhash')
-    compile project(':lookup-service')
+    compile project(':p2p:chord')
+    compile project(':communication:socket-communication')
+    compile project(':storage:storage-service')
+    compile project(':storage:dhash')
+    compile project(':p2p:lookup-service')
 }
 
 mainClassName = "co.edu.uniquindio.dht.Main"

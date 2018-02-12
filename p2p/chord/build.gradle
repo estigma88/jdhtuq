@@ -7,8 +7,8 @@ repositories {
 version = '1.0.3'
 
 dependencies {
-    compile project(':communication')
-    compile project(':lookup-service')
+    compile project(':communication:socket-communication')
+    compile project(':p2p:lookup-service')
 
     testCompile group: 'junit', name: 'junit', version: '4.4'
     compile 'org.mockito:mockito-core:2.8.9'
