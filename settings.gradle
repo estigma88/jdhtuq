@@ -1,8 +1,9 @@
 include 'p2p:chord'
+include 'p2p:lookup-service'
+include 'storage:dhash'
+include 'storage:storage-service'
 include 'communication:socket-communication'
 include 'main:desktop-gui'
-include 'storage:dhash'
-include 'p2p:lookup-service'
-include 'storage:storage-service'
-
+include 'main:starters:dhash-spring-boot-starter'
+include 'main:starters:chord-spring-boot-starter'
 rootProject.name = 'jdhtuq'

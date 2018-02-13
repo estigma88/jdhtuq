@@ -111,7 +111,7 @@ public class ChordNodeFactory extends OverlayNodeFactory {
 
 	}
 
-	ChordNodeFactory(CommunicationManager communicationManager, Set<String> names) {
+	public ChordNodeFactory(CommunicationManager communicationManager, Set<String> names) {
 		this.communicationManager = communicationManager;
 		this.names = names;
 	}

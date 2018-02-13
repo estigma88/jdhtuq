@@ -104,7 +104,7 @@ public class DHashNodeFactory extends StorageNodeFactory {
 		DigestGenerator.load(DIGEST_CLASS);
 	}
 
-	DHashNodeFactory(CommunicationManager communicationManager, OverlayNodeFactory overlayNodeFactory) {
+	public DHashNodeFactory(CommunicationManager communicationManager, OverlayNodeFactory overlayNodeFactory) {
 		this.communicationManager = communicationManager;
 		this.overlayNodeFactory = overlayNodeFactory;
 	}

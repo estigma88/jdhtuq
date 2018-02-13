@@ -1,0 +1,3 @@
+p2p:
+  dhash:
+    replication_amount: 1
