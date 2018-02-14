@@ -27,6 +27,7 @@ import co.edu.uniquindio.storage.StorageNode;
 import co.edu.uniquindio.storage.StorageNodeFactory;
 import co.edu.uniquindio.utils.communication.Observer;
 import co.edu.uniquindio.utils.communication.message.Message;
+import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerCache;
 
 //TODO Documentar
@@ -48,10 +49,18 @@ public class Controller implements Observer<Message> {
 	private boolean isFirstNode = true;
 	// TODO Documentar
 	private String selectedNode = "";
+	private StorageNodeFactory storageNodeFactory;
+	private CommunicationManager communicationManager;
 
 	// TODO Documentar
 	public Controller() {
 		dhdChordList = new ArrayList<DHDChord>();
+	}
+
+	public Controller(StorageNodeFactory storageNodeFactory, CommunicationManager communicationManager) {
+		this();
+		this.storageNodeFactory = storageNodeFactory;
+		this.communicationManager = communicationManager;
 	}
 
 	// TODO Documentar
@@ -102,18 +111,15 @@ public class Controller implements Observer<Message> {
 		try {
 			StorageNode dHash;
 			if (name.equals("")) {
-				dHash = StorageNodeFactory.getInstance(
-						NetworkWindow.DHASH_CLASS).createNode();
+				dHash = storageNodeFactory.createNode();
 			} else {
-				dHash = StorageNodeFactory.getInstance(
-						NetworkWindow.DHASH_CLASS).createNode(name);
+				dHash = storageNodeFactory.createNode(name);
 			}
 
 			if (isFirstNode) {
 				isFirstNode = false;
 
-				CommunicationManagerCache.getCommunicationManager(
-						ChordNodeFactory.CHORD).addObserver(this);
+				communicationManager.addObserver(this);
 			}
 
 			numOfNodes++;

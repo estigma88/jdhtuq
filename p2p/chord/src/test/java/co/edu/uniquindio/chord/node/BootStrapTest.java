@@ -55,7 +55,7 @@ public class BootStrapTest {
         when(key.getValue()).thenReturn("keyHash");
         when(communicationManager.sendMessageMultiCast(any(), eq(Key.class))).thenReturn(null);
 
-        BootStrap.boot(nodeChord);
+        BootStrap.boot(nodeChord, communicationManager);
 
         verify(nodeChord).createRing();
         verify(communicationManager).sendMessageMultiCast(messageCaptor.capture(),
@@ -76,7 +76,7 @@ public class BootStrapTest {
         when(key.getValue()).thenReturn("keyHash");
         when(communicationManager.sendMessageMultiCast(any(), eq(Key.class))).thenReturn(foundNode);
 
-        BootStrap.boot(nodeChord);
+        BootStrap.boot(nodeChord, communicationManager);
 
         verify(nodeChord).join(foundNode);
         verify(communicationManager).sendMessageMultiCast(messageCaptor.capture(),

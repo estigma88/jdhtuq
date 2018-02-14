@@ -1,5 +1,5 @@
 /*
- *  Chord project implement of lookup algorithm Chord 
+ *  Chord project implement of lookup algorithm Chord
  *  Copyright (C) 2010  Daniel Pelaez, Daniel Lopez, Hector Hurtado
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -14,14 +14,10 @@
  *
  *  You should have received a copy of the GNU Affero General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ *
  */
 
 package co.edu.uniquindio.chord.node;
-
-import java.net.InetAddress;
-import java.util.HashSet;
-import java.util.Set;
 
 import co.edu.uniquindio.chord.Chord;
 import co.edu.uniquindio.overlay.OverlayNode;
@@ -34,179 +30,179 @@ import co.edu.uniquindio.utils.hashing.HashingGenerator;
 import co.edu.uniquindio.utils.hashing.Key;
 import org.apache.log4j.Logger;
 
+import java.net.InetAddress;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * The <code>ChordNodeFactory</code> class creates nodes <code>ChordNode</code>.
  * Load properties file for communication called
  * chord_properties/communication.xml and initialized hashing class
- * 
+ *
  * @author Daniel Pelaez
  * @author Hector Hurtado
  * @author Daniel Lopez
  * @version 1.0, 17/06/2010
- * @since 1.0
  * @see Chord
  * @see ChordNode
+ * @since 1.0
  */
 public class ChordNodeFactory extends OverlayNodeFactory {
 
-	/**
-	 * Logger
-	 */
-	private static final Logger logger = Logger
-			.getLogger(ChordNodeFactory.class);
-	
-	/**
-	 * Communication manager
-	 */
-	private CommunicationManager communicationManager;
+    /**
+     * Logger
+     */
+    private static final Logger logger = Logger
+            .getLogger(ChordNodeFactory.class);
 
-	/**
-	 * Attribute that difine communication name
-	 */
-	public static final String CHORD = ChordNodeFactory.class.getName();
+    /**
+     * Communication manager
+     */
+    private CommunicationManager communicationManager;
 
-	/**
-	 * Qualified name of the class that handles hashing
-	 */
-	public static final String HASHING_CLASS = "co.edu.uniquindio.utils.hashing.HashingGeneratorImp";
+    /**
+     * Attribute that difine communication name
+     */
+    public static final String CHORD = ChordNodeFactory.class.getName();
 
-	/**
-	 * Attribute that define properties file communication
-	 */
-	private static final String COMMUNICATION_PROPERTIES = "resources/chord_properties/communication.xml";
+    /**
+     * Qualified name of the class that handles hashing
+     */
+    public static final String HASHING_CLASS = "co.edu.uniquindio.utils.hashing.HashingGeneratorImp";
 
-	/**
-	 * Allows to create a node with no specified name.
-	 */
-	private int nodeKey;
-	/**
-	 * List of names of the nodes created
-	 */
-	private Set<String> names;
+    /**
+     * Attribute that define properties file communication
+     */
+    private static final String COMMUNICATION_PROPERTIES = "resources/chord_properties/communication.xml";
 
-	/**
-	 * Returns the concrete factory created.
-	 * 
-	 * @return {@link ChordNodeFactory}
-	 * @throws ChordNodeFactoryException
-	 *             if there is an error when trying to instantiate the class of
-	 *             the concrete factory.
-	 */
-	public ChordNodeFactory() {
-		CommunicationProperties communicationProperties = null;
+    /**
+     * Allows to create a node with no specified name.
+     */
+    private int nodeKey;
+    /**
+     * List of names of the nodes created
+     */
+    private Set<String> names;
 
-		try {
-			communicationProperties = CommunicationProperties.load(
-					ChordNodeFactory.class, COMMUNICATION_PROPERTIES);
+    /**
+     * Returns the concrete factory created.
+     *
+     * @return {@link ChordNodeFactory}
+     * @throws ChordNodeFactoryException if there is an error when trying to instantiate the class of
+     *                                   the concrete factory.
+     */
+    public ChordNodeFactory() {
+        CommunicationProperties communicationProperties = null;
 
-			communicationManager=CommunicationManagerCache.createCommunicationManager(CHORD, communicationProperties);
+        try {
+            communicationProperties = CommunicationProperties.load(
+                    ChordNodeFactory.class, COMMUNICATION_PROPERTIES);
 
-		} catch (CommunicationPropertiesException e) {
-			logger.fatal("The communication properties is not load", e);
-		}
+            communicationManager = CommunicationManagerCache.createCommunicationManager(CHORD, communicationProperties);
 
-		HashingGenerator.load(HASHING_CLASS);
+        } catch (CommunicationPropertiesException e) {
+            logger.fatal("The communication properties is not load", e);
+        }
 
-		names = new HashSet<String>();
+        HashingGenerator.load(HASHING_CLASS);
 
-	}
+        names = new HashSet<String>();
 
-	public ChordNodeFactory(CommunicationManager communicationManager, Set<String> names) {
-		this.communicationManager = communicationManager;
-		this.names = names;
-	}
+    }
 
-	/**
-	 * Creates a ChordNode with a default name and starts the node.
-	 * 
-	 * @return {@link Chord}
-	 * @throws ChordNodeFactoryException
-	 * 
-	 */
-	public Chord createNode() throws ChordNodeFactoryException {
+    public ChordNodeFactory(CommunicationManager communicationManager, Set<String> names) {
+        this.communicationManager = communicationManager;
+        this.names = names;
+    }
 
-		nodeKey++;
-		while (names.contains(String.valueOf(nodeKey))) {
-			nodeKey++;
-		}
+    /**
+     * Creates a ChordNode with a default name and starts the node.
+     *
+     * @return {@link Chord}
+     * @throws ChordNodeFactoryException
+     */
+    public Chord createNode() throws ChordNodeFactoryException {
 
-		return createNode(String.valueOf(nodeKey));
-	}
+        nodeKey++;
+        while (names.contains(String.valueOf(nodeKey))) {
+            nodeKey++;
+        }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * co.edu.uniquindio.overlay.OverlayNodeFactory#createNode(java.lang.String)
-	 */
-	public Chord createNode(String name) throws ChordNodeFactoryException {
-		ChordNode nodeChord;
-		NodeEnvironment nodeEnviroment;
-		Key key;
+        return createNode(String.valueOf(nodeKey));
+    }
 
-		if (!names.contains(name)) {
-			names.add(name);
-		} else {
-			NameAlreadyInUseException exception = new NameAlreadyInUseException(
-					"The specified name is already being used");
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * co.edu.uniquindio.overlay.OverlayNodeFactory#createNode(java.lang.String)
+     */
+    public Chord createNode(String name) throws ChordNodeFactoryException {
+        ChordNode nodeChord;
+        NodeEnvironment nodeEnviroment;
+        Key key;
 
-			logger.fatal("The specified name is already being used", exception);
+        if (!names.contains(name)) {
+            names.add(name);
+        } else {
+            NameAlreadyInUseException exception = new NameAlreadyInUseException(
+                    "The specified name is already being used");
 
-			throw exception;
-		}
+            logger.fatal("The specified name is already being used", exception);
 
-		key = getKey(name);
-		nodeChord = getNodeChord(key);
+            throw exception;
+        }
 
-		logger.info("Created node with name '" + nodeChord.getKey().getValue()
-				+ "' and hashing '" + nodeChord.getKey().getStringHashing()
-				+ "'");
+        key = getKey(name);
+        nodeChord = getNodeChord(key);
 
-		nodeEnviroment = getNodeEnviroment(nodeChord);
+        logger.info("Created node with name '" + nodeChord.getKey().getValue()
+                + "' and hashing '" + nodeChord.getKey().getStringHashing()
+                + "'");
 
-		communicationManager.addObserver(nodeEnviroment);
+        nodeEnviroment = getNodeEnviroment(nodeChord);
 
-		BootStrap.boot(nodeChord);
+        communicationManager.addObserver(nodeEnviroment);
 
-		nodeEnviroment.startStableRing();
+        BootStrap.boot(nodeChord, communicationManager);
 
-		return nodeChord;
-	}
+        nodeEnviroment.startStableRing();
 
-	Key getKey(String name) {
-		return new Key(name);
-	}
+        return nodeChord;
+    }
 
-	NodeEnvironment getNodeEnviroment(ChordNode nodeChord) {
-		return new NodeEnvironment(nodeChord);
-	}
+    Key getKey(String name) {
+        return new Key(name);
+    }
 
-	ChordNode getNodeChord(Key key) {
-		return new ChordNode(key);
-	}
+    NodeEnvironment getNodeEnviroment(ChordNode nodeChord) {
+        return new NodeEnvironment(nodeChord, communicationManager);
+    }
 
-	/**
-	 * Removes the node form the ring.
-	 * 
-	 * @param key
-	 *            The key of the node that will be destroyed.
-	 * 
-	 */
-	public void destroyNode(String name) {
-		names.remove(name);
+    ChordNode getNodeChord(Key key) {
+        return new ChordNode(key, communicationManager);
+    }
 
-		communicationManager.removeObserver(name);
-	}
+    /**
+     * Removes the node form the ring.
+     *
+     * @param key The key of the node that will be destroyed.
+     */
+    public void destroyNode(String name) {
+        names.remove(name);
 
-	/**
-	 * Creates node from Internet Address
-	 */
-	public OverlayNode createNode(InetAddress inetAddress)
-			throws ChordNodeFactoryException {
-		return createNode(inetAddress.getHostAddress());
-	}
+        communicationManager.removeObserver(name);
+    }
 
-	Set<String> getNames() {
-		return names;
-	}
+    /**
+     * Creates node from Internet Address
+     */
+    public OverlayNode createNode(InetAddress inetAddress)
+            throws ChordNodeFactoryException {
+        return createNode(inetAddress.getHostAddress());
+    }
+
+    Set<String> getNames() {
+        return names;
+    }
 }

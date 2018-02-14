@@ -159,11 +159,11 @@ public class DHashNodeFactory extends StorageNodeFactory {
 	}
 
 	DHashEnvironment getdHashEnviroment(DHashNode dhashNode) {
-		return new DHashEnvironment(dhashNode);
+		return new DHashEnvironment(communicationManager, dhashNode);
 	}
 
 	DHashNode getDhashNode(String name, OverlayNode overlayNode) {
-		return new DHashNode(overlayNode, EscapeChars.forHTML(name, false));
+		return new DHashNode(overlayNode, EscapeChars.forHTML(name, false), communicationManager);
 	}
 
 	/*

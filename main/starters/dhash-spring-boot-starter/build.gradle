@@ -21,6 +21,7 @@ repositories {
 dependencies {
 	compile project(':storage:dhash')
 
+	compileOnly 'org.projectlombok:lombok:1.16.20'
 	compileOnly "org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}"
 	compile("org.springframework.boot:spring-boot-starter:${springBootVersion}")
 }

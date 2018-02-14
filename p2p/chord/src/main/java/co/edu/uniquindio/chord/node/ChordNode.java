@@ -113,6 +113,17 @@ public class ChordNode implements Chord {
 		logger.info("New ChordNode created = " + key);
 	}
 
+	ChordNode(Key key, CommunicationManager communicationManager) {
+		this.fingersTable = newFingersTable();
+		this.successorList = new SuccessorList(this, communicationManager);
+		this.key = key;
+		this.observable = new Observable<Object>();
+
+		this.communicationManager = communicationManager;
+
+		logger.info("New ChordNode created = " + key);
+	}
+
 	ChordNode(CommunicationManager communicationManager, Key successor, Key predecessor, FingersTable fingersTable, SuccessorList successorList, Key key, Observable<Object> observable) {
 		this.communicationManager = communicationManager;
 		this.successor = successor;
@@ -350,7 +361,7 @@ public class ChordNode implements Chord {
 	}
 
 	void bootUp() {
-		BootStrap.boot(this);
+		BootStrap.boot(this, communicationManager);
 	}
 
 	FingersTable newFingersTable() {

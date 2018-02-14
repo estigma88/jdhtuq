@@ -56,11 +56,12 @@ public class BootStrap {
 	 * if no other node was found, the method <code>ChordNode.createRing</code>
 	 * is called, plus initializes the first position of the fingers table with
 	 * the successor of the node.
-	 * 
+	 *
 	 * @param nodeChord
 	 *            node who will be added to the network.
+	 * @param communicationManager
 	 */
-	public static void boot(ChordNode nodeChord) {
+	public static void boot(ChordNode nodeChord, CommunicationManager communicationManager) {
 
 		logger.info("Search node...");
 
@@ -70,8 +71,7 @@ public class BootStrap {
 		bootStrapMessage = new MessageXML(Protocol.BOOTSTRAP, null, nodeChord
 				.getKey().getValue());
 
-		findNode = CommunicationManagerCache.getCommunicationManager(
-				ChordNodeFactory.CHORD).sendMessageMultiCast(bootStrapMessage,
+		findNode = communicationManager.sendMessageMultiCast(bootStrapMessage,
 				Key.class);
 
 		logger.info("Finish search node");
@@ -89,7 +89,7 @@ public class BootStrap {
 
 			if (nodeChord.getSuccessor() == null) {
 				/* If the join fails the boot is done again */
-				boot(nodeChord);
+				boot(nodeChord, communicationManager);
 			}
 		}
 

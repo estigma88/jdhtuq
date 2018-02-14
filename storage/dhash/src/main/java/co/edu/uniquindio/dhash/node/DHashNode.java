@@ -127,6 +127,19 @@ public class DHashNode implements StorageNode {
 				.getCommunicationManager(DHashNodeFactory.DHASH);
 	}
 
+	public DHashNode(OverlayNode overlayNode, String name, CommunicationManager communicationManager) {
+		this.overlayNode = overlayNode;
+		this.overlayObserver = OverlayObserver.getInstance(DHashProperties
+				.getInstance().getOverlay().getObserverClass());
+		this.overlayObserver.setDHashNode(this);
+		this.overlayNode.getObservable().addObserver(overlayObserver);
+		this.objectManager = new ResourceManager(name);
+		this.replicationFactor = DHashProperties.getInstance().getReplication()
+				.getAmount();
+		this.name = name;
+		this.communicationManager = communicationManager;
+	}
+
 	DHashNode(CommunicationManager communicationManager, OverlayNode overlayNode, ResourceManager objectManager, int replicationFactor, String name, OverlayObserver overlayObserver) {
 		this.communicationManager = communicationManager;
 		this.overlayNode = overlayNode;

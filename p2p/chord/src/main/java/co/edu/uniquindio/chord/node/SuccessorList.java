@@ -88,6 +88,14 @@ public class SuccessorList {
 				.getCommunicationManager(ChordNodeFactory.CHORD);
 	}
 
+	SuccessorList(ChordNode chordNode, CommunicationManager communicationManager) {
+		this.size = ChordProperties.getInstance().getSuccessorList()
+				.getAmount();
+		this.keyList = new Key[size];
+		this.chordNode = chordNode;
+		this.communicationManager = communicationManager;
+	}
+
 	SuccessorList(CommunicationManager communicationManager, Key[] keyList, int size, ChordNode chordNode) {
 		this.communicationManager = communicationManager;
 		this.keyList = keyList;

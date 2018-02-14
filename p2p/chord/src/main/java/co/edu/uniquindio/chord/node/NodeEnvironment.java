@@ -95,6 +95,13 @@ class NodeEnvironment implements Observer<Message> {
 				.getCommunicationManager(ChordNodeFactory.CHORD);
 	}
 
+	NodeEnvironment(ChordNode chordNode, CommunicationManager communicationManager) {
+
+		this.chordNode = chordNode;
+		this.stableRing = new StableRing(chordNode);
+		this.communicationManager = communicationManager;
+	}
+
 	NodeEnvironment(CommunicationManager communicationManager, ChordNode chordNode, StableRing stableRing) {
 		this.communicationManager = communicationManager;
 		this.chordNode = chordNode;

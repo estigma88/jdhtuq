@@ -70,7 +70,7 @@ public class ChordNodeFactoryTest {
         assertThat(node).isEqualTo(nodeChord);
 
         PowerMockito.verifyStatic(BootStrap.class);
-        BootStrap.boot(nodeChord);
+        BootStrap.boot(nodeChord, communicationManager);
 
         verify(communicationManager).addObserver(nodeEnviroment);
         verify(nodeEnviroment).startStableRing();
