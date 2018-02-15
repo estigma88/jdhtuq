@@ -7,6 +7,7 @@ import co.edu.uniquindio.utils.communication.transfer.network.CommunicationManag
 import co.edu.uniquindio.utils.communication.transfer.structure.CommunicationManagerStructure;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -28,7 +29,7 @@ public class ChordAutoconfiguration {
     @Bean
     @ConditionalOnMissingBean
     public OverlayNodeFactory overlayNodeFactory(@Qualifier("communicationManagerChord") CommunicationManager communicationManager) {
-        return new ChordNodeFactory(communicationManager, new HashSet<>());
+        return new ChordNodeFactory(communicationManager, new HashSet<>(), chordProperties.getStableRingTime(), chordProperties.getSuccessorListAmount());
     }
 
     @Bean("communicationManagerChord")

@@ -95,10 +95,10 @@ class NodeEnvironment implements Observer<Message> {
 				.getCommunicationManager(ChordNodeFactory.CHORD);
 	}
 
-	NodeEnvironment(ChordNode chordNode, CommunicationManager communicationManager) {
+	NodeEnvironment(ChordNode chordNode, CommunicationManager communicationManager, int stableRingTime) {
 
 		this.chordNode = chordNode;
-		this.stableRing = new StableRing(chordNode);
+		this.stableRing = new StableRing(chordNode, stableRingTime, true);
 		this.communicationManager = communicationManager;
 	}
 

@@ -75,9 +75,11 @@ public class SuccessorList {
 	/**
 	 * Is the constructor of the class. Sets the chord node and initializes the
 	 * key list with the size red from the configuration file.
-	 * 
+	 *
 	 * @param chordNode
 	 *            The reference of the chord node.
+	 * @param communicationManager
+	 * @param successorListAmount
 	 */
 	SuccessorList(ChordNode chordNode) {
 		this.size = ChordProperties.getInstance().getSuccessorList()
@@ -88,9 +90,8 @@ public class SuccessorList {
 				.getCommunicationManager(ChordNodeFactory.CHORD);
 	}
 
-	SuccessorList(ChordNode chordNode, CommunicationManager communicationManager) {
-		this.size = ChordProperties.getInstance().getSuccessorList()
-				.getAmount();
+	SuccessorList(ChordNode chordNode, CommunicationManager communicationManager, int successorListAmount) {
+		this.size = successorListAmount;
 		this.keyList = new Key[size];
 		this.chordNode = chordNode;
 		this.communicationManager = communicationManager;

@@ -1,5 +1,6 @@
 package co.edu.uniquindio.chord.starter;
 
 public enum CommunicationType {
-    DATA_STRUCTURE
+    DATA_STRUCTURE,
+    NETWORK
 }

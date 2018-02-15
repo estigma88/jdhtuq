@@ -1,14 +1,12 @@
 package co.edu.uniquindio.chord.starter;
 
-import lombok.Getter;
+import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.PropertySource;
 
-@PropertySource("classpath:chord.yaml")
 @ConfigurationProperties(prefix = "p2p.chord")
-@Getter
+@Data
 public class ChordProperties {
-    private int stableRingTime;
-    private int successorListAmount;
-    private CommunicationType communicationType;
+    private int stableRingTime = 2000;
+    private int successorListAmount = 3;
+    private CommunicationType communicationType = CommunicationType.NETWORK;
 }

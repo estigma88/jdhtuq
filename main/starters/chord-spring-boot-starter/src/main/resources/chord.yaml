@@ -1,5 +1,0 @@
-p2p:
-  chord:
-    stable_ring_time: 2000
-    successor_list_amount: 3
-    communication_type: DATA_STRUCTURE

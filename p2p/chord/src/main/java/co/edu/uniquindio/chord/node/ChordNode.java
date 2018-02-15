@@ -97,11 +97,13 @@ public class ChordNode implements Chord {
 	/**
 	 * Initialize a new {@link ChordNode } from its key, creating one fingers
 	 * table.
-	 * 
+	 *  @param stableRingTime
 	 * @param key
 	 *            identifier on ring.
+	 * @param communicationManager
+	 * @param successorListAmount
 	 */
-	ChordNode(Key key) {
+	ChordNode(Key key, CommunicationManager communicationManager) {
 		this.fingersTable = newFingersTable();
 		this.successorList = new SuccessorList(this);
 		this.key = key;
@@ -113,9 +115,9 @@ public class ChordNode implements Chord {
 		logger.info("New ChordNode created = " + key);
 	}
 
-	ChordNode(Key key, CommunicationManager communicationManager) {
+	ChordNode(Key key, CommunicationManager communicationManager, int successorListAmount) {
 		this.fingersTable = newFingersTable();
-		this.successorList = new SuccessorList(this, communicationManager);
+		this.successorList = new SuccessorList(this, communicationManager, successorListAmount);
 		this.key = key;
 		this.observable = new Observable<Object>();
 

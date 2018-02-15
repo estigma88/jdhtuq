@@ -55,6 +55,9 @@ public class ChordNodeFactory extends OverlayNodeFactory {
     private static final Logger logger = Logger
             .getLogger(ChordNodeFactory.class);
 
+    private int stableRingTime;
+    private int successorListAmount;
+
     /**
      * Communication manager
      */
@@ -110,9 +113,11 @@ public class ChordNodeFactory extends OverlayNodeFactory {
 
     }
 
-    public ChordNodeFactory(CommunicationManager communicationManager, Set<String> names) {
+    public ChordNodeFactory(CommunicationManager communicationManager, Set<String> names, int stableRingTime, int successorListAmount) {
         this.communicationManager = communicationManager;
         this.names = names;
+        this.stableRingTime = stableRingTime;
+        this.successorListAmount = successorListAmount;
     }
 
     /**
@@ -176,11 +181,11 @@ public class ChordNodeFactory extends OverlayNodeFactory {
     }
 
     NodeEnvironment getNodeEnviroment(ChordNode nodeChord) {
-        return new NodeEnvironment(nodeChord, communicationManager);
+        return new NodeEnvironment(nodeChord, communicationManager, stableRingTime);
     }
 
     ChordNode getNodeChord(Key key) {
-        return new ChordNode(key, communicationManager);
+        return new ChordNode(key, communicationManager, successorListAmount);
     }
 
     /**

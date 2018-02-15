@@ -12,3 +12,5 @@
 .gradle/
 build/
 bin/
+
+dhash/
