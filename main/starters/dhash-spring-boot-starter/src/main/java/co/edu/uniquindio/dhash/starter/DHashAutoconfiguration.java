@@ -1,6 +1,12 @@
 package co.edu.uniquindio.dhash.starter;
 
 import co.edu.uniquindio.dhash.node.DHashNodeFactory;
+import co.edu.uniquindio.dhash.resource.ChecksumeCalculator;
+import co.edu.uniquindio.dhash.resource.PersistenceHandler;
+import co.edu.uniquindio.dhash.resource.SerializationHandler;
+import co.edu.uniquindio.dhash.resource.file.FileChecksumCalculator;
+import co.edu.uniquindio.dhash.resource.file.FilePersistenceHandler;
+import co.edu.uniquindio.dhash.resource.file.FileSerializationHandler;
 import co.edu.uniquindio.overlay.OverlayNodeFactory;
 import co.edu.uniquindio.storage.StorageNodeFactory;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
@@ -27,8 +33,8 @@ public class DHashAutoconfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public StorageNodeFactory storageNodeFactory(OverlayNodeFactory overlayNodeFactory, @Qualifier("communicationManagerDHash") CommunicationManager communicationManager) {
-        return new DHashNodeFactory(communicationManager, overlayNodeFactory);
+    public StorageNodeFactory storageNodeFactory(OverlayNodeFactory overlayNodeFactory, @Qualifier("communicationManagerDHash") CommunicationManager communicationManager, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, PersistenceHandler persistenceHandler) {
+        return new DHashNodeFactory(communicationManager, overlayNodeFactory, serializationHandler, checksumeCalculator, persistenceHandler);
     }
 
     @Bean("communicationManagerDHash")
@@ -57,5 +63,20 @@ public class DHashAutoconfiguration {
             havingValue = "NETWORK")
     public CommunicationManager communicationManagerTCP() {
         return new CommunicationManagerTCP();
+    }
+
+    @Bean
+    public SerializationHandler serializationHandler() {
+        return new FileSerializationHandler();
+    }
+
+    @Bean
+    public ChecksumeCalculator checksumeCalculator() {
+        return new FileChecksumCalculator();
+    }
+
+    @Bean
+    public PersistenceHandler persistenceHandler() {
+        return new FilePersistenceHandler();
     }
 }

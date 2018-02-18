@@ -18,9 +18,9 @@ import javax.swing.JPanel;
 
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.StorageNode;
-import co.edu.uniquindio.storage.resource.FileResource;
+import co.edu.uniquindio.dhash.resource.file.FileResource;
 import co.edu.uniquindio.storage.resource.Resource;
-import co.edu.uniquindio.storage.resource.SerializableResource.ResourceParams;
+import co.edu.uniquindio.dhash.resource.file.SerializableResource.ResourceParams;
 import co.edu.uniquindio.utils.EscapeChars;
 
 //TODO Documentar

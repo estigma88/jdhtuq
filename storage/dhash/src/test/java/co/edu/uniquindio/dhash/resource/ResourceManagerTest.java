@@ -1,8 +1,8 @@
 package co.edu.uniquindio.dhash.resource;
 
+import co.edu.uniquindio.dhash.resource.file.SerializableResource;
 import co.edu.uniquindio.storage.resource.Resource;
 import co.edu.uniquindio.storage.resource.ResourceException;
-import co.edu.uniquindio.storage.resource.SerializableResource;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

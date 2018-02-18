@@ -34,16 +34,14 @@ import co.edu.uniquindio.dhash.protocol.Protocol.PutParams;
 import co.edu.uniquindio.dhash.protocol.Protocol.ResourceCompareParams;
 import co.edu.uniquindio.dhash.protocol.Protocol.ResourceTransferParams;
 import co.edu.uniquindio.dhash.protocol.Protocol.ResourceTransferResponseData;
-import co.edu.uniquindio.dhash.resource.ResourceAlreadyExistException;
-import co.edu.uniquindio.dhash.resource.ResourceManager;
-import co.edu.uniquindio.dhash.resource.ResourceNotFoundException;
+import co.edu.uniquindio.dhash.resource.*;
 import co.edu.uniquindio.overlay.OverlayException;
 import co.edu.uniquindio.overlay.OverlayNode;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.StorageNode;
 import co.edu.uniquindio.storage.resource.Resource;
 import co.edu.uniquindio.storage.resource.ResourceException;
-import co.edu.uniquindio.storage.resource.SerializableResource;
+import co.edu.uniquindio.dhash.resource.file.SerializableResource;
 import co.edu.uniquindio.utils.communication.Observable;
 import co.edu.uniquindio.utils.communication.message.BigMessage;
 import co.edu.uniquindio.utils.communication.message.BigMessageXML;
@@ -103,11 +101,14 @@ public class DHashNode implements StorageNode {
 	 * Overlay observer
 	 */
 	private OverlayObserver overlayObserver;
+	private SerializationHandler serializationHandler;
+	private ChecksumeCalculator checksumeCalculator;
+	private PersistenceHandler persistenceHandler;
 
 	/**
 	 * The constructor of the class. Sets the reference of the dhtNode and
 	 * initializes the objectManager and the replicationFactor.
-	 * 
+	 *
 	 * @param overlayNode
 	 *            The reference of the dhtNode.
 	 * @param name
@@ -119,7 +120,7 @@ public class DHashNode implements StorageNode {
 				.getInstance().getOverlay().getObserverClass());
 		this.overlayObserver.setDHashNode(this);
 		this.overlayNode.getObservable().addObserver(overlayObserver);
-		this.objectManager = new ResourceManager(name);
+		this.objectManager = new ResourceManager(name, null);
 		this.replicationFactor = DHashProperties.getInstance().getReplication()
 				.getAmount();
 		this.name = name;
@@ -127,17 +128,19 @@ public class DHashNode implements StorageNode {
 				.getCommunicationManager(DHashNodeFactory.DHASH);
 	}
 
-	public DHashNode(OverlayNode overlayNode, String name, CommunicationManager communicationManager) {
+	public DHashNode(OverlayNode overlayNode, String name, CommunicationManager communicationManager, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, PersistenceHandler persistenceHandler) {
 		this.overlayNode = overlayNode;
 		this.overlayObserver = OverlayObserver.getInstance(DHashProperties
 				.getInstance().getOverlay().getObserverClass());
 		this.overlayObserver.setDHashNode(this);
 		this.overlayNode.getObservable().addObserver(overlayObserver);
-		this.objectManager = new ResourceManager(name);
+		this.objectManager = new ResourceManager(name, persistenceHandler);
 		this.replicationFactor = DHashProperties.getInstance().getReplication()
 				.getAmount();
 		this.name = name;
 		this.communicationManager = communicationManager;
+		this.serializationHandler = serializationHandler;
+		this.checksumeCalculator = checksumeCalculator;
 	}
 
 	DHashNode(CommunicationManager communicationManager, OverlayNode overlayNode, ResourceManager objectManager, int replicationFactor, String name, OverlayObserver overlayObserver) {
@@ -279,7 +282,7 @@ public class DHashNode implements StorageNode {
 		resourceCompareMessage = new MessageXML(Protocol.RESOURCE_COMPARE,
 				lookupKey.getValue(), name);
 		resourceCompareMessage.addParam(ResourceCompareParams.CHECK_SUM.name(),
-				resource.getCheckSum());
+				checksumeCalculator.calculate(resource));
 		resourceCompareMessage.addParam(ResourceCompareParams.RESOURCE_KEY
 				.name(), resource.getKey());
 
@@ -295,7 +298,7 @@ public class DHashNode implements StorageNode {
 		putMessage.addParam(PutParams.REPLICATE.name(), String
 				.valueOf(replicate));
 		putMessage
-				.addData(PutDatas.RESOURCE.name(), resource.getSerializable());
+				.addData(PutDatas.RESOURCE.name(), serializationHandler.serialization(resource));
 
 		communicationManager.sendBigMessage(putMessage);
 

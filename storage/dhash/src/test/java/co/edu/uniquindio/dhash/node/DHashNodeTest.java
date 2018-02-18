@@ -9,7 +9,7 @@ import co.edu.uniquindio.overlay.OverlayNode;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.StorageNodeFactory;
 import co.edu.uniquindio.storage.resource.Resource;
-import co.edu.uniquindio.storage.resource.SerializableResource;
+import co.edu.uniquindio.dhash.resource.file.SerializableResource;
 import co.edu.uniquindio.utils.communication.message.BigMessage;
 import co.edu.uniquindio.utils.communication.message.BigMessageXML;
 import co.edu.uniquindio.utils.communication.message.MessageXML;

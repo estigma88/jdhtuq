@@ -1,5 +1,5 @@
 /*
- *  DHash project implement a storage management 
+ *  DHash project implement a storage management
  *  Copyright (C) 2010  Daniel Pelaez, Daniel Lopez, Hector Hurtado
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -18,9 +18,10 @@
 
 package co.edu.uniquindio.dhash.node;
 
-import java.net.InetAddress;
-
 import co.edu.uniquindio.dhash.configurations.DHashProperties;
+import co.edu.uniquindio.dhash.resource.ChecksumeCalculator;
+import co.edu.uniquindio.dhash.resource.PersistenceHandler;
+import co.edu.uniquindio.dhash.resource.SerializationHandler;
 import co.edu.uniquindio.overlay.OverlayException;
 import co.edu.uniquindio.overlay.OverlayNode;
 import co.edu.uniquindio.overlay.OverlayNodeFactory;
@@ -34,195 +35,202 @@ import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerCache;
 import co.edu.uniquindio.utils.hashing.DigestGenerator;
 import org.apache.log4j.Logger;
 
+import java.net.InetAddress;
+
 /**
  * The <code>DHashNodeFactory</code> class creates nodes for storage management
- * 
+ *
  * @author Daniel Pelaez
  * @author Hector Hurtado
  * @author Daniel Lopez
  * @version 1.0, 17/06/2010
- * @since 1.0
  * @see StorageNode
  * @see DHashNode
+ * @since 1.0
  */
 public class DHashNodeFactory extends StorageNodeFactory {
 
-	/**
-	 * Logger
-	 */
-	private static final Logger logger = Logger
-			.getLogger(DHashNodeFactory.class);
+    /**
+     * Logger
+     */
+    private static final Logger logger = Logger
+            .getLogger(DHashNodeFactory.class);
 
-	/**
-	 * Communication manager
-	 */
-	private CommunicationManager communicationManager;
-	
-	/**
-	 * Qualified name of the class that handles digest
-	 */
-	private static final String DIGEST_CLASS = "co.edu.uniquindio.utils.hashing.DigestGeneratorImp";
+    /**
+     * Communication manager
+     */
+    private CommunicationManager communicationManager;
 
-	/**
-	 * Attribute that difine communication name
-	 */
-	public static final String DHASH = DHashNodeFactory.class.getName();
-	/**
-	 * Attribute that define properties file communication
-	 */
-	private static final String COMMUNICATION_PROPERTIES = "resources/dhash_properties/communication.xml";
+    /**
+     * Qualified name of the class that handles digest
+     */
+    private static final String DIGEST_CLASS = "co.edu.uniquindio.utils.hashing.DigestGeneratorImp";
 
-	/**
-	 * Overlay node factory to creates Overlay nodes
-	 */
-	private OverlayNodeFactory overlayNodeFactory;
+    /**
+     * Attribute that difine communication name
+     */
+    public static final String DHASH = DHashNodeFactory.class.getName();
+    /**
+     * Attribute that define properties file communication
+     */
+    private static final String COMMUNICATION_PROPERTIES = "resources/dhash_properties/communication.xml";
 
-	/**
-	 * Builds a DHashNodeFactory. Load a CommunicationProperties from
-	 * COMMUNICATION_PROPERTIES, initialized DigestGenerator from DIGEST_CLASS
-	 * and creates OverlayNodeFactory from property factory class in properties
-	 * file dhash.xml
-	 */
-	public DHashNodeFactory() {
-		CommunicationProperties communicationProperties = null;
+    /**
+     * Overlay node factory to creates Overlay nodes
+     */
+    private OverlayNodeFactory overlayNodeFactory;
+    private SerializationHandler serializationHandler;
+    private ChecksumeCalculator checksumeCalculator;
+    private PersistenceHandler persistenceHandler;
 
-		try {
-			communicationProperties = CommunicationProperties.load(
-					DHashNodeFactory.class, COMMUNICATION_PROPERTIES);
+    /**
+     * Builds a DHashNodeFactory. Load a CommunicationProperties from
+     * COMMUNICATION_PROPERTIES, initialized DigestGenerator from DIGEST_CLASS
+     * and creates OverlayNodeFactory from property factory class in properties
+     * file dhash.xml
+     */
+    public DHashNodeFactory() {
+        CommunicationProperties communicationProperties = null;
 
-			communicationManager=CommunicationManagerCache.createCommunicationManager(DHASH, communicationProperties);
+        try {
+            communicationProperties = CommunicationProperties.load(
+                    DHashNodeFactory.class, COMMUNICATION_PROPERTIES);
 
-			overlayNodeFactory = OverlayNodeFactory.getInstance(DHashProperties
-					.getInstance().getOverlay().getFactoryClass());
+            communicationManager = CommunicationManagerCache.createCommunicationManager(DHASH, communicationProperties);
 
-		} catch (CommunicationPropertiesException e) {
-			logger.fatal("The communication properties is not load", e);
-		} catch (OverlayException e) {
-			logger.fatal("The communication properties is not load", e);
-		}
+            overlayNodeFactory = OverlayNodeFactory.getInstance(DHashProperties
+                    .getInstance().getOverlay().getFactoryClass());
 
-		DigestGenerator.load(DIGEST_CLASS);
-	}
+        } catch (CommunicationPropertiesException e) {
+            logger.fatal("The communication properties is not load", e);
+        } catch (OverlayException e) {
+            logger.fatal("The communication properties is not load", e);
+        }
 
-	public DHashNodeFactory(CommunicationManager communicationManager, OverlayNodeFactory overlayNodeFactory) {
-		this.communicationManager = communicationManager;
-		this.overlayNodeFactory = overlayNodeFactory;
+        DigestGenerator.load(DIGEST_CLASS);
+    }
 
-		DigestGenerator.load(DIGEST_CLASS);
-	}
+    public DHashNodeFactory(CommunicationManager communicationManager, OverlayNodeFactory overlayNodeFactory, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, PersistenceHandler persistenceHandler) {
+        this.communicationManager = communicationManager;
+        this.overlayNodeFactory = overlayNodeFactory;
+        this.serializationHandler = serializationHandler;
+        this.checksumeCalculator = checksumeCalculator;
+        this.persistenceHandler = persistenceHandler;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * co.edu.uniquindio.storage.StorageNodeFactory#createNode(java.lang.String)
-	 */
-	public StorageNode createNode(String name) throws DHashFactoryException {
+        DigestGenerator.load(DIGEST_CLASS);
+    }
 
-		OverlayNode overlayNode;
-		DHashNode dhashNode;
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * co.edu.uniquindio.storage.StorageNodeFactory#createNode(java.lang.String)
+     */
+    public StorageNode createNode(String name) throws DHashFactoryException {
 
-		try {
-			overlayNode = overlayNodeFactory.createNode(name);
+        OverlayNode overlayNode;
+        DHashNode dhashNode;
 
-			dhashNode = createNode(name, overlayNode);
+        try {
+            overlayNode = overlayNodeFactory.createNode(name);
 
-		} catch (OverlayException e) {
-			throw new DHashFactoryException("Error creating overlay node", e);
-		}
+            dhashNode = createNode(name, overlayNode);
 
-		return dhashNode;
-	}
+        } catch (OverlayException e) {
+            throw new DHashFactoryException("Error creating overlay node", e);
+        }
 
-	/**
-	 * Creates dhash node by name and overlay node. The name is escaped using
-	 * <code>EscapeChars.forHTML</code>. Adds observer to the communication
-	 * 
-	 * @param name
-	 *            Node name
-	 * @param overlayNode
-	 *            Overlay node
-	 * @return DHash node
-	 */
-	private DHashNode createNode(String name, OverlayNode overlayNode) {
+        return dhashNode;
+    }
 
-		DHashNode dhashNode;
-		DHashEnvironment dHashEnviroment;
+    /**
+     * Creates dhash node by name and overlay node. The name is escaped using
+     * <code>EscapeChars.forHTML</code>. Adds observer to the communication
+     *
+     * @param name        Node name
+     * @param overlayNode Overlay node
+     * @return DHash node
+     */
+    private DHashNode createNode(String name, OverlayNode overlayNode) {
 
-		dhashNode = getDhashNode(name, overlayNode);
+        DHashNode dhashNode;
+        DHashEnvironment dHashEnviroment;
 
-		dHashEnviroment = getdHashEnviroment(dhashNode);
+        dhashNode = getDhashNode(name, overlayNode);
 
-		communicationManager.addObserver(dHashEnviroment);
+        dHashEnviroment = getdHashEnviroment(dhashNode);
 
-		logger.debug("DHash Node " + name + " Created");
+        communicationManager.addObserver(dHashEnviroment);
 
-		return dhashNode;
-	}
+        logger.debug("DHash Node " + name + " Created");
 
-	DHashEnvironment getdHashEnviroment(DHashNode dhashNode) {
-		return new DHashEnvironment(communicationManager, dhashNode);
-	}
+        return dhashNode;
+    }
 
-	DHashNode getDhashNode(String name, OverlayNode overlayNode) {
-		return new DHashNode(overlayNode, EscapeChars.forHTML(name, false), communicationManager);
-	}
+    DHashEnvironment getdHashEnviroment(DHashNode dhashNode) {
+        return new DHashEnvironment(communicationManager, dhashNode, serializationHandler, checksumeCalculator);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see co.edu.uniquindio.storage.StorageNodeFactory#createNode()
-	 */
-	public StorageNode createNode() throws DHashFactoryException {
+    DHashNode getDhashNode(String name, OverlayNode overlayNode) {
+        return new DHashNode(overlayNode, EscapeChars.forHTML(name, false), communicationManager, serializationHandler, checksumeCalculator, persistenceHandler);
+    }
 
-		OverlayNode overlayNode;
-		DHashNode dhashNode;
+    /*
+     * (non-Javadoc)
+     *
+     * @see co.edu.uniquindio.storage.StorageNodeFactory#createNode()
+     */
+    public StorageNode createNode() throws DHashFactoryException {
 
-		try {
-			overlayNode = overlayNodeFactory.createNode();
+        OverlayNode overlayNode;
+        DHashNode dhashNode;
 
-			dhashNode = createNode(overlayNode.getKey().getValue(), overlayNode);
+        try {
+            overlayNode = overlayNodeFactory.createNode();
 
-		} catch (OverlayException e) {
-			throw new DHashFactoryException("Error creating overlay node", e);
-		}
+            dhashNode = createNode(overlayNode.getKey().getValue(), overlayNode);
 
-		return dhashNode;
-	}
+        } catch (OverlayException e) {
+            throw new DHashFactoryException("Error creating overlay node", e);
+        }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * co.edu.uniquindio.storage.StorageNodeFactory#createNode(java.net.InetAddress)
-	 */
-	public StorageNode createNode(InetAddress inetAddress)
-			throws DHashFactoryException {
-		OverlayNode overlayNode;
-		DHashNode dhashNode;
+        return dhashNode;
+    }
 
-		try {
-			overlayNode = overlayNodeFactory.createNode(inetAddress);
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * co.edu.uniquindio.storage.StorageNodeFactory#createNode(java.net.InetAddress)
+     */
+    public StorageNode createNode(InetAddress inetAddress)
+            throws DHashFactoryException {
+        OverlayNode overlayNode;
+        DHashNode dhashNode;
 
-			dhashNode = createNode(overlayNode.getKey().getValue(), overlayNode);
+        try {
+            overlayNode = overlayNodeFactory.createNode(inetAddress);
 
-		} catch (OverlayException e) {
-			throw new DHashFactoryException("Error creating overlay node", e);
-		}
+            dhashNode = createNode(overlayNode.getKey().getValue(), overlayNode);
 
-		return dhashNode;
-	}
+        } catch (OverlayException e) {
+            throw new DHashFactoryException("Error creating overlay node", e);
+        }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * co.edu.uniquindio.storage.StorageNodeFactory#destroyNode(java.lang.String)
-	 */
-	/**
-	 * Removed observer from communication
-	 */
-	public void destroyNode(String name) {
-		communicationManager.removeObserver(name);
-	}
+        return dhashNode;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * co.edu.uniquindio.storage.StorageNodeFactory#destroyNode(java.lang.String)
+     */
+
+    /**
+     * Removed observer from communication
+     */
+    public void destroyNode(String name) {
+        communicationManager.removeObserver(name);
+    }
 }

@@ -23,10 +23,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import co.edu.uniquindio.dhash.resource.file.SerializableResource;
 import co.edu.uniquindio.storage.resource.Resource;
 import co.edu.uniquindio.storage.resource.ResourceException;
-import co.edu.uniquindio.storage.resource.SerializableResource;
-import co.edu.uniquindio.storage.resource.SerializableResource.ResourceParams;
+import co.edu.uniquindio.dhash.resource.file.SerializableResource.ResourceParams;
 import org.apache.log4j.Logger;
 
 /**
@@ -57,15 +57,17 @@ public class ResourceManager {
 	 * Node name
 	 */
 	private String name;
+	private PersistenceHandler persistenceHandler;
 
 	/**
 	 * Is the constructor of the class. Sets the idDHashNode and creates the
 	 * paths where the files will be store.
 	 *
 	 */
-	public ResourceManager(String name) {
+	public ResourceManager(String name, PersistenceHandler persistenceHandler) {
 		this.resources = new HashMap<String, Resource>();
 		this.name = name;
+		this.persistenceHandler = persistenceHandler;
 	}
 
 	ResourceManager(Map<String, Resource> resources, String name) {
@@ -109,7 +111,7 @@ public class ResourceManager {
 			params.put(ResourceParams.MANAGER_NAME.name(), name);
 			params.put(ResourceParams.PERSIST_TYPE.name(), "put");
 
-			resource.persist(params);
+			persistenceHandler.persist(params, resource);
 		} catch (ResourceException e) {
 			logger.error("Error persist", e);
 		}
@@ -173,7 +175,7 @@ public class ResourceManager {
 				Map<String, Object> params = new HashMap<String, Object>();
 				params.put(ResourceParams.MANAGER_NAME.name(), name);
 
-				resource.delete(params);
+				persistenceHandler.delete(params, resource);
 
 				logger.debug("Delete Resource: '" + resource.getKey() + "'");
 
@@ -207,7 +209,7 @@ public class ResourceManager {
 			Resource resource = resources.get(name);
 
 			try {
-				resource.delete(params);
+				persistenceHandler.delete(params, resource);
 			} catch (ResourceException e) {
 				logger.warn("Resource not Delete for complet"
 						+ resource.getKey() + "'", e);
