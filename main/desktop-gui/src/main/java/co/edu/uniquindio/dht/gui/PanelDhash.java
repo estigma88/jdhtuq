@@ -16,11 +16,11 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import co.edu.uniquindio.dhash.resource.BytesResource;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.StorageNode;
-import co.edu.uniquindio.dhash.resource.file.FileResource;
 import co.edu.uniquindio.storage.resource.Resource;
-import co.edu.uniquindio.dhash.resource.file.SerializableResource.ResourceParams;
+import co.edu.uniquindio.dhash.resource.SerializableResource.ResourceParams;
 import co.edu.uniquindio.utils.EscapeChars;
 
 //TODO Documentar
@@ -106,7 +106,7 @@ public class PanelDhash extends JPanel implements ActionListener {
 						loadingBar.begin();
 
 						File fichero = fileChooser.getSelectedFile();
-						FileResource fileResource = new FileResource(fichero);
+						BytesResource fileResource = new BytesResource(fichero);
 						try {
 							getDHashNode().put(fileResource);
 						} catch (StorageException e1) {
@@ -144,8 +144,8 @@ public class PanelDhash extends JPanel implements ActionListener {
 						try {
 							Resource resource = getDHashNode().get(a);
 
-							if (resource instanceof FileResource) {
-								FileResource fileResource = (FileResource) resource;
+							if (resource instanceof BytesResource) {
+								BytesResource fileResource = (BytesResource) resource;
 
 								Map<String, Object> params = new HashMap<String, Object>();
 								params.put(ResourceParams.MANAGER_NAME.name(),

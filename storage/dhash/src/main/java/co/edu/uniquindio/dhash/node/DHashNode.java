@@ -35,13 +35,16 @@ import co.edu.uniquindio.dhash.protocol.Protocol.ResourceCompareParams;
 import co.edu.uniquindio.dhash.protocol.Protocol.ResourceTransferParams;
 import co.edu.uniquindio.dhash.protocol.Protocol.ResourceTransferResponseData;
 import co.edu.uniquindio.dhash.resource.*;
+import co.edu.uniquindio.dhash.resource.checksum.ChecksumeCalculator;
+import co.edu.uniquindio.dhash.resource.persistence.PersistenceHandler;
+import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
 import co.edu.uniquindio.overlay.OverlayException;
 import co.edu.uniquindio.overlay.OverlayNode;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.StorageNode;
 import co.edu.uniquindio.storage.resource.Resource;
 import co.edu.uniquindio.storage.resource.ResourceException;
-import co.edu.uniquindio.dhash.resource.file.SerializableResource;
+import co.edu.uniquindio.dhash.resource.SerializableResource;
 import co.edu.uniquindio.utils.communication.Observable;
 import co.edu.uniquindio.utils.communication.message.BigMessage;
 import co.edu.uniquindio.utils.communication.message.BigMessageXML;
@@ -298,7 +301,7 @@ public class DHashNode implements StorageNode {
 		putMessage.addParam(PutParams.REPLICATE.name(), String
 				.valueOf(replicate));
 		putMessage
-				.addData(PutDatas.RESOURCE.name(), serializationHandler.serialization(resource));
+				.addData(PutDatas.RESOURCE.name(), serializationHandler.encode(resource));
 
 		communicationManager.sendBigMessage(putMessage);
 

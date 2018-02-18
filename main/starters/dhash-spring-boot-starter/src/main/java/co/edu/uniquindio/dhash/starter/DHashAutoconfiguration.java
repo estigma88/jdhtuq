@@ -1,12 +1,12 @@
 package co.edu.uniquindio.dhash.starter;
 
 import co.edu.uniquindio.dhash.node.DHashNodeFactory;
-import co.edu.uniquindio.dhash.resource.ChecksumeCalculator;
-import co.edu.uniquindio.dhash.resource.PersistenceHandler;
-import co.edu.uniquindio.dhash.resource.SerializationHandler;
-import co.edu.uniquindio.dhash.resource.file.FileChecksumCalculator;
-import co.edu.uniquindio.dhash.resource.file.FilePersistenceHandler;
-import co.edu.uniquindio.dhash.resource.file.FileSerializationHandler;
+import co.edu.uniquindio.dhash.resource.checksum.ChecksumeCalculator;
+import co.edu.uniquindio.dhash.resource.persistence.PersistenceHandler;
+import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
+import co.edu.uniquindio.dhash.resource.checksum.BytesChecksumCalculator;
+import co.edu.uniquindio.dhash.resource.persistence.FilePersistenceHandler;
+import co.edu.uniquindio.dhash.resource.serialization.BytesSerializationHandler;
 import co.edu.uniquindio.overlay.OverlayNodeFactory;
 import co.edu.uniquindio.storage.StorageNodeFactory;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
@@ -67,12 +67,12 @@ public class DHashAutoconfiguration {
 
     @Bean
     public SerializationHandler serializationHandler() {
-        return new FileSerializationHandler();
+        return new BytesSerializationHandler();
     }
 
     @Bean
     public ChecksumeCalculator checksumeCalculator() {
-        return new FileChecksumCalculator();
+        return new BytesChecksumCalculator();
     }
 
     @Bean

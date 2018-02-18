@@ -19,9 +19,9 @@
 package co.edu.uniquindio.dhash.node;
 
 import co.edu.uniquindio.dhash.configurations.DHashProperties;
-import co.edu.uniquindio.dhash.resource.ChecksumeCalculator;
-import co.edu.uniquindio.dhash.resource.PersistenceHandler;
-import co.edu.uniquindio.dhash.resource.SerializationHandler;
+import co.edu.uniquindio.dhash.resource.checksum.ChecksumeCalculator;
+import co.edu.uniquindio.dhash.resource.persistence.PersistenceHandler;
+import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
 import co.edu.uniquindio.overlay.OverlayException;
 import co.edu.uniquindio.overlay.OverlayNode;
 import co.edu.uniquindio.overlay.OverlayNodeFactory;

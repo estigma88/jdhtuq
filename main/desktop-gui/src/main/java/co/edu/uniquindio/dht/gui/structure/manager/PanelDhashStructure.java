@@ -12,14 +12,14 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import co.edu.uniquindio.dhash.resource.BytesResource;
 import co.edu.uniquindio.dht.gui.LoadingBar;
 import co.edu.uniquindio.dht.gui.PanelDhash;
 import co.edu.uniquindio.dht.gui.structure.StructureWindow;
 import co.edu.uniquindio.dht.gui.structure.controller.Controller;
 import co.edu.uniquindio.storage.StorageException;
-import co.edu.uniquindio.dhash.resource.file.FileResource;
 import co.edu.uniquindio.storage.resource.Resource;
-import co.edu.uniquindio.dhash.resource.file.SerializableResource.ResourceParams;
+import co.edu.uniquindio.dhash.resource.SerializableResource.ResourceParams;
 import co.edu.uniquindio.utils.EscapeChars;
 
 @SuppressWarnings("serial")
@@ -50,7 +50,7 @@ public class PanelDhashStructure extends PanelDhash {
 
 						File fichero = fileChooser.getSelectedFile();
 
-						FileResource fileResource=new FileResource(fichero);
+						BytesResource fileResource=new BytesResource(fichero);
 						try {
 							getDHashNode().put(fileResource);
 
@@ -92,8 +92,8 @@ public class PanelDhashStructure extends PanelDhash {
 						try {
 							Resource resource=getDHashNode().get(a);
 							
-							if (resource instanceof FileResource) {
-								FileResource fileResource=(FileResource) resource;
+							if (resource instanceof BytesResource) {
+								BytesResource fileResource=(BytesResource) resource;
 								
 								Map<String, Object> params=new HashMap<String, Object>();
 								params.put(ResourceParams.MANAGER_NAME.name(), getDHashNode().getName()+"/gets/");

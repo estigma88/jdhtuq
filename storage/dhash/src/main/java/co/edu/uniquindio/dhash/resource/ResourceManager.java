@@ -23,10 +23,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import co.edu.uniquindio.dhash.resource.file.SerializableResource;
+import co.edu.uniquindio.dhash.resource.persistence.PersistenceHandler;
 import co.edu.uniquindio.storage.resource.Resource;
 import co.edu.uniquindio.storage.resource.ResourceException;
-import co.edu.uniquindio.dhash.resource.file.SerializableResource.ResourceParams;
+import co.edu.uniquindio.dhash.resource.SerializableResource.ResourceParams;
 import org.apache.log4j.Logger;
 
 /**

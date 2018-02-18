@@ -20,10 +20,10 @@ package co.edu.uniquindio.dhash.node;
 
 import co.edu.uniquindio.dhash.protocol.Protocol;
 import co.edu.uniquindio.dhash.protocol.Protocol.*;
-import co.edu.uniquindio.dhash.resource.ChecksumeCalculator;
+import co.edu.uniquindio.dhash.resource.checksum.ChecksumeCalculator;
 import co.edu.uniquindio.dhash.resource.ResourceAlreadyExistException;
-import co.edu.uniquindio.dhash.resource.SerializationHandler;
-import co.edu.uniquindio.dhash.resource.file.SerializableResource;
+import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
+import co.edu.uniquindio.dhash.resource.SerializableResource;
 import co.edu.uniquindio.overlay.OverlayException;
 import co.edu.uniquindio.storage.resource.Resource;
 import co.edu.uniquindio.utils.communication.Observer;
@@ -144,7 +144,7 @@ public class DHashEnvironment implements Observer<Message> {
                                     .name()));
 
             resourceTransferResponseMessage.addData(
-                    ResourceTransferResponseData.RESOURCE.name(), serializationHandler.serialization(resource));
+                    ResourceTransferResponseData.RESOURCE.name(), serializationHandler.encode(resource));
 
         } else {
 
