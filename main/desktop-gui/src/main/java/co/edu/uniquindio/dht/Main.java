@@ -71,8 +71,8 @@ public class Main {
 
     @Bean
     @Lazy
-    public NetworkWindow networkWindow() {
-        return new NetworkWindow();
+    public NetworkWindow networkWindow(StorageNodeFactory storageNodeFactory) {
+        return new NetworkWindow(storageNodeFactory);
     }
 }
 

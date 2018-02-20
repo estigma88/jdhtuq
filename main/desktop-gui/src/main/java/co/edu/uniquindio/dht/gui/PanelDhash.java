@@ -4,7 +4,7 @@ import co.edu.uniquindio.dhash.resource.InputStreamResource;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.StorageNode;
 import co.edu.uniquindio.storage.resource.Resource;
-import co.edu.uniquindio.utils.EscapeChars;
+import co.edu.uniquindio.dhash.utils.EscapeChars;
 
 import javax.swing.*;
 import java.awt.*;

@@ -42,7 +42,7 @@ public class DHashNodeFactoryTest {
     public void create_byName_nodeCreated() throws OverlayException, DHashFactoryException {
         when(overlayNodeFactory.createNode("node")).thenReturn(overlayNode);
         doReturn(dhashNode).when(dHashNodeFactory).getDhashNode("node", overlayNode, persistenceManager);
-        doReturn(dHashEnviroment).when(dHashNodeFactory).getdHashEnviroment(dhashNode, persistenceManager);
+        doReturn(dHashEnviroment).when(dHashNodeFactory).getDHashEnviroment(dhashNode, persistenceManager);
 
         StorageNode node = dHashNodeFactory.createNode("node");
 
@@ -57,7 +57,7 @@ public class DHashNodeFactoryTest {
         when(overlayNode.getKey()).thenReturn(key);
         when(key.getValue()).thenReturn("node");
         doReturn(dhashNode).when(dHashNodeFactory).getDhashNode("node", overlayNode, persistenceManager);
-        doReturn(dHashEnviroment).when(dHashNodeFactory).getdHashEnviroment(dhashNode, persistenceManager);
+        doReturn(dHashEnviroment).when(dHashNodeFactory).getDHashEnviroment(dhashNode, persistenceManager);
 
         StorageNode node = dHashNodeFactory.createNode();
 
@@ -72,7 +72,7 @@ public class DHashNodeFactoryTest {
         when(overlayNode.getKey()).thenReturn(key);
         when(key.getValue()).thenReturn("node");
         doReturn(dhashNode).when(dHashNodeFactory).getDhashNode("node", overlayNode, persistenceManager);
-        doReturn(dHashEnviroment).when(dHashNodeFactory).getdHashEnviroment(dhashNode, persistenceManager);
+        doReturn(dHashEnviroment).when(dHashNodeFactory).getDHashEnviroment(dhashNode, persistenceManager);
 
         StorageNode node = dHashNodeFactory.createNode(inetAddress);
 

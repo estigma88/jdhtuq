@@ -8,7 +8,7 @@ import co.edu.uniquindio.dht.gui.structure.StructureWindow;
 import co.edu.uniquindio.dht.gui.structure.controller.Controller;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.resource.Resource;
-import co.edu.uniquindio.utils.EscapeChars;
+import co.edu.uniquindio.dhash.utils.EscapeChars;
 
 import javax.swing.*;
 import java.awt.*;
@@ -49,8 +49,9 @@ public class PanelDhashStructure extends PanelDhash {
 
                         File fichero = fileChooser.getSelectedFile();
 
-                        try {
-                            InputStreamResource fileResource = new InputStreamResource(fichero.getName(), new FileInputStream(fichero));
+                        try(FileInputStream fileInputStream = new FileInputStream(fichero)){
+                            InputStreamResource fileResource = new InputStreamResource(fichero.getName(), fileInputStream);
+
                             getDHashNode().put(fileResource);
 
                             controller.setActionColor(true);
@@ -60,6 +61,11 @@ public class PanelDhashStructure extends PanelDhash {
                                     .getMessage() + " Velo aqui");
                             e1.printStackTrace();
                         } catch (FileNotFoundException e1) {
+                            loadingBar.end();
+                            JOptionPane.showMessageDialog(frame, e1
+                                    .getMessage() + " Velo aqui");
+                            e1.printStackTrace();
+                        } catch (IOException e1) {
                             loadingBar.end();
                             JOptionPane.showMessageDialog(frame, e1
                                     .getMessage() + " Velo aqui");

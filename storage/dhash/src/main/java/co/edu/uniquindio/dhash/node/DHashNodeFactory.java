@@ -18,22 +18,17 @@
 
 package co.edu.uniquindio.dhash.node;
 
-import co.edu.uniquindio.dhash.configurations.DHashProperties;
 import co.edu.uniquindio.dhash.resource.checksum.ChecksumeCalculator;
 import co.edu.uniquindio.dhash.resource.persistence.PersistenceManager;
 import co.edu.uniquindio.dhash.resource.persistence.PersistenceManagerFactory;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
+import co.edu.uniquindio.dhash.utils.EscapeChars;
 import co.edu.uniquindio.overlay.OverlayException;
 import co.edu.uniquindio.overlay.OverlayNode;
 import co.edu.uniquindio.overlay.OverlayNodeFactory;
 import co.edu.uniquindio.storage.StorageNode;
 import co.edu.uniquindio.storage.StorageNodeFactory;
-import co.edu.uniquindio.utils.EscapeChars;
-import co.edu.uniquindio.utils.communication.configurations.CommunicationProperties;
-import co.edu.uniquindio.utils.communication.configurations.CommunicationPropertiesException;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
-import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerCache;
-import co.edu.uniquindio.utils.hashing.DigestGenerator;
 import org.apache.log4j.Logger;
 
 import java.net.InetAddress;
@@ -49,7 +44,7 @@ import java.net.InetAddress;
  * @see DHashNode
  * @since 1.0
  */
-public class DHashNodeFactory extends StorageNodeFactory {
+public class DHashNodeFactory implements StorageNodeFactory {
 
     /**
      * Logger
@@ -57,68 +52,20 @@ public class DHashNodeFactory extends StorageNodeFactory {
     private static final Logger logger = Logger
             .getLogger(DHashNodeFactory.class);
 
-    /**
-     * Communication manager
-     */
+    private int replicationFactor;
     private CommunicationManager communicationManager;
-
-    /**
-     * Qualified name of the class that handles digest
-     */
-    private static final String DIGEST_CLASS = "co.edu.uniquindio.utils.hashing.DigestGeneratorImp";
-
-    /**
-     * Attribute that difine communication name
-     */
-    public static final String DHASH = DHashNodeFactory.class.getName();
-    /**
-     * Attribute that define properties file communication
-     */
-    private static final String COMMUNICATION_PROPERTIES = "resources/dhash_properties/communication.xml";
-
-    /**
-     * Overlay node factory to creates Overlay nodes
-     */
     private OverlayNodeFactory overlayNodeFactory;
     private SerializationHandler serializationHandler;
     private ChecksumeCalculator checksumeCalculator;
     private PersistenceManagerFactory persistenceManagerFactory;
 
-    /**
-     * Builds a DHashNodeFactory. Load a CommunicationProperties from
-     * COMMUNICATION_PROPERTIES, initialized DigestGenerator from DIGEST_CLASS
-     * and creates OverlayNodeFactory from property factory class in properties
-     * file dhash.xml
-     */
-    public DHashNodeFactory() {
-        CommunicationProperties communicationProperties = null;
-
-        try {
-            communicationProperties = CommunicationProperties.load(
-                    DHashNodeFactory.class, COMMUNICATION_PROPERTIES);
-
-            communicationManager = CommunicationManagerCache.createCommunicationManager(DHASH, communicationProperties);
-
-            overlayNodeFactory = OverlayNodeFactory.getInstance(DHashProperties
-                    .getInstance().getOverlay().getFactoryClass());
-
-        } catch (CommunicationPropertiesException e) {
-            logger.fatal("The communication properties is not load", e);
-        } catch (OverlayException e) {
-            logger.fatal("The communication properties is not load", e);
-        }
-
-        DigestGenerator.load(DIGEST_CLASS);
-    }
-
-    public DHashNodeFactory(CommunicationManager communicationManager, OverlayNodeFactory overlayNodeFactory, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, PersistenceManagerFactory persistenceManagerFactory) {
+    public DHashNodeFactory(CommunicationManager communicationManager, OverlayNodeFactory overlayNodeFactory, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, PersistenceManagerFactory persistenceManagerFactory, int replicationFactor) {
         this.communicationManager = communicationManager;
         this.overlayNodeFactory = overlayNodeFactory;
         this.serializationHandler = serializationHandler;
         this.checksumeCalculator = checksumeCalculator;
         this.persistenceManagerFactory = persistenceManagerFactory;
-
-        DigestGenerator.load(DIGEST_CLASS);
+        this.replicationFactor = replicationFactor;
     }
 
     /*
@@ -161,7 +108,11 @@ public class DHashNodeFactory extends StorageNodeFactory {
 
         dhashNode = getDhashNode(name, overlayNode, persistenceManager);
 
-        dHashEnviroment = getdHashEnviroment(dhashNode, persistenceManager);
+        ReAssignObserver reAssignObserver = getReAssignObserver(dhashNode);
+
+        overlayNode.getObservable().addObserver(reAssignObserver);
+
+        dHashEnviroment = getDHashEnviroment(dhashNode, persistenceManager);
 
         communicationManager.addObserver(dHashEnviroment);
 
@@ -170,12 +121,16 @@ public class DHashNodeFactory extends StorageNodeFactory {
         return dhashNode;
     }
 
-    DHashEnvironment getdHashEnviroment(DHashNode dhashNode, PersistenceManager persistenceManager) {
+    ReAssignObserver getReAssignObserver(DHashNode dhashNode) {
+        return new ReAssignObserver(dhashNode);
+    }
+
+    DHashEnvironment getDHashEnviroment(DHashNode dhashNode, PersistenceManager persistenceManager) {
         return new DHashEnvironment(communicationManager, dhashNode, serializationHandler, checksumeCalculator, persistenceManager);
     }
 
     DHashNode getDhashNode(String name, OverlayNode overlayNode, PersistenceManager persistenceManager) {
-        return new DHashNode(overlayNode, EscapeChars.forHTML(name, false), communicationManager, serializationHandler, checksumeCalculator, persistenceManager);
+        return new DHashNode(overlayNode, replicationFactor, EscapeChars.forHTML(name, false), communicationManager, serializationHandler, checksumeCalculator, persistenceManager);
     }
 
     /*
@@ -221,19 +176,5 @@ public class DHashNodeFactory extends StorageNodeFactory {
         }
 
         return dhashNode;
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * co.edu.uniquindio.storage.StorageNodeFactory#destroyNode(java.lang.String)
-     */
-
-    /**
-     * Removed observer from communication
-     */
-    public void destroyNode(String name) {
-        communicationManager.removeObserver(name);
     }
 }

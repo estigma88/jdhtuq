@@ -1,8 +1,8 @@
 package co.edu.uniquindio.dhash.starter;
 
 import co.edu.uniquindio.dhash.node.DHashNodeFactory;
-import co.edu.uniquindio.dhash.resource.checksum.InputStreamChecksumCalculator;
 import co.edu.uniquindio.dhash.resource.checksum.ChecksumeCalculator;
+import co.edu.uniquindio.dhash.resource.checksum.InputStreamChecksumCalculator;
 import co.edu.uniquindio.dhash.resource.persistence.FilePersistenceManagerFactory;
 import co.edu.uniquindio.dhash.resource.persistence.PersistenceManagerFactory;
 import co.edu.uniquindio.dhash.resource.serialization.InputStreamSerializationHandler;
@@ -34,7 +34,7 @@ public class DHashAutoconfiguration {
     @Bean
     @ConditionalOnMissingBean
     public StorageNodeFactory storageNodeFactory(OverlayNodeFactory overlayNodeFactory, @Qualifier("communicationManagerDHash") CommunicationManager communicationManager, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, PersistenceManagerFactory persistenceManagerFactory) {
-        return new DHashNodeFactory(communicationManager, overlayNodeFactory, serializationHandler, checksumeCalculator, persistenceManagerFactory);
+        return new DHashNodeFactory(communicationManager, overlayNodeFactory, serializationHandler, checksumeCalculator, persistenceManagerFactory, dHashProperties.getReplicationAmount());
     }
 
     @Bean("communicationManagerDHash")

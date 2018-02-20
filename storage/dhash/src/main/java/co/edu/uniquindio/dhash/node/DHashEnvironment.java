@@ -33,7 +33,6 @@ import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.Message.SendType;
 import co.edu.uniquindio.utils.communication.message.MessageXML;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
-import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerCache;
 import org.apache.log4j.Logger;
 
 /**
@@ -49,37 +48,14 @@ import org.apache.log4j.Logger;
  * @since 1.0
  */
 public class DHashEnvironment implements Observer<Message> {
-
-    /**
-     * Logger
-     */
     private static final Logger logger = Logger
             .getLogger(DHashEnvironment.class);
 
-    /**
-     * Communication manager
-     */
     private CommunicationManager communicationManager;
-
-    /**
-     * The references of the {@link DHashNode}.
-     */
     private DHashNode dHashNode;
     private SerializationHandler serializationHandler;
     private ChecksumeCalculator checksumeCalculator;
     private PersistenceManager persistenceManager;
-
-    /**
-     * Is the constructor of the class. Sets the {@link DHashNode} with the
-     * object that comes as parameter.
-     *
-     * @param dHashNode The object that will be set.
-     */
-    public DHashEnvironment(DHashNode dHashNode) {
-        this.dHashNode = dHashNode;
-        this.communicationManager = CommunicationManagerCache
-                .getCommunicationManager(DHashNodeFactory.DHASH);
-    }
 
     DHashEnvironment(CommunicationManager communicationManager, DHashNode dHashNode, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, PersistenceManager persistenceManager) {
         this.communicationManager = communicationManager;

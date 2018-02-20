@@ -23,7 +23,6 @@
 
 package co.edu.uniquindio.dhash.node;
 
-import co.edu.uniquindio.dhash.configurations.DHashProperties;
 import co.edu.uniquindio.dhash.protocol.Protocol;
 import co.edu.uniquindio.dhash.protocol.Protocol.*;
 import co.edu.uniquindio.dhash.resource.ResourceAlreadyExistException;
@@ -43,7 +42,6 @@ import co.edu.uniquindio.utils.communication.message.BigMessageXML;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.MessageXML;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
-import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerCache;
 import co.edu.uniquindio.utils.hashing.Key;
 import org.apache.log4j.Logger;
 
@@ -60,84 +58,25 @@ import java.util.Set;
  * @since 1.0
  */
 public class DHashNode implements StorageNode {
-
-    /**
-     * Logger
-     */
     private static final Logger logger = Logger
             .getLogger(DHashNode.class);
 
-    /**
-     * Communication manager
-     */
     private CommunicationManager communicationManager;
-
-    /**
-     * this is the reference of the dht node that will be used for the dhash
-     * node.
-     */
     private OverlayNode overlayNode;
-
-    /**
-     * This is the value of the number of copies in the successors made from a
-     * PUT.
-     */
     private int replicationFactor;
-
-    /**
-     * Node name
-     */
     private String name;
-
-    /**
-     * Overlay observer
-     */
-    private OverlayObserver overlayObserver;
     private SerializationHandler serializationHandler;
     private ChecksumeCalculator checksumeCalculator;
     private PersistenceManager persistenceManager;
 
-    /**
-     * The constructor of the class. Sets the reference of the dhtNode and
-     * initializes the objectManager and the replicationFactor.
-     *
-     * @param overlayNode The reference of the dhtNode.
-     * @param name        The name of the node.
-     */
-    public DHashNode(OverlayNode overlayNode, String name) {
+    public DHashNode(OverlayNode overlayNode, int replicationFactor, String name, CommunicationManager communicationManager, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, PersistenceManager persistenceManager) {
         this.overlayNode = overlayNode;
-        this.overlayObserver = OverlayObserver.getInstance(DHashProperties
-                .getInstance().getOverlay().getObserverClass());
-        this.overlayObserver.setDHashNode(this);
-        this.overlayNode.getObservable().addObserver(overlayObserver);
-        this.replicationFactor = DHashProperties.getInstance().getReplication()
-                .getAmount();
-        this.name = name;
-        this.communicationManager = CommunicationManagerCache
-                .getCommunicationManager(DHashNodeFactory.DHASH);
-    }
-
-    public DHashNode(OverlayNode overlayNode, String name, CommunicationManager communicationManager, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, PersistenceManager persistenceManager) {
-        this.overlayNode = overlayNode;
-        this.overlayObserver = OverlayObserver.getInstance(DHashProperties
-                .getInstance().getOverlay().getObserverClass());
-        this.overlayObserver.setDHashNode(this);
-        this.overlayNode.getObservable().addObserver(overlayObserver);
-        this.replicationFactor = DHashProperties.getInstance().getReplication()
-                .getAmount();
+        this.replicationFactor = replicationFactor;
         this.name = name;
         this.communicationManager = communicationManager;
         this.serializationHandler = serializationHandler;
         this.checksumeCalculator = checksumeCalculator;
         this.persistenceManager = persistenceManager;
-    }
-
-    DHashNode(CommunicationManager communicationManager, OverlayNode overlayNode, int replicationFactor, String name, OverlayObserver overlayObserver) {
-        this.communicationManager = communicationManager;
-        this.overlayNode = overlayNode;
-        this.replicationFactor = replicationFactor;
-        this.name = name;
-        this.overlayObserver = overlayObserver;
     }
 
     /*
@@ -339,14 +278,7 @@ public class DHashNode implements StorageNode {
 
             persistenceManager.deleteAll();
 
-            DHashNodeFactory.getInstance().destroyNode(
-                    overlayNode.getKey().getValue());
-
-        } catch (DHashFactoryException e) {
-            logger.error("Error while leaving dhash node: '"
-                    + overlayNode.getKey().toString() + "'");
-            logger.fatal("Error while leaving dhash node: '"
-                    + overlayNode.getKey().toString() + "'", e);
+            communicationManager.removeObserver(overlayNode.getKey().getValue());
         } catch (OverlayException e) {
             logger.error("Error while leaving dhash node: '"
                     + overlayNode.getKey().toString() + "'");

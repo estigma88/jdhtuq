@@ -29,7 +29,7 @@ public class ReAssignObserverTest {
 
     @Before
     public void before(){
-        reAssignObserver = new ReAssignObserver();
+        reAssignObserver = new ReAssignObserver(dHashNode);
         reAssignObserver.setDHashNode(dhashNode);
     }
 

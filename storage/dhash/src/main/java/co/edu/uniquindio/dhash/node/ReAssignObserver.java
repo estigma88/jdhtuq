@@ -1,5 +1,5 @@
 /*
- *  DHash project implement a storage management 
+ *  DHash project implement a storage management
  *  Copyright (C) 2010  Daniel Pelaez, Daniel Lopez, Hector Hurtado
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -18,62 +18,73 @@
 
 package co.edu.uniquindio.dhash.node;
 
-import java.util.Arrays;
-
 import co.edu.uniquindio.dhash.resource.ResourceAlreadyExistException;
+import co.edu.uniquindio.utils.communication.Observer;
 import co.edu.uniquindio.utils.hashing.Key;
 import org.apache.log4j.Logger;
+
+import java.util.Arrays;
 
 /**
  * The <code>ReAssignObserver</code> class is notify when overlay node leave and
  * reassign all resource in the network using
  * <code>DHashNode.relocateAllResources</code>
- * 
+ *
  * @author Daniel Pelaez
  * @author Hector Hurtado
  * @author Daniel Lopez
  * @version 1.0, 17/06/2010
  * @since 1.0
- * 
  */
-public class ReAssignObserver extends OverlayObserver {
-	/**
-	 * Logger
-	 */
-	private static final Logger logger = Logger
-			.getLogger(ReAssignObserver.class);
+public class ReAssignObserver implements Observer<Object> {
+    /**
+     * Logger
+     */
+    private static final Logger logger = Logger
+            .getLogger(ReAssignObserver.class);
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * co.edu.uniquindio.utils.communication.Observer#update(java.lang.Object)
-	 */
-	public void update(Object object) {
-		if (object instanceof String[]) {
+    private final DHashNode dHashNode;
 
-			String[] message = (String[]) object;
+    public ReAssignObserver(DHashNode dHashNode) {
+        this.dHashNode = dHashNode;
+    }
 
-			if (message.length != 2) {
-				logger
-						.error(
-								"Incorrect message",
-								new IllegalArgumentException(
-										"Message must to be an String[] and to have two elements only"));
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * co.edu.uniquindio.utils.communication.Observer#update(java.lang.Object)
+     */
+    @Override
+    public void update(Object object) {
+        if (object instanceof String[]) {
 
-				return;
-			}
+            String[] message = (String[]) object;
 
-			logger.info("Update: " + Arrays.toString(message));
+            if (message.length != 2) {
+                logger
+                        .error(
+                                "Incorrect message",
+                                new IllegalArgumentException(
+                                        "Message must to be an String[] and to have two elements only"));
 
-			if (message[0].equals("REASSIGN")) {
-				try {
-					dHashNode.relocateAllResources(new Key(message[1]));
-				} catch (ResourceAlreadyExistException e) {
-					logger.error("Error relocaled", e);
-				}
-			}
-		}
-	}
+                return;
+            }
 
+            logger.info("Update: " + Arrays.toString(message));
+
+            if (message[0].equals("REASSIGN")) {
+                try {
+                    dHashNode.relocateAllResources(new Key(message[1]));
+                } catch (ResourceAlreadyExistException e) {
+                    logger.error("Error relocaled", e);
+                }
+            }
+        }
+    }
+
+    @Override
+    public String getName() {
+        return null;
+    }
 }
