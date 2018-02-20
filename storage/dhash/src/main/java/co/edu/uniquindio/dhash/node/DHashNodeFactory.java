@@ -20,7 +20,8 @@ package co.edu.uniquindio.dhash.node;
 
 import co.edu.uniquindio.dhash.configurations.DHashProperties;
 import co.edu.uniquindio.dhash.resource.checksum.ChecksumeCalculator;
-import co.edu.uniquindio.dhash.resource.persistence.PersistenceHandler;
+import co.edu.uniquindio.dhash.resource.persistence.PersistenceManager;
+import co.edu.uniquindio.dhash.resource.persistence.PersistenceManagerFactory;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
 import co.edu.uniquindio.overlay.OverlayException;
 import co.edu.uniquindio.overlay.OverlayNode;
@@ -81,7 +82,7 @@ public class DHashNodeFactory extends StorageNodeFactory {
     private OverlayNodeFactory overlayNodeFactory;
     private SerializationHandler serializationHandler;
     private ChecksumeCalculator checksumeCalculator;
-    private PersistenceHandler persistenceHandler;
+    private PersistenceManagerFactory persistenceManagerFactory;
 
     /**
      * Builds a DHashNodeFactory. Load a CommunicationProperties from
@@ -110,12 +111,12 @@ public class DHashNodeFactory extends StorageNodeFactory {
         DigestGenerator.load(DIGEST_CLASS);
     }
 
-    public DHashNodeFactory(CommunicationManager communicationManager, OverlayNodeFactory overlayNodeFactory, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, PersistenceHandler persistenceHandler) {
+    public DHashNodeFactory(CommunicationManager communicationManager, OverlayNodeFactory overlayNodeFactory, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, PersistenceManagerFactory persistenceManagerFactory) {
         this.communicationManager = communicationManager;
         this.overlayNodeFactory = overlayNodeFactory;
         this.serializationHandler = serializationHandler;
         this.checksumeCalculator = checksumeCalculator;
-        this.persistenceHandler = persistenceHandler;
+        this.persistenceManagerFactory = persistenceManagerFactory;
 
         DigestGenerator.load(DIGEST_CLASS);
     }
@@ -156,9 +157,11 @@ public class DHashNodeFactory extends StorageNodeFactory {
         DHashNode dhashNode;
         DHashEnvironment dHashEnviroment;
 
-        dhashNode = getDhashNode(name, overlayNode);
+        PersistenceManager persistenceManager = persistenceManagerFactory.of(name);
 
-        dHashEnviroment = getdHashEnviroment(dhashNode);
+        dhashNode = getDhashNode(name, overlayNode, persistenceManager);
+
+        dHashEnviroment = getdHashEnviroment(dhashNode, persistenceManager);
 
         communicationManager.addObserver(dHashEnviroment);
 
@@ -167,12 +170,12 @@ public class DHashNodeFactory extends StorageNodeFactory {
         return dhashNode;
     }
 
-    DHashEnvironment getdHashEnviroment(DHashNode dhashNode) {
-        return new DHashEnvironment(communicationManager, dhashNode, serializationHandler, checksumeCalculator);
+    DHashEnvironment getdHashEnviroment(DHashNode dhashNode, PersistenceManager persistenceManager) {
+        return new DHashEnvironment(communicationManager, dhashNode, serializationHandler, checksumeCalculator, persistenceManager);
     }
 
-    DHashNode getDhashNode(String name, OverlayNode overlayNode) {
-        return new DHashNode(overlayNode, EscapeChars.forHTML(name, false), communicationManager, serializationHandler, checksumeCalculator, persistenceHandler);
+    DHashNode getDhashNode(String name, OverlayNode overlayNode, PersistenceManager persistenceManager) {
+        return new DHashNode(overlayNode, EscapeChars.forHTML(name, false), communicationManager, serializationHandler, checksumeCalculator, persistenceManager);
     }
 
     /*

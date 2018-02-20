@@ -20,10 +20,10 @@ package co.edu.uniquindio.dhash.node;
 
 import co.edu.uniquindio.dhash.protocol.Protocol;
 import co.edu.uniquindio.dhash.protocol.Protocol.*;
-import co.edu.uniquindio.dhash.resource.checksum.ChecksumeCalculator;
 import co.edu.uniquindio.dhash.resource.ResourceAlreadyExistException;
+import co.edu.uniquindio.dhash.resource.checksum.ChecksumeCalculator;
+import co.edu.uniquindio.dhash.resource.persistence.PersistenceManager;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
-import co.edu.uniquindio.dhash.resource.SerializableResource;
 import co.edu.uniquindio.overlay.OverlayException;
 import co.edu.uniquindio.storage.resource.Resource;
 import co.edu.uniquindio.utils.communication.Observer;
@@ -35,8 +35,6 @@ import co.edu.uniquindio.utils.communication.message.MessageXML;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerCache;
 import org.apache.log4j.Logger;
-
-import java.io.IOException;
 
 /**
  * The <code>DHashEnviroment</code> class is the node responsible for handling
@@ -69,6 +67,7 @@ public class DHashEnvironment implements Observer<Message> {
     private DHashNode dHashNode;
     private SerializationHandler serializationHandler;
     private ChecksumeCalculator checksumeCalculator;
+    private PersistenceManager persistenceManager;
 
     /**
      * Is the constructor of the class. Sets the {@link DHashNode} with the
@@ -82,11 +81,12 @@ public class DHashEnvironment implements Observer<Message> {
                 .getCommunicationManager(DHashNodeFactory.DHASH);
     }
 
-    DHashEnvironment(CommunicationManager communicationManager, DHashNode dHashNode, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator) {
+    DHashEnvironment(CommunicationManager communicationManager, DHashNode dHashNode, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, PersistenceManager persistenceManager) {
         this.communicationManager = communicationManager;
         this.dHashNode = dHashNode;
         this.serializationHandler = serializationHandler;
         this.checksumeCalculator = checksumeCalculator;
+        this.persistenceManager = persistenceManager;
     }
 
     /**
@@ -135,10 +135,10 @@ public class DHashEnvironment implements Observer<Message> {
                 Protocol.RESOURCE_TRANSFER_RESPONSE,
                 message.getMessageSource(), dHashNode.getName());
 
-        if (dHashNode.getObjectManager().hasResource(
+        if (persistenceManager.hasResource(
                 message.getParam(ResourceTransferParams.RESOURCE_KEY.name()))) {
 
-            Resource resource = dHashNode.getObjectManager().get(
+            Resource resource = persistenceManager.find(
                     message
                             .getParam(ResourceTransferParams.RESOURCE_KEY
                                     .name()));
@@ -166,11 +166,11 @@ public class DHashEnvironment implements Observer<Message> {
         boolean isChecksumEquals = false;
         Message resourceCompareResponseMessage;
 
-        if (dHashNode.getObjectManager().hasResource(
+        if (persistenceManager.hasResource(
                 message.getParam(ResourceCompareParams.RESOURCE_KEY.name()))) {
 
-            String checkSum = checksumeCalculator.calculate(dHashNode.getObjectManager()
-                    .get(
+            String checkSum = checksumeCalculator.calculate(persistenceManager
+                    .find(
                             message.getParam(ResourceCompareParams.RESOURCE_KEY
                                     .name())));
 
@@ -202,7 +202,7 @@ public class DHashEnvironment implements Observer<Message> {
                 Protocol.GET_RESPONSE, message.getMessageSource(), dHashNode
                 .getName());
 
-        if (dHashNode.getObjectManager().hasResource(
+        if (persistenceManager.hasResource(
                 message.getParam(GetParams.RESOURCE_KEY.name()))) {
 
             getResponseMessage.addParam(GetResponseParams.HAS_RESOURCE.name(),
@@ -233,27 +233,23 @@ public class DHashEnvironment implements Observer<Message> {
 
             BigMessage bigMessage = (BigMessage) message;
 
-            dHashNode.getObjectManager().put(
-                    bigMessage.getParam(PutParams.RESOURCE_KEY.name()),
-                    bigMessage.getData(PutDatas.RESOURCE.name()));
+            try {
+                Resource resource = serializationHandler.decode(
+                        bigMessage.getParam(PutParams.RESOURCE_KEY.name()),
+                        bigMessage.getData(PutDatas.RESOURCE.name()));
 
-            Boolean replicate = Boolean.valueOf(bigMessage
-                    .getParam(PutParams.REPLICATE.name()));
+                persistenceManager.persist(resource);
 
-            if (replicate) {
-                try {
-                    dHashNode.replicateData(SerializableResource
-                            .valueOf(bigMessage.getData(PutDatas.RESOURCE
-                                    .name())));
-                } catch (ResourceAlreadyExistException e) {
-                    logger.error("Error replicating data", e);
-                } catch (OverlayException e) {
-                    logger.error("Error replicating data", e);
-                } catch (IOException e) {
-                    logger.error("Error replicating data", e);
-                } catch (ClassNotFoundException e) {
-                    logger.error("Error replicating data", e);
+                Boolean replicate = Boolean.valueOf(bigMessage
+                        .getParam(PutParams.REPLICATE.name()));
+
+                if (replicate) {
+                    dHashNode.replicateData(resource);
                 }
+            } catch (ResourceAlreadyExistException e) {
+                logger.error("Error replicating data", e);
+            } catch (OverlayException e) {
+                logger.error("Error replicating data", e);
             }
         }
 

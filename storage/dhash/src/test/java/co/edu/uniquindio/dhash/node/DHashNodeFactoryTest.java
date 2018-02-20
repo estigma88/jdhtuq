@@ -41,8 +41,8 @@ public class DHashNodeFactoryTest {
     @Test
     public void create_byName_nodeCreated() throws OverlayException, DHashFactoryException {
         when(overlayNodeFactory.createNode("node")).thenReturn(overlayNode);
-        doReturn(dhashNode).when(dHashNodeFactory).getDhashNode("node", overlayNode);
-        doReturn(dHashEnviroment).when(dHashNodeFactory).getdHashEnviroment(dhashNode);
+        doReturn(dhashNode).when(dHashNodeFactory).getDhashNode("node", overlayNode, persistenceManager);
+        doReturn(dHashEnviroment).when(dHashNodeFactory).getdHashEnviroment(dhashNode, persistenceManager);
 
         StorageNode node = dHashNodeFactory.createNode("node");
 
@@ -56,8 +56,8 @@ public class DHashNodeFactoryTest {
         when(overlayNodeFactory.createNode()).thenReturn(overlayNode);
         when(overlayNode.getKey()).thenReturn(key);
         when(key.getValue()).thenReturn("node");
-        doReturn(dhashNode).when(dHashNodeFactory).getDhashNode("node", overlayNode);
-        doReturn(dHashEnviroment).when(dHashNodeFactory).getdHashEnviroment(dhashNode);
+        doReturn(dhashNode).when(dHashNodeFactory).getDhashNode("node", overlayNode, persistenceManager);
+        doReturn(dHashEnviroment).when(dHashNodeFactory).getdHashEnviroment(dhashNode, persistenceManager);
 
         StorageNode node = dHashNodeFactory.createNode();
 
@@ -71,8 +71,8 @@ public class DHashNodeFactoryTest {
         when(overlayNodeFactory.createNode(inetAddress)).thenReturn(overlayNode);
         when(overlayNode.getKey()).thenReturn(key);
         when(key.getValue()).thenReturn("node");
-        doReturn(dhashNode).when(dHashNodeFactory).getDhashNode("node", overlayNode);
-        doReturn(dHashEnviroment).when(dHashNodeFactory).getdHashEnviroment(dhashNode);
+        doReturn(dhashNode).when(dHashNodeFactory).getDhashNode("node", overlayNode, persistenceManager);
+        doReturn(dHashEnviroment).when(dHashNodeFactory).getdHashEnviroment(dhashNode, persistenceManager);
 
         StorageNode node = dHashNodeFactory.createNode(inetAddress);
 

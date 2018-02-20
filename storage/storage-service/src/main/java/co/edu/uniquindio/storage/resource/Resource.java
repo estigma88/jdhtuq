@@ -1,12 +1,15 @@
 package co.edu.uniquindio.storage.resource;
 
-import java.util.Map;
+import java.io.IOException;
+import java.io.InputStream;
 
 public interface Resource {
-	/**
-	 * Gets key of resource
-	 * 
-	 * @return Key of resource
-	 */
-	String getKey();
+    /**
+     * Gets key of resource
+     *
+     * @return Key of resource
+     */
+    String getKey();
+
+    InputStream getInputStream() throws IOException;
 }

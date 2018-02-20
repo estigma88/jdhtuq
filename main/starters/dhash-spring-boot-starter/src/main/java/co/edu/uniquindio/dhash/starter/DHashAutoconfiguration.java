@@ -1,12 +1,12 @@
 package co.edu.uniquindio.dhash.starter;
 
 import co.edu.uniquindio.dhash.node.DHashNodeFactory;
+import co.edu.uniquindio.dhash.resource.checksum.InputStreamChecksumCalculator;
 import co.edu.uniquindio.dhash.resource.checksum.ChecksumeCalculator;
-import co.edu.uniquindio.dhash.resource.persistence.PersistenceHandler;
+import co.edu.uniquindio.dhash.resource.persistence.FilePersistenceManagerFactory;
+import co.edu.uniquindio.dhash.resource.persistence.PersistenceManagerFactory;
+import co.edu.uniquindio.dhash.resource.serialization.InputStreamSerializationHandler;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
-import co.edu.uniquindio.dhash.resource.checksum.BytesChecksumCalculator;
-import co.edu.uniquindio.dhash.resource.persistence.FilePersistenceHandler;
-import co.edu.uniquindio.dhash.resource.serialization.BytesSerializationHandler;
 import co.edu.uniquindio.overlay.OverlayNodeFactory;
 import co.edu.uniquindio.storage.StorageNodeFactory;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
@@ -33,8 +33,8 @@ public class DHashAutoconfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public StorageNodeFactory storageNodeFactory(OverlayNodeFactory overlayNodeFactory, @Qualifier("communicationManagerDHash") CommunicationManager communicationManager, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, PersistenceHandler persistenceHandler) {
-        return new DHashNodeFactory(communicationManager, overlayNodeFactory, serializationHandler, checksumeCalculator, persistenceHandler);
+    public StorageNodeFactory storageNodeFactory(OverlayNodeFactory overlayNodeFactory, @Qualifier("communicationManagerDHash") CommunicationManager communicationManager, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, PersistenceManagerFactory persistenceManagerFactory) {
+        return new DHashNodeFactory(communicationManager, overlayNodeFactory, serializationHandler, checksumeCalculator, persistenceManagerFactory);
     }
 
     @Bean("communicationManagerDHash")
@@ -67,16 +67,16 @@ public class DHashAutoconfiguration {
 
     @Bean
     public SerializationHandler serializationHandler() {
-        return new BytesSerializationHandler();
+        return new InputStreamSerializationHandler();
     }
 
     @Bean
     public ChecksumeCalculator checksumeCalculator() {
-        return new BytesChecksumCalculator();
+        return new InputStreamChecksumCalculator();
     }
 
     @Bean
-    public PersistenceHandler persistenceHandler() {
-        return new FilePersistenceHandler();
+    public PersistenceManagerFactory persistenceHandlerFactory() {
+        return new FilePersistenceManagerFactory(dHashProperties.getResourceDirectory());
     }
 }
