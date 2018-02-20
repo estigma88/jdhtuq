@@ -2,10 +2,10 @@ package co.edu.uniquindio.dhash.starter;
 
 import co.edu.uniquindio.dhash.node.DHashNodeFactory;
 import co.edu.uniquindio.dhash.resource.checksum.ChecksumeCalculator;
-import co.edu.uniquindio.dhash.resource.checksum.InputStreamChecksumCalculator;
+import co.edu.uniquindio.dhash.resource.checksum.BytesChecksumCalculator;
 import co.edu.uniquindio.dhash.resource.persistence.FilePersistenceManagerFactory;
 import co.edu.uniquindio.dhash.resource.persistence.PersistenceManagerFactory;
-import co.edu.uniquindio.dhash.resource.serialization.InputStreamSerializationHandler;
+import co.edu.uniquindio.dhash.resource.serialization.BytesSerializationHandler;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
 import co.edu.uniquindio.overlay.OverlayNodeFactory;
 import co.edu.uniquindio.storage.StorageNodeFactory;
@@ -67,12 +67,12 @@ public class DHashAutoconfiguration {
 
     @Bean
     public SerializationHandler serializationHandler() {
-        return new InputStreamSerializationHandler();
+        return new BytesSerializationHandler();
     }
 
     @Bean
     public ChecksumeCalculator checksumeCalculator() {
-        return new InputStreamChecksumCalculator();
+        return new BytesChecksumCalculator();
     }
 
     @Bean

@@ -3,7 +3,6 @@ package co.edu.uniquindio.dhash.node;
 import co.edu.uniquindio.dhash.protocol.Protocol;
 import co.edu.uniquindio.dhash.resource.ResourceAlreadyExistException;
 import co.edu.uniquindio.overlay.OverlayException;
-import co.edu.uniquindio.dhash.resource.SerializableResource;
 import co.edu.uniquindio.utils.communication.message.BigMessage;
 import co.edu.uniquindio.utils.communication.message.BigMessageXML;
 import co.edu.uniquindio.utils.communication.message.Message;

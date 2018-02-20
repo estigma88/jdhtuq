@@ -27,7 +27,6 @@ import co.edu.uniquindio.dhash.protocol.Protocol;
 import co.edu.uniquindio.dhash.protocol.Protocol.*;
 import co.edu.uniquindio.dhash.resource.ResourceAlreadyExistException;
 import co.edu.uniquindio.dhash.resource.ResourceNotFoundException;
-import co.edu.uniquindio.dhash.resource.SerializableResource;
 import co.edu.uniquindio.dhash.resource.checksum.ChecksumeCalculator;
 import co.edu.uniquindio.dhash.resource.persistence.PersistenceManager;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;

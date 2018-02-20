@@ -1,19 +1,17 @@
 package co.edu.uniquindio.dht.gui;
 
-import co.edu.uniquindio.dhash.resource.InputStreamResource;
+import co.edu.uniquindio.dhash.resource.BytesResource;
+import co.edu.uniquindio.dhash.utils.EscapeChars;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.StorageNode;
 import co.edu.uniquindio.storage.resource.Resource;
-import co.edu.uniquindio.dhash.utils.EscapeChars;
+import org.apache.commons.io.IOUtils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -102,13 +100,17 @@ public class PanelDhash extends JPanel implements ActionListener {
 
                         File fichero = fileChooser.getSelectedFile();
                         try {
-                            InputStreamResource fileResource = new InputStreamResource(fichero.getName(), new FileInputStream(fichero));
+                            BytesResource fileResource = new BytesResource(fichero.getName(), IOUtils.toByteArray(new FileInputStream(fichero)));
                             getDHashNode().put(fileResource);
                         } catch (StorageException e1) {
                             loadingBar.end();
                             JOptionPane.showMessageDialog(frame, e1
                                     .getMessage());
                         } catch (FileNotFoundException e1) {
+                            loadingBar.end();
+                            JOptionPane.showMessageDialog(frame, e1
+                                    .getMessage());
+                        } catch (IOException e1) {
                             loadingBar.end();
                             JOptionPane.showMessageDialog(frame, e1
                                     .getMessage());
@@ -144,7 +146,7 @@ public class PanelDhash extends JPanel implements ActionListener {
                             Resource resource = getDHashNode().get(a);
 
                             Files.createDirectories(Paths.get(resourceDirectory + getDHashNode().getName() + "/gets/"));
-                            Files.copy(resource.getInputStream(), Paths.get(resourceDirectory + getDHashNode().getName() + "/gets/" + resource.getKey()));
+                            Files.copy(new ByteArrayInputStream(resource.getBytes()), Paths.get(resourceDirectory + getDHashNode().getName() + "/gets/" + resource.getKey()));
 
                         } catch (StorageException e1) {
                             loadingBar.end();

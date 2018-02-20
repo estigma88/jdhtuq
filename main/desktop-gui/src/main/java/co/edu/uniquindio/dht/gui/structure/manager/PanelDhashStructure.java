@@ -1,22 +1,20 @@
 package co.edu.uniquindio.dht.gui.structure.manager;
 
 
-import co.edu.uniquindio.dhash.resource.InputStreamResource;
+import co.edu.uniquindio.dhash.resource.BytesResource;
+import co.edu.uniquindio.dhash.utils.EscapeChars;
 import co.edu.uniquindio.dht.gui.LoadingBar;
 import co.edu.uniquindio.dht.gui.PanelDhash;
 import co.edu.uniquindio.dht.gui.structure.StructureWindow;
 import co.edu.uniquindio.dht.gui.structure.controller.Controller;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.resource.Resource;
-import co.edu.uniquindio.dhash.utils.EscapeChars;
+import org.apache.commons.io.IOUtils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -49,8 +47,8 @@ public class PanelDhashStructure extends PanelDhash {
 
                         File fichero = fileChooser.getSelectedFile();
 
-                        try(FileInputStream fileInputStream = new FileInputStream(fichero)){
-                            InputStreamResource fileResource = new InputStreamResource(fichero.getName(), fileInputStream);
+                        try (FileInputStream fileInputStream = new FileInputStream(fichero)) {
+                            BytesResource fileResource = new BytesResource(fichero.getName(), IOUtils.toByteArray(fileInputStream));
 
                             getDHashNode().put(fileResource);
 
@@ -103,7 +101,7 @@ public class PanelDhashStructure extends PanelDhash {
                             Resource resource = getDHashNode().get(a);
 
                             Files.createDirectories(Paths.get(resourceDirectory + getDHashNode().getName() + "/gets/"));
-                            Files.copy(resource.getInputStream(), Paths.get(resourceDirectory + getDHashNode().getName() + "/gets/" + resource.getKey()));
+                            Files.copy(new ByteArrayInputStream(resource.getBytes()), Paths.get(resourceDirectory + getDHashNode().getName() + "/gets/" + resource.getKey()));
 
                             controller.setActionColor(false);
                         } catch (StorageException e1) {

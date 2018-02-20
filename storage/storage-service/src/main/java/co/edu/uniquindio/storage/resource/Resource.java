@@ -11,5 +11,5 @@ public interface Resource {
      */
     String getKey();
 
-    InputStream getInputStream() throws IOException;
+    byte[] getBytes();
 }
