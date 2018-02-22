@@ -35,7 +35,6 @@ import co.edu.uniquindio.overlay.OverlayNode;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.StorageNode;
 import co.edu.uniquindio.storage.resource.Resource;
-import co.edu.uniquindio.utils.communication.Observable;
 import co.edu.uniquindio.utils.communication.message.BigMessage;
 import co.edu.uniquindio.utils.communication.message.BigMessageXML;
 import co.edu.uniquindio.utils.communication.message.Message;
@@ -83,22 +82,22 @@ public class DHashNode implements StorageNode {
      *
      * @see co.edu.uniquindio.storage.StorageNode#get(java.lang.String)
      */
-    public Resource get(String resourceKey) throws StorageException {
+    public Resource get(String id) throws StorageException {
 
-        Key key = new Key(resourceKey);
+        Key key = new Key(id);
         Key lookupKey = overlayNode.lookUp(key);
         Message getMessage;
         Message resourceTransferMessage;
 
         if (lookupKey == null) {
-            logger.error("Imposible to do get to resource: " + resourceKey
+            logger.error("Imposible to do get to resource: " + id
                     + " in this moment");
             throw new StorageException(
                     "Imposible to do get to resource, lookup fails");
         }
 
         getMessage = new MessageXML(Protocol.GET, lookupKey.getValue(), name);
-        getMessage.addParam(GetParams.RESOURCE_KEY.name(), resourceKey);
+        getMessage.addParam(GetParams.RESOURCE_KEY.name(), id);
 
         Boolean hasResource = communicationManager.sendMessageUnicast(getMessage,
                 Boolean.class);
@@ -108,19 +107,19 @@ public class DHashNode implements StorageNode {
             resourceTransferMessage = new MessageXML(
                     Protocol.RESOURCE_TRANSFER, lookupKey.getValue(), name);
             resourceTransferMessage.addParam(
-                    ResourceTransferParams.RESOURCE_KEY.name(), resourceKey);
+                    ResourceTransferParams.RESOURCE_KEY.name(), id);
 
             BigMessage resource = communicationManager
                     .recieverBigMessage(resourceTransferMessage);
 
-            return serializationHandler.decode(resourceKey, resource
+            return serializationHandler.decode(id, resource
                     .getData(ResourceTransferResponseData.RESOURCE.name()));
 
         } else {
             ResourceNotFoundException resourceNotFoundException = new ResourceNotFoundException(
-                    "Resource '" + resourceKey + "' not found");
+                    "Resource '" + id + "' not found");
 
-            logger.warn("The resource '" + resourceKey + "' was not found");
+            logger.warn("The resource '" + id + "' was not found");
 
             throw resourceNotFoundException;
         }
@@ -136,9 +135,9 @@ public class DHashNode implements StorageNode {
      */
     public void put(Resource resource) throws StorageException {
 
-        Key key = new Key(resource.getKey());
+        Key key = new Key(resource.getId());
 
-        logger.debug("Resource to put: [" + resource.getKey() + "] Hashing: ["
+        logger.debug("Resource to put: [" + resource.getId() + "] Hashing: ["
                 + key.getStringHashing() + "]");
 
         Key lookupKey = overlayNode.lookUp(key);
@@ -146,9 +145,9 @@ public class DHashNode implements StorageNode {
         if (lookupKey == null) {
 
             logger.error("Imposible to do put to resource: "
-                    + resource.getKey() + " in this moment");
+                    + resource.getId() + " in this moment");
             throw new StorageException("Imposible to do put to resource: "
-                    + resource.getKey() + " in this moment");
+                    + resource.getId() + " in this moment");
         }
 
         logger.debug("Lookup key for " + key.getStringHashing() + ": ["
@@ -160,7 +159,7 @@ public class DHashNode implements StorageNode {
     /**
      * Replicates the specified file in its successors.
      *
-     * @param resource The specified {@link SerializableResource} to replicate.
+     * @param resource The specified {@link Resource} to replicate.
      * @throws ResourceAlreadyExistException
      * @throws OverlayException
      */
@@ -170,7 +169,7 @@ public class DHashNode implements StorageNode {
 
         for (int i = 0; i < Math.min(replicationFactor, succesorList.length); i++) {
             logger
-                    .debug("Replicate File: [" + resource.getKey()
+                    .debug("Replicate File: [" + resource.getId()
                             + "] Hashing: ["
                             + succesorList[i].getStringHashing() + "]");
             logger.debug("Replicate to " + succesorList[i].getStringHashing());
@@ -198,7 +197,7 @@ public class DHashNode implements StorageNode {
         resourceCompareMessage.addParam(ResourceCompareParams.CHECK_SUM.name(),
                 checksumeCalculator.calculate(resource));
         resourceCompareMessage.addParam(ResourceCompareParams.RESOURCE_KEY
-                .name(), resource.getKey());
+                .name(), resource.getId());
 
         Boolean existResource = communicationManager.sendMessageUnicast(
                 resourceCompareMessage, Boolean.class);
@@ -208,7 +207,7 @@ public class DHashNode implements StorageNode {
         }
 
         putMessage = new BigMessageXML(Protocol.PUT, lookupKey.getValue(), name);
-        putMessage.addParam(PutParams.RESOURCE_KEY.name(), resource.getKey());
+        putMessage.addParam(PutParams.RESOURCE_KEY.name(), resource.getId());
         putMessage.addParam(PutParams.REPLICATE.name(), String
                 .valueOf(replicate));
         putMessage
@@ -298,12 +297,5 @@ public class DHashNode implements StorageNode {
      */
     public String getName() {
         return name;
-    }
-
-    /**
-     * Gets observable object
-     */
-    public Observable<Object> getObservable() {
-        return null;
     }
 }

@@ -5,9 +5,9 @@ import java.io.InputStream;
 
 public interface Resource {
     /**
-     * Gets key of resource
+     * Gets id of resource
      *
-     * @return Key of resource
+     * @return id of resource
      */
-    String getKey();
+    String getId();
 }

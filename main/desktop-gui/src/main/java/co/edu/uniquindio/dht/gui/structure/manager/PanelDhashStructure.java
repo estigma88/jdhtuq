@@ -8,7 +8,6 @@ import co.edu.uniquindio.dht.gui.PanelDhash;
 import co.edu.uniquindio.dht.gui.structure.StructureWindow;
 import co.edu.uniquindio.dht.gui.structure.controller.Controller;
 import co.edu.uniquindio.storage.StorageException;
-import co.edu.uniquindio.storage.resource.Resource;
 import org.apache.commons.io.IOUtils;
 
 import javax.swing.*;
@@ -101,7 +100,7 @@ public class PanelDhashStructure extends PanelDhash {
                             BytesResource resource = (BytesResource) getDHashNode().get(a);
 
                             Files.createDirectories(Paths.get(resourceDirectory + getDHashNode().getName() + "/gets/"));
-                            Files.copy(new ByteArrayInputStream(resource.getBytes()), Paths.get(resourceDirectory + getDHashNode().getName() + "/gets/" + resource.getKey()));
+                            Files.copy(new ByteArrayInputStream(resource.getBytes()), Paths.get(resourceDirectory + getDHashNode().getName() + "/gets/" + resource.getId()));
 
                             controller.setActionColor(false);
                         } catch (StorageException e1) {

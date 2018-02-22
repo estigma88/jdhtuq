@@ -4,7 +4,6 @@ import co.edu.uniquindio.dhash.resource.BytesResource;
 import co.edu.uniquindio.dhash.utils.EscapeChars;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.StorageNode;
-import co.edu.uniquindio.storage.resource.Resource;
 import org.apache.commons.io.IOUtils;
 
 import javax.swing.*;
@@ -146,7 +145,7 @@ public class PanelDhash extends JPanel implements ActionListener {
                             BytesResource resource = (BytesResource) getDHashNode().get(a);
 
                             Files.createDirectories(Paths.get(resourceDirectory + getDHashNode().getName() + "/gets/"));
-                            Files.copy(new ByteArrayInputStream(resource.getBytes()), Paths.get(resourceDirectory + getDHashNode().getName() + "/gets/" + resource.getKey()));
+                            Files.copy(new ByteArrayInputStream(resource.getBytes()), Paths.get(resourceDirectory + getDHashNode().getName() + "/gets/" + resource.getId()));
 
                         } catch (StorageException e1) {
                             loadingBar.end();

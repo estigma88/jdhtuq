@@ -19,7 +19,6 @@
 package co.edu.uniquindio.storage;
 
 import co.edu.uniquindio.storage.resource.Resource;
-import co.edu.uniquindio.utils.communication.Observable;
 
 /**
  * The {@code StorageNode} interface offer the services of {@code put} and {@code
@@ -36,11 +35,11 @@ public interface StorageNode {
     /**
      * Gets a resource with the given name.
      *
-     * @param key The name of the required resource.
+     * @param id The name of the required resource.
      * @return The {@link Resource}
      * @throws StorageException throw when occur an error.
      */
-    public Resource get(String key) throws StorageException;
+    public Resource get(String id) throws StorageException;
 
     /**
      * Puts the specified resource into the network.
@@ -58,16 +57,7 @@ public interface StorageNode {
     public void leave() throws StorageException;
 
     /**
-     * Gets the observable object responsible for notifying information.
-     *
-     * @return An {@link Observable} object.
-     */
-    public Observable<Object> getObservable();
-
-    /**
-     * Gets the observable object responsible for notifying information.
-     *
-     * @return An {@link Observable} object.
+     * Gets the name of the storage node.
      */
     public String getName();
 }
