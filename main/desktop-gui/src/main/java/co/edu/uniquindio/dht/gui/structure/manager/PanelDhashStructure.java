@@ -98,7 +98,7 @@ public class PanelDhashStructure extends PanelDhash {
                         loadingBar.setValue(1, "Doing Get...");
                         loadingBar.begin();
                         try {
-                            Resource resource = getDHashNode().get(a);
+                            BytesResource resource = (BytesResource) getDHashNode().get(a);
 
                             Files.createDirectories(Paths.get(resourceDirectory + getDHashNode().getName() + "/gets/"));
                             Files.copy(new ByteArrayInputStream(resource.getBytes()), Paths.get(resourceDirectory + getDHashNode().getName() + "/gets/" + resource.getKey()));

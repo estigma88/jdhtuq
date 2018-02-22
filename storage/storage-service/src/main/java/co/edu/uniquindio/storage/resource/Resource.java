@@ -10,6 +10,4 @@ public interface Resource {
      * @return Key of resource
      */
     String getKey();
-
-    byte[] getBytes();
 }

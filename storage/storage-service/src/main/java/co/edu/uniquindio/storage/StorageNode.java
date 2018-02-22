@@ -19,61 +19,55 @@
 package co.edu.uniquindio.storage;
 
 import co.edu.uniquindio.storage.resource.Resource;
-import co.edu.uniquindio.storage.resource.SerializableResource;
 import co.edu.uniquindio.utils.communication.Observable;
 
 /**
  * The {@code StorageNode} interface offer the services of {@code put} and {@code
  * get} of a specific file.
- * 
+ *
  * @author Daniel Pelaez
  * @author Hector Hurtado
  * @author Daniel Lopez
  * @version 1.0, 17/06/2010
- * @since 1.0
  * @see StorageNodeFactory
+ * @since 1.0
  */
 public interface StorageNode {
-	/**
-	 * Gets a resource with the given name.
-	 * 
-	 * @param key
-	 *            The name of the required resource.
-	 * @return The {@link SerializableResource}
-	 * @throws StorageException
-	 *             throw when occur an error.
-	 */
-	public Resource get(String key) throws StorageException;
+    /**
+     * Gets a resource with the given name.
+     *
+     * @param key The name of the required resource.
+     * @return The {@link Resource}
+     * @throws StorageException throw when occur an error.
+     */
+    public Resource get(String key) throws StorageException;
 
-	/**
-	 * Puts the specified resource into the network.
-	 * 
-	 * @param resource
-	 *            The resource that will be put.
-	 * @throws StorageException
-	 *             throw when occur an error.
-	 */
-	public void put(Resource resource) throws StorageException;
+    /**
+     * Puts the specified resource into the network.
+     *
+     * @param resource The resource that will be put.
+     * @throws StorageException throw when occur an error.
+     */
+    public void put(Resource resource) throws StorageException;
 
-	/**
-	 * Allows the node to leave in a regular mode.
-	 * 
-	 * @throws StorageException
-	 *             throw when occur an error.
-	 */
-	public void leave() throws StorageException;
+    /**
+     * Allows the node to leave in a regular mode.
+     *
+     * @throws StorageException throw when occur an error.
+     */
+    public void leave() throws StorageException;
 
-	/**
-	 * Gets the observable object responsible for notifying information.
-	 * 
-	 * @return An {@link Observable} object.
-	 */
-	public Observable<Object> getObservable();
+    /**
+     * Gets the observable object responsible for notifying information.
+     *
+     * @return An {@link Observable} object.
+     */
+    public Observable<Object> getObservable();
 
-	/**
-	 * Gets the observable object responsible for notifying information.
-	 * 
-	 * @return An {@link Observable} object.
-	 */
-	public String getName();
+    /**
+     * Gets the observable object responsible for notifying information.
+     *
+     * @return An {@link Observable} object.
+     */
+    public String getName();
 }
