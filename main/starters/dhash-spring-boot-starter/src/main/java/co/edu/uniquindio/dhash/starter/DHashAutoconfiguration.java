@@ -3,9 +3,9 @@ package co.edu.uniquindio.dhash.starter;
 import co.edu.uniquindio.dhash.node.DHashNodeFactory;
 import co.edu.uniquindio.dhash.resource.checksum.ChecksumeCalculator;
 import co.edu.uniquindio.dhash.resource.checksum.BytesChecksumCalculator;
-import co.edu.uniquindio.dhash.resource.persistence.FilePersistenceManagerFactory;
-import co.edu.uniquindio.dhash.resource.persistence.PersistenceManagerFactory;
-import co.edu.uniquindio.dhash.resource.serialization.BytesSerializationHandler;
+import co.edu.uniquindio.dhash.resource.manager.FileResourceManagerFactory;
+import co.edu.uniquindio.dhash.resource.manager.ResourceManagerFactory;
+import co.edu.uniquindio.dhash.resource.serialization.ObjectSerializationHandler;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
 import co.edu.uniquindio.overlay.OverlayNodeFactory;
 import co.edu.uniquindio.storage.StorageNodeFactory;
@@ -33,8 +33,8 @@ public class DHashAutoconfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public StorageNodeFactory storageNodeFactory(OverlayNodeFactory overlayNodeFactory, @Qualifier("communicationManagerDHash") CommunicationManager communicationManager, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, PersistenceManagerFactory persistenceManagerFactory) {
-        return new DHashNodeFactory(communicationManager, overlayNodeFactory, serializationHandler, checksumeCalculator, persistenceManagerFactory, dHashProperties.getReplicationAmount());
+    public StorageNodeFactory storageNodeFactory(OverlayNodeFactory overlayNodeFactory, @Qualifier("communicationManagerDHash") CommunicationManager communicationManager, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, ResourceManagerFactory resourceManagerFactory) {
+        return new DHashNodeFactory(communicationManager, overlayNodeFactory, serializationHandler, checksumeCalculator, resourceManagerFactory, dHashProperties.getReplicationAmount());
     }
 
     @Bean("communicationManagerDHash")
@@ -67,7 +67,7 @@ public class DHashAutoconfiguration {
 
     @Bean
     public SerializationHandler serializationHandler() {
-        return new BytesSerializationHandler();
+        return new ObjectSerializationHandler();
     }
 
     @Bean
@@ -76,7 +76,7 @@ public class DHashAutoconfiguration {
     }
 
     @Bean
-    public PersistenceManagerFactory persistenceHandlerFactory() {
-        return new FilePersistenceManagerFactory(dHashProperties.getResourceDirectory());
+    public ResourceManagerFactory persistenceHandlerFactory() {
+        return new FileResourceManagerFactory(dHashProperties.getResourceDirectory());
     }
 }

@@ -22,7 +22,7 @@ import co.edu.uniquindio.dhash.protocol.Protocol;
 import co.edu.uniquindio.dhash.protocol.Protocol.*;
 import co.edu.uniquindio.dhash.resource.ResourceAlreadyExistException;
 import co.edu.uniquindio.dhash.resource.checksum.ChecksumeCalculator;
-import co.edu.uniquindio.dhash.resource.persistence.PersistenceManager;
+import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
 import co.edu.uniquindio.overlay.OverlayException;
 import co.edu.uniquindio.storage.resource.Resource;
@@ -55,14 +55,14 @@ public class DHashEnvironment implements Observer<Message> {
     private DHashNode dHashNode;
     private SerializationHandler serializationHandler;
     private ChecksumeCalculator checksumeCalculator;
-    private PersistenceManager persistenceManager;
+    private ResourceManager resourceManager;
 
-    DHashEnvironment(CommunicationManager communicationManager, DHashNode dHashNode, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, PersistenceManager persistenceManager) {
+    DHashEnvironment(CommunicationManager communicationManager, DHashNode dHashNode, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, ResourceManager resourceManager) {
         this.communicationManager = communicationManager;
         this.dHashNode = dHashNode;
         this.serializationHandler = serializationHandler;
         this.checksumeCalculator = checksumeCalculator;
-        this.persistenceManager = persistenceManager;
+        this.resourceManager = resourceManager;
     }
 
     /**
@@ -111,10 +111,10 @@ public class DHashEnvironment implements Observer<Message> {
                 Protocol.RESOURCE_TRANSFER_RESPONSE,
                 message.getMessageSource(), dHashNode.getName());
 
-        if (persistenceManager.hasResource(
+        if (resourceManager.hasResource(
                 message.getParam(ResourceTransferParams.RESOURCE_KEY.name()))) {
 
-            Resource resource = persistenceManager.find(
+            Resource resource = resourceManager.find(
                     message
                             .getParam(ResourceTransferParams.RESOURCE_KEY
                                     .name()));
@@ -142,10 +142,10 @@ public class DHashEnvironment implements Observer<Message> {
         boolean isChecksumEquals = false;
         Message resourceCompareResponseMessage;
 
-        if (persistenceManager.hasResource(
+        if (resourceManager.hasResource(
                 message.getParam(ResourceCompareParams.RESOURCE_KEY.name()))) {
 
-            String checkSum = checksumeCalculator.calculate(persistenceManager
+            String checkSum = checksumeCalculator.calculate(resourceManager
                     .find(
                             message.getParam(ResourceCompareParams.RESOURCE_KEY
                                     .name())));
@@ -178,7 +178,7 @@ public class DHashEnvironment implements Observer<Message> {
                 Protocol.GET_RESPONSE, message.getMessageSource(), dHashNode
                 .getName());
 
-        if (persistenceManager.hasResource(
+        if (resourceManager.hasResource(
                 message.getParam(GetParams.RESOURCE_KEY.name()))) {
 
             getResponseMessage.addParam(GetResponseParams.HAS_RESOURCE.name(),
@@ -211,10 +211,9 @@ public class DHashEnvironment implements Observer<Message> {
 
             try {
                 Resource resource = serializationHandler.decode(
-                        bigMessage.getParam(PutParams.RESOURCE_KEY.name()),
                         bigMessage.getData(PutDatas.RESOURCE.name()));
 
-                persistenceManager.persist(resource);
+                resourceManager.persist(resource);
 
                 Boolean replicate = Boolean.valueOf(bigMessage
                         .getParam(PutParams.REPLICATE.name()));

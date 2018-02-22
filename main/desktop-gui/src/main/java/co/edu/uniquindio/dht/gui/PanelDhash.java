@@ -1,7 +1,6 @@
 package co.edu.uniquindio.dht.gui;
 
 import co.edu.uniquindio.dhash.resource.BytesResource;
-import co.edu.uniquindio.dhash.utils.EscapeChars;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.StorageNode;
 import org.apache.commons.io.IOUtils;
@@ -169,8 +168,7 @@ public class PanelDhash extends JPanel implements ActionListener {
             } else {
                 if (e.getSource() == buttonOpen) {
                     File file = new File("dhash/"
-                            + EscapeChars.forHTML(getDHashNode().getName(),
-                            true));
+                            + getDHashNode().getName());
 
                     Desktop desktop = null;
                     // Before more Desktop API is used, first check
@@ -247,7 +245,7 @@ public class PanelDhash extends JPanel implements ActionListener {
 
     public void enableOpenFolder() {
         File file = new File("dhash/"
-                + EscapeChars.forHTML(getDHashNode().getName(), true));
+                + getDHashNode().getName());
 
         buttonOpen.setEnabled(file.exists());
     }

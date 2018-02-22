@@ -28,7 +28,7 @@ import co.edu.uniquindio.dhash.protocol.Protocol.*;
 import co.edu.uniquindio.dhash.resource.ResourceAlreadyExistException;
 import co.edu.uniquindio.dhash.resource.ResourceNotFoundException;
 import co.edu.uniquindio.dhash.resource.checksum.ChecksumeCalculator;
-import co.edu.uniquindio.dhash.resource.persistence.PersistenceManager;
+import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
 import co.edu.uniquindio.overlay.OverlayException;
 import co.edu.uniquindio.overlay.OverlayNode;
@@ -65,16 +65,16 @@ public class DHashNode implements StorageNode {
     private String name;
     private SerializationHandler serializationHandler;
     private ChecksumeCalculator checksumeCalculator;
-    private PersistenceManager persistenceManager;
+    private ResourceManager resourceManager;
 
-    public DHashNode(OverlayNode overlayNode, int replicationFactor, String name, CommunicationManager communicationManager, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, PersistenceManager persistenceManager) {
+    public DHashNode(OverlayNode overlayNode, int replicationFactor, String name, CommunicationManager communicationManager, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, ResourceManager resourceManager) {
         this.overlayNode = overlayNode;
         this.replicationFactor = replicationFactor;
         this.name = name;
         this.communicationManager = communicationManager;
         this.serializationHandler = serializationHandler;
         this.checksumeCalculator = checksumeCalculator;
-        this.persistenceManager = persistenceManager;
+        this.resourceManager = resourceManager;
     }
 
     /*
@@ -112,7 +112,7 @@ public class DHashNode implements StorageNode {
             BigMessage resource = communicationManager
                     .recieverBigMessage(resourceTransferMessage);
 
-            return serializationHandler.decode(id, resource
+            return serializationHandler.decode(resource
                     .getData(ResourceTransferResponseData.RESOURCE.name()));
 
         } else {
@@ -226,14 +226,14 @@ public class DHashNode implements StorageNode {
     public void relocateAllResources(Key key)
             throws ResourceAlreadyExistException {
 
-        Set<String> resourcesNames = persistenceManager.getAllKeys();
+        Set<String> resourcesNames = resourceManager.getAllKeys();
 
         logger.info("Relocating Files...");
         logger.debug("Number of files: [" + resourcesNames.size() + "]");
         int filesRelocated = 0;
 
         for (String name : resourcesNames) {
-            Resource resource = persistenceManager.find(name);
+            Resource resource = resourceManager.find(name);
 
             Key fileKey = getFileKey(name);
 
@@ -260,7 +260,7 @@ public class DHashNode implements StorageNode {
         try {
             Key[] key = overlayNode.leave();
 
-            Set<String> resourcesNames = persistenceManager.getAllKeys();
+            Set<String> resourcesNames = resourceManager.getAllKeys();
 
             logger.info("Leaving...");
             logger.debug("Number of files to transfer: ["
@@ -268,13 +268,13 @@ public class DHashNode implements StorageNode {
 
             if (!key.equals(overlayNode.getKey())) {
                 for (String name : resourcesNames) {
-                    Resource resource = persistenceManager.find(name);
+                    Resource resource = resourceManager.find(name);
 
                     put(resource, key[0], false);
                 }
             }
 
-            persistenceManager.deleteAll();
+            resourceManager.deleteAll();
 
             communicationManager.removeObserver(overlayNode.getKey().getValue());
         } catch (OverlayException e) {

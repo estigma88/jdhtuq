@@ -2,7 +2,6 @@ package co.edu.uniquindio.dht.gui.structure.manager;
 
 
 import co.edu.uniquindio.dhash.resource.BytesResource;
-import co.edu.uniquindio.dhash.utils.EscapeChars;
 import co.edu.uniquindio.dht.gui.LoadingBar;
 import co.edu.uniquindio.dht.gui.PanelDhash;
 import co.edu.uniquindio.dht.gui.structure.StructureWindow;
@@ -126,7 +125,7 @@ public class PanelDhashStructure extends PanelDhash {
             } else {
                 if (e.getSource() == buttonOpen) {
 
-                    File file = new File("dhash/" + EscapeChars.forHTML(getDHashNode().getName(), true));
+                    File file = new File("dhash/" + getDHashNode().getName());
 
                     Desktop desktop = null;
                     // Before more Desktop API is used, first check
