@@ -9,4 +9,5 @@ public class ChordProperties {
     private int stableRingTime = 2000;
     private int successorListAmount = 3;
     private CommunicationType communicationType = CommunicationType.NETWORK;
+    private int stableRingThreadPool = 3;
 }

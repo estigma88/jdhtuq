@@ -49,16 +49,6 @@ public class StableRing implements Runnable {
     private ChordNode node;
 
     /**
-     * Is the time it takes to run again
-     */
-    private long executeTime;
-
-    /**
-     * Determines the state of execution
-     */
-    private volatile boolean run;
-
-    /**
      * Is the command responsible for executing the method
      * <code>ChordNode.stabilize</code> on the chord node.
      */
@@ -84,22 +74,14 @@ public class StableRing implements Runnable {
      */
     private FixSuccessorsCommand fixSuccessorsCommand;
 
-    StableRing(ChordNode node, long executeTime, boolean run) {
+    StableRing(ChordNode node) {
         this.node = node;
-        this.executeTime = executeTime;
-        this.run = run;
     }
 
     /**
      * Executes all the commands periodically while <code>run==true</code>.
      */
     public void run() {
-        while (run) {
-            runCommands();
-        }
-    }
-
-    void runCommands() {
         stabilizeCommand = getStabilizeCommand();
         checkPredecessorCommand = getCheckPredecessorCommand();
         fixFingersCommand = getFixFingersCommand();
@@ -109,12 +91,6 @@ public class StableRing implements Runnable {
         checkPredecessorCommand.execute();
         fixFingersCommand.execute();
         fixSuccessorsCommand.execute();
-
-        try {
-            Thread.sleep(executeTime);
-        } catch (InterruptedException e) {
-            logger.fatal(e.getMessage(), e);
-        }
     }
 
     FixSuccessorsCommand getFixSuccessorsCommand() {
@@ -131,25 +107,6 @@ public class StableRing implements Runnable {
 
     StabilizeCommand getStabilizeCommand() {
         return new StabilizeCommand(node);
-    }
-
-    /**
-     * Starts stabilization
-     */
-    public void start() {
-        Thread thread = new Thread(this);
-        thread.start();
-    }
-
-    /**
-     * Sets the run mode.
-     *
-     * @param run <code>true</code> if the StableRing will be executing,
-     *            <code>false</code> if the StableRing will not be executing
-     *            anymore.
-     */
-    public void setRun(boolean run) {
-        this.run = run;
     }
 
     /**

@@ -29,6 +29,7 @@ import co.edu.uniquindio.utils.hashing.Key;
 import org.apache.log4j.Logger;
 
 import java.math.BigInteger;
+import java.util.concurrent.ScheduledFuture;
 
 /**
  * The <code>NodeEnvironment</code> class is the node responsible for handling
@@ -69,10 +70,10 @@ class NodeEnvironment implements Observer<Message> {
     /**
      * The thread that uses the commands for stabilizing the node.
      */
-    private StableRing stableRing;
+    private ScheduledFuture<?> stableRing;
     private ChordNodeFactory chordNodeFactory;
 
-    NodeEnvironment(CommunicationManager communicationManager, ChordNode chordNode, StableRing stableRing, ChordNodeFactory chordNodeFactory) {
+    NodeEnvironment(CommunicationManager communicationManager, ChordNode chordNode, ScheduledFuture<?> stableRing, ChordNodeFactory chordNodeFactory) {
         this.communicationManager = communicationManager;
         this.chordNode = chordNode;
         this.stableRing = stableRing;
@@ -197,8 +198,8 @@ class NodeEnvironment implements Observer<Message> {
         Message setPredecessorMessage;
 
         /* Ends all stable threads */
-        stableRing.setRun(false);
-        stableRing = null;
+        stableRing.cancel(true);
+
         process = false;
 
         if (!chordNode.getSuccessor().equals(chordNode.getKey())) {
@@ -359,13 +360,6 @@ class NodeEnvironment implements Observer<Message> {
         }
 
         communicationManager.sendMessageUnicast(lookupResponseMessage);
-    }
-
-    /**
-     * Starts the stable ring process.
-     */
-    public void startStableRing() {
-        stableRing.start();
     }
 
     /**

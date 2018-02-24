@@ -10,7 +10,6 @@ import co.edu.uniquindio.utils.hashing.HashingGenerator;
 import co.edu.uniquindio.utils.hashing.HashingGeneratorImp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -21,6 +20,8 @@ import org.springframework.context.annotation.Configuration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 @Configuration
 @ConditionalOnClass({OverlayNodeFactory.class, ChordNodeFactory.class})
@@ -31,18 +32,23 @@ public class ChordAutoconfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public OverlayNodeFactory overlayNodeFactory(@Qualifier("communicationManagerChord") CommunicationManager communicationManager, BootStrap bootStrap) {
-        return new ChordNodeFactory(communicationManager, new HashSet<>(), chordProperties.getStableRingTime(), chordProperties.getSuccessorListAmount(), bootStrap);
+    public OverlayNodeFactory overlayNodeFactory(@Qualifier("communicationManagerChord") CommunicationManager communicationManager, BootStrap bootStrap, ScheduledExecutorService scheduledStableRing) {
+        return new ChordNodeFactory(communicationManager, new HashSet<>(), chordProperties.getStableRingTime(), chordProperties.getSuccessorListAmount(), bootStrap, scheduledStableRing);
     }
 
     @Bean
-    public BootStrap bootStrap(){
+    public BootStrap bootStrap() {
         return new BootStrap();
     }
 
     @Bean
-    public HashingGenerator hashingGenerator(){
+    public HashingGenerator hashingGenerator() {
         return new HashingGeneratorImp();
+    }
+
+    @Bean
+    public ScheduledExecutorService scheduledStableRing() {
+        return Executors.newScheduledThreadPool(chordProperties.getStableRingThreadPool());
     }
 
     @Bean("communicationManagerChord")

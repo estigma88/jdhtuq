@@ -28,6 +28,9 @@ import org.apache.log4j.Logger;
 
 import java.net.InetAddress;
 import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The <code>ChordNodeFactory</code> class creates nodes <code>ChordNode</code>.
@@ -49,6 +52,7 @@ public class ChordNodeFactory implements OverlayNodeFactory {
      */
     private static final Logger logger = Logger
             .getLogger(ChordNodeFactory.class);
+    public static final int START_STABLE_RING = 5000;
 
     private int stableRingTime;
     private int successorListAmount;
@@ -67,13 +71,15 @@ public class ChordNodeFactory implements OverlayNodeFactory {
      */
     private Set<String> names;
     private BootStrap bootStrap;
+    private ScheduledExecutorService scheduledStableRing;
 
-    public ChordNodeFactory(CommunicationManager communicationManager, Set<String> names, int stableRingTime, int successorListAmount, BootStrap bootStrap) {
+    public ChordNodeFactory(CommunicationManager communicationManager, Set<String> names, int stableRingTime, int successorListAmount, BootStrap bootStrap, ScheduledExecutorService scheduledStableRing) {
         this.communicationManager = communicationManager;
         this.names = names;
         this.stableRingTime = stableRingTime;
         this.successorListAmount = successorListAmount;
         this.bootStrap = bootStrap;
+        this.scheduledStableRing = scheduledStableRing;
     }
 
     /**
@@ -123,13 +129,13 @@ public class ChordNodeFactory implements OverlayNodeFactory {
 
         StableRing stableRing = getStableRing(nodeChord);
 
-        nodeEnviroment = getNodeEnviroment(nodeChord, stableRing);
+        ScheduledFuture<?> stableRingTask = scheduledStableRing.scheduleAtFixedRate(stableRing, START_STABLE_RING, stableRingTime, TimeUnit.MILLISECONDS);
+
+        nodeEnviroment = getNodeEnviroment(nodeChord, stableRingTask);
 
         communicationManager.addObserver(nodeEnviroment);
 
         bootStrap.boot(nodeChord, communicationManager);
-
-        nodeEnviroment.startStableRing();
 
         return nodeChord;
     }
@@ -140,10 +146,10 @@ public class ChordNodeFactory implements OverlayNodeFactory {
     }
 
     StableRing getStableRing(ChordNode nodeChord) {
-        return new StableRing(nodeChord, stableRingTime, true);
+        return new StableRing(nodeChord);
     }
 
-    NodeEnvironment getNodeEnviroment(ChordNode nodeChord, StableRing stableRing) {
+    NodeEnvironment getNodeEnviroment(ChordNode nodeChord, ScheduledFuture<?> stableRing) {
         return new NodeEnvironment(communicationManager, nodeChord, stableRing, this);
     }
 
