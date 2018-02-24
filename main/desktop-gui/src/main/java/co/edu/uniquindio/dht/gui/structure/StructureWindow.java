@@ -20,14 +20,16 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import co.edu.uniquindio.chord.hashing.HashingGenerator;
 import co.edu.uniquindio.dht.gui.PanelHashing;
 import co.edu.uniquindio.dht.gui.structure.controller.Controller;
 import co.edu.uniquindio.dht.gui.structure.graph.PanelGraph;
 import co.edu.uniquindio.dht.gui.structure.manager.PanelDhashStructure;
 import co.edu.uniquindio.dht.gui.structure.manager.PanelManager;
 import co.edu.uniquindio.dht.gui.structure.utils.DHDChord;
-import co.edu.uniquindio.utils.hashing.HashingGenerator;
-import co.edu.uniquindio.utils.hashing.Key;
+import co.edu.uniquindio.overlay.Key;
+import co.edu.uniquindio.overlay.KeyFactory;
+
 //TODO Documentar
 @SuppressWarnings("serial")
 public class StructureWindow extends JFrame implements ActionListener,
@@ -75,13 +77,15 @@ public class StructureWindow extends JFrame implements ActionListener,
 	//TODO Documentar
 	private int stringLength;
 	private HashingGenerator hashingGenerator;
+	private KeyFactory keyFactory;
 	//TODO Documentar
-	public StructureWindow(HashingGenerator hashingGenerator) {
-		this("Structure Window", hashingGenerator);
+	public StructureWindow(HashingGenerator hashingGenerator, KeyFactory keyFactory) {
+		this("Structure Window", hashingGenerator, keyFactory);
 	}
 	//TODO Documentar
-	public StructureWindow(String title, HashingGenerator hashingGenerator) {
+	public StructureWindow(String title, HashingGenerator hashingGenerator, KeyFactory keyFactory) {
 		this.hashingGenerator = hashingGenerator;
+		this.keyFactory = keyFactory;
 
 		setTitle(title);
 		setSize(900, 600);
@@ -110,7 +114,7 @@ public class StructureWindow extends JFrame implements ActionListener,
 		labelValue.setFont(font);
 		labelValue.setForeground(Color.black);
 		
-		labelLengthKey = new JLabel("Length Key");
+		labelLengthKey = new JLabel("Length ChordKey");
 		labelLengthKey.setFont(font);
 		labelLengthKey.setForeground(Color.black);
 
@@ -118,7 +122,7 @@ public class StructureWindow extends JFrame implements ActionListener,
 		labelId.setFont(font);
 		labelId.setForeground(Color.black);
 
-		int keyLength = Key.getKeyLength();
+		int keyLength = keyFactory.getKeyLength();
 
 		BigInteger i = new BigInteger("2");
 		i = i.pow(keyLength);
@@ -163,7 +167,7 @@ public class StructureWindow extends JFrame implements ActionListener,
 		panelMain.setDividerLocation(650);
 		panelMain.setResizeWeight(1.0);
 
-		panelHashing = new PanelHashing(this);
+		panelHashing = new PanelHashing(this, keyFactory);
 
 		panelSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		panelSplit.setDividerLocation(880);
@@ -197,7 +201,7 @@ public class StructureWindow extends JFrame implements ActionListener,
 	}
 	//TODO Documentar
 	public void setSelectedNode(DHDChord dhdChord) {
-		actualHashing = hashingGenerator.generateHashing(dhdChord.getDHashNode().getName(),Key.getKeyLength());
+		actualHashing = hashingGenerator.generateHashing(dhdChord.getDHashNode().getName(),keyFactory.getKeyLength());
 
 		labelId.setText("Id=" + dhdChord.getNumberNode());
 		labelValue.setText("Value=" + dhdChord.getDHashNode().getName());
@@ -226,9 +230,9 @@ public class StructureWindow extends JFrame implements ActionListener,
 								spinnerNumberShowKeyModel.getNumber().intValue()));
 		}
 		if (e.getSource()==spinnerLengthKey) {
-			Key.setKeyLength(spinnerNumberLengthKeyModel.getNumber().intValue());
+			keyFactory.updateKeyLength(spinnerNumberLengthKeyModel.getNumber().intValue());
 			
-			int keyLength = Key.getKeyLength();
+			int keyLength = keyFactory.getKeyLength();
 
 			BigInteger i = new BigInteger("2");
 			i = i.pow(keyLength);

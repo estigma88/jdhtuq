@@ -1,8 +1,7 @@
 package co.edu.uniquindio.dhash.node;
 
 import co.edu.uniquindio.dhash.resource.ResourceAlreadyExistException;
-import co.edu.uniquindio.utils.hashing.HashingGenerator;
-import co.edu.uniquindio.utils.hashing.Key;
+import co.edu.uniquindio.overlay.Key;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +28,7 @@ public class ReAssignObserverTest {
 
     @Before
     public void before(){
-        reAssignObserver = new ReAssignObserver(dHashNode);
+        reAssignObserver = new ReAssignObserver(dHashNode, keyFactory);
         reAssignObserver.setDHashNode(dhashNode);
     }
 

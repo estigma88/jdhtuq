@@ -30,6 +30,8 @@ import co.edu.uniquindio.dhash.resource.ResourceNotFoundException;
 import co.edu.uniquindio.dhash.resource.checksum.ChecksumeCalculator;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
+import co.edu.uniquindio.overlay.Key;
+import co.edu.uniquindio.overlay.KeyFactory;
 import co.edu.uniquindio.overlay.OverlayException;
 import co.edu.uniquindio.overlay.OverlayNode;
 import co.edu.uniquindio.storage.StorageException;
@@ -40,7 +42,6 @@ import co.edu.uniquindio.utils.communication.message.BigMessageXML;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.MessageXML;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
-import co.edu.uniquindio.utils.hashing.Key;
 import org.apache.log4j.Logger;
 
 import java.util.Set;
@@ -59,15 +60,16 @@ public class DHashNode implements StorageNode {
     private static final Logger logger = Logger
             .getLogger(DHashNode.class);
 
-    private CommunicationManager communicationManager;
-    private OverlayNode overlayNode;
-    private int replicationFactor;
-    private String name;
-    private SerializationHandler serializationHandler;
-    private ChecksumeCalculator checksumeCalculator;
-    private ResourceManager resourceManager;
+    private final CommunicationManager communicationManager;
+    private final OverlayNode overlayNode;
+    private final int replicationFactor;
+    private final String name;
+    private final SerializationHandler serializationHandler;
+    private final ChecksumeCalculator checksumeCalculator;
+    private final ResourceManager resourceManager;
+    private final KeyFactory keyFactory;
 
-    public DHashNode(OverlayNode overlayNode, int replicationFactor, String name, CommunicationManager communicationManager, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, ResourceManager resourceManager) {
+    public DHashNode(OverlayNode overlayNode, int replicationFactor, String name, CommunicationManager communicationManager, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, ResourceManager resourceManager, KeyFactory keyFactory) {
         this.overlayNode = overlayNode;
         this.replicationFactor = replicationFactor;
         this.name = name;
@@ -75,6 +77,7 @@ public class DHashNode implements StorageNode {
         this.serializationHandler = serializationHandler;
         this.checksumeCalculator = checksumeCalculator;
         this.resourceManager = resourceManager;
+        this.keyFactory = keyFactory;
     }
 
     /*
@@ -84,7 +87,7 @@ public class DHashNode implements StorageNode {
      */
     public Resource get(String id) throws StorageException {
 
-        Key key = new Key(id);
+        Key key = keyFactory.newKey(id);
         Key lookupKey = overlayNode.lookUp(key);
         Message getMessage;
         Message resourceTransferMessage;
@@ -135,10 +138,10 @@ public class DHashNode implements StorageNode {
      */
     public void put(Resource resource) throws StorageException {
 
-        Key key = new Key(resource.getId());
+        Key key = keyFactory.newKey(resource.getId());
 
         logger.debug("Resource to put: [" + resource.getId() + "] Hashing: ["
-                + key.getStringHashing() + "]");
+                + key.getHashing() + "]");
 
         Key lookupKey = overlayNode.lookUp(key);
 
@@ -150,7 +153,7 @@ public class DHashNode implements StorageNode {
                     + resource.getId() + " in this moment");
         }
 
-        logger.debug("Lookup key for " + key.getStringHashing() + ": ["
+        logger.debug("Lookup key for " + key.getHashing() + ": ["
                 + lookupKey.getValue() + "]");
 
         put(resource, lookupKey, true);
@@ -171,8 +174,8 @@ public class DHashNode implements StorageNode {
             logger
                     .debug("Replicate File: [" + resource.getId()
                             + "] Hashing: ["
-                            + succesorList[i].getStringHashing() + "]");
-            logger.debug("Replicate to " + succesorList[i].getStringHashing());
+                            + succesorList[i].getHashing() + "]");
+            logger.debug("Replicate to " + succesorList[i].getHashing());
 
             put(resource, succesorList[i], false);
         }
@@ -248,7 +251,7 @@ public class DHashNode implements StorageNode {
     }
 
     Key getFileKey(String name) {
-        return new Key(name);
+        return keyFactory.newKey(name);
     }
 
     /*

@@ -20,7 +20,7 @@ package co.edu.uniquindio.chord;
 
 import co.edu.uniquindio.chord.node.ChordNode;
 import co.edu.uniquindio.overlay.OverlayNode;
-import co.edu.uniquindio.utils.hashing.Key;
+import co.edu.uniquindio.overlay.Key;
 
 /**
  * The {@code Chord} interface defines the basic methods for creating the node

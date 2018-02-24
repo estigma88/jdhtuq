@@ -1,359 +1,355 @@
 package co.edu.uniquindio.dht.gui.structure.controller;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import co.edu.uniquindio.chord.node.ChordNodeFactory;
+import co.edu.uniquindio.chord.hashing.HashingGenerator;
 import co.edu.uniquindio.chord.node.LookupType;
 import co.edu.uniquindio.chord.protocol.Protocol;
 import co.edu.uniquindio.chord.protocol.Protocol.LookupParams;
 import co.edu.uniquindio.chord.protocol.Protocol.LookupResponseParams;
 import co.edu.uniquindio.dhash.resource.ResourceNotFoundException;
 import co.edu.uniquindio.dht.gui.PanelDhash;
-import co.edu.uniquindio.dht.gui.network.NetworkWindow;
 import co.edu.uniquindio.dht.gui.structure.StructureWindow;
 import co.edu.uniquindio.dht.gui.structure.graph.Edge;
 import co.edu.uniquindio.dht.gui.structure.graph.PanelGraph;
 import co.edu.uniquindio.dht.gui.structure.manager.PanelManager;
 import co.edu.uniquindio.dht.gui.structure.utils.DHDChord;
+import co.edu.uniquindio.overlay.KeyFactory;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.StorageNode;
 import co.edu.uniquindio.storage.StorageNodeFactory;
 import co.edu.uniquindio.utils.communication.Observer;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
-import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerCache;
-import co.edu.uniquindio.utils.hashing.HashingGenerator;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 //TODO Documentar
 public class Controller implements Observer<Message> {
 
-	private HashingGenerator hashingGenerator;
-	// TODO Documentar
-	private PanelManager panelManager;
-	// TODO Documentar
-	private StructureWindow structureWindow;
-	// TODO Documentar
-	private PanelDhash panelDhash;
-	// TODO Documentar
-	private List<DHDChord> dhdChordList;
-	// TODO Documentar
-	private PanelGraph panelGraph;
-	// TODO Documentar
-	private int numOfNodes = 0;
-	// TODO Documentar
-	private boolean isFirstNode = true;
-	// TODO Documentar
-	private String selectedNode = "";
-	private StorageNodeFactory storageNodeFactory;
-	private CommunicationManager communicationManager;
-
-	// TODO Documentar
-	public Controller() {
-		dhdChordList = new ArrayList<DHDChord>();
-	}
-
-	public Controller(StorageNodeFactory storageNodeFactory, CommunicationManager communicationManager, HashingGenerator hashingGenerator) {
-		this();
-		this.storageNodeFactory = storageNodeFactory;
-		this.communicationManager = communicationManager;
-		this.hashingGenerator = hashingGenerator;
-	}
-
-	// TODO Documentar
-	public void changeToNode(String selectedNode) {
-		validateSelection(selectedNode);
-
-		DHDChord dhdChord = getDHDChordNode(selectedNode);
-
-		changeNode(dhdChord.getDHashNode().getName(), dhdChord);
-	}
-
-	// TODO Documentar
-	private void validateSelection(String selectedNode) {
-		if (selectedNode == null || selectedNode.equals("")) {
-			panelDhash.setEnabled(false);
-			panelManager.setEnabled(false);
-			panelGraph.setPickNode(null);
-			structureWindow.clean();
-			return;
-		} else {
-			panelDhash.setEnabled(true);
-			panelManager.setEnabled(true);
-		}
-
-		this.selectedNode = selectedNode;
-	}
-
-	// TODO Documentar
-	private void changeNode(String selectedNode, DHDChord dhdChord) {
-		StorageNode dHashNode;
-
-		validateSelection(selectedNode);
-
-		if (dhdChord != null) {
-			dHashNode = dhdChord.getDHashNode();
-			panelDhash.setDHashNode(dHashNode);
-			panelDhash.enableOpenFolder();
-		}
-
-		panelGraph.setPickNode(dhdChord.getNumberNode() + "");
-		panelManager.setSelectedNode(selectedNode);
-		structureWindow.setSelectedNode(dhdChord);
-
-	}
-
-	// TODO Documentar
-	public void createNode(String name) {
-		try {
-			StorageNode dHash;
-			if (name.equals("")) {
-				dHash = storageNodeFactory.createNode();
-			} else {
-				dHash = storageNodeFactory.createNode(name);
-			}
-
-			if (isFirstNode) {
-				isFirstNode = false;
-
-				communicationManager.addObserver(this);
-			}
-
-			numOfNodes++;
-
-			DHDChord dhdChord = new DHDChord(dHash, numOfNodes, hashingGenerator);
-
-			dhdChordList.add(dhdChord);
-
-			sortNodes();
-
-			panelManager.addNode(dhdChordList);
-
-			makeRing();
+    private HashingGenerator hashingGenerator;
+    // TODO Documentar
+    private PanelManager panelManager;
+    // TODO Documentar
+    private StructureWindow structureWindow;
+    // TODO Documentar
+    private PanelDhash panelDhash;
+    // TODO Documentar
+    private List<DHDChord> dhdChordList;
+    // TODO Documentar
+    private PanelGraph panelGraph;
+    // TODO Documentar
+    private int numOfNodes = 0;
+    // TODO Documentar
+    private boolean isFirstNode = true;
+    // TODO Documentar
+    private String selectedNode = "";
+    private StorageNodeFactory storageNodeFactory;
+    private CommunicationManager communicationManager;
+    private KeyFactory keyFactory;
+
+    // TODO Documentar
+    public Controller() {
+        dhdChordList = new ArrayList<DHDChord>();
+    }
+
+    public Controller(StorageNodeFactory storageNodeFactory, CommunicationManager communicationManager, HashingGenerator hashingGenerator, KeyFactory keyFactory) {
+        this();
+        this.storageNodeFactory = storageNodeFactory;
+        this.communicationManager = communicationManager;
+        this.keyFactory = keyFactory;
+        this.hashingGenerator = hashingGenerator;
+    }
+
+    // TODO Documentar
+    public void changeToNode(String selectedNode) {
+        validateSelection(selectedNode);
+
+        DHDChord dhdChord = getDHDChordNode(selectedNode);
+
+        changeNode(dhdChord.getDHashNode().getName(), dhdChord);
+    }
+
+    // TODO Documentar
+    private void validateSelection(String selectedNode) {
+        if (selectedNode == null || selectedNode.equals("")) {
+            panelDhash.setEnabled(false);
+            panelManager.setEnabled(false);
+            panelGraph.setPickNode(null);
+            structureWindow.clean();
+            return;
+        } else {
+            panelDhash.setEnabled(true);
+            panelManager.setEnabled(true);
+        }
+
+        this.selectedNode = selectedNode;
+    }
+
+    // TODO Documentar
+    private void changeNode(String selectedNode, DHDChord dhdChord) {
+        StorageNode dHashNode;
+
+        validateSelection(selectedNode);
+
+        if (dhdChord != null) {
+            dHashNode = dhdChord.getDHashNode();
+            panelDhash.setDHashNode(dHashNode);
+            panelDhash.enableOpenFolder();
+        }
+
+        panelGraph.setPickNode(dhdChord.getNumberNode() + "");
+        panelManager.setSelectedNode(selectedNode);
+        structureWindow.setSelectedNode(dhdChord);
+
+    }
+
+    // TODO Documentar
+    public void createNode(String name) {
+        try {
+            StorageNode dHash;
+            if (name.equals("")) {
+                dHash = storageNodeFactory.createNode();
+            } else {
+                dHash = storageNodeFactory.createNode(name);
+            }
+
+            if (isFirstNode) {
+                isFirstNode = false;
+
+                communicationManager.addObserver(this);
+            }
+
+            numOfNodes++;
+
+            DHDChord dhdChord = new DHDChord(dHash, numOfNodes, hashingGenerator, keyFactory);
+
+            dhdChordList.add(dhdChord);
+
+            sortNodes();
+
+            panelManager.addNode(dhdChordList);
 
-			// StabilizedListener stabilizedListener = new StabilizedListener(
-			// dhdChordList, this);
-			// stabilizedListener.start();
+            makeRing();
 
-			changeNode(dHash.getName(), dhdChord);
+            // StabilizedListener stabilizedListener = new StabilizedListener(
+            // dhdChordList, this);
+            // stabilizedListener.start();
 
-		} catch (ResourceNotFoundException e) {
-			e.printStackTrace();
-		} catch (StorageException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+            changeNode(dHash.getName(), dhdChord);
 
-	// TODO Documentary
-	public void createNodesFromPath(File path) {
-		try {
-			FileReader fileReader = new FileReader(path);
-			BufferedReader bufferedReader = new BufferedReader(fileReader);
+        } catch (ResourceNotFoundException e) {
+            e.printStackTrace();
+        } catch (StorageException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 
-			String line = bufferedReader.readLine();
+    // TODO Documentary
+    public void createNodesFromPath(File path) {
+        try {
+            FileReader fileReader = new FileReader(path);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
 
-			while (line != null) {
-				createNode(line.trim());
+            String line = bufferedReader.readLine();
 
-				panelGraph.repaint();
-
-				Thread.sleep(1000);
+            while (line != null) {
+                createNode(line.trim());
 
-				line = bufferedReader.readLine();
-			}
-
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-	}
-
-	// TODO Documentar
-	public void createNnodes(int numberOfNodes) {
-		for (int i = 0; i < numberOfNodes; i++) {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-
-			createNode("");
-
-			panelGraph.repaint();
-		}
-	}
-
-	// TODO Documentar
-	public void deleteNode(String selectedNode) {
-		DHDChord dhdChord = getDHDChordNode(selectedNode);
-		StorageNode dHashNode = dhdChord.getDHashNode();
-
-		panelDhash.setDHashNode(dHashNode);
-		panelDhash.exit();
-
-		dhdChordList.remove(dhdChord);
-
-		if (dhdChordList.size() == 0) {
-			validateSelection("");
-			makeRing();
-			return;
-		}
-
-		sortNodes();
-		makeRing();
-
-		dhdChord = dhdChordList.get(0);
-
-		// setStabilizingState(false);
-		//
-		// StabilizedListener stabilizedListener = new StabilizedListener(
-		// dhdChordList, this);
-		// stabilizedListener.start();
-
-		changeNode(dhdChord.getDHashNode().getName(), dhdChord);
-	}
-
-	// TODO Documentar
-	private void sortNodes() {
-		Collections.sort(dhdChordList);
-	}
-
-	// TODO Documentar
-	private void makeRing() {
-		panelGraph.makeRing(dhdChordList);
-	}
-
-	// TODO Documentar
-	public void clearGraph() {
-		panelGraph.deleteTrace();
-	}
-
-	// TODO Documentar
-	private void fixEdges(ArrayList<Edge> edges) {
-		Edge edge = edges.get(0);
-		String successor = edge.getSuccessor();
-		ArrayList<Edge> edgesToPaint = new ArrayList<Edge>();
-
-		edgesToPaint.add(edge);
-
-		for (int i = 1; i < edges.size(); i++) {
-			Edge e = edges.get(i);
-
-			if (e.getSuccessor().equals(successor)) {
-				edgesToPaint.add(e);
-			}
-		}
-
-		panelGraph.setEdges(edgesToPaint);
-	}
-
-	// TODO Documentar
-	@Override
-	public void update(Message message) {
-		if (message.getType().equals(Protocol.LOOKUP_RESPONSE.getName())) {
-			if (message.getParam(LookupParams.TYPE.name()).equals(
-					LookupType.LOOKUP.name())) {
-
-				String from = getNumOfNode(message.getMessageSource());
-				String to = getNumOfNode(message.getMessageDestination());
-				String successor = getNumOfNode(message
-						.getParam(LookupResponseParams.NODE_FIND.name()));
-
-				panelGraph.addEdge(from, to, successor);
-				fixEdges(panelGraph.getEdges());
-			}
-		}
-	}
-
-	// TODO Documentar
-	private String getNumOfNode(String node) {
-		for (DHDChord dhdChord : dhdChordList) {
-			StorageNode dhtNode = dhdChord.getDHashNode();
-
-			if (dhtNode.getName().equals(node)) {
-				return "" + dhdChord.getNumberNode();
-			}
-		}
-		return null;
-	}
-
-	// TODO Documentar
-	private DHDChord getDHDChordNode(String node) {
-		for (DHDChord dhdChord : dhdChordList) {
-			StorageNode dhtNode = dhdChord.getDHashNode();
-
-			if (dhtNode.getName().equals(node)) {
-				return dhdChord;
-			}
-		}
-		return null;
-	}
-
-	// TODO Documentar
-	public PanelManager getPanelManager() {
-		return panelManager;
-	}
-
-	// TODO Documentar
-	public void setPanelManager(PanelManager panelManager) {
-		this.panelManager = panelManager;
-	}
-
-	// TODO Documentar
-	public StructureWindow getStructureWindow() {
-		return structureWindow;
-	}
-
-	// TODO Documentar
-	public void setStructureWindow(StructureWindow structureWindow) {
-		this.structureWindow = structureWindow;
-	}
-
-	// TODO Documentar
-	public PanelDhash getPanelDhash() {
-		return panelDhash;
-	}
-
-	// TODO Documentar
-	public void setPanelDhash(PanelDhash panelDhash) {
-		this.panelDhash = panelDhash;
-	}
-
-	// TODO Documentar
-	public void setPanelLienzo(PanelGraph panelGrafo) {
-		this.panelGraph = panelGrafo;
-	}
-
-	// TODO Documentar
-	public void setActionColor(boolean isPut) {
-		panelGraph.setActionColor(isPut);
-	}
-
-	// TODO Documentar
-	public String getSelectedNode() {
-		return selectedNode;
-	}
-
-	// TODO Documentar
-	@Override
-	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public List<DHDChord> getDhdChordList() {
-		return dhdChordList;
-	}
+                panelGraph.repaint();
+
+                Thread.sleep(1000);
+
+                line = bufferedReader.readLine();
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    // TODO Documentar
+    public void createNnodes(int numberOfNodes) {
+        for (int i = 0; i < numberOfNodes; i++) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            createNode("");
+
+            panelGraph.repaint();
+        }
+    }
+
+    // TODO Documentar
+    public void deleteNode(String selectedNode) {
+        DHDChord dhdChord = getDHDChordNode(selectedNode);
+        StorageNode dHashNode = dhdChord.getDHashNode();
+
+        panelDhash.setDHashNode(dHashNode);
+        panelDhash.exit();
+
+        dhdChordList.remove(dhdChord);
+
+        if (dhdChordList.size() == 0) {
+            validateSelection("");
+            makeRing();
+            return;
+        }
+
+        sortNodes();
+        makeRing();
+
+        dhdChord = dhdChordList.get(0);
+
+        // setStabilizingState(false);
+        //
+        // StabilizedListener stabilizedListener = new StabilizedListener(
+        // dhdChordList, this);
+        // stabilizedListener.start();
+
+        changeNode(dhdChord.getDHashNode().getName(), dhdChord);
+    }
+
+    // TODO Documentar
+    private void sortNodes() {
+        Collections.sort(dhdChordList);
+    }
+
+    // TODO Documentar
+    private void makeRing() {
+        panelGraph.makeRing(dhdChordList);
+    }
+
+    // TODO Documentar
+    public void clearGraph() {
+        panelGraph.deleteTrace();
+    }
+
+    // TODO Documentar
+    private void fixEdges(ArrayList<Edge> edges) {
+        Edge edge = edges.get(0);
+        String successor = edge.getSuccessor();
+        ArrayList<Edge> edgesToPaint = new ArrayList<Edge>();
+
+        edgesToPaint.add(edge);
+
+        for (int i = 1; i < edges.size(); i++) {
+            Edge e = edges.get(i);
+
+            if (e.getSuccessor().equals(successor)) {
+                edgesToPaint.add(e);
+            }
+        }
+
+        panelGraph.setEdges(edgesToPaint);
+    }
+
+    // TODO Documentar
+    @Override
+    public void update(Message message) {
+        if (message.getType().equals(Protocol.LOOKUP_RESPONSE.getName())) {
+            if (message.getParam(LookupParams.TYPE.name()).equals(
+                    LookupType.LOOKUP.name())) {
+
+                String from = getNumOfNode(message.getMessageSource());
+                String to = getNumOfNode(message.getMessageDestination());
+                String successor = getNumOfNode(message
+                        .getParam(LookupResponseParams.NODE_FIND.name()));
+
+                panelGraph.addEdge(from, to, successor);
+                fixEdges(panelGraph.getEdges());
+            }
+        }
+    }
+
+    // TODO Documentar
+    private String getNumOfNode(String node) {
+        for (DHDChord dhdChord : dhdChordList) {
+            StorageNode dhtNode = dhdChord.getDHashNode();
+
+            if (dhtNode.getName().equals(node)) {
+                return "" + dhdChord.getNumberNode();
+            }
+        }
+        return null;
+    }
+
+    // TODO Documentar
+    private DHDChord getDHDChordNode(String node) {
+        for (DHDChord dhdChord : dhdChordList) {
+            StorageNode dhtNode = dhdChord.getDHashNode();
+
+            if (dhtNode.getName().equals(node)) {
+                return dhdChord;
+            }
+        }
+        return null;
+    }
+
+    // TODO Documentar
+    public PanelManager getPanelManager() {
+        return panelManager;
+    }
+
+    // TODO Documentar
+    public void setPanelManager(PanelManager panelManager) {
+        this.panelManager = panelManager;
+    }
+
+    // TODO Documentar
+    public StructureWindow getStructureWindow() {
+        return structureWindow;
+    }
+
+    // TODO Documentar
+    public void setStructureWindow(StructureWindow structureWindow) {
+        this.structureWindow = structureWindow;
+    }
+
+    // TODO Documentar
+    public PanelDhash getPanelDhash() {
+        return panelDhash;
+    }
+
+    // TODO Documentar
+    public void setPanelDhash(PanelDhash panelDhash) {
+        this.panelDhash = panelDhash;
+    }
+
+    // TODO Documentar
+    public void setPanelLienzo(PanelGraph panelGrafo) {
+        this.panelGraph = panelGrafo;
+    }
+
+    // TODO Documentar
+    public void setActionColor(boolean isPut) {
+        panelGraph.setActionColor(isPut);
+    }
+
+    // TODO Documentar
+    public String getSelectedNode() {
+        return selectedNode;
+    }
+
+    // TODO Documentar
+    @Override
+    public String getName() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public List<DHDChord> getDhdChordList() {
+        return dhdChordList;
+    }
 
 }

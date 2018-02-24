@@ -10,4 +10,5 @@ public class ChordProperties {
     private int successorListAmount = 3;
     private CommunicationType communicationType = CommunicationType.NETWORK;
     private int stableRingThreadPool = 3;
+    private int keyLength = 160;
 }

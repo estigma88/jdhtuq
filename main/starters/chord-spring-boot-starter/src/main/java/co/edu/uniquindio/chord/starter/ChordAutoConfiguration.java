@@ -1,17 +1,19 @@
 package co.edu.uniquindio.chord.starter;
 
+import co.edu.uniquindio.chord.ChordKeyFactory;
+import co.edu.uniquindio.chord.hashing.HashingGenerator;
+import co.edu.uniquindio.chord.hashing.HashingGeneratorImp;
 import co.edu.uniquindio.chord.node.BootStrap;
 import co.edu.uniquindio.chord.node.ChordNodeFactory;
 import co.edu.uniquindio.chord.node.command.CheckPredecessorCommand;
 import co.edu.uniquindio.chord.node.command.FixFingersCommand;
 import co.edu.uniquindio.chord.node.command.FixSuccessorsCommand;
 import co.edu.uniquindio.chord.node.command.StabilizeCommand;
+import co.edu.uniquindio.overlay.KeyFactory;
 import co.edu.uniquindio.overlay.OverlayNodeFactory;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.network.CommunicationManagerUDP;
 import co.edu.uniquindio.utils.communication.transfer.structure.CommunicationManagerStructure;
-import co.edu.uniquindio.utils.hashing.HashingGenerator;
-import co.edu.uniquindio.utils.hashing.HashingGeneratorImp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -34,8 +36,8 @@ public class ChordAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public OverlayNodeFactory overlayNodeFactory(@Qualifier("communicationManagerChord") CommunicationManager communicationManager, BootStrap bootStrap, ScheduledExecutorService scheduledStableRing, List<Observer> stableRingObservers) {
-        return new ChordNodeFactory(communicationManager, new HashSet<>(), chordProperties.getStableRingTime(), chordProperties.getSuccessorListAmount(), bootStrap, scheduledStableRing, stableRingObservers);
+    public OverlayNodeFactory overlayNodeFactory(@Qualifier("communicationManagerChord") CommunicationManager communicationManager, BootStrap bootStrap, ScheduledExecutorService scheduledStableRing, List<Observer> stableRingObservers, KeyFactory keyFactory) {
+        return new ChordNodeFactory(communicationManager, new HashSet<>(), chordProperties.getStableRingTime(), chordProperties.getSuccessorListAmount(), bootStrap, scheduledStableRing, stableRingObservers, keyFactory);
     }
 
     @Bean
@@ -46,6 +48,11 @@ public class ChordAutoConfiguration {
     @Bean
     public HashingGenerator hashingGenerator() {
         return new HashingGeneratorImp();
+    }
+
+    @Bean
+    public KeyFactory keyFactory(HashingGenerator hashingGenerator) {
+        return new ChordKeyFactory(hashingGenerator, chordProperties.getKeyLength());
     }
 
     @Bean

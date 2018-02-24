@@ -19,12 +19,12 @@
 
 package co.edu.uniquindio.chord.node;
 
+import co.edu.uniquindio.chord.ChordKey;
 import co.edu.uniquindio.chord.protocol.Protocol;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.MessageXML;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
-import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerCache;
-import co.edu.uniquindio.utils.hashing.Key;
+import co.edu.uniquindio.overlay.Key;
 import org.apache.log4j.Logger;
 
 /**
@@ -72,7 +72,7 @@ public class BootStrap {
 				.getKey().getValue());
 
 		findNode = communicationManager.sendMessageMultiCast(bootStrapMessage,
-				Key.class);
+				ChordKey.class);
 
 		logger.info("Finish search node");
 

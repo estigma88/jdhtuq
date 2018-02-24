@@ -19,7 +19,8 @@
 package co.edu.uniquindio.dhash.node;
 
 import co.edu.uniquindio.dhash.resource.ResourceAlreadyExistException;
-import co.edu.uniquindio.utils.hashing.Key;
+import co.edu.uniquindio.overlay.Key;
+import co.edu.uniquindio.overlay.KeyFactory;
 import org.apache.log4j.Logger;
 
 import java.util.Arrays;
@@ -45,9 +46,11 @@ public class ReAssignObserver implements Observer {
             .getLogger(ReAssignObserver.class);
 
     private final DHashNode dHashNode;
+    private final KeyFactory keyFactory;
 
-    public ReAssignObserver(DHashNode dHashNode) {
+    public ReAssignObserver(DHashNode dHashNode, KeyFactory keyFactory) {
         this.dHashNode = dHashNode;
+        this.keyFactory = keyFactory;
     }
 
     @Override
@@ -70,7 +73,7 @@ public class ReAssignObserver implements Observer {
 
             if (message[0].equals("REASSIGN")) {
                 try {
-                    dHashNode.relocateAllResources(new Key(message[1]));
+                    dHashNode.relocateAllResources(keyFactory.newKey(message[1]));
                 } catch (ResourceAlreadyExistException e) {
                     logger.error("Error relocaled", e);
                 }

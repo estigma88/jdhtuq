@@ -22,6 +22,7 @@ import co.edu.uniquindio.dhash.resource.checksum.ChecksumeCalculator;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManagerFactory;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
+import co.edu.uniquindio.overlay.KeyFactory;
 import co.edu.uniquindio.overlay.OverlayException;
 import co.edu.uniquindio.overlay.OverlayNode;
 import co.edu.uniquindio.overlay.OverlayNodeFactory;
@@ -51,20 +52,22 @@ public class DHashNodeFactory implements StorageNodeFactory {
     private static final Logger logger = Logger
             .getLogger(DHashNodeFactory.class);
 
-    private int replicationFactor;
-    private CommunicationManager communicationManager;
-    private OverlayNodeFactory overlayNodeFactory;
-    private SerializationHandler serializationHandler;
-    private ChecksumeCalculator checksumeCalculator;
-    private ResourceManagerFactory resourceManagerFactory;
+    private final int replicationFactor;
+    private final CommunicationManager communicationManager;
+    private final OverlayNodeFactory overlayNodeFactory;
+    private final SerializationHandler serializationHandler;
+    private final ChecksumeCalculator checksumeCalculator;
+    private final ResourceManagerFactory resourceManagerFactory;
+    private final KeyFactory keyFactory;
 
-    public DHashNodeFactory(CommunicationManager communicationManager, OverlayNodeFactory overlayNodeFactory, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, ResourceManagerFactory resourceManagerFactory, int replicationFactor) {
+    public DHashNodeFactory(CommunicationManager communicationManager, OverlayNodeFactory overlayNodeFactory, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, ResourceManagerFactory resourceManagerFactory, int replicationFactor, KeyFactory keyFactory) {
         this.communicationManager = communicationManager;
         this.overlayNodeFactory = overlayNodeFactory;
         this.serializationHandler = serializationHandler;
         this.checksumeCalculator = checksumeCalculator;
         this.resourceManagerFactory = resourceManagerFactory;
         this.replicationFactor = replicationFactor;
+        this.keyFactory = keyFactory;
     }
 
     /*
@@ -121,7 +124,7 @@ public class DHashNodeFactory implements StorageNodeFactory {
     }
 
     ReAssignObserver getReAssignObserver(DHashNode dhashNode) {
-        return new ReAssignObserver(dhashNode);
+        return new ReAssignObserver(dhashNode, keyFactory);
     }
 
     DHashEnvironment getDHashEnviroment(DHashNode dhashNode, ResourceManager resourceManager) {
@@ -129,7 +132,7 @@ public class DHashNodeFactory implements StorageNodeFactory {
     }
 
     DHashNode getDhashNode(String name, OverlayNode overlayNode, ResourceManager resourceManager) {
-        return new DHashNode(overlayNode, replicationFactor, name, communicationManager, serializationHandler, checksumeCalculator, resourceManager);
+        return new DHashNode(overlayNode, replicationFactor, name, communicationManager, serializationHandler, checksumeCalculator, resourceManager, keyFactory);
     }
 
     /*

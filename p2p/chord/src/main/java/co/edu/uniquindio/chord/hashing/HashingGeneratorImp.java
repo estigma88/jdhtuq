@@ -16,13 +16,11 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package co.edu.uniquindio.utils.hashing;
+package co.edu.uniquindio.chord.hashing;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
-import co.edu.uniquindio.utils.hashing.HashingGenerator;
 
 /**
  * The <code>HashingGeneratorImp</code> class is used for generate the hashing

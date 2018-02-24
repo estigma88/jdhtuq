@@ -1,12 +1,13 @@
 package co.edu.uniquindio.dht;
 
+import co.edu.uniquindio.chord.hashing.HashingGenerator;
 import co.edu.uniquindio.dhash.starter.CommunicationType;
 import co.edu.uniquindio.dht.gui.network.NetworkWindow;
 import co.edu.uniquindio.dht.gui.structure.StructureWindow;
 import co.edu.uniquindio.dht.gui.structure.controller.Controller;
+import co.edu.uniquindio.overlay.KeyFactory;
 import co.edu.uniquindio.storage.StorageNodeFactory;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
-import co.edu.uniquindio.utils.hashing.HashingGenerator;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -60,9 +61,9 @@ public class Main {
 
     @Bean
     @Lazy
-    public StructureWindow structureWindow(StorageNodeFactory storageNodeFactory, @Qualifier("communicationManagerChord") CommunicationManager communicationManager, HashingGenerator hashingGenerator) {
-        Controller controller = new Controller(storageNodeFactory, communicationManager, hashingGenerator);
-        StructureWindow structureWindow = new StructureWindow(hashingGenerator);
+    public StructureWindow structureWindow(StorageNodeFactory storageNodeFactory, @Qualifier("communicationManagerChord") CommunicationManager communicationManager, HashingGenerator hashingGenerator, KeyFactory keyFactory) {
+        Controller controller = new Controller(storageNodeFactory, communicationManager, hashingGenerator, keyFactory);
+        StructureWindow structureWindow = new StructureWindow(hashingGenerator, keyFactory);
 
         controller.setStructureWindow(structureWindow);
         structureWindow.setController(controller);

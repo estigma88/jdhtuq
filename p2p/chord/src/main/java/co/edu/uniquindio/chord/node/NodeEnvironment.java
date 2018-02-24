@@ -20,12 +20,13 @@ package co.edu.uniquindio.chord.node;
 
 import co.edu.uniquindio.chord.protocol.Protocol;
 import co.edu.uniquindio.chord.protocol.Protocol.*;
+import co.edu.uniquindio.overlay.Key;
+import co.edu.uniquindio.overlay.KeyFactory;
 import co.edu.uniquindio.utils.communication.Observer;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.Message.SendType;
 import co.edu.uniquindio.utils.communication.message.MessageXML;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
-import co.edu.uniquindio.utils.hashing.Key;
 import org.apache.log4j.Logger;
 
 import java.math.BigInteger;
@@ -55,7 +56,7 @@ class NodeEnvironment implements Observer<Message> {
     /**
      * Communication manager
      */
-    private CommunicationManager communicationManager;
+    private final CommunicationManager communicationManager;
 
     /**
      * Defines if an arrive message must be process.
@@ -65,19 +66,21 @@ class NodeEnvironment implements Observer<Message> {
     /**
      * The reference of the chord node.
      */
-    private ChordNode chordNode;
+    private final ChordNode chordNode;
 
     /**
      * The thread that uses the commands for stabilizing the node.
      */
-    private ScheduledFuture<?> stableRing;
-    private ChordNodeFactory chordNodeFactory;
+    private final ScheduledFuture<?> stableRing;
+    private final ChordNodeFactory chordNodeFactory;
+    private final KeyFactory keyFactory;
 
-    NodeEnvironment(CommunicationManager communicationManager, ChordNode chordNode, ScheduledFuture<?> stableRing, ChordNodeFactory chordNodeFactory) {
+    NodeEnvironment(CommunicationManager communicationManager, ChordNode chordNode, ScheduledFuture<?> stableRing, ChordNodeFactory chordNodeFactory, KeyFactory keyFactory) {
         this.communicationManager = communicationManager;
         this.chordNode = chordNode;
         this.stableRing = stableRing;
         this.chordNodeFactory = chordNodeFactory;
+        this.keyFactory = keyFactory;
     }
 
     @Override
@@ -167,7 +170,7 @@ class NodeEnvironment implements Observer<Message> {
     private void processSetSuccessor(Message message) {
         Key nodeSucessor;
 
-        nodeSucessor = new Key(message.getParam(SetSuccessorParams.SUCCESSOR
+        nodeSucessor = keyFactory.newKey(message.getParam(SetSuccessorParams.SUCCESSOR
                 .name()));
 
         chordNode.setSuccessor(nodeSucessor);
@@ -181,7 +184,7 @@ class NodeEnvironment implements Observer<Message> {
     private void processSetPredecessor(Message message) {
         Key nodePredecessor;
 
-        nodePredecessor = new Key(message
+        nodePredecessor = keyFactory.newKey(message
                 .getParam(SetPredecessorParams.PREDECESSOR.name()));
 
         chordNode.setPredecessor(nodePredecessor);
@@ -216,7 +219,7 @@ class NodeEnvironment implements Observer<Message> {
                     chordNode.getSuccessor().getValue(), chordNode.getKey()
                     .getValue());
             setPredecessorMessage.addParam(SetPredecessorParams.PREDECESSOR
-                    .name(), chordNode.getPredecessor().getValue());
+                    .name(), chordNode.getPredecessor().toString());
 
             communicationManager.sendMessageUnicast(setPredecessorMessage);
         }
@@ -242,7 +245,7 @@ class NodeEnvironment implements Observer<Message> {
                 SendType.RESPONSE, Protocol.BOOTSTRAP_RESPONSE, message
                 .getMessageSource(), chordNode.getKey().getValue());
         bootstrapResponseMessage.addParam(BootStrapResponseParams.NODE_FIND
-                .name(), chordNode.getKey().getValue());
+                .name(), chordNode.getKey().toString());
 
         communicationManager.sendMessageUnicast(bootstrapResponseMessage);
     }
@@ -270,7 +273,7 @@ class NodeEnvironment implements Observer<Message> {
 
             getPredecessorResponseMessage.addParam(
                     GetPredecessorResponseParams.PREDECESSOR.name(), chordNode
-                            .getPredecessor().getValue());
+                            .getPredecessor().toString());
 
         }
 
@@ -287,7 +290,7 @@ class NodeEnvironment implements Observer<Message> {
         if (!message.isMessageFromMySelf()) {
             Key node;
 
-            node = new Key(message.getMessageSource());
+            node = keyFactory.newKey(message.getMessageSource());
 
             chordNode.notify(node);
         }
@@ -330,17 +333,15 @@ class NodeEnvironment implements Observer<Message> {
         if (message.isMessageFromMySelf()) {
 
             lookupResponseMessage.addParam(LookupResponseParams.NODE_FIND
-                    .name(), chordNode.getKey().getValue());
+                    .name(), chordNode.getKey().toString());
 
         } else {
 
             Key response;
             Key id;
-            BigInteger hashing;
 
-            hashing = new BigInteger(message.getParam(LookupParams.HASHING
-                    .name()));
-            id = new Key(hashing);
+            id = keyFactory.newKey(new BigInteger(message.getParam(LookupParams.HASHING
+                    .name())));
 
             response = chordNode.findSuccessor(id, LookupType.valueOf(message
                     .getParam(LookupParams.TYPE.name())));
@@ -348,12 +349,12 @@ class NodeEnvironment implements Observer<Message> {
             if (response == null) {
 
                 lookupResponseMessage.addParam(LookupResponseParams.NODE_FIND
-                        .name(), chordNode.getKey().getValue());
+                        .name(), chordNode.getKey().toString());
 
             } else {
 
                 lookupResponseMessage.addParam(LookupResponseParams.NODE_FIND
-                        .name(), response.getValue());
+                        .name(), response.toString());
 
             }
 

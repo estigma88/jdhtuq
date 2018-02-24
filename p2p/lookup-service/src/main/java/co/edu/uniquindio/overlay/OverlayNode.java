@@ -18,8 +18,6 @@
 
 package co.edu.uniquindio.overlay;
 
-import co.edu.uniquindio.utils.hashing.Key;
-
 import java.util.Observable;
 
 /**

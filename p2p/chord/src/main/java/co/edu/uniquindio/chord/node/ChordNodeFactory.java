@@ -20,10 +20,11 @@
 package co.edu.uniquindio.chord.node;
 
 import co.edu.uniquindio.chord.Chord;
+import co.edu.uniquindio.overlay.Key;
+import co.edu.uniquindio.overlay.KeyFactory;
 import co.edu.uniquindio.overlay.OverlayNode;
 import co.edu.uniquindio.overlay.OverlayNodeFactory;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
-import co.edu.uniquindio.utils.hashing.Key;
 import org.apache.log4j.Logger;
 
 import java.net.InetAddress;
@@ -56,13 +57,13 @@ public class ChordNodeFactory implements OverlayNodeFactory {
             .getLogger(ChordNodeFactory.class);
     public static final int START_STABLE_RING = 5000;
 
-    private int stableRingTime;
-    private int successorListAmount;
+    private final int stableRingTime;
+    private final int successorListAmount;
 
     /**
      * Communication manager
      */
-    private CommunicationManager communicationManager;
+    private final CommunicationManager communicationManager;
 
     /**
      * Allows to create a node with no specified name.
@@ -71,12 +72,13 @@ public class ChordNodeFactory implements OverlayNodeFactory {
     /**
      * List of names of the nodes created
      */
-    private Set<String> names;
-    private BootStrap bootStrap;
-    private ScheduledExecutorService scheduledStableRing;
-    private List<Observer> stableRingObservers;
+    private final Set<String> names;
+    private final BootStrap bootStrap;
+    private final ScheduledExecutorService scheduledStableRing;
+    private final List<Observer> stableRingObservers;
+    private final KeyFactory keyFactory;
 
-    public ChordNodeFactory(CommunicationManager communicationManager, Set<String> names, int stableRingTime, int successorListAmount, BootStrap bootStrap, ScheduledExecutorService scheduledStableRing, List<Observer> stableRingObservers) {
+    public ChordNodeFactory(CommunicationManager communicationManager, Set<String> names, int stableRingTime, int successorListAmount, BootStrap bootStrap, ScheduledExecutorService scheduledStableRing, List<Observer> stableRingObservers, KeyFactory keyFactory) {
         this.communicationManager = communicationManager;
         this.names = names;
         this.stableRingTime = stableRingTime;
@@ -84,6 +86,7 @@ public class ChordNodeFactory implements OverlayNodeFactory {
         this.bootStrap = bootStrap;
         this.scheduledStableRing = scheduledStableRing;
         this.stableRingObservers = stableRingObservers;
+        this.keyFactory = keyFactory;
     }
 
     /**
@@ -128,7 +131,7 @@ public class ChordNodeFactory implements OverlayNodeFactory {
         nodeChord = getNodeChord(key);
 
         logger.info("Created node with name '" + nodeChord.getKey().getValue()
-                + "' and hashing '" + nodeChord.getKey().getStringHashing()
+                + "' and hashing '" + nodeChord.getKey().getHashing()
                 + "'");
 
         StableRing stableRing = getStableRing(nodeChord);
@@ -146,7 +149,7 @@ public class ChordNodeFactory implements OverlayNodeFactory {
 
 
     Key getKey(String name) {
-        return new Key(name);
+        return keyFactory.newKey(name);
     }
 
     StableRing getStableRing(ChordNode nodeChord) {
@@ -160,11 +163,11 @@ public class ChordNodeFactory implements OverlayNodeFactory {
     }
 
     NodeEnvironment getNodeEnviroment(ChordNode nodeChord, ScheduledFuture<?> stableRing) {
-        return new NodeEnvironment(communicationManager, nodeChord, stableRing, this);
+        return new NodeEnvironment(communicationManager, nodeChord, stableRing, this, keyFactory);
     }
 
     ChordNode getNodeChord(Key key) {
-        return new ChordNode(key, communicationManager, successorListAmount, bootStrap);
+        return new ChordNode(key, communicationManager, successorListAmount, bootStrap, keyFactory);
     }
 
     /**

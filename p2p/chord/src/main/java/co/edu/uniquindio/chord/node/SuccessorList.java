@@ -19,10 +19,11 @@
 package co.edu.uniquindio.chord.node;
 
 import co.edu.uniquindio.chord.protocol.Protocol;
+import co.edu.uniquindio.overlay.KeyFactory;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.MessageXML;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
-import co.edu.uniquindio.utils.hashing.Key;
+import co.edu.uniquindio.overlay.Key;
 import org.apache.log4j.Logger;
 
 /**
@@ -69,12 +70,14 @@ public class SuccessorList {
      * The reference of the chord node.
      */
     private ChordNode chordNode;
+    private KeyFactory keyFactory;
 
-    SuccessorList(ChordNode chordNode, CommunicationManager communicationManager, int successorListAmount) {
+    SuccessorList(ChordNode chordNode, CommunicationManager communicationManager, int successorListAmount, KeyFactory keyFactory) {
         this.size = successorListAmount;
         this.keyList = new Key[size];
         this.chordNode = chordNode;
         this.communicationManager = communicationManager;
+        this.keyFactory = keyFactory;
     }
 
     SuccessorList(CommunicationManager communicationManager, Key[] keyList, int size, ChordNode chordNode) {
@@ -106,7 +109,7 @@ public class SuccessorList {
         String[] successors = successorList.split(SEPARATOR);
 
         for (int i = 1; i < Math.min(size, successors.length); i++) {
-            keyList[i] = new Key(successors[i - 1]);
+            keyList[i] = keyFactory.newKey(successors[i - 1]);
         }
 
         logger.debug("Node: " + chordNode.getKey().getValue()

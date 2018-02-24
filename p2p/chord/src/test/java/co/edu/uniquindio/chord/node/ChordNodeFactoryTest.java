@@ -3,7 +3,7 @@ package co.edu.uniquindio.chord.node;
 import co.edu.uniquindio.chord.Chord;
 import co.edu.uniquindio.overlay.OverlayNode;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
-import co.edu.uniquindio.utils.hashing.Key;
+import co.edu.uniquindio.overlay.Key;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

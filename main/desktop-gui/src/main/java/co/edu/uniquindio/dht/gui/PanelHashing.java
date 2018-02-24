@@ -1,6 +1,7 @@
 package co.edu.uniquindio.dht.gui;
 
-import co.edu.uniquindio.utils.hashing.Key;
+import co.edu.uniquindio.overlay.Key;
+import co.edu.uniquindio.overlay.KeyFactory;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -60,14 +61,17 @@ public class PanelHashing extends JPanel implements ActionListener,
     // TODO Documentar
     private JSpinner spinner;
     private SpinnerNumberModel spinnerNumberModel;
+    private KeyFactory keyFactory;
 
     // TODO Documentar
-    public PanelHashing(JFrame frame) {
+    public PanelHashing(JFrame frame, KeyFactory keyFactory) {
+        this.keyFactory = keyFactory;
+
         setLayout(new BorderLayout());
 
         this.frame = frame;
 
-        int keyLength = Key.getKeyLength();
+        int keyLength = keyFactory.getKeyLength();
 
         BigInteger i = new BigInteger("2");
         i = i.pow(keyLength);
@@ -174,7 +178,7 @@ public class PanelHashing extends JPanel implements ActionListener,
         if (evento.getSource() == buttonGenerate) {
             String nombre = textFieldFile.getText();
 
-            Key key = new Key(nombre);
+            Key key = keyFactory.newKey(nombre);
 
             model.addRow(new Object[]{nombre,
                     cut(padding(key.getHashing()))});
@@ -347,7 +351,7 @@ public class PanelHashing extends JPanel implements ActionListener,
                 } else {
                     String nombre = files[i].getName();
 
-                    Key key = new Key(nombre);
+                    Key key = keyFactory.newKey(nombre);
                     model.addRow(new Object[]{nombre, cut(padding(key.getHashing()))});
 
                 }
@@ -381,7 +385,7 @@ public class PanelHashing extends JPanel implements ActionListener,
     // TODO Documentar
     private void loadTable() {
         for (int i = 0; i < model.getRowCount(); i++) {
-            Key key = new Key((String) model.getValueAt(i, 0));
+            Key key = keyFactory.newKey((String) model.getValueAt(i, 0));
 
             model.setValueAt(cut(padding(key.getHashing())), i, 1);
         }

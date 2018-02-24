@@ -22,7 +22,8 @@ package co.edu.uniquindio.chord.node;
 import java.math.BigInteger;
 import java.util.Arrays;
 
-import co.edu.uniquindio.utils.hashing.Key;
+import co.edu.uniquindio.overlay.Key;
+import co.edu.uniquindio.overlay.KeyFactory;
 import org.apache.log4j.Logger;
 
 /**
@@ -70,6 +71,7 @@ public class FingersTable {
 	 * Size of the fingers table.
 	 */
 	private int size;
+	private KeyFactory keyFactory;
 
 	/**
 	 * Constructor of the class. Receives a reference of the chord node and
@@ -78,11 +80,12 @@ public class FingersTable {
 	 * @param nodeChord
 	 *            The reference of the chord node.
 	 */
-	FingersTable(ChordNode nodeChord) {
-		this.size = Key.getKeyLength();
+	FingersTable(ChordNode nodeChord, KeyFactory keyFactory) {
+		this.size = keyFactory.getKeyLength();
 		this.chordNode = nodeChord;
 		this.next = 0;
 		this.fingersTable = new Key[size];
+		this.keyFactory = keyFactory;
 	}
 
 	FingersTable(Key[] fingersTable, ChordNode chordNode, int next, int size) {
@@ -131,7 +134,7 @@ public class FingersTable {
 		}
 
 		logger.debug("Node: " + chordNode.getKey().getValue() + " Next: " + next
-				+ " Key: " + createNext(chordNode.getKey()));
+				+ " ChordKey: " + createNext(chordNode.getKey()));
 
 		logger.debug("Fingers: " + Arrays.asList(fingersTable));
 	}
@@ -174,7 +177,7 @@ public class FingersTable {
 
 		nextValue = nextValue.mod(maxValue);
 
-		nextKey = new Key(nextValue);
+		nextKey = keyFactory.newKey(nextValue);
 
 		return nextKey;
 	}
@@ -200,7 +203,7 @@ public class FingersTable {
 	/**
 	 * Gets the fingers table array.
 	 * 
-	 * @return Key[]
+	 * @return ChordKey[]
 	 */
 	public Key[] getFingersTable() {
 		return fingersTable;

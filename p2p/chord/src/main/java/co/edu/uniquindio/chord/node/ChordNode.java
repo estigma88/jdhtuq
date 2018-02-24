@@ -20,12 +20,14 @@
 package co.edu.uniquindio.chord.node;
 
 import co.edu.uniquindio.chord.Chord;
+import co.edu.uniquindio.chord.ChordKey;
 import co.edu.uniquindio.chord.protocol.Protocol;
 import co.edu.uniquindio.chord.protocol.Protocol.LookupResponseParams;
+import co.edu.uniquindio.overlay.Key;
+import co.edu.uniquindio.overlay.KeyFactory;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.MessageXML;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
-import co.edu.uniquindio.utils.hashing.Key;
 import org.apache.log4j.Logger;
 
 import java.util.Observable;
@@ -89,10 +91,12 @@ public class ChordNode extends Observable implements Chord {
     private Key key;
 
     private BootStrap bootStrap;
+    private KeyFactory keyFactory;
 
-    ChordNode(Key key, CommunicationManager communicationManager, int successorListAmount, BootStrap bootStrap) {
+    ChordNode(Key key, CommunicationManager communicationManager, int successorListAmount, BootStrap bootStrap, KeyFactory keyFactory) {
+        this.keyFactory = keyFactory;
         this.fingersTable = newFingersTable();
-        this.successorList = new SuccessorList(this, communicationManager, successorListAmount);
+        this.successorList = new SuccessorList(this, communicationManager, successorListAmount, keyFactory);
         this.key = key;
         this.communicationManager = communicationManager;
         this.bootStrap = bootStrap;
@@ -146,12 +150,12 @@ public class ChordNode extends Observable implements Chord {
             lookupMessage = new MessageXML(Protocol.LOOKUP, next.getValue(),
                     key.getValue());
             lookupMessage.addParam(Protocol.LookupParams.HASHING.name(), id
-                    .getStringHashing());
+                    .getHashing().toString());
             lookupMessage.addParam(Protocol.LookupParams.TYPE.name(),
                     typeLookUp.name());
 
             return communicationManager.sendMessageUnicast(lookupMessage,
-                    Key.class, LookupResponseParams.NODE_FIND.name());
+                    ChordKey.class, LookupResponseParams.NODE_FIND.name());
         }
     }
 
@@ -182,12 +186,12 @@ public class ChordNode extends Observable implements Chord {
         lookupMessage = new MessageXML(Protocol.LOOKUP, node.getValue(), key
                 .getValue());
         lookupMessage.addParam(Protocol.LookupParams.HASHING.name(), key
-                .getStringHashing());
+                .getHashing().toString());
         lookupMessage.addParam(Protocol.LookupParams.TYPE.name(),
                 LookupType.JOIN.name());
 
         successor = communicationManager.sendMessageUnicast(lookupMessage,
-                Key.class, LookupResponseParams.NODE_FIND.name());
+                ChordKey.class, LookupResponseParams.NODE_FIND.name());
 
         successorList.initializeSuccessors();
     }
@@ -338,7 +342,7 @@ public class ChordNode extends Observable implements Chord {
     }
 
     FingersTable newFingersTable() {
-        return new FingersTable(this);
+        return new FingersTable(this, keyFactory);
     }
 
     /**
@@ -445,7 +449,7 @@ public class ChordNode extends Observable implements Chord {
     /**
      * Takes the node out of the network by sending a message of leave.
      *
-     * @return Key[] An array with node's successors
+     * @return ChordKey[] An array with node's successors
      */
     @Override
     public Key[] leave() {
@@ -463,7 +467,7 @@ public class ChordNode extends Observable implements Chord {
     /**
      * Gets node's successor list.
      *
-     * @return Key[] An array with node's successors
+     * @return ChordKey[] An array with node's successors
      */
     public Key[] getNeighborsList() {
         return successorList.getKeyList();

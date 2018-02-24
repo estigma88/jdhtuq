@@ -1,12 +1,13 @@
 package co.edu.uniquindio.dhash.starter;
 
 import co.edu.uniquindio.dhash.node.DHashNodeFactory;
-import co.edu.uniquindio.dhash.resource.checksum.ChecksumeCalculator;
 import co.edu.uniquindio.dhash.resource.checksum.BytesChecksumCalculator;
+import co.edu.uniquindio.dhash.resource.checksum.ChecksumeCalculator;
 import co.edu.uniquindio.dhash.resource.manager.FileResourceManagerFactory;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManagerFactory;
 import co.edu.uniquindio.dhash.resource.serialization.ObjectSerializationHandler;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
+import co.edu.uniquindio.overlay.KeyFactory;
 import co.edu.uniquindio.overlay.OverlayNodeFactory;
 import co.edu.uniquindio.storage.StorageNodeFactory;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
@@ -33,8 +34,8 @@ public class DHashAutoconfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public StorageNodeFactory storageNodeFactory(OverlayNodeFactory overlayNodeFactory, @Qualifier("communicationManagerDHash") CommunicationManager communicationManager, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, ResourceManagerFactory resourceManagerFactory) {
-        return new DHashNodeFactory(communicationManager, overlayNodeFactory, serializationHandler, checksumeCalculator, resourceManagerFactory, dHashProperties.getReplicationAmount());
+    public StorageNodeFactory storageNodeFactory(OverlayNodeFactory overlayNodeFactory, KeyFactory keyFactory, @Qualifier("communicationManagerDHash") CommunicationManager communicationManager, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, ResourceManagerFactory resourceManagerFactory) {
+        return new DHashNodeFactory(communicationManager, overlayNodeFactory, serializationHandler, checksumeCalculator, resourceManagerFactory, dHashProperties.getReplicationAmount(), keyFactory);
     }
 
     @Bean("communicationManagerDHash")
