@@ -22,6 +22,9 @@ package co.edu.uniquindio.chord.node.command;
 import co.edu.uniquindio.chord.node.ChordNode;
 import co.edu.uniquindio.chord.node.StableRing;
 
+import java.util.Observable;
+import java.util.Observer;
+
 /**
  * 
  * 
@@ -35,27 +38,18 @@ import co.edu.uniquindio.chord.node.StableRing;
  * @author Daniel Lopez
  * @version 1.0, 17/06/2010
  * @since 1.0
- * @see ChordNodeCommand
  * @see StableRing
  */
-public class CheckPredecessorCommand extends ChordNodeCommand {
-	/**
-	 * The constructor of the class.
-	 * 
-	 * @param nodeChord
-	 *            Initializes the chord node in its super class.
-	 */
-	public CheckPredecessorCommand(ChordNode nodeChord) {
-		super(nodeChord);
-	}
-
+public class CheckPredecessorCommand implements Observer {
 	/**
 	 * Executes the method {@code ChordNode.checkPredecessor} on the chord node
 	 * at once.
 	 */
-	@Override
-	public void run() {
-		nodeChord.checkPredecessor();
-	}
 
+	@Override
+	public void update(Observable observable, Object o) {
+		ChordNode chordNode = (ChordNode) o;
+
+		chordNode.checkPredecessor();
+	}
 }

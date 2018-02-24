@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  co.edu.uniquindio.chord.starter.ChordAutoconfiguration
+  co.edu.uniquindio.chord.starter.ChordAutoConfiguration

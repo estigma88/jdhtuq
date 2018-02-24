@@ -27,6 +27,8 @@ import co.edu.uniquindio.utils.hashing.Key;
 import org.apache.log4j.Logger;
 
 import java.net.InetAddress;
+import java.util.List;
+import java.util.Observer;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -72,14 +74,16 @@ public class ChordNodeFactory implements OverlayNodeFactory {
     private Set<String> names;
     private BootStrap bootStrap;
     private ScheduledExecutorService scheduledStableRing;
+    private List<Observer> stableRingObservers;
 
-    public ChordNodeFactory(CommunicationManager communicationManager, Set<String> names, int stableRingTime, int successorListAmount, BootStrap bootStrap, ScheduledExecutorService scheduledStableRing) {
+    public ChordNodeFactory(CommunicationManager communicationManager, Set<String> names, int stableRingTime, int successorListAmount, BootStrap bootStrap, ScheduledExecutorService scheduledStableRing, List<Observer> stableRingObservers) {
         this.communicationManager = communicationManager;
         this.names = names;
         this.stableRingTime = stableRingTime;
         this.successorListAmount = successorListAmount;
         this.bootStrap = bootStrap;
         this.scheduledStableRing = scheduledStableRing;
+        this.stableRingObservers = stableRingObservers;
     }
 
     /**
@@ -146,7 +150,13 @@ public class ChordNodeFactory implements OverlayNodeFactory {
     }
 
     StableRing getStableRing(ChordNode nodeChord) {
-        return new StableRing(nodeChord);
+        StableRing stableRing = new StableRing(nodeChord);
+
+        for (Observer observer : stableRingObservers) {
+            stableRing.addObserver(observer);
+        }
+
+        return stableRing;
     }
 
     NodeEnvironment getNodeEnviroment(ChordNode nodeChord, ScheduledFuture<?> stableRing) {

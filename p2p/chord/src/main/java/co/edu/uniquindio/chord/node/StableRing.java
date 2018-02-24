@@ -18,11 +18,9 @@
 
 package co.edu.uniquindio.chord.node;
 
-import co.edu.uniquindio.chord.node.command.CheckPredecessorCommand;
-import co.edu.uniquindio.chord.node.command.FixFingersCommand;
-import co.edu.uniquindio.chord.node.command.FixSuccessorsCommand;
-import co.edu.uniquindio.chord.node.command.StabilizeCommand;
 import org.apache.log4j.Logger;
+
+import java.util.Observable;
 
 /**
  * The {@code StableRing} class is responsible for periodically execute commands
@@ -35,7 +33,7 @@ import org.apache.log4j.Logger;
  * @see ChordNode
  * @since 1.0
  */
-public class StableRing implements Runnable {
+public class StableRing extends Observable implements Runnable {
 
     /**
      * Logger
@@ -46,33 +44,7 @@ public class StableRing implements Runnable {
     /**
      * The reference of the chord node
      */
-    private ChordNode node;
-
-    /**
-     * Is the command responsible for executing the method
-     * <code>ChordNode.stabilize</code> on the chord node.
-     */
-    private StabilizeCommand stabilizeCommand;
-
-    /**
-     * Is the command responsible for executing the method
-     * <code>ChordNode.checkPredecessor</code> on the chord node.
-     */
-    private CheckPredecessorCommand checkPredecessorCommand;
-
-    /**
-     * Is the command responsible for executing the method
-     * <code>FingersTable.fixFingers</code> on the fingers table of the chord
-     * node.
-     */
-    private FixFingersCommand fixFingersCommand;
-
-    /**
-     * Is the command responsible for executing the method
-     * <code>SuccessorList.fixSuccessors</code> on the successor list of the
-     * chord node.
-     */
-    private FixSuccessorsCommand fixSuccessorsCommand;
+    private final ChordNode node;
 
     StableRing(ChordNode node) {
         this.node = node;
@@ -82,39 +54,10 @@ public class StableRing implements Runnable {
      * Executes all the commands periodically while <code>run==true</code>.
      */
     public void run() {
-        stabilizeCommand = getStabilizeCommand();
-        checkPredecessorCommand = getCheckPredecessorCommand();
-        fixFingersCommand = getFixFingersCommand();
-        fixSuccessorsCommand = getFixSuccessorsCommand();
+        setChanged();
 
-        stabilizeCommand.execute();
-        checkPredecessorCommand.execute();
-        fixFingersCommand.execute();
-        fixSuccessorsCommand.execute();
-    }
+        notifyObservers(node);
 
-    FixSuccessorsCommand getFixSuccessorsCommand() {
-        return new FixSuccessorsCommand(node);
-    }
-
-    FixFingersCommand getFixFingersCommand() {
-        return new FixFingersCommand(node);
-    }
-
-    CheckPredecessorCommand getCheckPredecessorCommand() {
-        return new CheckPredecessorCommand(node);
-    }
-
-    StabilizeCommand getStabilizeCommand() {
-        return new StabilizeCommand(node);
-    }
-
-    /**
-     * Gets the reference of the chord node.
-     *
-     * @return {@link ChordNode} The reference of the chord node.
-     */
-    public ChordNode getNode() {
-        return node;
+        clearChanged();
     }
 }
