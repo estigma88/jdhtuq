@@ -31,56 +31,7 @@ import java.net.InetAddress;
  * @since 1.0
  * 
  */
-public abstract class OverlayNodeFactory {
-
-	/**
-	 * Single OverlayNodeFactory instance
-	 */
-	private static OverlayNodeFactory overlayNodeFactory;
-
-	/**
-	 * Creates a single instance of qualifyClass. The qualifyClass must to be an
-	 * <code>OverlayNodeFactory</code>
-	 * 
-	 * @param qualifyClass
-	 *            Class to instanciate
-	 * @return Instance of OverlayNodeFactory
-	 * @throws OverlayException
-	 *             throw when occur an error
-	 */
-	public static OverlayNodeFactory getInstance(String qualifyClass)
-			throws OverlayException {
-
-		if (overlayNodeFactory != null) {
-			return overlayNodeFactory;
-		}
-
-		try {
-			Class<?> classIn = Class.forName(qualifyClass);
-			overlayNodeFactory = (OverlayNodeFactory) classIn.newInstance();
-		} catch (ClassNotFoundException e) {
-			throw new OverlayException("Error creating OverlayNodeFactory", e);
-		} catch (InstantiationException e) {
-			throw new OverlayException("Error creating OverlayNodeFactory", e);
-		} catch (IllegalAccessException e) {
-			throw new OverlayException("Error creating OverlayNodeFactory", e);
-		} catch (ClassCastException e) {
-			throw new OverlayException("Error creating OverlayNodeFactory", e);
-		}
-
-		return overlayNodeFactory;
-	}
-
-	/**
-	 * Gets current instance of OverlayNodeFactory. If you have not invoke to
-	 * <code>getInstance(String qualifyClass)</code>, this return null
-	 * 
-	 * @return Single current instance of OverlayNodeFactory
-	 */
-	public static OverlayNodeFactory getInstance() {
-		return overlayNodeFactory;
-	}
-
+public interface OverlayNodeFactory {
 	/**
 	 * Creates a node
 	 * 
@@ -88,7 +39,7 @@ public abstract class OverlayNodeFactory {
 	 * @throws OverlayException
 	 *             throw when occur an error
 	 */
-	public abstract OverlayNode createNode() throws OverlayException;
+	OverlayNode createNode() throws OverlayException;
 
 	/**
 	 * Creates a node with a specified name
@@ -99,7 +50,7 @@ public abstract class OverlayNodeFactory {
 	 * @throws OverlayException
 	 *             throw when occur an error
 	 */
-	public abstract OverlayNode createNode(String name) throws OverlayException;
+	OverlayNode createNode(String name) throws OverlayException;
 
 	/**
 	 * Creates a node with a specified InetAddress
@@ -110,7 +61,7 @@ public abstract class OverlayNodeFactory {
 	 * @throws OverlayException
 	 *             throw when occur an error
 	 */
-	public abstract OverlayNode createNode(InetAddress inetAddress)
+	OverlayNode createNode(InetAddress inetAddress)
 			throws OverlayException;
 
 	/**
@@ -121,6 +72,6 @@ public abstract class OverlayNodeFactory {
 	 * @throws OverlayException
 	 *             throw when occur an error
 	 */
-	public abstract void destroyNode(String name) throws OverlayException;
+	void destroyNode(String name) throws OverlayException;
 
 }

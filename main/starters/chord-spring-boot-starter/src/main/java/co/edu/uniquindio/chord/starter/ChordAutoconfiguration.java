@@ -1,10 +1,13 @@
 package co.edu.uniquindio.chord.starter;
 
+import co.edu.uniquindio.chord.node.BootStrap;
 import co.edu.uniquindio.chord.node.ChordNodeFactory;
 import co.edu.uniquindio.overlay.OverlayNodeFactory;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.network.CommunicationManagerUDP;
 import co.edu.uniquindio.utils.communication.transfer.structure.CommunicationManagerStructure;
+import co.edu.uniquindio.utils.hashing.HashingGenerator;
+import co.edu.uniquindio.utils.hashing.HashingGeneratorImp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,8 +31,18 @@ public class ChordAutoconfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public OverlayNodeFactory overlayNodeFactory(@Qualifier("communicationManagerChord") CommunicationManager communicationManager) {
-        return new ChordNodeFactory(communicationManager, new HashSet<>(), chordProperties.getStableRingTime(), chordProperties.getSuccessorListAmount());
+    public OverlayNodeFactory overlayNodeFactory(@Qualifier("communicationManagerChord") CommunicationManager communicationManager, BootStrap bootStrap) {
+        return new ChordNodeFactory(communicationManager, new HashSet<>(), chordProperties.getStableRingTime(), chordProperties.getSuccessorListAmount(), bootStrap);
+    }
+
+    @Bean
+    public BootStrap bootStrap(){
+        return new BootStrap();
+    }
+
+    @Bean
+    public HashingGenerator hashingGenerator(){
+        return new HashingGeneratorImp();
     }
 
     @Bean("communicationManagerChord")

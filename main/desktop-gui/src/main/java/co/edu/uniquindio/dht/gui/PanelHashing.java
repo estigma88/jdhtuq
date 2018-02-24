@@ -1,433 +1,412 @@
 package co.edu.uniquindio.dht.gui;
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.text.DecimalFormat;
+import co.edu.uniquindio.utils.hashing.Key;
 
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.SpinnerNumberModel;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
-
-import co.edu.uniquindio.chord.node.ChordNodeFactory;
-import co.edu.uniquindio.utils.hashing.HashingGenerator;
-import co.edu.uniquindio.utils.hashing.Key;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.io.*;
+import java.math.BigInteger;
+import java.text.DecimalFormat;
 
 //TODO Documentar
 @SuppressWarnings("serial")
 public class PanelHashing extends JPanel implements ActionListener,
-		KeyListener, ChangeListener {
-	// TODO Documentar
-	private JTextField textFieldFile;
-	// TODO Documentar
-	private JButton buttonGenerate;
-	// TODO Documentar
-	private JButton buttonBrowse;
-	// TODO Documentar
-	private JButton buttonCollection;
-	// TODO Documentar
-	private JButton buttonSave;
-	// TODO Documentar
-	private JButton buttonLoad;
-	// TODO Documentar
-	private JButton buttonDelete;
-	// TODO Documentar
-	private JButton buttonClean;
-	// TODO Documentar
-	private JScrollPane scroll;
-	// TODO Documentar
-	private JTable table;
-	// TODO Documentar
-	private JPanel southPanel;
-	// TODO Documentar
-	private JPanel northPanel;
-	// TODO Documentar
-	private DefaultTableModel model;
-	// TODO Documentar
-	private JFileChooser chooser;
-	// TODO Documentar
-	private JFileChooser folderChooser;
-	// TODO Documentar
-	private final String SEPARATOR = "_:_";
-	// TODO Documentar
-	private JFrame frame;
-	// TODO Documentar
-	private DecimalFormat decimalFormat;
-	// TODO Documentar
-	private JSpinner spinner;
-	private SpinnerNumberModel spinnerNumberModel;
+        KeyListener, ChangeListener {
+    // TODO Documentar
+    private JTextField textFieldFile;
+    // TODO Documentar
+    private JButton buttonGenerate;
+    // TODO Documentar
+    private JButton buttonBrowse;
+    // TODO Documentar
+    private JButton buttonCollection;
+    // TODO Documentar
+    private JButton buttonSave;
+    // TODO Documentar
+    private JButton buttonLoad;
+    // TODO Documentar
+    private JButton buttonDelete;
+    // TODO Documentar
+    private JButton buttonClean;
+    // TODO Documentar
+    private JScrollPane scroll;
+    // TODO Documentar
+    private JTable table;
+    // TODO Documentar
+    private JPanel southPanel;
+    // TODO Documentar
+    private JPanel northPanel;
+    // TODO Documentar
+    private DefaultTableModel model;
+    // TODO Documentar
+    private JFileChooser chooser;
+    // TODO Documentar
+    private JFileChooser folderChooser;
+    // TODO Documentar
+    private final String SEPARATOR = "_:_";
+    // TODO Documentar
+    private JFrame frame;
+    // TODO Documentar
+    private DecimalFormat decimalFormat;
+    // TODO Documentar
+    private JSpinner spinner;
+    private SpinnerNumberModel spinnerNumberModel;
 
-	// TODO Documentar
-	public PanelHashing(JFrame frame) {
-		setLayout(new BorderLayout());
+    // TODO Documentar
+    public PanelHashing(JFrame frame) {
+        setLayout(new BorderLayout());
 
-		HashingGenerator.load(ChordNodeFactory.HASHING_CLASS);
-		
-		this.frame = frame;
-		
-		int keyLength = Key.getKeyLength();
+        this.frame = frame;
 
-		BigInteger i = new BigInteger("2");
-		i = i.pow(keyLength);
+        int keyLength = Key.getKeyLength();
 
-		int stringLength = i.toString().length();
+        BigInteger i = new BigInteger("2");
+        i = i.pow(keyLength);
 
-		
-		spinnerNumberModel = new SpinnerNumberModel(stringLength / 9, 1,
-				stringLength, 1);
-		spinner = new JSpinner(spinnerNumberModel);
-		
-		StringBuilder format = new StringBuilder();
+        int stringLength = i.toString().length();
 
-		for (int j = 0; j < stringLength; j++) {
-			format.append("0");
-		}
 
-		decimalFormat = new DecimalFormat(format.toString());
-		
-		northPanel = new JPanel();
-		northPanel.setLayout(new FlowLayout());
+        spinnerNumberModel = new SpinnerNumberModel(stringLength / 9, 1,
+                stringLength, 1);
+        spinner = new JSpinner(spinnerNumberModel);
 
-		textFieldFile = new JTextField(15);
-		buttonGenerate = new JButton("Generate Hashing");
-		buttonBrowse = new JButton("Select a File");
-		buttonCollection = new JButton("Select a Folder");
-		buttonSave = new JButton("Save");
-		buttonLoad = new JButton("Load");
+        StringBuilder format = new StringBuilder();
 
-		northPanel.add(textFieldFile);
-		northPanel.add(buttonGenerate);
-		northPanel.add(buttonBrowse);
-		northPanel.add(buttonCollection);
-		northPanel.add(spinner);
+        for (int j = 0; j < stringLength; j++) {
+            format.append("0");
+        }
 
-		southPanel = new JPanel();
+        decimalFormat = new DecimalFormat(format.toString());
 
-		southPanel.setLayout(new FlowLayout());
+        northPanel = new JPanel();
+        northPanel.setLayout(new FlowLayout());
 
-		southPanel.add(buttonSave);
-		southPanel.add(buttonLoad);
-		southPanel.add(new JLabel("              "));
+        textFieldFile = new JTextField(15);
+        buttonGenerate = new JButton("Generate Hashing");
+        buttonBrowse = new JButton("Select a File");
+        buttonCollection = new JButton("Select a Folder");
+        buttonSave = new JButton("Save");
+        buttonLoad = new JButton("Load");
 
-		buttonDelete = new JButton("Delete Row");
-		buttonClean = new JButton("Clean Table");
+        northPanel.add(textFieldFile);
+        northPanel.add(buttonGenerate);
+        northPanel.add(buttonBrowse);
+        northPanel.add(buttonCollection);
+        northPanel.add(spinner);
 
-		southPanel.add(buttonDelete);
-		southPanel.add(buttonClean);
+        southPanel = new JPanel();
 
-		inicializarTabla();
+        southPanel.setLayout(new FlowLayout());
 
-		chooser = new JFileChooser();
-		chooser.setApproveButtonText("select");
-		chooser.setDialogTitle("Select");
+        southPanel.add(buttonSave);
+        southPanel.add(buttonLoad);
+        southPanel.add(new JLabel("              "));
 
-		folderChooser = new JFileChooser();
-		folderChooser.setApproveButtonText("select");
-		folderChooser.setDialogTitle("Select");
-		folderChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        buttonDelete = new JButton("Delete Row");
+        buttonClean = new JButton("Clean Table");
 
-		add(northPanel, BorderLayout.NORTH);
-		add(southPanel, BorderLayout.SOUTH);
-		add(scroll, BorderLayout.CENTER);
+        southPanel.add(buttonDelete);
+        southPanel.add(buttonClean);
 
-		buttonGenerate.addActionListener(this);
-		buttonBrowse.addActionListener(this);
-		buttonCollection.addActionListener(this);
-		buttonSave.addActionListener(this);
-		buttonLoad.addActionListener(this);
-		buttonDelete.addActionListener(this);
-		buttonClean.addActionListener(this);
-		textFieldFile.addKeyListener(this);
-		spinner.addChangeListener(this);
-	}
+        inicializarTabla();
 
-	// TODO Documentar
-	private void inicializarTabla() {
-		model = new DefaultTableModel() {
-			@SuppressWarnings("unchecked")
-			@Override
-			public Class getColumnClass(int columna) {
-				if (columna == 0)
-					return String.class;
-				return BigInteger.class;
-			}
-		};
+        chooser = new JFileChooser();
+        chooser.setApproveButtonText("select");
+        chooser.setDialogTitle("Select");
 
-		model.addColumn("Name");
-		model.addColumn("Hashing");
+        folderChooser = new JFileChooser();
+        folderChooser.setApproveButtonText("select");
+        folderChooser.setDialogTitle("Select");
+        folderChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 
-		table = new JTable(model);
+        add(northPanel, BorderLayout.NORTH);
+        add(southPanel, BorderLayout.SOUTH);
+        add(scroll, BorderLayout.CENTER);
 
-		TableRowSorter<TableModel> elQueOrdena = new TableRowSorter<TableModel>(
-				model);
-		table.setRowSorter(elQueOrdena);
+        buttonGenerate.addActionListener(this);
+        buttonBrowse.addActionListener(this);
+        buttonCollection.addActionListener(this);
+        buttonSave.addActionListener(this);
+        buttonLoad.addActionListener(this);
+        buttonDelete.addActionListener(this);
+        buttonClean.addActionListener(this);
+        textFieldFile.addKeyListener(this);
+        spinner.addChangeListener(this);
+    }
 
-		scroll = new JScrollPane();
-		scroll.setViewportView(table);
-	}
+    // TODO Documentar
+    private void inicializarTabla() {
+        model = new DefaultTableModel() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public Class getColumnClass(int columna) {
+                if (columna == 0)
+                    return String.class;
+                return BigInteger.class;
+            }
+        };
 
-	// TODO Documentar
-	@Override
-	public void actionPerformed(ActionEvent evento) {
-		if (evento.getSource() == buttonGenerate) {
-			String nombre = textFieldFile.getText();
+        model.addColumn("Name");
+        model.addColumn("Hashing");
 
-			Key key = new Key(nombre);
+        table = new JTable(model);
 
-			model.addRow(new Object[] { nombre,
-					cut(padding(key.getHashing())) });
+        TableRowSorter<TableModel> elQueOrdena = new TableRowSorter<TableModel>(
+                model);
+        table.setRowSorter(elQueOrdena);
 
-			textFieldFile.setText(null);
-		} else {
-			if (evento.getSource() == buttonBrowse) {
-				int returnVal = chooser.showOpenDialog(this);
-				File file = null;
-				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					file = chooser.getSelectedFile();
+        scroll = new JScrollPane();
+        scroll.setViewportView(table);
+    }
 
-					textFieldFile.setText(file.getName());
-					buttonGenerate.doClick();
-				}
-			} else {
-				if (evento.getSource() == buttonCollection) {
-					int returnVal = folderChooser.showOpenDialog(this);
-					final File file;
-					if (returnVal == JFileChooser.APPROVE_OPTION) {
-						file = folderChooser.getSelectedFile();
+    // TODO Documentar
+    @Override
+    public void actionPerformed(ActionEvent evento) {
+        if (evento.getSource() == buttonGenerate) {
+            String nombre = textFieldFile.getText();
 
-						if (file.isDirectory()) {
-							Thread thread = new Thread(new Runnable() {
-								public void run() {
+            Key key = new Key(nombre);
 
-									LoadingBar loadingBar = LoadingBar
-											.getInstance(frame);
+            model.addRow(new Object[]{nombre,
+                    cut(padding(key.getHashing()))});
 
-									loadingBar.setConfiguration(true, 100);
-									loadingBar.setValue(1,
-											"Loading the directories");
-									loadingBar.begin();
+            textFieldFile.setText(null);
+        } else {
+            if (evento.getSource() == buttonBrowse) {
+                int returnVal = chooser.showOpenDialog(this);
+                File file = null;
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    file = chooser.getSelectedFile();
 
-									selectAllFiles(file);
+                    textFieldFile.setText(file.getName());
+                    buttonGenerate.doClick();
+                }
+            } else {
+                if (evento.getSource() == buttonCollection) {
+                    int returnVal = folderChooser.showOpenDialog(this);
+                    final File file;
+                    if (returnVal == JFileChooser.APPROVE_OPTION) {
+                        file = folderChooser.getSelectedFile();
 
-									loadingBar.end();
-								}
-							});
-							thread.start();
+                        if (file.isDirectory()) {
+                            Thread thread = new Thread(new Runnable() {
+                                public void run() {
 
-						} else {
-							textFieldFile.setText(file.getName());
-							buttonGenerate.doClick();
-						}
-					}
-				} else {
-					if (evento.getSource() == buttonSave) {
-						int returnVal = chooser.showSaveDialog(this);
-						File file = null;
-						if (returnVal == JFileChooser.APPROVE_OPTION) {
-							file = chooser.getSelectedFile();
-							try {
-								FileWriter fileWriter = new FileWriter(file);
-								BufferedWriter buffered = new BufferedWriter(
-										fileWriter);
+                                    LoadingBar loadingBar = LoadingBar
+                                            .getInstance(frame);
 
-								for (int i = 0; i < model.getRowCount(); i++) {
-									StringBuilder stringBuilder = new StringBuilder();
+                                    loadingBar.setConfiguration(true, 100);
+                                    loadingBar.setValue(1,
+                                            "Loading the directories");
+                                    loadingBar.begin();
 
-									stringBuilder.append(model.getValueAt(i, 0)
-											+ SEPARATOR);
-									stringBuilder.append(model.getValueAt(i, 1));
-									stringBuilder.append(System.getProperty("line.separator"));
+                                    selectAllFiles(file);
 
-									buffered.write(stringBuilder.toString());
-								}
+                                    loadingBar.end();
+                                }
+                            });
+                            thread.start();
 
-								buffered.flush();
-								buffered.close();
-								fileWriter.close();
+                        } else {
+                            textFieldFile.setText(file.getName());
+                            buttonGenerate.doClick();
+                        }
+                    }
+                } else {
+                    if (evento.getSource() == buttonSave) {
+                        int returnVal = chooser.showSaveDialog(this);
+                        File file = null;
+                        if (returnVal == JFileChooser.APPROVE_OPTION) {
+                            file = chooser.getSelectedFile();
+                            try {
+                                FileWriter fileWriter = new FileWriter(file);
+                                BufferedWriter buffered = new BufferedWriter(
+                                        fileWriter);
 
-								JOptionPane.showMessageDialog(null,
-										"The file has been saved",
-										"File Saved",
-										JOptionPane.INFORMATION_MESSAGE);
-							} catch (FileNotFoundException e1) {
-								e1.printStackTrace();
-								JOptionPane.showMessageDialog(null,
-										"Error while saving the file", "Error",
-										JOptionPane.ERROR_MESSAGE);
-							} catch (IOException e2) {
-								e2.printStackTrace();
-								JOptionPane.showMessageDialog(null,
-										"Error while saving the file", "Error",
-										JOptionPane.ERROR_MESSAGE);
-							}
-						}
-					} else {
-						if (evento.getSource() == buttonLoad) {
-							int returnVal = chooser.showOpenDialog(this);
-							File file = null;
-							if (returnVal == JFileChooser.APPROVE_OPTION) {
-								file = chooser.getSelectedFile();
+                                for (int i = 0; i < model.getRowCount(); i++) {
+                                    StringBuilder stringBuilder = new StringBuilder();
 
-								try {
-									FileReader fileReader = new FileReader(file);
-									BufferedReader bufferedReader = new BufferedReader(
-											fileReader);
-									String line = null;
+                                    stringBuilder.append(model.getValueAt(i, 0)
+                                            + SEPARATOR);
+                                    stringBuilder.append(model.getValueAt(i, 1));
+                                    stringBuilder.append(System.getProperty("line.separator"));
 
-									while ((line = bufferedReader.readLine()) != null) {
-										model
-												.addRow(new Object[] {
-														line.split(SEPARATOR)[0]
-																.trim(),
-														cut(padding(
-																new BigInteger(
-																		line
-																				.split(SEPARATOR)[1]
-																				.trim()))) });
-									}
+                                    buffered.write(stringBuilder.toString());
+                                }
 
-									bufferedReader.close();
-									fileReader.close();
+                                buffered.flush();
+                                buffered.close();
+                                fileWriter.close();
 
-								} catch (FileNotFoundException e) {
-									e.printStackTrace();
-								} catch (IOException e) {
-									e.printStackTrace();
-								}
+                                JOptionPane.showMessageDialog(null,
+                                        "The file has been saved",
+                                        "File Saved",
+                                        JOptionPane.INFORMATION_MESSAGE);
+                            } catch (FileNotFoundException e1) {
+                                e1.printStackTrace();
+                                JOptionPane.showMessageDialog(null,
+                                        "Error while saving the file", "Error",
+                                        JOptionPane.ERROR_MESSAGE);
+                            } catch (IOException e2) {
+                                e2.printStackTrace();
+                                JOptionPane.showMessageDialog(null,
+                                        "Error while saving the file", "Error",
+                                        JOptionPane.ERROR_MESSAGE);
+                            }
+                        }
+                    } else {
+                        if (evento.getSource() == buttonLoad) {
+                            int returnVal = chooser.showOpenDialog(this);
+                            File file = null;
+                            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                                file = chooser.getSelectedFile();
 
-							}
+                                try {
+                                    FileReader fileReader = new FileReader(file);
+                                    BufferedReader bufferedReader = new BufferedReader(
+                                            fileReader);
+                                    String line = null;
 
-						} else {
-							if (evento.getSource() == buttonDelete) {
-								if (table.getSelectedRow() == -1) {
-									JOptionPane.showMessageDialog(null,
-											"You must select a row",
-											"Select a Row",
-											JOptionPane.INFORMATION_MESSAGE);
-									return;
-								}
+                                    while ((line = bufferedReader.readLine()) != null) {
+                                        model
+                                                .addRow(new Object[]{
+                                                        line.split(SEPARATOR)[0]
+                                                                .trim(),
+                                                        cut(padding(
+                                                                new BigInteger(
+                                                                        line
+                                                                                .split(SEPARATOR)[1]
+                                                                                .trim())))});
+                                    }
 
-								model.removeRow(table.getSelectedRow());
-							} else {
-								if (evento.getSource() == buttonClean) {
+                                    bufferedReader.close();
+                                    fileReader.close();
 
-									while (model.getRowCount() > 0) {
-										model
-												.removeRow(model.getRowCount() - 1);
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+                                } catch (FileNotFoundException e) {
+                                    e.printStackTrace();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
 
-	// TODO Documentar
-	private String cut(String text) {
-		return text.substring(0, spinnerNumberModel.getNumber().intValue());
-	}
+                            }
 
-	// TODO Documentar
-	private String padding(BigInteger hashing) {
+                        } else {
+                            if (evento.getSource() == buttonDelete) {
+                                if (table.getSelectedRow() == -1) {
+                                    JOptionPane.showMessageDialog(null,
+                                            "You must select a row",
+                                            "Select a Row",
+                                            JOptionPane.INFORMATION_MESSAGE);
+                                    return;
+                                }
 
-		return decimalFormat.format(hashing);
-	}
+                                model.removeRow(table.getSelectedRow());
+                            } else {
+                                if (evento.getSource() == buttonClean) {
 
-	// TODO Documentar
-	private boolean selectAllFiles(File path) {
-		if (path.exists()) {
-			File[] files = path.listFiles();
-			for (int i = 0; i < files.length; i++) {
-				if (files[i].isDirectory()) {
-					selectAllFiles(files[i]);
-				} else {
-					String nombre = files[i].getName();
+                                    while (model.getRowCount() > 0) {
+                                        model
+                                                .removeRow(model.getRowCount() - 1);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-					Key key = new Key(nombre);
-					model.addRow(new Object[] { nombre, cut(padding(key.getHashing())) });
+    // TODO Documentar
+    private String cut(String text) {
+        return text.substring(0, spinnerNumberModel.getNumber().intValue());
+    }
 
-				}
-			}
-		}
-		return true;
-	}
+    // TODO Documentar
+    private String padding(BigInteger hashing) {
 
-	// TODO Documentar
-	@Override
-	public void keyPressed(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-			buttonGenerate.doClick();
-		}
-	}
+        return decimalFormat.format(hashing);
+    }
 
-	@Override
-	public void keyReleased(KeyEvent e) {
-	}
+    // TODO Documentar
+    private boolean selectAllFiles(File path) {
+        if (path.exists()) {
+            File[] files = path.listFiles();
+            for (int i = 0; i < files.length; i++) {
+                if (files[i].isDirectory()) {
+                    selectAllFiles(files[i]);
+                } else {
+                    String nombre = files[i].getName();
 
-	@Override
-	public void keyTyped(KeyEvent e) {
-	}
+                    Key key = new Key(nombre);
+                    model.addRow(new Object[]{nombre, cut(padding(key.getHashing()))});
 
-	// TODO Documentar
-	@Override
-	public void stateChanged(ChangeEvent e) {
-		loadTable();
-	}
-	// TODO Documentar
-	private void loadTable() {
-		for (int i = 0; i < model.getRowCount(); i++) {
-			Key key = new Key((String) model.getValueAt(i, 0));
+                }
+            }
+        }
+        return true;
+    }
 
-			model.setValueAt(cut(padding(key.getHashing())), i, 1);
-		}
-		
-	}
+    // TODO Documentar
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+            buttonGenerate.doClick();
+        }
+    }
 
-	public void resetSpinner(int keyLength) {
-		BigInteger i = new BigInteger("2");
-		i = i.pow(keyLength);
+    @Override
+    public void keyReleased(KeyEvent e) {
+    }
 
-		int stringLength = i.toString().length();
-		
-		spinner.removeChangeListener(this);
-		spinnerNumberModel.setValue(stringLength);
-		spinnerNumberModel.setMaximum(stringLength);
-		spinnerNumberModel.setMinimum(1);
-		spinnerNumberModel.setStepSize(1);
-		spinner.addChangeListener(this);
-		
-		StringBuilder format = new StringBuilder();
+    @Override
+    public void keyTyped(KeyEvent e) {
+    }
 
-		for (int j = 0; j < stringLength; j++) {
-			format.append("0");
-		}
+    // TODO Documentar
+    @Override
+    public void stateChanged(ChangeEvent e) {
+        loadTable();
+    }
 
-		decimalFormat.applyPattern(format.toString());
-	}
+    // TODO Documentar
+    private void loadTable() {
+        for (int i = 0; i < model.getRowCount(); i++) {
+            Key key = new Key((String) model.getValueAt(i, 0));
+
+            model.setValueAt(cut(padding(key.getHashing())), i, 1);
+        }
+
+    }
+
+    public void resetSpinner(int keyLength) {
+        BigInteger i = new BigInteger("2");
+        i = i.pow(keyLength);
+
+        int stringLength = i.toString().length();
+
+        spinner.removeChangeListener(this);
+        spinnerNumberModel.setValue(stringLength);
+        spinnerNumberModel.setMaximum(stringLength);
+        spinnerNumberModel.setMinimum(1);
+        spinnerNumberModel.setStepSize(1);
+        spinner.addChangeListener(this);
+
+        StringBuilder format = new StringBuilder();
+
+        for (int j = 0; j < stringLength; j++) {
+            format.append("0");
+        }
+
+        decimalFormat.applyPattern(format.toString());
+    }
 }

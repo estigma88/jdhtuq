@@ -74,12 +74,15 @@ public class StructureWindow extends JFrame implements ActionListener,
 	private BigInteger actualHashing;
 	//TODO Documentar
 	private int stringLength;
+	private HashingGenerator hashingGenerator;
 	//TODO Documentar
-	public StructureWindow() {
-		this("Structure Window");
+	public StructureWindow(HashingGenerator hashingGenerator) {
+		this("Structure Window", hashingGenerator);
 	}
 	//TODO Documentar
-	public StructureWindow(String title) {
+	public StructureWindow(String title, HashingGenerator hashingGenerator) {
+		this.hashingGenerator = hashingGenerator;
+
 		setTitle(title);
 		setSize(900, 600);
 		setLocationRelativeTo(getParent());
@@ -194,7 +197,7 @@ public class StructureWindow extends JFrame implements ActionListener,
 	}
 	//TODO Documentar
 	public void setSelectedNode(DHDChord dhdChord) {
-		actualHashing = HashingGenerator.getInstance().generateHashing(dhdChord.getDHashNode().getName(),Key.getKeyLength());
+		actualHashing = hashingGenerator.generateHashing(dhdChord.getDHashNode().getName(),Key.getKeyLength());
 
 		labelId.setText("Id=" + dhdChord.getNumberNode());
 		labelValue.setText("Value=" + dhdChord.getDHashNode().getName());

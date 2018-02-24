@@ -35,7 +35,7 @@ import co.edu.uniquindio.utils.hashing.HashingGenerator;
  * @since 1.0
  * 
  */
-public class HashingGeneratorImp extends HashingGenerator {
+public class HashingGeneratorImp implements HashingGenerator {
 	/**
 	 * This is a final variable that represents the SHA-1 algorithm for creating
 	 * hashing

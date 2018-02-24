@@ -68,7 +68,7 @@ public class Key {
 	public Key(String value) {
 		this.value = value;
 
-		this.hashing = HashingGenerator.getInstance().generateHashing(value,
+		this.hashing = new HashingGeneratorImp().generateHashing(value,
 				keyLength);
 	}
 

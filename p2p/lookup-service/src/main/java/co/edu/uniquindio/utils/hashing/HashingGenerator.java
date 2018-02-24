@@ -23,64 +23,21 @@ import java.math.BigInteger;
 /**
  * The <code>HashingGenerator</code> class is used for generate the hashing of a
  * given value
- * 
+ *
  * @author Daniel Pelaez
  * @author Hector Hurtado
  * @author Daniel Lopez
  * @version 1.0, 17/06/2010
  * @since 1.0
- * 
  */
-public abstract class HashingGenerator {
-
-	/**
-	 * Single HashingGenerator instance
-	 */
-	private static HashingGenerator hashingGenerator;
-
-	/**
-	 * Creates a single HashingGenerator instance based in qualifyClass
-	 * 
-	 * @param qualifyClass
-	 *            Class name. Must to be a HashingGenerator
-	 */
-	public static void load(String qualifyClass) {
-		try {
-			Class<?> classIn = Class.forName(qualifyClass);
-			hashingGenerator = (HashingGenerator) classIn.newInstance();
-		} catch (ClassNotFoundException e) {
-			throw new IllegalArgumentException(
-					"Error instanciate HashingGenerator", e);
-		} catch (InstantiationException e) {
-			throw new IllegalArgumentException(
-					"Error instanciate HashingGenerator", e);
-		} catch (IllegalAccessException e) {
-			throw new IllegalArgumentException(
-					"Error instanciate HashingGenerator", e);
-		} catch (ClassCastException e) {
-			throw new IllegalArgumentException(
-					"Error instanciate HashingGenerator", e);
-		}
-	}
-
-	/**
-	 * Gets current single HashingGenerator instance. If you have not invoke to
-	 * <code>load(String qualifyClass)</code>, this return null
-	 * 
-	 * @return Current single HashingGenerator instance
-	 */
-	public static HashingGenerator getInstance() {
-		return hashingGenerator;
-	}
-
-	/**
-	 * This method generate the hashing number of the specified value, with the
-	 * specified bite length
-	 * 
-	 * @param value
-	 * @param lengthBits
-	 *            . The bite length
-	 * @return Returns the hashing number of the value
-	 */
-	public abstract BigInteger generateHashing(String value, int lengthBits);
+public interface HashingGenerator {
+    /**
+     * This method generate the hashing number of the specified value, with the
+     * specified bite length
+     *
+     * @param value
+     * @param lengthBits . The bite length
+     * @return Returns the hashing number of the value
+     */
+    BigInteger generateHashing(String value, int lengthBits);
 }

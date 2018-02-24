@@ -61,7 +61,7 @@ public class BootStrap {
 	 *            node who will be added to the network.
 	 * @param communicationManager
 	 */
-	public static void boot(ChordNode nodeChord, CommunicationManager communicationManager) {
+	public void boot(ChordNode nodeChord, CommunicationManager communicationManager) {
 
 		logger.info("Search node...");
 

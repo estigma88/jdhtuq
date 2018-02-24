@@ -29,10 +29,12 @@ import co.edu.uniquindio.utils.communication.Observer;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerCache;
+import co.edu.uniquindio.utils.hashing.HashingGenerator;
 
 //TODO Documentar
 public class Controller implements Observer<Message> {
 
+	private HashingGenerator hashingGenerator;
 	// TODO Documentar
 	private PanelManager panelManager;
 	// TODO Documentar
@@ -57,10 +59,11 @@ public class Controller implements Observer<Message> {
 		dhdChordList = new ArrayList<DHDChord>();
 	}
 
-	public Controller(StorageNodeFactory storageNodeFactory, CommunicationManager communicationManager) {
+	public Controller(StorageNodeFactory storageNodeFactory, CommunicationManager communicationManager, HashingGenerator hashingGenerator) {
 		this();
 		this.storageNodeFactory = storageNodeFactory;
 		this.communicationManager = communicationManager;
+		this.hashingGenerator = hashingGenerator;
 	}
 
 	// TODO Documentar
@@ -124,7 +127,7 @@ public class Controller implements Observer<Message> {
 
 			numOfNodes++;
 
-			DHDChord dhdChord = new DHDChord(dHash, numOfNodes);
+			DHDChord dhdChord = new DHDChord(dHash, numOfNodes, hashingGenerator);
 
 			dhdChordList.add(dhdChord);
 

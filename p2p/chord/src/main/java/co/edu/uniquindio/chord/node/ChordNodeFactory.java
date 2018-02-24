@@ -22,16 +22,11 @@ package co.edu.uniquindio.chord.node;
 import co.edu.uniquindio.chord.Chord;
 import co.edu.uniquindio.overlay.OverlayNode;
 import co.edu.uniquindio.overlay.OverlayNodeFactory;
-import co.edu.uniquindio.utils.communication.configurations.CommunicationProperties;
-import co.edu.uniquindio.utils.communication.configurations.CommunicationPropertiesException;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
-import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerCache;
-import co.edu.uniquindio.utils.hashing.HashingGenerator;
 import co.edu.uniquindio.utils.hashing.Key;
 import org.apache.log4j.Logger;
 
 import java.net.InetAddress;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -47,7 +42,7 @@ import java.util.Set;
  * @see ChordNode
  * @since 1.0
  */
-public class ChordNodeFactory extends OverlayNodeFactory {
+public class ChordNodeFactory implements OverlayNodeFactory {
 
     /**
      * Logger
@@ -64,21 +59,6 @@ public class ChordNodeFactory extends OverlayNodeFactory {
     private CommunicationManager communicationManager;
 
     /**
-     * Attribute that difine communication name
-     */
-    public static final String CHORD = ChordNodeFactory.class.getName();
-
-    /**
-     * Qualified name of the class that handles hashing
-     */
-    public static final String HASHING_CLASS = "co.edu.uniquindio.utils.hashing.HashingGeneratorImp";
-
-    /**
-     * Attribute that define properties file communication
-     */
-    private static final String COMMUNICATION_PROPERTIES = "resources/chord_properties/communication.xml";
-
-    /**
      * Allows to create a node with no specified name.
      */
     private int nodeKey;
@@ -86,38 +66,14 @@ public class ChordNodeFactory extends OverlayNodeFactory {
      * List of names of the nodes created
      */
     private Set<String> names;
+    private BootStrap bootStrap;
 
-    /**
-     * Returns the concrete factory created.
-     *
-     * @return {@link ChordNodeFactory}
-     * @throws ChordNodeFactoryException if there is an error when trying to instantiate the class of
-     *                                   the concrete factory.
-     */
-    public ChordNodeFactory() {
-        CommunicationProperties communicationProperties = null;
-
-        try {
-            communicationProperties = CommunicationProperties.load(
-                    ChordNodeFactory.class, COMMUNICATION_PROPERTIES);
-
-            communicationManager = CommunicationManagerCache.createCommunicationManager(CHORD, communicationProperties);
-
-        } catch (CommunicationPropertiesException e) {
-            logger.fatal("The communication properties is not load", e);
-        }
-
-        HashingGenerator.load(HASHING_CLASS);
-
-        names = new HashSet<String>();
-
-    }
-
-    public ChordNodeFactory(CommunicationManager communicationManager, Set<String> names, int stableRingTime, int successorListAmount) {
+    public ChordNodeFactory(CommunicationManager communicationManager, Set<String> names, int stableRingTime, int successorListAmount, BootStrap bootStrap) {
         this.communicationManager = communicationManager;
         this.names = names;
         this.stableRingTime = stableRingTime;
         this.successorListAmount = successorListAmount;
+        this.bootStrap = bootStrap;
     }
 
     /**
@@ -165,33 +121,40 @@ public class ChordNodeFactory extends OverlayNodeFactory {
                 + "' and hashing '" + nodeChord.getKey().getStringHashing()
                 + "'");
 
-        nodeEnviroment = getNodeEnviroment(nodeChord);
+        StableRing stableRing = getStableRing(nodeChord);
+
+        nodeEnviroment = getNodeEnviroment(nodeChord, stableRing);
 
         communicationManager.addObserver(nodeEnviroment);
 
-        BootStrap.boot(nodeChord, communicationManager);
+        bootStrap.boot(nodeChord, communicationManager);
 
         nodeEnviroment.startStableRing();
 
         return nodeChord;
     }
 
+
     Key getKey(String name) {
         return new Key(name);
     }
 
-    NodeEnvironment getNodeEnviroment(ChordNode nodeChord) {
-        return new NodeEnvironment(nodeChord, communicationManager, stableRingTime);
+    StableRing getStableRing(ChordNode nodeChord) {
+        return new StableRing(nodeChord, stableRingTime, true);
+    }
+
+    NodeEnvironment getNodeEnviroment(ChordNode nodeChord, StableRing stableRing) {
+        return new NodeEnvironment(communicationManager, nodeChord, stableRing, this);
     }
 
     ChordNode getNodeChord(Key key) {
-        return new ChordNode(key, communicationManager, successorListAmount);
+        return new ChordNode(key, communicationManager, successorListAmount, bootStrap);
     }
 
     /**
      * Removes the node form the ring.
      *
-     * @param key The key of the node that will be destroyed.
+     * @param name The key of the node that will be destroyed.
      */
     public void destroyNode(String name) {
         names.remove(name);

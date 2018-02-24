@@ -11,16 +11,18 @@ public class DHDChord implements Comparable<DHDChord> {
 	private StorageNode dHashNode;
 	//TODO Documentar
 	private int numberNode;
+	private HashingGenerator hashingGenerator;
 	//TODO Documentar
-	public DHDChord(StorageNode dHashNode, int numberNode) {
+	public DHDChord(StorageNode dHashNode, int numberNode, HashingGenerator hashingGenerator) {
 		this.setDHashNode(dHashNode);
 		this.setNumberNode(numberNode);
+		this.hashingGenerator = hashingGenerator;
 	}
 	//TODO Documentar
 	@Override
 	public int compareTo(DHDChord o) {
-		BigInteger hashing1=HashingGenerator.getInstance().generateHashing(getDHashNode().getName(),Key.getKeyLength());
-		BigInteger hashing2=HashingGenerator.getInstance().generateHashing(o.getDHashNode().getName(),Key.getKeyLength());
+		BigInteger hashing1=hashingGenerator.generateHashing(getDHashNode().getName(),Key.getKeyLength());
+		BigInteger hashing2=hashingGenerator.generateHashing(o.getDHashNode().getName(),Key.getKeyLength());
 		return hashing1.compareTo(hashing2);
 	}
 	//TODO Documentar
