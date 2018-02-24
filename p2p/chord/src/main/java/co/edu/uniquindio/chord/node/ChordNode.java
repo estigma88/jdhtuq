@@ -22,12 +22,13 @@ package co.edu.uniquindio.chord.node;
 import co.edu.uniquindio.chord.Chord;
 import co.edu.uniquindio.chord.protocol.Protocol;
 import co.edu.uniquindio.chord.protocol.Protocol.LookupResponseParams;
-import co.edu.uniquindio.utils.communication.Observable;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.MessageXML;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.hashing.Key;
 import org.apache.log4j.Logger;
+
+import java.util.Observable;
 
 /**
  * The <code>ChordNode</code> class represents a node in the Chord network. It
@@ -49,7 +50,7 @@ import org.apache.log4j.Logger;
  * @see BootStrap
  * @since 1.0
  */
-public class ChordNode implements Chord {
+public class ChordNode extends Observable implements Chord {
 
     /**
      * Logger
@@ -87,33 +88,25 @@ public class ChordNode implements Chord {
      */
     private Key key;
 
-    /**
-     * This object notifies you when there is a change from predecessor (a node
-     * entered the logic network)
-     */
-    private Observable<Object> observable;
     private BootStrap bootStrap;
 
     ChordNode(Key key, CommunicationManager communicationManager, int successorListAmount, BootStrap bootStrap) {
         this.fingersTable = newFingersTable();
         this.successorList = new SuccessorList(this, communicationManager, successorListAmount);
         this.key = key;
-        this.observable = new Observable<Object>();
-
         this.communicationManager = communicationManager;
         this.bootStrap = bootStrap;
 
         logger.info("New ChordNode created = " + key);
     }
 
-    ChordNode(CommunicationManager communicationManager, Key successor, Key predecessor, FingersTable fingersTable, SuccessorList successorList, Key key, Observable<Object> observable) {
+    ChordNode(CommunicationManager communicationManager, Key successor, Key predecessor, FingersTable fingersTable, SuccessorList successorList, Key key) {
         this.communicationManager = communicationManager;
         this.successor = successor;
         this.predecessor = predecessor;
         this.fingersTable = fingersTable;
         this.successorList = successorList;
         this.key = key;
-        this.observable = observable;
     }
 
     /**
@@ -222,7 +215,9 @@ public class ChordNode implements Chord {
             message[0] = "REASSIGN";
             message[1] = predecessor.getValue();
 
-            observable.notifyMessage(message);
+            setChanged();
+            notifyObservers(message);
+            clearChanged();
 
             logger.debug("Node: '" + key.getValue()
                     + "' Predecessor changed for '" + predecessor.getValue());
@@ -413,10 +408,10 @@ public class ChordNode implements Chord {
     /**
      * Gets the observable of the node.
      *
-     * @return Observable<Message>
+     * @return Observable
      */
-    public Observable<Object> getObservable() {
-        return observable;
+    public Observable getObservable() {
+        return this;
     }
 
     /**

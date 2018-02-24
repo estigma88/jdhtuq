@@ -18,8 +18,9 @@
 
 package co.edu.uniquindio.overlay;
 
-import co.edu.uniquindio.utils.communication.Observable;
 import co.edu.uniquindio.utils.hashing.Key;
+
+import java.util.Observable;
 
 /**
  * The {@code OverlayNode} interface defines the basic methods for routing
@@ -59,7 +60,7 @@ public interface OverlayNode {
 	 * 
 	 * @return An {@link Observable} object.
 	 */
-	public Observable<Object> getObservable();
+	public Observable getObservable();
 
 	/**
 	 * Gets the list of node's neighbors.

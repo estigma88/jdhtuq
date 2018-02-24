@@ -19,11 +19,12 @@
 package co.edu.uniquindio.dhash.node;
 
 import co.edu.uniquindio.dhash.resource.ResourceAlreadyExistException;
-import co.edu.uniquindio.utils.communication.Observer;
 import co.edu.uniquindio.utils.hashing.Key;
 import org.apache.log4j.Logger;
 
 import java.util.Arrays;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * The <code>ReAssignObserver</code> class is notify when overlay node leave and
@@ -36,7 +37,7 @@ import java.util.Arrays;
  * @version 1.0, 17/06/2010
  * @since 1.0
  */
-public class ReAssignObserver implements Observer<Object> {
+public class ReAssignObserver implements Observer {
     /**
      * Logger
      */
@@ -49,14 +50,8 @@ public class ReAssignObserver implements Observer<Object> {
         this.dHashNode = dHashNode;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * co.edu.uniquindio.utils.communication.Observer#update(java.lang.Object)
-     */
     @Override
-    public void update(Object object) {
+    public void update(Observable observable, Object object) {
         if (object instanceof String[]) {
 
             String[] message = (String[]) object;
@@ -81,10 +76,5 @@ public class ReAssignObserver implements Observer<Object> {
                 }
             }
         }
-    }
-
-    @Override
-    public String getName() {
-        return null;
     }
 }
