@@ -1,5 +1,6 @@
 package co.edu.uniquindio.dht.gui.structure.controller;
 
+import co.edu.uniquindio.chord.ChordKey;
 import co.edu.uniquindio.chord.hashing.HashingGenerator;
 import co.edu.uniquindio.chord.node.LookupType;
 import co.edu.uniquindio.chord.protocol.Protocol;
@@ -263,8 +264,8 @@ public class Controller implements Observer<Message> {
 
                 String from = getNumOfNode(message.getMessageSource());
                 String to = getNumOfNode(message.getMessageDestination());
-                String successor = getNumOfNode(message
-                        .getParam(LookupResponseParams.NODE_FIND.name()));
+                String successor = getNumOfNode(ChordKey.valueOf(message
+                        .getParam(LookupResponseParams.NODE_FIND.name())).getValue());
 
                 panelGraph.addEdge(from, to, successor);
                 fixEdges(panelGraph.getEdges());

@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  co.edu.uniquindio.dhash.starter.DHashAutoconfiguration
+  co.edu.uniquindio.dhash.starter.DHashAutoConfiguration
