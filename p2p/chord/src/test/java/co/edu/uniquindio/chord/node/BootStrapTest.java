@@ -2,7 +2,6 @@ package co.edu.uniquindio.chord.node;
 
 import co.edu.uniquindio.chord.protocol.Protocol;
 import co.edu.uniquindio.utils.communication.message.MessageXML;
-import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerCache;
 import co.edu.uniquindio.overlay.Key;
 import org.assertj.core.api.Java6Assertions;
 import org.junit.Before;

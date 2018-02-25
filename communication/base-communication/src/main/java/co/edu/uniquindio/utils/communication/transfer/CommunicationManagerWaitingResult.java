@@ -24,10 +24,6 @@ import co.edu.uniquindio.utils.communication.message.BigMessage;
 import co.edu.uniquindio.utils.communication.message.BigMessageXML;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.Message.SendType;
-import co.edu.uniquindio.utils.communication.transfer.network.CommunicationManagerNetworkLAN;
-import co.edu.uniquindio.utils.communication.transfer.network.CommunicationManagerTCP;
-import co.edu.uniquindio.utils.communication.transfer.network.CommunicationManagerUDP;
-import co.edu.uniquindio.utils.communication.transfer.structure.CommunicationManagerStructure;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -43,10 +39,6 @@ import java.util.Set;
  * @author Hector Hurtado
  * @author Daniel Lopez
  * @version 1.0.2, 17/06/2010
- * @see CommunicationManagerStructure
- * @see CommunicationManagerNetworkLAN
- * @see CommunicationManagerTCP
- * @see CommunicationManagerUDP
  * @see CommunicationManager
  * @see WaitingResult
  * @see ReturnsManager

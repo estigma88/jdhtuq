@@ -19,10 +19,6 @@
 package co.edu.uniquindio.utils.communication.transfer;
 
 import co.edu.uniquindio.utils.communication.configurations.CommunicationProperties;
-import co.edu.uniquindio.utils.communication.transfer.network.CommunicationManagerNetworkLAN;
-import co.edu.uniquindio.utils.communication.transfer.network.CommunicationManagerTCP;
-import co.edu.uniquindio.utils.communication.transfer.network.CommunicationManagerUDP;
-import co.edu.uniquindio.utils.communication.transfer.structure.CommunicationManagerStructure;
 import org.apache.log4j.Logger;
 
 import java.util.HashMap;
@@ -37,10 +33,6 @@ import java.util.Map;
  * @author Daniel Lopez
  * @version 1.0.2, 17/06/2010
  * @see CommunicationManagerWaitingResult
- * @see CommunicationManagerStructure
- * @see CommunicationManagerNetworkLAN
- * @see CommunicationManagerTCP
- * @see CommunicationManagerUDP
  * @see CommunicationManager
  * @since 1.0.2
  */
@@ -66,7 +58,6 @@ public class CommunicationManagerCache {
 
     /**
      * Gets the single instance of the communication manager.
-     *
      */
 
     public static CommunicationManager createCommunicationManager(

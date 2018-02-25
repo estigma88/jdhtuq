@@ -20,6 +20,8 @@ repositories {
 
 dependencies {
 	compile project(':p2p:chord')
+	compile project(':communication:socket-communication')
+	compile project(':communication:data-structure-communication')
 
 	compileOnly 'org.projectlombok:lombok:1.16.20'
 	compileOnly "org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}"
