@@ -5,7 +5,6 @@ import co.edu.uniquindio.overlay.OverlayException;
 import co.edu.uniquindio.overlay.OverlayNodeFactory;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.MessageXML;
-import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.overlay.Key;
 import org.junit.Before;
 import org.junit.Test;

@@ -11,7 +11,6 @@ import co.edu.uniquindio.storage.resource.Resource;
 import co.edu.uniquindio.utils.communication.message.BigMessage;
 import co.edu.uniquindio.utils.communication.message.BigMessageXML;
 import co.edu.uniquindio.utils.communication.message.MessageXML;
-import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.overlay.Key;
 import org.junit.Before;
 import org.junit.Rule;

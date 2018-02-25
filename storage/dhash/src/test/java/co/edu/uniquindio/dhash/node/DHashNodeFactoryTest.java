@@ -4,7 +4,6 @@ import co.edu.uniquindio.overlay.OverlayException;
 import co.edu.uniquindio.overlay.OverlayNode;
 import co.edu.uniquindio.overlay.OverlayNodeFactory;
 import co.edu.uniquindio.storage.StorageNode;
-import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.overlay.Key;
 import org.junit.Test;
 import org.junit.runner.RunWith;

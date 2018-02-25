@@ -7,6 +7,7 @@ repositories {
 version = '1.0.3'
 
 dependencies {
+    compile project(':communication:communication-api')
     compile project(':communication:socket-communication')
     compile project(':p2p:lookup-service')
 
