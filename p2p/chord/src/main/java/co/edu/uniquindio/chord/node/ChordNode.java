@@ -312,7 +312,7 @@ public class ChordNode extends Observable implements Chord {
                     successor.getValue(), key.getValue());
 
             x = communicationManager.sendMessageUnicast(getPredecessorMessage,
-                    Key.class);
+                    ChordKey.class);
 
             if (x != null) {
                 if (x.isBetween(key, successor) || key.equals(successor)) {

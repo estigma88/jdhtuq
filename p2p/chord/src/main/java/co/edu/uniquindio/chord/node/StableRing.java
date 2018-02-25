@@ -54,10 +54,15 @@ public class StableRing extends Observable implements Runnable {
      * Executes all the commands periodically while <code>run==true</code>.
      */
     public void run() {
-        setChanged();
+        try {
+            setChanged();
 
-        notifyObservers(node);
+            notifyObservers(node);
 
-        clearChanged();
+            clearChanged();
+        } catch (Exception e) {
+            logger.error("Stable ring error", e);
+            throw new IllegalStateException(" node " + node.getKey() + "could not be stabilized", e);
+        }
     }
 }
