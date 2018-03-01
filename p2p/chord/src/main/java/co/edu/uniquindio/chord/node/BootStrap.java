@@ -22,7 +22,6 @@ package co.edu.uniquindio.chord.node;
 import co.edu.uniquindio.chord.ChordKey;
 import co.edu.uniquindio.chord.protocol.Protocol;
 import co.edu.uniquindio.utils.communication.message.Message;
-import co.edu.uniquindio.utils.communication.message.MessageXML;
 import co.edu.uniquindio.overlay.Key;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.apache.log4j.Logger;

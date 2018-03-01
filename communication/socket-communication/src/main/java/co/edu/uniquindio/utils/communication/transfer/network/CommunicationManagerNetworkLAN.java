@@ -38,6 +38,11 @@ import java.net.UnknownHostException;
  */
 public abstract class CommunicationManagerNetworkLAN extends
         CommunicationManagerWaitingResult {
+    protected final MessageSerialization messageSerialization;
+
+    protected CommunicationManagerNetworkLAN(MessageSerialization messageSerialization) {
+        this.messageSerialization = messageSerialization;
+    }
 
     /**
      * Properties for configuration CommunicationManagerNetworkLAN
@@ -139,7 +144,7 @@ public abstract class CommunicationManagerNetworkLAN extends
 
         try {
             multicastManager = new MulticastManagerNetworkLAN(portMulticast,
-                    InetAddress.getByName(ipMulticast), bufferSize);
+                    InetAddress.getByName(ipMulticast), bufferSize, messageSerialization);
         } catch (UnknownHostException e) {
             IllegalArgumentException illegalArgumentException = new IllegalArgumentException(
                     "Error of ipmulticast", e);

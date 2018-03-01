@@ -18,9 +18,7 @@
 
 package co.edu.uniquindio.utils.communication.transfer.network;
 
-import co.edu.uniquindio.utils.communication.message.MalformedMessageException;
 import co.edu.uniquindio.utils.communication.message.Message;
-import co.edu.uniquindio.utils.communication.message.MessageXML;
 import co.edu.uniquindio.utils.communication.transfer.Communicator;
 import org.apache.log4j.Logger;
 
@@ -70,15 +68,20 @@ public class MulticastManagerNetworkLAN implements Communicator {
      */
     private int portMulticast;
 
+
+    private final MessageSerialization messageSerialization;
+
     /**
      * Builds a MulticastManagerNetworkLAN and started multicast socket
-     *
-     * @param portMulticast Port multicast
+     *  @param portMulticast Port multicast
      * @param group         Internet address multicast
      * @param bufferSize    Buffer size for to reader
+     * @param messageSerialization
      */
     public MulticastManagerNetworkLAN(int portMulticast, InetAddress group,
-                                      long bufferSize) {
+                                      long bufferSize, MessageSerialization messageSerialization) {
+        this.messageSerialization = messageSerialization;
+
         try {
             this.portMulticast = portMulticast;
 
@@ -113,13 +116,11 @@ public class MulticastManagerNetworkLAN implements Communicator {
             string = new String(datagramPacket.getData(), 0, datagramPacket
                     .getLength());
 
-            message = MessageXML.valueOf(string);
+            message = messageSerialization.decode(string);
 
             return message;
         } catch (IOException e) {
             logger.error("Error reading multicast socket", e);
-        } catch (MalformedMessageException e) {
-            logger.error("Error reading messages", e);
         }
 
         return null;
@@ -134,7 +135,7 @@ public class MulticastManagerNetworkLAN implements Communicator {
      */
     public void send(Message message) {
         DatagramPacket datagramPacket;
-        String string = message.toString();
+        String string = messageSerialization.encode(message);
 
         datagramPacket = new DatagramPacket(string.getBytes(), string.length(),
                 group, portMulticast);

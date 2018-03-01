@@ -1,89 +1,104 @@
 package co.edu.uniquindio.utils.communication.message;
 
-import java.util.Set;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Singular;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Interface that defined all methods for message
- * 
+ * Class that defined all methods for message
+ *
  * @author Daniel Pelaez
- * 
  */
-public interface Message {
+@Builder
+@Data
+public class Message {
 
-	/**
-	 * Type of send
-	 * 
-	 * @author Daniel Pelaez
-	 * 
-	 */
-	public static enum SendType {
-		REQUEST, RESPONSE
-	}
+    /**
+     * Type of send
+     *
+     * @author Daniel Pelaez
+     */
+    public enum SendType {
+        REQUEST, RESPONSE
+    }
 
-	/**
-	 * This method is used for adding data to the message
-	 * 
-	 * @param dataAdd
-	 *            . The data that will be added to the message
-	 */
-	public void addParam(String name, String value);
+    /**
+     * Send type
+     */
+    private final SendType sendType;
 
-	/**
-	 * This method is used for getting a specific data from the message
-	 * 
-	 * @param position
-	 *            . The position of the data in the array
-	 * @return Returns the data that is stored in the given position
-	 */
-	public String getParam(String name);
+    /**
+     * Message type
+     */
+    private final MessageType messageType;
 
-	/**
-	 * This method is used for knowing if the message is the same source and
-	 * destination node
-	 * 
-	 * @return Returns true if the message is the same source and destination
-	 *         node
-	 */
-	public boolean isMessageFromMySelf();
+    /**
+     * Address
+     */
+    private final Address address;
 
-	/**
-	 * Gets the message type
-	 * 
-	 * @return Message type
-	 */
-	public String getType();
+    /**
+     * Params
+     */
+    @Singular
+    private final Map<String, String> params;
 
-	/**
-	 * Gets the message type
-	 * 
-	 * @return Send type
-	 */
-	public SendType getSendType();
+    /**
+     * Hash map of names with datas
+     */
+    @Singular
+    private final Map<String, byte[]> datas;
 
-	/**
-	 * Gets the message source address
-	 * 
-	 * @return Message source
-	 */
-	public String getMessageSource();
+    /**
+     * Sequence number
+     */
+    private final long sequenceNumber;
 
-	/**
-	 * Gets the message destination address
-	 * 
-	 * @return Message destination
-	 */
-	public String getMessageDestination();
 
-	/**
-	 * Gets param keys
-	 * 
-	 * @return Param keys
-	 */
-	public Set<String> getParamsKey();
+    /**
+     * This method is used for getting a specific data from the message
+     *
+     * @return Returns the data that is stored in the given position
+     */
+    public String getParam(String name) {
+        if (!params.containsKey(name)) {
+            throw new IllegalArgumentException("The message type "
+                    + messageType.getName() + " not contains param '" + name
+                    + "'");
+        } else {
+            return params.get(name);
+        }
+    }
 
-	/**
-	 * Gets the value of the sequenceNumber property.
-	 * 
-	 */
-	public long getSequenceNumber();
+
+    /**
+     * Gets data by name
+     *
+     * @param name Data name
+     * @return Data
+     */
+    public byte[] getData(String name) {
+        if (!datas.containsKey(name)) {
+            throw new IllegalArgumentException("The big message type "
+                    + messageType.getName() + " not contains param '" + name
+                    + "'");
+        } else {
+            return datas.get(name);
+        }
+    }
+
+    /**
+     * This method is used for knowing if the message is the same source and
+     * destination node
+     *
+     * @return Returns true if the message is the same source and destination
+     * node
+     */
+    public boolean isMessageFromMySelf() {
+        return address.isMessageFromMySelf();
+    }
+
 }

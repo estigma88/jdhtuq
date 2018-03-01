@@ -27,11 +27,10 @@ import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
 import co.edu.uniquindio.overlay.OverlayException;
 import co.edu.uniquindio.storage.resource.Resource;
 import co.edu.uniquindio.utils.communication.Observer;
-import co.edu.uniquindio.utils.communication.message.BigMessage;
-import co.edu.uniquindio.utils.communication.message.BigMessageXML;
+import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.Message.SendType;
-import co.edu.uniquindio.utils.communication.message.MessageXML;
+import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.apache.log4j.Logger;
 
@@ -75,23 +74,23 @@ public class DHashEnvironment implements Observer<Message> {
         logger.debug("Message to: " + dHashNode.getName() + " Message:["
                 + message.toString() + "]");
         logger.debug("Node " + dHashNode.getName() + ", arrived message of "
-                + message.getType());
+                + message.getMessageType());
 
-        if (message.getType().equals(Protocol.PUT.getName())) {
+        if (message.getMessageType().equals(Protocol.PUT.getName())) {
             processPut(message);
             return;
         }
 
-        if (message.getType().equals(Protocol.RESOURCE_COMPARE.getName())) {
+        if (message.getMessageType().equals(Protocol.RESOURCE_COMPARE.getName())) {
             processResourceCompare(message);
             return;
         }
 
-        if (message.getType().equals(Protocol.GET.getName())) {
+        if (message.getMessageType().equals(Protocol.GET.getName())) {
             processGet(message);
             return;
         }
-        if (message.getType().equals(Protocol.RESOURCE_TRANSFER.getName())) {
+        if (message.getMessageType().equals(Protocol.RESOURCE_TRANSFER.getName())) {
             processResourceTransfer(message);
             return;
         }
@@ -104,12 +103,21 @@ public class DHashEnvironment implements Observer<Message> {
      */
     private void processResourceTransfer(Message message) {
 
-        BigMessage resourceTransferResponseMessage;
+        Message.MessageBuilder resourceTransferResponseMessage;
 
-        resourceTransferResponseMessage = new BigMessageXML(message
+        resourceTransferResponseMessage = Message.builder()
+                .sequenceNumber(message.getSequenceNumber())
+                .sendType(SendType.RESPONSE)
+                .messageType(Protocol.RESOURCE_TRANSFER_RESPONSE)
+                .address(Address.builder()
+                        .destination(message.getAddress().getSource())
+                        .source(dHashNode.getName())
+                        .build());
+
+        /*resourceTransferResponseMessage = new BigMessageXML(message
                 .getSequenceNumber(), SendType.RESPONSE,
                 Protocol.RESOURCE_TRANSFER_RESPONSE,
-                message.getMessageSource(), dHashNode.getName());
+                message.getMessageSource(), dHashNode.getName());*/
 
         if (resourceManager.hasResource(
                 message.getParam(ResourceTransferParams.RESOURCE_KEY.name()))) {
@@ -119,17 +127,17 @@ public class DHashEnvironment implements Observer<Message> {
                             .getParam(ResourceTransferParams.RESOURCE_KEY
                                     .name()));
 
-            resourceTransferResponseMessage.addData(
+            resourceTransferResponseMessage.data(
                     ResourceTransferResponseData.RESOURCE.name(), serializationHandler.encode(resource));
 
         } else {
 
-            resourceTransferResponseMessage.addData(
+            resourceTransferResponseMessage.data(
                     ResourceTransferResponseData.RESOURCE.name(), new byte[0]);
 
         }
 
-        communicationManager.sendBigMessage(resourceTransferResponseMessage);
+        communicationManager.sendBigMessage(resourceTransferResponseMessage.build());
     }
 
     /**
@@ -154,13 +162,24 @@ public class DHashEnvironment implements Observer<Message> {
                     .getParam(ResourceCompareParams.CHECK_SUM.name()));
         }
 
-        resourceCompareResponseMessage = new MessageXML(message
+        resourceCompareResponseMessage = Message.builder()
+                .sequenceNumber(message.getSequenceNumber())
+                .sendType(SendType.RESPONSE)
+                .messageType(Protocol.RESOURCE_COMPARE_RESPONSE)
+                .address(Address.builder()
+                        .destination(message.getAddress().getSource())
+                        .source(dHashNode.getName())
+                        .build())
+                .param(ResourceCompareResponseParams.EXIST_RESOURCE.name(), String.valueOf(isChecksumEquals))
+                .build();
+
+        /*resourceCompareResponseMessage = new MessageXML(message
                 .getSequenceNumber(), SendType.RESPONSE,
                 Protocol.RESOURCE_COMPARE_RESPONSE, message.getMessageSource(),
                 dHashNode.getName());
         resourceCompareResponseMessage.addParam(
                 ResourceCompareResponseParams.EXIST_RESOURCE.name(), String
-                        .valueOf(isChecksumEquals));
+                        .valueOf(isChecksumEquals));*/
 
         communicationManager.sendMessageUnicast(resourceCompareResponseMessage);
 
@@ -173,25 +192,34 @@ public class DHashEnvironment implements Observer<Message> {
      */
     private void processGet(Message message) {
 
-        Message getResponseMessage = new MessageXML(
+        Message.MessageBuilder getResponseMessage = Message.builder()
+                .sequenceNumber(message.getSequenceNumber())
+                .sendType(SendType.RESPONSE)
+                .messageType(Protocol.RESOURCE_COMPARE_RESPONSE)
+                .address(Address.builder()
+                        .destination(message.getAddress().getSource())
+                        .source(dHashNode.getName())
+                        .build());
+
+        /*Message getResponseMessage = new MessageXML(
                 message.getSequenceNumber(), SendType.RESPONSE,
                 Protocol.GET_RESPONSE, message.getMessageSource(), dHashNode
-                .getName());
+                .getName());*/
 
         if (resourceManager.hasResource(
                 message.getParam(GetParams.RESOURCE_KEY.name()))) {
 
-            getResponseMessage.addParam(GetResponseParams.HAS_RESOURCE.name(),
+            getResponseMessage.param(GetResponseParams.HAS_RESOURCE.name(),
                     String.valueOf(true));
 
         } else {
 
-            getResponseMessage.addParam(GetResponseParams.HAS_RESOURCE.name(),
+            getResponseMessage.param(GetResponseParams.HAS_RESOURCE.name(),
                     String.valueOf(false));
 
         }
 
-        communicationManager.sendMessageUnicast(getResponseMessage);
+        communicationManager.sendMessageUnicast(getResponseMessage.build());
 
         logger.debug("Node " + dHashNode.getName() + ", confirmation for ");
         logger.debug("Response message: [" + getResponseMessage.toString()
@@ -205,17 +233,17 @@ public class DHashEnvironment implements Observer<Message> {
      */
     private void processPut(Message message) {
 
-        if (message instanceof BigMessage) {
+        /*if (message instanceof BigMessage) {
 
-            BigMessage bigMessage = (BigMessage) message;
+            BigMessage bigMessage = (BigMessage) message;*/
 
             try {
                 Resource resource = serializationHandler.decode(
-                        bigMessage.getData(PutDatas.RESOURCE.name()));
+                        message.getData(PutDatas.RESOURCE.name()));
 
                 resourceManager.persist(resource);
 
-                Boolean replicate = Boolean.valueOf(bigMessage
+                Boolean replicate = Boolean.valueOf(message
                         .getParam(PutParams.REPLICATE.name()));
 
                 if (replicate) {
@@ -226,7 +254,7 @@ public class DHashEnvironment implements Observer<Message> {
             } catch (OverlayException e) {
                 logger.error("Error replicating data", e);
             }
-        }
+        //}
 
     }
 

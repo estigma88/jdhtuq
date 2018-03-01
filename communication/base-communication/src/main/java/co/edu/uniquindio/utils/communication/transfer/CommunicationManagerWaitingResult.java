@@ -20,8 +20,6 @@ package co.edu.uniquindio.utils.communication.transfer;
 
 import co.edu.uniquindio.utils.communication.Observable;
 import co.edu.uniquindio.utils.communication.Observer;
-import co.edu.uniquindio.utils.communication.message.BigMessage;
-import co.edu.uniquindio.utils.communication.message.BigMessageXML;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.Message.SendType;
 

@@ -37,10 +37,9 @@ import co.edu.uniquindio.overlay.OverlayNode;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.StorageNode;
 import co.edu.uniquindio.storage.resource.Resource;
-import co.edu.uniquindio.utils.communication.message.BigMessage;
-import co.edu.uniquindio.utils.communication.message.BigMessageXML;
+import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
-import co.edu.uniquindio.utils.communication.message.MessageXML;
+import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.apache.log4j.Logger;
 
@@ -99,20 +98,42 @@ public class DHashNode implements StorageNode {
                     "Imposible to do get to resource, lookup fails");
         }
 
-        getMessage = new MessageXML(Protocol.GET, lookupKey.getValue(), name);
-        getMessage.addParam(GetParams.RESOURCE_KEY.name(), id);
+        getMessage = Message.builder()
+                .sequenceNumber(SequenceGenerator.getSequenceNumber())
+                .sendType(Message.SendType.REQUEST)
+                .messageType(Protocol.GET)
+                .address(Address.builder()
+                        .destination(lookupKey.getValue())
+                        .source(name)
+                        .build())
+                .param(GetParams.RESOURCE_KEY.name(), id)
+                .build();
+
+        //getMessage = new MessageXML(Protocol.GET, lookupKey.getValue(), name);
+        //getMessage.addParam(GetParams.RESOURCE_KEY.name(), id);
 
         Boolean hasResource = communicationManager.sendMessageUnicast(getMessage,
                 Boolean.class);
 
         if (hasResource) {
 
-            resourceTransferMessage = new MessageXML(
+            resourceTransferMessage = Message.builder()
+                    .sendType(Message.SendType.REQUEST)
+                    .sequenceNumber(SequenceGenerator.getSequenceNumber())
+                    .messageType(Protocol.RESOURCE_TRANSFER)
+                    .address(Address.builder()
+                            .destination(lookupKey.getValue())
+                            .source(name)
+                            .build())
+                    .param(ResourceTransferParams.RESOURCE_KEY.name(), id)
+                    .build();
+
+            /*resourceTransferMessage = new MessageXML(
                     Protocol.RESOURCE_TRANSFER, lookupKey.getValue(), name);
             resourceTransferMessage.addParam(
-                    ResourceTransferParams.RESOURCE_KEY.name(), id);
+                    ResourceTransferParams.RESOURCE_KEY.name(), id);*/
 
-            BigMessage resource = communicationManager
+            Message resource = communicationManager
                     .recieverBigMessage(resourceTransferMessage);
 
             return serializationHandler.decode(resource
@@ -193,14 +214,26 @@ public class DHashNode implements StorageNode {
             throws ResourceAlreadyExistException {
 
         Message resourceCompareMessage;
-        BigMessage putMessage;
+        Message putMessage;
 
-        resourceCompareMessage = new MessageXML(Protocol.RESOURCE_COMPARE,
+        resourceCompareMessage = Message.builder()
+                .sequenceNumber(SequenceGenerator.getSequenceNumber())
+                .sendType(Message.SendType.REQUEST)
+                .messageType(Protocol.RESOURCE_COMPARE)
+                .address(Address.builder()
+                        .destination(lookupKey.getValue())
+                        .source(name)
+                        .build())
+                .param(ResourceCompareParams.CHECK_SUM.name(), checksumeCalculator.calculate(resource))
+                .param(ResourceCompareParams.RESOURCE_KEY.name(), resource.getId())
+                .build();
+
+        /*resourceCompareMessage = new MessageXML(Protocol.RESOURCE_COMPARE,
                 lookupKey.getValue(), name);
         resourceCompareMessage.addParam(ResourceCompareParams.CHECK_SUM.name(),
                 checksumeCalculator.calculate(resource));
         resourceCompareMessage.addParam(ResourceCompareParams.RESOURCE_KEY
-                .name(), resource.getId());
+                .name(), resource.getId());*/
 
         Boolean existResource = communicationManager.sendMessageUnicast(
                 resourceCompareMessage, Boolean.class);
@@ -209,12 +242,25 @@ public class DHashNode implements StorageNode {
             throw new ResourceAlreadyExistException("Resource existe yet");
         }
 
-        putMessage = new BigMessageXML(Protocol.PUT, lookupKey.getValue(), name);
+        putMessage = Message.builder()
+                .sequenceNumber(SequenceGenerator.getSequenceNumber())
+                .sendType(Message.SendType.REQUEST)
+                .messageType(Protocol.PUT)
+                .address(Address.builder()
+                        .destination(lookupKey.getValue())
+                        .source(name)
+                        .build())
+                .param(PutParams.RESOURCE_KEY.name(), resource.getId())
+                .param(PutParams.REPLICATE.name(), String.valueOf(replicate))
+                .data(PutDatas.RESOURCE.name(), serializationHandler.encode(resource))
+                .build();
+
+        /*putMessage = new BigMessageXML(Protocol.PUT, lookupKey.getValue(), name);
         putMessage.addParam(PutParams.RESOURCE_KEY.name(), resource.getId());
         putMessage.addParam(PutParams.REPLICATE.name(), String
                 .valueOf(replicate));
         putMessage
-                .addData(PutDatas.RESOURCE.name(), serializationHandler.encode(resource));
+                .addData(PutDatas.RESOURCE.name(), serializationHandler.encode(resource));*/
 
         communicationManager.sendBigMessage(putMessage);
 

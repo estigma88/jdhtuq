@@ -21,6 +21,9 @@ repositories {
 dependencies {
 	compile project(':communication:socket-communication')
 
+	// https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
+	compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.4'
+
 	compileOnly 'org.projectlombok:lombok:1.16.20'
 	compileOnly "org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}"
 	compile("org.springframework.boot:spring-boot-starter:${springBootVersion}")

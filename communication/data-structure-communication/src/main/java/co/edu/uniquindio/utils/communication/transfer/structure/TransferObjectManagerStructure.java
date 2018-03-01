@@ -18,7 +18,6 @@
 
 package co.edu.uniquindio.utils.communication.transfer.structure;
 
-import co.edu.uniquindio.utils.communication.message.BigMessage;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.BytesTransfer;
 

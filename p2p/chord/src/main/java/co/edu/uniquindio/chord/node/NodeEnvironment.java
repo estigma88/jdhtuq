@@ -25,7 +25,6 @@ import co.edu.uniquindio.overlay.KeyFactory;
 import co.edu.uniquindio.utils.communication.Observer;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.Message.SendType;
-import co.edu.uniquindio.utils.communication.message.MessageXML;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.apache.log4j.Logger;
 

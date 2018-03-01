@@ -18,10 +18,7 @@
 
 package co.edu.uniquindio.utils.communication.transfer.network;
 
-import co.edu.uniquindio.utils.communication.message.BigMessageXML;
-import co.edu.uniquindio.utils.communication.message.MalformedMessageException;
 import co.edu.uniquindio.utils.communication.message.Message;
-import co.edu.uniquindio.utils.communication.message.MessageXML;
 import co.edu.uniquindio.utils.communication.transfer.Communicator;
 import org.apache.log4j.Logger;
 
@@ -59,8 +56,11 @@ public class UnicastBigManagerTCP implements Communicator {
 	 */
 	private int portTcp;
 
-	public UnicastBigManagerTCP(int portTcp) {
+	private final MessageSerialization messageSerialization;
+
+	public UnicastBigManagerTCP(int portTcp, MessageSerialization messageSerialization) {
 		this.portTcp = portTcp;
+		this.messageSerialization = messageSerialization;
 
 		try {
 			this.serverSocket = new ServerSocket(portTcp);
@@ -87,18 +87,12 @@ public class UnicastBigManagerTCP implements Communicator {
 			objectInputStream = new ObjectInputStream(socket.getInputStream());
 			stringMessage = (String) objectInputStream.readObject();
 
-			if(stringMessage.contains("bigMessage")){
-				message = BigMessageXML.valueOf(stringMessage);
-			}else{
-				message = MessageXML.valueOf(stringMessage);
-			}
+			message = messageSerialization.decode(stringMessage);
 
 		} catch (IOException e) {
 			logger.error("Error reading socket", e);
 		} catch (ClassNotFoundException e) {
 			logger.error("Error reading socket", e);
-		} catch (MalformedMessageException e) {
-			logger.error("Error reading message", e);
 		} finally {
 			try {
 				socket.close();
@@ -121,11 +115,11 @@ public class UnicastBigManagerTCP implements Communicator {
 
 		Socket socket = null;
 		try {
-			socket = new Socket(message.getMessageDestination(), portTcp);
+			socket = new Socket(message.getAddress().getDestination(), portTcp);
 
 			ObjectOutputStream objectOutputStream = new ObjectOutputStream(
 					socket.getOutputStream());
-			objectOutputStream.writeObject(message.toString());
+			objectOutputStream.writeObject(messageSerialization.encode(message));
 			objectOutputStream.flush();
 
 		} catch (UnknownHostException e) {

@@ -35,8 +35,11 @@ import org.apache.log4j.Logger;
  * 
  */
 public class CommunicationManagerTCP extends CommunicationManagerNetworkLAN {
+	public CommunicationManagerTCP(MessageSerialization messageSerialization) {
+		super(messageSerialization);
+	}
 
-	/**
+    /**
 	 * The <code>CommunicationManagerTCPProperties</code> enum contains params
 	 * required for communication
 	 * 
@@ -74,7 +77,7 @@ public class CommunicationManagerTCP extends CommunicationManagerNetworkLAN {
 
 			throw illegalArgumentException;
 		}
-		unicastBigManager = new UnicastBigManagerTCP(portTcp);
+		unicastBigManager = new UnicastBigManagerTCP(portTcp, messageSerialization);
 
 		return unicastBigManager;
 	}
@@ -98,7 +101,7 @@ public class CommunicationManagerTCP extends CommunicationManagerNetworkLAN {
 
 			throw illegalArgumentException;
 		}
-		unicastManager = new UnicastManagerTCP(portTcp);
+		unicastManager = new UnicastManagerTCP(portTcp, messageSerialization);
 
 		return unicastManager;
 	}

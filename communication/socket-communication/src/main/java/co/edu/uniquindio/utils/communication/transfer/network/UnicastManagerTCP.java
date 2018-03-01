@@ -18,9 +18,7 @@
 
 package co.edu.uniquindio.utils.communication.transfer.network;
 
-import co.edu.uniquindio.utils.communication.message.MalformedMessageException;
 import co.edu.uniquindio.utils.communication.message.Message;
-import co.edu.uniquindio.utils.communication.message.MessageXML;
 import co.edu.uniquindio.utils.communication.transfer.Communicator;
 import org.apache.log4j.Logger;
 
@@ -56,14 +54,17 @@ public class UnicastManagerTCP implements Communicator {
      * The value of the port used to create the socket.
      */
     private int portTcp;
+    private final MessageSerialization messageSerialization;
 
     /**
      * Builds a UnicastManagerTCP
      *
      * @param portTcp Port TCP number
+     * @param messageSerialization
      */
-    public UnicastManagerTCP(int portTcp) {
+    public UnicastManagerTCP(int portTcp, MessageSerialization messageSerialization) {
         this.portTcp = portTcp;
+        this.messageSerialization = messageSerialization;
 
         try {
             this.serverSocket = new ServerSocket(portTcp);
@@ -90,14 +91,12 @@ public class UnicastManagerTCP implements Communicator {
             objectInputStream = new ObjectInputStream(socket.getInputStream());
             stringMessage = (String) objectInputStream.readObject();
 
-            message = MessageXML.valueOf(stringMessage);
+            message = messageSerialization.decode(stringMessage);
 
         } catch (IOException e) {
             logger.error("Error reading socket", e);
         } catch (ClassNotFoundException e) {
             logger.error("Error reading socket", e);
-        } catch (MalformedMessageException e) {
-            logger.error("Error reading message", e);
         } finally {
             try {
                 socket.close();
@@ -120,11 +119,11 @@ public class UnicastManagerTCP implements Communicator {
 
         Socket socket = null;
         try {
-            socket = new Socket(message.getMessageDestination(), portTcp);
+            socket = new Socket(message.getAddress().getDestination(), portTcp);
 
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(
                     socket.getOutputStream());
-            objectOutputStream.writeObject(message.toString());
+            objectOutputStream.writeObject(messageSerialization.encode(message));
             objectOutputStream.flush();
 
         } catch (UnknownHostException e) {

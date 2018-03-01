@@ -18,8 +18,6 @@
 
 package co.edu.uniquindio.utils.communication.transfer;
 
-import co.edu.uniquindio.utils.communication.message.BigMessage;
-
 /**
  * The <code>BytesTransfer</code> interfaz have all services to send big
  * messages

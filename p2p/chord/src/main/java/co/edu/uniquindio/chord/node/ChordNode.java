@@ -26,7 +26,6 @@ import co.edu.uniquindio.chord.protocol.Protocol.LookupResponseParams;
 import co.edu.uniquindio.overlay.Key;
 import co.edu.uniquindio.overlay.KeyFactory;
 import co.edu.uniquindio.utils.communication.message.Message;
-import co.edu.uniquindio.utils.communication.message.MessageXML;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.apache.log4j.Logger;
 
