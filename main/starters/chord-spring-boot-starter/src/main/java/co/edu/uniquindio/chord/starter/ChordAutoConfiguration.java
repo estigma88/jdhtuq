@@ -12,18 +12,18 @@ import co.edu.uniquindio.chord.node.command.StabilizeCommand;
 import co.edu.uniquindio.overlay.KeyFactory;
 import co.edu.uniquindio.overlay.OverlayNodeFactory;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
-import co.edu.uniquindio.utils.communication.transfer.network.CommunicationManagerUDP;
-import co.edu.uniquindio.utils.communication.transfer.structure.CommunicationManagerStructure;
+import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Observer;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -36,8 +36,13 @@ public class ChordAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public OverlayNodeFactory overlayNodeFactory(@Qualifier("communicationManagerChord") CommunicationManager communicationManager, BootStrap bootStrap, ScheduledExecutorService scheduledStableRing, List<Observer> stableRingObservers, KeyFactory keyFactory) {
-        return new ChordNodeFactory(communicationManager, new HashSet<>(), chordProperties.getStableRingTime(), chordProperties.getSuccessorListAmount(), bootStrap, scheduledStableRing, stableRingObservers, keyFactory);
+    public OverlayNodeFactory overlayNodeFactory(CommunicationManager communicationManagerChord, BootStrap bootStrap, ScheduledExecutorService scheduledStableRing, List<Observer> stableRingObservers, KeyFactory keyFactory) {
+        return new ChordNodeFactory(communicationManagerChord, new HashSet<>(), chordProperties.getStableRingTime(), chordProperties.getSuccessorListAmount(), bootStrap, scheduledStableRing, stableRingObservers, keyFactory);
+    }
+
+    @Bean
+    public CommunicationManager communicationManagerChord(CommunicationManagerFactory communicationManagerFactory) {
+        return communicationManagerFactory.newCommunicationManager("chord");
     }
 
     @Bean
@@ -64,33 +69,4 @@ public class ChordAutoConfiguration {
     public List<Observer> stableRingObservers() {
         return Arrays.asList(new FixSuccessorsCommand(), new FixFingersCommand(), new CheckPredecessorCommand(), new StabilizeCommand());
     }
-
-    @Bean("communicationManagerChord")
-    @ConditionalOnMissingBean(name = "communicationManagerChord")
-    @ConditionalOnProperty(prefix = "p2p.chord",
-            name = "communication_type",
-            havingValue = "DATA_STRUCTURE")
-    public CommunicationManager communicationManagerStructure() {
-        CommunicationManagerStructure communication = new CommunicationManagerStructure();
-
-        Map<String, String> params = new HashMap<>();
-        params.put("RESPONSE_TIME", "2000");
-
-        communication
-                .setCommunicationProperties(params);
-
-        communication.init();
-
-        return communication;
-    }
-
-    @Bean("communicationManagerChord")
-    @ConditionalOnMissingBean(name = "communicationManagerChord")
-    @ConditionalOnProperty(prefix = "p2p.chord",
-            name = "communication_type",
-            havingValue = "NETWORK")
-    public CommunicationManager communicationManagerUDP() {
-        return new CommunicationManagerUDP();
-    }
-
 }

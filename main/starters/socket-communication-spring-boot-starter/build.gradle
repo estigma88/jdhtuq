@@ -1,0 +1,27 @@
+buildscript {
+	ext {
+		springBootVersion = '1.5.10.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+	}
+}
+
+apply plugin: 'java'
+
+group = 'co.edu.uniquindio.utils.communication.transfer.network'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+
+repositories {
+	mavenCentral()
+}
+
+
+dependencies {
+	compile project(':communication:socket-communication')
+
+	compileOnly 'org.projectlombok:lombok:1.16.20'
+	compileOnly "org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}"
+	compile("org.springframework.boot:spring-boot-starter:${springBootVersion}")
+}

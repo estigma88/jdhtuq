@@ -1,0 +1,11 @@
+{
+  "hints": [],
+  "groups": [
+    {
+      "sourceType": "co.edu.uniquindio.dhash.starter.DHashProperties",
+      "name": "p2p.dhash",
+      "type": "co.edu.uniquindio.dhash.starter.DHashProperties"
+    }
+  ],
+  "properties": []
+}
