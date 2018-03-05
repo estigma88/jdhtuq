@@ -61,8 +61,7 @@ public class StableRing extends Observable implements Runnable {
 
             clearChanged();
         } catch (Exception e) {
-            logger.error("Stable ring error", e);
-            throw new IllegalStateException(" node " + node.getKey() + "could not be stabilized", e);
+            logger.error(" node " + node.getKey() + "could not be stabilized", e);
         }
     }
 }

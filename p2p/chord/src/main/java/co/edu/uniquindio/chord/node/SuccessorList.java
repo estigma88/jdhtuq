@@ -20,8 +20,10 @@ package co.edu.uniquindio.chord.node;
 
 import co.edu.uniquindio.chord.protocol.Protocol;
 import co.edu.uniquindio.overlay.KeyFactory;
+import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.overlay.Key;
+import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.apache.log4j.Logger;
 
@@ -96,8 +98,18 @@ public class SuccessorList {
         Key successor = keyList[0];
         Message getSuccessorListMesssage;
 
-        getSuccessorListMesssage = new MessageXML(Protocol.GET_SUCCESSOR_LIST,
-                successor.getValue(), chordNode.getKey().getValue());
+        getSuccessorListMesssage = Message.builder()
+                .sequenceNumber(SequenceGenerator.getSequenceNumber())
+                .sendType(Message.SendType.REQUEST)
+                .messageType(Protocol.GET_SUCCESSOR_LIST)
+                .address(Address.builder()
+                        .destination(successor.getValue())
+                        .source(chordNode.getKey().getValue())
+                        .build())
+                .build();
+
+        /*getSuccessorListMesssage = new MessageXML(Protocol.GET_SUCCESSOR_LIST,
+                successor.getValue(), chordNode.getKey().getValue());*/
 
         successorList = communicationManager.sendMessageUnicast(
                 getSuccessorListMesssage, String.class);
@@ -148,8 +160,18 @@ public class SuccessorList {
 
         for (int i = 0; i < keyList.length; i++) {
 
-            pingMessage = new MessageXML(Protocol.PING, keyList[i].getValue(),
-                    chordNode.getKey().getValue());
+            pingMessage = Message.builder()
+                    .sequenceNumber(SequenceGenerator.getSequenceNumber())
+                    .sendType(Message.SendType.REQUEST)
+                    .messageType(Protocol.PING)
+                    .address(Address.builder()
+                            .destination(keyList[i].getValue())
+                            .source(chordNode.getKey().getValue())
+                            .build())
+                    .build();
+
+            /*pingMessage = new MessageXML(Protocol.PING, keyList[i].getValue(),
+                    chordNode.getKey().getValue());*/
 
             success = communicationManager.sendMessageUnicast(pingMessage,
                     Boolean.class);

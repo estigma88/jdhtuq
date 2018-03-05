@@ -18,21 +18,21 @@
 
 package co.edu.uniquindio.utils.communication.transfer;
 
+import co.edu.uniquindio.utils.communication.message.Message;
+
 /**
  * The <code>BytesTransfer</code> interfaz have all services to send big
  * messages
- * 
+ *
  * @author Daniel Pelaez
  * @version 1.0, 17/06/2010
  * @since 1.0
- * 
  */
 public interface BytesTransfer extends Communicator {
-	/**
-	 * Send big massage
-	 * 
-	 * @param bigMessage
-	 *            Message to send
-	 */
-	public void send(BigMessage bigMessage);
+    /**
+     * Send big massage
+     *
+     * @param bigMessage Message to send
+     */
+    public void send(Message bigMessage);
 }

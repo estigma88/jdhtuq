@@ -23,8 +23,10 @@ import co.edu.uniquindio.chord.protocol.Protocol.*;
 import co.edu.uniquindio.overlay.Key;
 import co.edu.uniquindio.overlay.KeyFactory;
 import co.edu.uniquindio.utils.communication.Observer;
+import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.Message.SendType;
+import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.apache.log4j.Logger;
 
@@ -100,39 +102,39 @@ class NodeEnvironment implements Observer<Message> {
             return;
         }
 
-        if (message.getType().equals(Protocol.LOOKUP.getName())) {
+        if (message.getMessageType().equals(Protocol.LOOKUP)) {
             processLookUp(message);
             return;
         }
-        if (message.getType().equals(Protocol.PING.getName())) {
+        if (message.getMessageType().equals(Protocol.PING)) {
             processPing(message);
             return;
         }
-        if (message.getType().equals(Protocol.NOTIFY.getName())) {
+        if (message.getMessageType().equals(Protocol.NOTIFY)) {
             processNotify(message);
             return;
         }
-        if (message.getType().equals(Protocol.GET_PREDECESSOR.getName())) {
+        if (message.getMessageType().equals(Protocol.GET_PREDECESSOR)) {
             processGetPredecessor(message);
             return;
         }
-        if (message.getType().equals(Protocol.BOOTSTRAP.getName())) {
+        if (message.getMessageType().equals(Protocol.BOOTSTRAP)) {
             processBootStrap(message);
             return;
         }
-        if (message.getType().equals(Protocol.LEAVE.getName())) {
+        if (message.getMessageType().equals(Protocol.LEAVE)) {
             processLeave(message);
             return;
         }
-        if (message.getType().equals(Protocol.SET_PREDECESSOR.getName())) {
+        if (message.getMessageType().equals(Protocol.SET_PREDECESSOR)) {
             processSetPredecessor(message);
             return;
         }
-        if (message.getType().equals(Protocol.SET_SUCCESSOR.getName())) {
+        if (message.getMessageType().equals(Protocol.SET_SUCCESSOR)) {
             processSetSuccessor(message);
             return;
         }
-        if (message.getType().equals(Protocol.GET_SUCCESSOR_LIST.getName())) {
+        if (message.getMessageType().equals(Protocol.GET_SUCCESSOR_LIST)) {
             processGetSuccessorList(message);
             return;
         }
@@ -150,13 +152,24 @@ class NodeEnvironment implements Observer<Message> {
 
         successorList = chordNode.getSuccessorList().toString();
 
-        getSuccesorListResponseMessage = new MessageXML(message
+        getSuccesorListResponseMessage = Message.builder()
+                .sequenceNumber(message.getSequenceNumber())
+                .sendType(SendType.RESPONSE)
+                .messageType(Protocol.GET_SUCCESSOR_LIST_RESPONSE)
+                .address(Address.builder()
+                        .destination(message.getAddress().getSource())
+                        .source(chordNode.getKey().getValue())
+                        .build())
+                .param(GetSuccessorListResponseParams.SUCCESSOR_LIST.name(), successorList)
+                .build();
+
+        /*getSuccesorListResponseMessage = new MessageXML(message
                 .getSequenceNumber(), SendType.RESPONSE,
                 Protocol.GET_SUCCESSOR_LIST_RESPONSE, message
                 .getMessageSource(), chordNode.getKey().getValue());
         getSuccesorListResponseMessage.addParam(
                 GetSuccessorListResponseParams.SUCCESSOR_LIST.name(),
-                successorList);
+                successorList);*/
 
         communicationManager.sendMessageUnicast(getSuccesorListResponseMessage);
     }
@@ -206,19 +219,41 @@ class NodeEnvironment implements Observer<Message> {
 
         if (!chordNode.getSuccessor().equals(chordNode.getKey())) {
 
-            setSuccessorMessage = new MessageXML(Protocol.SET_SUCCESSOR,
+            setSuccessorMessage = Message.builder()
+                    .sequenceNumber(SequenceGenerator.getSequenceNumber())
+                    .sendType(SendType.REQUEST)
+                    .messageType(Protocol.SET_SUCCESSOR)
+                    .address(Address.builder()
+                            .destination(chordNode.getPredecessor().getValue())
+                            .source(chordNode.getKey().getValue())
+                            .build())
+                    .param(SetSuccessorParams.SUCCESSOR.name(), chordNode.getSuccessor().getValue())
+                    .build();
+
+            /*setSuccessorMessage = new MessageXML(Protocol.SET_SUCCESSOR,
                     chordNode.getPredecessor().getValue(), chordNode.getKey()
                     .getValue());
             setSuccessorMessage.addParam(SetSuccessorParams.SUCCESSOR.name(),
-                    chordNode.getSuccessor().getValue());
+                    chordNode.getSuccessor().getValue());*/
 
             communicationManager.sendMessageUnicast(setSuccessorMessage);
 
-            setPredecessorMessage = new MessageXML(Protocol.SET_PREDECESSOR,
+            setPredecessorMessage = Message.builder()
+                    .sequenceNumber(SequenceGenerator.getSequenceNumber())
+                    .sendType(SendType.REQUEST)
+                    .messageType(Protocol.SET_PREDECESSOR)
+                    .address(Address.builder()
+                            .destination(chordNode.getSuccessor().getValue())
+                            .source(chordNode.getKey().getValue())
+                            .build())
+                    .param(SetPredecessorParams.PREDECESSOR.name(), chordNode.getPredecessor().toString())
+                    .build();
+
+            /*setPredecessorMessage = new MessageXML(Protocol.SET_PREDECESSOR,
                     chordNode.getSuccessor().getValue(), chordNode.getKey()
                     .getValue());
             setPredecessorMessage.addParam(SetPredecessorParams.PREDECESSOR
-                    .name(), chordNode.getPredecessor().toString());
+                    .name(), chordNode.getPredecessor().toString());*/
 
             communicationManager.sendMessageUnicast(setPredecessorMessage);
         }
@@ -236,15 +271,26 @@ class NodeEnvironment implements Observer<Message> {
 
         Message bootstrapResponseMessage;
 
-        if (message.getMessageSource().equals(chordNode.getKey().getValue())) {
+        if (message.getAddress().getSource().equals(chordNode.getKey().getValue())) {
             return;
         }
 
-        bootstrapResponseMessage = new MessageXML(message.getSequenceNumber(),
+        bootstrapResponseMessage = Message.builder()
+                .sequenceNumber(message.getSequenceNumber())
+                .sendType(SendType.RESPONSE)
+                .messageType(Protocol.BOOTSTRAP_RESPONSE)
+                .address(Address.builder()
+                        .destination(message.getAddress().getSource())
+                        .source(chordNode.getKey().getValue())
+                        .build())
+                .param(BootStrapResponseParams.NODE_FIND.name(), chordNode.getKey().toString())
+                .build();
+
+        /*bootstrapResponseMessage = new MessageXML(message.getSequenceNumber(),
                 SendType.RESPONSE, Protocol.BOOTSTRAP_RESPONSE, message
                 .getMessageSource(), chordNode.getKey().getValue());
         bootstrapResponseMessage.addParam(BootStrapResponseParams.NODE_FIND
-                .name(), chordNode.getKey().toString());
+                .name(), chordNode.getKey().toString());*/
 
         communicationManager.sendMessageUnicast(bootstrapResponseMessage);
     }
@@ -256,27 +302,39 @@ class NodeEnvironment implements Observer<Message> {
      */
     private void processGetPredecessor(Message message) {
 
-        Message getPredecessorResponseMessage;
+        Message.MessageBuilder getPredecessorResponseMessage;
 
-        getPredecessorResponseMessage = new MessageXML(message
+        getPredecessorResponseMessage = Message.builder()
+                .sequenceNumber(message.getSequenceNumber())
+                .sendType(SendType.RESPONSE)
+                .messageType(Protocol.GET_PREDECESSOR_RESPONSE)
+                .address(Address.builder()
+                        .destination(message.getAddress().getSource())
+                        .source(chordNode.getKey().getValue())
+                        .build());
+
+        /*getPredecessorResponseMessage = new MessageXML(message
                 .getSequenceNumber(), SendType.RESPONSE,
                 Protocol.GET_PREDECESSOR_RESPONSE, message.getMessageSource(),
-                chordNode.getKey().getValue());
+                chordNode.getKey().getValue());*/
 
         if (chordNode.getPredecessor() == null) {
+            getPredecessorResponseMessage.param(GetPredecessorResponseParams.PREDECESSOR.name(), null);
 
-            getPredecessorResponseMessage.addParam(
-                    GetPredecessorResponseParams.PREDECESSOR.name(), null);
+            /*getPredecessorResponseMessage.addParam(
+                    GetPredecessorResponseParams.PREDECESSOR.name(), null);*/
 
         } else {
+            getPredecessorResponseMessage.param(GetPredecessorResponseParams.PREDECESSOR.name(), chordNode
+                    .getPredecessor().toString());
 
-            getPredecessorResponseMessage.addParam(
+            /*getPredecessorResponseMessage.addParam(
                     GetPredecessorResponseParams.PREDECESSOR.name(), chordNode
-                            .getPredecessor().toString());
+                            .getPredecessor().toString());*/
 
         }
 
-        communicationManager.sendMessageUnicast(getPredecessorResponseMessage);
+        communicationManager.sendMessageUnicast(getPredecessorResponseMessage.build());
 
     }
 
@@ -289,7 +347,7 @@ class NodeEnvironment implements Observer<Message> {
         if (!message.isMessageFromMySelf()) {
             Key node;
 
-            node = keyFactory.newKey(message.getMessageSource());
+            node = keyFactory.newKey(message.getAddress().getSource());
 
             chordNode.notify(node);
         }
@@ -304,11 +362,22 @@ class NodeEnvironment implements Observer<Message> {
 
         Message pingMessage;
 
-        pingMessage = new MessageXML(message.getSequenceNumber(),
+        pingMessage = Message.builder()
+                .sequenceNumber(message.getSequenceNumber())
+                .sendType(SendType.RESPONSE)
+                .messageType(Protocol.PING_RESPONSE)
+                .address(Address.builder()
+                        .destination(message.getAddress().getSource())
+                        .source(chordNode.getKey().getValue())
+                        .build())
+                .param(PingResponseParams.PING.name(), Boolean.TRUE.toString())
+                .build();
+
+        /*pingMessage = new MessageXML(message.getSequenceNumber(),
                 SendType.RESPONSE, Protocol.PING_RESPONSE, message
                 .getMessageSource(), chordNode.getKey().getValue());
         pingMessage.addParam(PingResponseParams.PING.name(), Boolean.TRUE
-                .toString());
+                .toString());*/
 
         communicationManager.sendMessageUnicast(pingMessage);
     }
@@ -320,19 +389,31 @@ class NodeEnvironment implements Observer<Message> {
      */
     private void processLookUp(Message message) {
 
-        Message lookupResponseMessage;
+        Message.MessageBuilder lookupResponseMessage;
 
-        lookupResponseMessage = new MessageXML(message.getSequenceNumber(),
+        lookupResponseMessage = Message.builder()
+                .sequenceNumber(message.getSequenceNumber())
+                .sendType(SendType.RESPONSE)
+                .messageType(Protocol.LOOKUP_RESPONSE)
+                .address(Address.builder()
+                        .destination(message.getAddress().getSource())
+                        .source(chordNode.getKey().getValue())
+                        .build())
+                .param(LookupResponseParams.TYPE.name(), message.getParam(LookupParams.TYPE.name()));
+
+        /*lookupResponseMessage = new MessageXML(message.getSequenceNumber(),
                 SendType.RESPONSE, Protocol.LOOKUP_RESPONSE, message
                 .getMessageSource(), chordNode.getKey().getValue());
         lookupResponseMessage.addParam(LookupResponseParams.TYPE.name(),
-                message.getParam(LookupParams.TYPE.name()));
+                message.getParam(LookupParams.TYPE.name()));*/
 
         /* Discards the message that comes from the same node */
         if (message.isMessageFromMySelf()) {
-
-            lookupResponseMessage.addParam(LookupResponseParams.NODE_FIND
+            lookupResponseMessage.param(LookupResponseParams.NODE_FIND
                     .name(), chordNode.getKey().toString());
+
+            /*lookupResponseMessage.addParam(LookupResponseParams.NODE_FIND
+                    .name(), chordNode.getKey().toString());*/
 
         } else {
 
@@ -346,20 +427,24 @@ class NodeEnvironment implements Observer<Message> {
                     .getParam(LookupParams.TYPE.name())));
 
             if (response == null) {
-
-                lookupResponseMessage.addParam(LookupResponseParams.NODE_FIND
+                lookupResponseMessage.param(LookupResponseParams.NODE_FIND
                         .name(), chordNode.getKey().toString());
 
-            } else {
+                /*lookupResponseMessage.addParam(LookupResponseParams.NODE_FIND
+                        .name(), chordNode.getKey().toString());*/
 
-                lookupResponseMessage.addParam(LookupResponseParams.NODE_FIND
+            } else {
+                lookupResponseMessage.param(LookupResponseParams.NODE_FIND
                         .name(), response.toString());
+
+                /*lookupResponseMessage.addParam(LookupResponseParams.NODE_FIND
+                        .name(), response.toString());*/
 
             }
 
         }
 
-        communicationManager.sendMessageUnicast(lookupResponseMessage);
+        communicationManager.sendMessageUnicast(lookupResponseMessage.build());
     }
 
     /**

@@ -55,13 +55,6 @@ public class TransferObjectManagerStructure implements BytesTransfer {
 	}
 
 	/**
-	 * Send big message for CommunicationDataStructure
-	 */
-	public void send(BigMessage message) {
-		communicationDataStructure.notifyUnicast(message);
-	}
-
-	/**
 	 * Not implemented
 	 */
 	public Message reciever() {

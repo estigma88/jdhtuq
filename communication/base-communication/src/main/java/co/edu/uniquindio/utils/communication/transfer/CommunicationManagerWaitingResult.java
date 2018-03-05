@@ -259,7 +259,7 @@ public abstract class CommunicationManagerWaitingResult implements
      *
      * @param bigMessage Message to send
      */
-    public void sendBigMessage(BigMessage bigMessage) {
+    public void sendBigMessage(Message bigMessage) {
         unicastBigManager.send(bigMessage);
     }
 
@@ -270,7 +270,7 @@ public abstract class CommunicationManagerWaitingResult implements
      * @param message Request message
      * @return Response
      */
-    public BigMessage recieverBigMessage(Message message) {
+    public Message recieverBigMessage(Message message) {
 
         /*
          * Created WaitingResult for message sequence number to send
@@ -283,7 +283,7 @@ public abstract class CommunicationManagerWaitingResult implements
         /*
          * Waiting for response
          */
-        return (BigMessageXML) waitingResult.getResult();
+        return (Message) waitingResult.getResult();
     }
 
     /**

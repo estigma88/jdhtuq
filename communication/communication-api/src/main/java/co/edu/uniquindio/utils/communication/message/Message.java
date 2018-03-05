@@ -4,8 +4,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Class that defined all methods for message
@@ -99,6 +99,10 @@ public class Message {
      */
     public boolean isMessageFromMySelf() {
         return address.isMessageFromMySelf();
+    }
+
+    public Set<String> getParamsKey() {
+        return params.keySet();
     }
 
 }

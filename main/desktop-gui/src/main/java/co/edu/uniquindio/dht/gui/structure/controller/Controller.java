@@ -258,12 +258,12 @@ public class Controller implements Observer<Message> {
     // TODO Documentar
     @Override
     public void update(Message message) {
-        if (message.getType().equals(Protocol.LOOKUP_RESPONSE.getName())) {
+        if (message.getMessageType().equals(Protocol.LOOKUP_RESPONSE)) {
             if (message.getParam(LookupParams.TYPE.name()).equals(
                     LookupType.LOOKUP.name())) {
 
-                String from = getNumOfNode(message.getMessageSource());
-                String to = getNumOfNode(message.getMessageDestination());
+                String from = getNumOfNode(message.getAddress().getSource());
+                String to = getNumOfNode(message.getAddress().getDestination());
                 String successor = getNumOfNode(ChordKey.valueOf(message
                         .getParam(LookupResponseParams.NODE_FIND.name())).getValue());
 

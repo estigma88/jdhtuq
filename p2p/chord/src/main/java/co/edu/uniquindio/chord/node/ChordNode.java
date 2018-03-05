@@ -25,7 +25,9 @@ import co.edu.uniquindio.chord.protocol.Protocol;
 import co.edu.uniquindio.chord.protocol.Protocol.LookupResponseParams;
 import co.edu.uniquindio.overlay.Key;
 import co.edu.uniquindio.overlay.KeyFactory;
+import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
+import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.apache.log4j.Logger;
 
@@ -146,12 +148,24 @@ public class ChordNode extends Observable implements Chord {
         } else {
             next = fingersTable.findClosestPresedingNode(id);
 
-            lookupMessage = new MessageXML(Protocol.LOOKUP, next.getValue(),
+            lookupMessage = Message.builder()
+                    .sequenceNumber(SequenceGenerator.getSequenceNumber())
+                    .sendType(Message.SendType.REQUEST)
+                    .messageType(Protocol.LOOKUP)
+                    .address(Address.builder()
+                            .destination(next.getValue())
+                            .source(key.getValue())
+                            .build())
+                    .param(Protocol.LookupParams.HASHING.name(), id.getHashing().toString())
+                    .param(Protocol.LookupParams.TYPE.name(), typeLookUp.name())
+                    .build();
+
+            /*lookupMessage = new MessageXML(Protocol.LOOKUP, next.getValue(),
                     key.getValue());
             lookupMessage.addParam(Protocol.LookupParams.HASHING.name(), id
                     .getHashing().toString());
             lookupMessage.addParam(Protocol.LookupParams.TYPE.name(),
-                    typeLookUp.name());
+                    typeLookUp.name());*/
 
             return communicationManager.sendMessageUnicast(lookupMessage,
                     ChordKey.class, LookupResponseParams.NODE_FIND.name());
@@ -182,12 +196,24 @@ public class ChordNode extends Observable implements Chord {
 
         predecessor = null;
 
-        lookupMessage = new MessageXML(Protocol.LOOKUP, node.getValue(), key
+        lookupMessage = Message.builder()
+                .sequenceNumber(SequenceGenerator.getSequenceNumber())
+                .sendType(Message.SendType.REQUEST)
+                .messageType(Protocol.LOOKUP)
+                .address(Address.builder()
+                        .destination(node.getValue())
+                        .source(key.getValue())
+                        .build())
+                .param(Protocol.LookupParams.HASHING.name(), key.getHashing().toString())
+                .param(Protocol.LookupParams.TYPE.name(), LookupType.JOIN.name())
+                .build();
+
+        /*lookupMessage = new MessageXML(Protocol.LOOKUP, node.getValue(), key
                 .getValue());
         lookupMessage.addParam(Protocol.LookupParams.HASHING.name(), key
                 .getHashing().toString());
         lookupMessage.addParam(Protocol.LookupParams.TYPE.name(),
-                LookupType.JOIN.name());
+                LookupType.JOIN.name());*/
 
         successor = communicationManager.sendMessageUnicast(lookupMessage,
                 ChordKey.class, LookupResponseParams.NODE_FIND.name());
@@ -243,8 +269,18 @@ public class ChordNode extends Observable implements Chord {
 
         Message pingMessage;
 
-        pingMessage = new MessageXML(Protocol.PING, predecessor.getValue(), key
-                .getValue());
+        pingMessage = Message.builder()
+                .sequenceNumber(SequenceGenerator.getSequenceNumber())
+                .sendType(Message.SendType.REQUEST)
+                .messageType(Protocol.PING)
+                .address(Address.builder()
+                        .destination(predecessor.getValue())
+                        .source(key.getValue())
+                        .build())
+                .build();
+
+        /*pingMessage = new MessageXML(Protocol.PING, predecessor.getValue(), key
+                .getValue());*/
 
         Boolean success = communicationManager.sendMessageUnicast(pingMessage,
                 Boolean.class);
@@ -272,8 +308,18 @@ public class ChordNode extends Observable implements Chord {
         Message getPredecessorMessage;
         Message notifyMessage;
 
-        pingMessage = new MessageXML(Protocol.PING, successor.getValue(), key
-                .getValue());
+        pingMessage = Message.builder()
+                .sequenceNumber(SequenceGenerator.getSequenceNumber())
+                .sendType(Message.SendType.REQUEST)
+                .messageType(Protocol.PING)
+                .address(Address.builder()
+                        .destination(successor.getValue())
+                        .source(key.getValue())
+                        .build())
+                .build();
+
+        /*pingMessage = new MessageXML(Protocol.PING, successor.getValue(), key
+                .getValue());*/
 
         success = communicationManager.sendMessageUnicast(pingMessage,
                 Boolean.class);
@@ -307,8 +353,18 @@ public class ChordNode extends Observable implements Chord {
              * Stabilizes by finding a new successor with successor's
              * predecessor
              */
-            getPredecessorMessage = new MessageXML(Protocol.GET_PREDECESSOR,
-                    successor.getValue(), key.getValue());
+            getPredecessorMessage = Message.builder()
+                    .sequenceNumber(SequenceGenerator.getSequenceNumber())
+                    .sendType(Message.SendType.REQUEST)
+                    .messageType(Protocol.GET_PREDECESSOR)
+                    .address(Address.builder()
+                            .destination(successor.getValue())
+                            .source(key.getValue())
+                            .build())
+                    .build();
+
+            /*getPredecessorMessage = new MessageXML(Protocol.GET_PREDECESSOR,
+                    successor.getValue(), key.getValue());*/
 
             x = communicationManager.sendMessageUnicast(getPredecessorMessage,
                     ChordKey.class);
@@ -329,8 +385,18 @@ public class ChordNode extends Observable implements Chord {
             logger.debug("Node '" + key.getValue() + "' Succesor list '"
                     + successorList + "'");
 
-            notifyMessage = new MessageXML(Protocol.NOTIFY, successor
-                    .getValue(), key.getValue());
+            notifyMessage = Message.builder()
+                    .sequenceNumber(SequenceGenerator.getSequenceNumber())
+                    .sendType(Message.SendType.REQUEST)
+                    .messageType(Protocol.NOTIFY)
+                    .address(Address.builder()
+                            .destination(successor.getValue())
+                            .source(key.getValue())
+                            .build())
+                    .build();
+
+            /*notifyMessage = new MessageXML(Protocol.NOTIFY, successor
+                    .getValue(), key.getValue());*/
 
             communicationManager.sendMessageUnicast(notifyMessage);
         }
@@ -455,8 +521,18 @@ public class ChordNode extends Observable implements Chord {
 
         Message leaveMessage;
 
-        leaveMessage = new MessageXML(Protocol.LEAVE, key.getValue(), key
-                .getValue());
+        leaveMessage = Message.builder()
+                .sequenceNumber(SequenceGenerator.getSequenceNumber())
+                .sendType(Message.SendType.REQUEST)
+                .messageType(Protocol.LEAVE)
+                .address(Address.builder()
+                        .destination(key.getValue())
+                        .source(key.getValue())
+                        .build())
+                .build();
+
+        /*leaveMessage = new MessageXML(Protocol.LEAVE, key.getValue(), key
+                .getValue());*/
 
         communicationManager.sendMessageUnicast(leaveMessage);
 

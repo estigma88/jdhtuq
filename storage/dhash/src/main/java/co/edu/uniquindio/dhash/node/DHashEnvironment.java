@@ -76,21 +76,21 @@ public class DHashEnvironment implements Observer<Message> {
         logger.debug("Node " + dHashNode.getName() + ", arrived message of "
                 + message.getMessageType());
 
-        if (message.getMessageType().equals(Protocol.PUT.getName())) {
+        if (message.getMessageType().equals(Protocol.PUT)) {
             processPut(message);
             return;
         }
 
-        if (message.getMessageType().equals(Protocol.RESOURCE_COMPARE.getName())) {
+        if (message.getMessageType().equals(Protocol.RESOURCE_COMPARE)) {
             processResourceCompare(message);
             return;
         }
 
-        if (message.getMessageType().equals(Protocol.GET.getName())) {
+        if (message.getMessageType().equals(Protocol.GET)) {
             processGet(message);
             return;
         }
-        if (message.getMessageType().equals(Protocol.RESOURCE_TRANSFER.getName())) {
+        if (message.getMessageType().equals(Protocol.RESOURCE_TRANSFER)) {
             processResourceTransfer(message);
             return;
         }

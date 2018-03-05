@@ -1,5 +1,5 @@
 /*
- *  Chord project implement of lookup algorithm Chord 
+ *  Chord project implement of lookup algorithm Chord
  *  Copyright (C) 2010  Daniel Pelaez, Daniel Lopez, Hector Hurtado
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -23,224 +23,251 @@ import co.edu.uniquindio.utils.communication.message.MessageType;
 /**
  * The <code>Protocol</code> class contains all message type for communication
  * protocol in Chord
- * 
+ *
  * @author Daniel Pelaez
  * @author Hector Hurtado
  * @author Daniel Lopez
  * @version 1.0, 17/06/2010
  * @since 1.0
- * 
  */
 public final class Protocol {
 
-	/**
-	 * BOOTSTRAP BEGIN
-	 */
-	public static final MessageType BOOTSTRAP = new MessageType("BOOTSTRAP",
-			BootStrapParams.values().length);
+    /**
+     * BOOTSTRAP BEGIN
+     */
+    public static final MessageType BOOTSTRAP = MessageType.builder()
+            .name("BOOTSTRAP")
+            .amountParams(BootStrapParams.values().length)
+            .build();
 
-	public enum BootStrapParams {
+    public enum BootStrapParams {
 
-	}
+    }
 
-	/**
-	 * BOOTSTRAP END
-	 */
+    /**
+     * BOOTSTRAP END
+     */
 
-	/**
-	 * BOOTSTRAP_RESPONSE BEGIN
-	 */
-	public static final MessageType BOOTSTRAP_RESPONSE = new MessageType(
-			"BOOTSTRAP_RESPONSE", BootStrapResponseParams.values().length);
+    /**
+     * BOOTSTRAP_RESPONSE BEGIN
+     */
+    public static final MessageType BOOTSTRAP_RESPONSE = MessageType.builder()
+            .name("BOOTSTRAP_RESPONSE")
+            .amountParams(BootStrapResponseParams.values().length)
+            .build();
 
-	public enum BootStrapResponseParams {
-		NODE_FIND
-	}
+    public enum BootStrapResponseParams {
+        NODE_FIND
+    }
 
-	/**
-	 * BOOTSTRAP_RESPONSE END
-	 */
+    /**
+     * BOOTSTRAP_RESPONSE END
+     */
 
-	/**
-	 * CHANGED_PREDECESSOR BEGIN
-	 */
-	public static final MessageType CHANGED_PREDECESSOR = new MessageType(
-			"CHANGED_PREDECESSOR", ChangedPredecessorParams.values().length);
+    /**
+     * CHANGED_PREDECESSOR BEGIN
+     */
+    public static final MessageType CHANGED_PREDECESSOR = MessageType.builder()
+            .name("CHANGED_PREDECESSOR")
+            .amountParams(ChangedPredecessorParams.values().length)
+            .build();
 
-	public enum ChangedPredecessorParams {
-		PREDECESSOR
-	}
+    public enum ChangedPredecessorParams {
+        PREDECESSOR
+    }
 
-	/**
-	 * CHANGED_PREDECESSOR END
-	 */
+    /**
+     * CHANGED_PREDECESSOR END
+     */
 
-	/**
-	 * GET_PREDECESSOR BEGIN
-	 */
-	public static final MessageType GET_PREDECESSOR = new MessageType(
-			"GET_PREDECESSOR", GetPredecessorParams.values().length);
+    /**
+     * GET_PREDECESSOR BEGIN
+     */
+    public static final MessageType GET_PREDECESSOR = MessageType.builder()
+            .name("GET_PREDECESSOR")
+            .amountParams(GetPredecessorParams.values().length)
+            .build();
 
-	public enum GetPredecessorParams {
+    public enum GetPredecessorParams {
 
-	}
+    }
 
-	/**
-	 * GET_PREDECESSOR END
-	 */
+    /**
+     * GET_PREDECESSOR END
+     */
 
-	/**
-	 * GET_PREDECESSOR_RESPONSE BEGIN
-	 */
-	public static final MessageType GET_PREDECESSOR_RESPONSE = new MessageType(
-			"GET_PREDECESSOR_RESPONSE",
-			GetPredecessorResponseParams.values().length);
+    /**
+     * GET_PREDECESSOR_RESPONSE BEGIN
+     */
+    public static final MessageType GET_PREDECESSOR_RESPONSE = MessageType.builder()
+            .name("GET_PREDECESSOR_RESPONSE")
+            .amountParams(GetPredecessorResponseParams.values().length)
+            .build();
 
-	public enum GetPredecessorResponseParams {
-		PREDECESSOR
-	}
+    public enum GetPredecessorResponseParams {
+        PREDECESSOR
+    }
 
-	/**
-	 * GET_PREDECESSOR_RESPONSE END
-	 */
+    /**
+     * GET_PREDECESSOR_RESPONSE END
+     */
 
-	/**
-	 * GET_SUCCESSOR_LIST BEGIN
-	 */
-	public static final MessageType GET_SUCCESSOR_LIST = new MessageType(
-			"GET_SUCCESSOR_LIST", GetSuccessorListParams.values().length);
+    /**
+     * GET_SUCCESSOR_LIST BEGIN
+     */
+    public static final MessageType GET_SUCCESSOR_LIST = MessageType.builder()
+            .name("GET_SUCCESSOR_LIST")
+            .amountParams(GetSuccessorListParams.values().length)
+            .build();
 
-	public enum GetSuccessorListParams {
+    public enum GetSuccessorListParams {
 
-	}
+    }
 
-	/**
-	 * GET_SUCCESSOR_LIST END
-	 */
+    /**
+     * GET_SUCCESSOR_LIST END
+     */
 
-	/**
-	 * GET_SUCCESSOR_LIST_RESPONSE BEGIN
-	 */
-	public static final MessageType GET_SUCCESSOR_LIST_RESPONSE = new MessageType(
-			"GET_SUCCESSOR_LIST_RESPONSE", GetSuccessorListResponseParams
-					.values().length);
+    /**
+     * GET_SUCCESSOR_LIST_RESPONSE BEGIN
+     */
+    public static final MessageType GET_SUCCESSOR_LIST_RESPONSE = MessageType.builder()
+            .name("GET_SUCCESSOR_LIST_RESPONSE")
+            .amountParams(GetSuccessorListResponseParams.values().length)
+            .build();
 
-	public enum GetSuccessorListResponseParams {
-		SUCCESSOR_LIST
-	}
+    public enum GetSuccessorListResponseParams {
+        SUCCESSOR_LIST
+    }
 
-	/**
-	 * GET_SUCCESSOR_LIST_RESPONSE END
-	 */
+    /**
+     * GET_SUCCESSOR_LIST_RESPONSE END
+     */
 
-	/**
-	 * LEAVE BEGIN
-	 */
-	public static final MessageType LEAVE = new MessageType("LEAVE",
-			LeaveParams.values().length);
+    /**
+     * LEAVE BEGIN
+     */
+    public static final MessageType LEAVE = MessageType.builder()
+            .name("LEAVE")
+            .amountParams(LeaveParams.values().length)
+            .build();
 
-	public enum LeaveParams {
-		
-	}
+    public enum LeaveParams {
 
-	/**
-	 * LEAVE END
-	 */
+    }
 
-	/**
-	 * LOOKUP BEGIN
-	 */
-	public static final MessageType LOOKUP = new MessageType("LOOKUP",
-			LookupParams.values().length);
+    /**
+     * LEAVE END
+     */
 
-	public enum LookupParams {
-		HASHING, TYPE
-	}
+    /**
+     * LOOKUP BEGIN
+     */
+    public static final MessageType LOOKUP = MessageType.builder()
+            .name("LOOKUP")
+            .amountParams(LookupParams.values().length)
+            .build();
 
-	/**
-	 * LOOKUP END
-	 */
+    public enum LookupParams {
+        HASHING, TYPE
+    }
 
-	/**
-	 * LOOKUP_RESPONSE BEGIN
-	 */
-	public static final MessageType LOOKUP_RESPONSE = new MessageType(
-			"LOOKUP_RESPONSE", LookupResponseParams.values().length);
+    /**
+     * LOOKUP END
+     */
 
-	public enum LookupResponseParams {
-		NODE_FIND, TYPE
-	}
+    /**
+     * LOOKUP_RESPONSE BEGIN
+     */
+    public static final MessageType LOOKUP_RESPONSE = MessageType.builder()
+            .name("LOOKUP_RESPONSE")
+            .amountParams(LookupResponseParams.values().length)
+            .build();
 
-	/**
-	 * LOOKUP_RESPONSE END
-	 */
+    public enum LookupResponseParams {
+        NODE_FIND, TYPE
+    }
 
-	/**
-	 * NOTIFY BEGIN
-	 */
-	public static final MessageType NOTIFY = new MessageType("NOTIFY",
-			NotifyParams.values().length);
+    /**
+     * LOOKUP_RESPONSE END
+     */
 
-	public enum NotifyParams {
+    /**
+     * NOTIFY BEGIN
+     */
+    public static final MessageType NOTIFY = MessageType.builder()
+            .name("NOTIFY")
+            .amountParams(NotifyParams.values().length)
+            .build();
 
-	}
+    public enum NotifyParams {
 
-	/**
-	 * NOTIFY END
-	 */
+    }
 
-	/**
-	 * PING BEGIN
-	 */
-	public static final MessageType PING = new MessageType("PING", PingParams
-			.values().length);
+    /**
+     * NOTIFY END
+     */
 
-	public enum PingParams {
+    /**
+     * PING BEGIN
+     */
+    public static final MessageType PING = MessageType.builder()
+            .name("PING")
+            .amountParams(PingParams.values().length)
+            .build();
 
-	}
+    public enum PingParams {
 
-	/**
-	 * PING END
-	 */
+    }
 
-	/**
-	 * PING_RESPONSE BEGIN
-	 */
-	public static final MessageType PING_RESPONSE = new MessageType(
-			"PING_RESPONSE", PingResponseParams.values().length);
+    /**
+     * PING END
+     */
 
-	public enum PingResponseParams {
-		PING
-	}
+    /**
+     * PING_RESPONSE BEGIN
+     */
+    public static final MessageType PING_RESPONSE = MessageType.builder()
+            .name("PING_RESPONSE")
+            .amountParams(PingResponseParams.values().length)
+            .build();
 
-	/**
-	 * PING_RESPONSE END
-	 */
+    public enum PingResponseParams {
+        PING
+    }
 
-	/**
-	 * SET_PREDECESSOR BEGIN
-	 */
-	public static final MessageType SET_PREDECESSOR = new MessageType(
-			"SET_PREDECESSOR", SetPredecessorParams.values().length);
+    /**
+     * PING_RESPONSE END
+     */
 
-	public enum SetPredecessorParams {
-		PREDECESSOR
-	}
+    /**
+     * SET_PREDECESSOR BEGIN
+     */
+    public static final MessageType SET_PREDECESSOR = MessageType.builder()
+            .name("SET_PREDECESSOR")
+            .amountParams(SetPredecessorParams.values().length)
+            .build();
 
-	/**
-	 * SET_PREDECESSOR END
-	 */
+    public enum SetPredecessorParams {
+        PREDECESSOR
+    }
 
-	/**
-	 * SET_SUCCESSOR BEGIN
-	 */
-	public static final MessageType SET_SUCCESSOR = new MessageType(
-			"SET_SUCCESSOR", SetSuccessorParams.values().length);
+    /**
+     * SET_PREDECESSOR END
+     */
 
-	public enum SetSuccessorParams {
-		SUCCESSOR
-	}
-	/**
-	 * SET_SUCCESSOR END
-	 */
+    /**
+     * SET_SUCCESSOR BEGIN
+     */
+    public static final MessageType SET_SUCCESSOR = MessageType.builder()
+            .name("SET_SUCCESSOR")
+            .amountParams(SetSuccessorParams.values().length)
+            .build();
+
+    public enum SetSuccessorParams {
+        SUCCESSOR
+    }
+    /**
+     * SET_SUCCESSOR END
+     */
 }

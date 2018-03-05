@@ -21,8 +21,10 @@ package co.edu.uniquindio.chord.node;
 
 import co.edu.uniquindio.chord.ChordKey;
 import co.edu.uniquindio.chord.protocol.Protocol;
+import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.overlay.Key;
+import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.apache.log4j.Logger;
 
@@ -67,8 +69,17 @@ public class BootStrap {
 		Key findNode;
 		Message bootStrapMessage;
 
-		bootStrapMessage = new MessageXML(Protocol.BOOTSTRAP, null, nodeChord
-				.getKey().getValue());
+		bootStrapMessage = Message.builder()
+				.sequenceNumber(SequenceGenerator.getSequenceNumber())
+				.sendType(Message.SendType.REQUEST)
+				.messageType(Protocol.BOOTSTRAP)
+				.address(Address.builder()
+						.source(nodeChord.getKey().getValue())
+						.build())
+				.build();
+
+		/*bootStrapMessage = new MessageXML(Protocol.BOOTSTRAP, null, nodeChord
+				.getKey().getValue());*/
 
 		findNode = communicationManager.sendMessageMultiCast(bootStrapMessage,
 				ChordKey.class);

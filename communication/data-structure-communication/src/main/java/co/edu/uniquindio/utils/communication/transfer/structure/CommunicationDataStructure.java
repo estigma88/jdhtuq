@@ -65,7 +65,7 @@ public class CommunicationDataStructure extends Observable<Message> {
 	public void notifyUnicast(Message message) {
 		Observer<Message> observer;
 
-		observer = dataStructure.get(message.getMessageDestination());
+		observer = dataStructure.get(message.getAddress().getDestination());
 
 		if (observer != null) {
 			observer.update(message);
@@ -82,7 +82,7 @@ public class CommunicationDataStructure extends Observable<Message> {
 	 *            Message to send
 	 */
 	public void notifyMulticast(Message message) {
-		String nameSource = message.getMessageSource();
+		String nameSource = message.getAddress().getSource();
 		String nameDestination = nameSource;
 		int randomNumber;
 
