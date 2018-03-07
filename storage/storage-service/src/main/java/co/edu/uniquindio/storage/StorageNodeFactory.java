@@ -48,14 +48,4 @@ public interface StorageNodeFactory {
      * @throws StorageException throw when occur an error
      */
     StorageNode createNode(String name) throws StorageException;
-
-    /**
-     * Creates node from InetAddress
-     *
-     * @param inetAddress Internet Address
-     * @return StorageNode node
-     * @throws StorageException throw when occur an error
-     */
-    StorageNode createNode(InetAddress inetAddress)
-            throws StorageException;
 }

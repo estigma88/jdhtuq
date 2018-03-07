@@ -156,27 +156,4 @@ public class DHashNodeFactory implements StorageNodeFactory {
 
         return dhashNode;
     }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * co.edu.uniquindio.storage.StorageNodeFactory#createNode(java.net.InetAddress)
-     */
-    public StorageNode createNode(InetAddress inetAddress)
-            throws DHashFactoryException {
-        OverlayNode overlayNode;
-        DHashNode dhashNode;
-
-        try {
-            overlayNode = overlayNodeFactory.createNode(inetAddress);
-
-            dhashNode = createNode(overlayNode.getKey().getValue(), overlayNode);
-
-        } catch (OverlayException e) {
-            throw new DHashFactoryException("Error creating overlay node", e);
-        }
-
-        return dhashNode;
-    }
 }

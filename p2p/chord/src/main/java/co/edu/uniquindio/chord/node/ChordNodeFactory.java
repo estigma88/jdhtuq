@@ -181,14 +181,6 @@ public class ChordNodeFactory implements OverlayNodeFactory {
         communicationManager.removeObserver(name);
     }
 
-    /**
-     * Creates node from Internet Address
-     */
-    public OverlayNode createNode(InetAddress inetAddress)
-            throws ChordNodeFactoryException {
-        return createNode(inetAddress.getHostAddress());
-    }
-
     Set<String> getNames() {
         return names;
     }

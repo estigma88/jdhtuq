@@ -53,18 +53,6 @@ public interface OverlayNodeFactory {
 	OverlayNode createNode(String name) throws OverlayException;
 
 	/**
-	 * Creates a node with a specified InetAddress
-	 * 
-	 * @param inetAddress
-	 *            Internet address
-	 * @return node Overlay node
-	 * @throws OverlayException
-	 *             throw when occur an error
-	 */
-	OverlayNode createNode(InetAddress inetAddress)
-			throws OverlayException;
-
-	/**
 	 * Destroy node by name
 	 * 
 	 * @param name

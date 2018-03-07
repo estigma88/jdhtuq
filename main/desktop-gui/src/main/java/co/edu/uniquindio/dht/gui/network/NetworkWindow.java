@@ -79,7 +79,7 @@ public class NetworkWindow extends JFrame implements WindowListener {
             }
 
             StorageNode dHashNode = storageNodeFactory.createNode(
-                    inetAddress);
+                    inetAddress.getHostName());
 
             panelDhash.setDHashNode(dHashNode);
 
