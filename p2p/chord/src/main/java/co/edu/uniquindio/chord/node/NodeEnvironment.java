@@ -22,12 +22,12 @@ import co.edu.uniquindio.chord.protocol.Protocol;
 import co.edu.uniquindio.chord.protocol.Protocol.*;
 import co.edu.uniquindio.overlay.Key;
 import co.edu.uniquindio.overlay.KeyFactory;
-import co.edu.uniquindio.utils.communication.Observer;
 import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.Message.SendType;
 import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
+import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
 import org.apache.log4j.Logger;
 
 import java.math.BigInteger;
@@ -46,7 +46,7 @@ import java.util.concurrent.ScheduledFuture;
  * @see ChordNode
  * @since 1.0
  */
-class NodeEnvironment implements Observer<Message> {
+class NodeEnvironment implements MessageProcessor {
 
     /**
      * Logger
@@ -90,54 +90,49 @@ class NodeEnvironment implements Observer<Message> {
      *
      * @param message  The income message.
      */
-    public void update(Message message) {
+    public Message process(Message message) {
 
         logger.debug("Message to '" + chordNode.getKey().getValue() + "', ["
                 + message.toString());
+
+        Message response = null;
 
         /*
          * Discards the message that comes if process==false
          */
         if (!process) {
-            return;
+            return null;
         }
 
         if (message.getMessageType().equals(Protocol.LOOKUP)) {
-            processLookUp(message);
-            return;
+            response = processLookUp(message);
         }
         if (message.getMessageType().equals(Protocol.PING)) {
-            processPing(message);
-            return;
+            response = processPing(message);
         }
         if (message.getMessageType().equals(Protocol.NOTIFY)) {
-            processNotify(message);
-            return;
+            response = processNotify(message);
         }
         if (message.getMessageType().equals(Protocol.GET_PREDECESSOR)) {
-            processGetPredecessor(message);
-            return;
+            response = processGetPredecessor(message);
         }
         if (message.getMessageType().equals(Protocol.BOOTSTRAP)) {
-            processBootStrap(message);
-            return;
+            response = processBootStrap(message);
         }
         if (message.getMessageType().equals(Protocol.LEAVE)) {
-            processLeave(message);
-            return;
+            response = processLeave(message);
         }
         if (message.getMessageType().equals(Protocol.SET_PREDECESSOR)) {
-            processSetPredecessor(message);
-            return;
+            response = processSetPredecessor(message);
         }
         if (message.getMessageType().equals(Protocol.SET_SUCCESSOR)) {
-            processSetSuccessor(message);
-            return;
+            response = processSetSuccessor(message);
         }
         if (message.getMessageType().equals(Protocol.GET_SUCCESSOR_LIST)) {
-            processGetSuccessorList(message);
-            return;
+            response = processGetSuccessorList(message);
         }
+
+        return response;
 
     }
 
@@ -146,7 +141,7 @@ class NodeEnvironment implements Observer<Message> {
      *
      * @param message Message GET_SUCCESSOR_LIST
      */
-    private void processGetSuccessorList(Message message) {
+    private Message processGetSuccessorList(Message message) {
         String successorList;
         Message getSuccesorListResponseMessage;
 
@@ -171,7 +166,8 @@ class NodeEnvironment implements Observer<Message> {
                 GetSuccessorListResponseParams.SUCCESSOR_LIST.name(),
                 successorList);*/
 
-        communicationManager.sendMessageUnicast(getSuccesorListResponseMessage);
+        //communicationManager.sendMessageUnicast(getSuccesorListResponseMessage);
+        return getSuccesorListResponseMessage;
     }
 
     /**
@@ -179,13 +175,15 @@ class NodeEnvironment implements Observer<Message> {
      *
      * @param message Message SET_SUCCESSOR
      */
-    private void processSetSuccessor(Message message) {
+    private Message processSetSuccessor(Message message) {
         Key nodeSucessor;
 
         nodeSucessor = keyFactory.newKey(message.getParam(SetSuccessorParams.SUCCESSOR
                 .name()));
 
         chordNode.setSuccessor(nodeSucessor);
+
+        return null;
     }
 
     /**
@@ -193,13 +191,15 @@ class NodeEnvironment implements Observer<Message> {
      *
      * @param message Message SET_PREDECESSOR
      */
-    private void processSetPredecessor(Message message) {
+    private Message processSetPredecessor(Message message) {
         Key nodePredecessor;
 
         nodePredecessor = keyFactory.newKey(message
                 .getParam(SetPredecessorParams.PREDECESSOR.name()));
 
         chordNode.setPredecessor(nodePredecessor);
+
+        return null;
     }
 
     /**
@@ -207,7 +207,7 @@ class NodeEnvironment implements Observer<Message> {
      *
      * @param message Message LEAVE
      */
-    private void processLeave(Message message) {
+    private Message processLeave(Message message) {
 
         Message setSuccessorMessage;
         Message setPredecessorMessage;
@@ -260,6 +260,8 @@ class NodeEnvironment implements Observer<Message> {
 
         chordNodeFactory.destroyNode(
                 this.chordNode.getKey().getValue());
+
+        return null;
     }
 
     /**
@@ -267,12 +269,12 @@ class NodeEnvironment implements Observer<Message> {
      *
      * @param message Message BOOTSTRAP
      */
-    private void processBootStrap(Message message) {
+    private Message processBootStrap(Message message) {
 
-        Message bootstrapResponseMessage;
+        Message bootstrapResponseMessage = null;
 
         if (message.getAddress().getSource().equals(chordNode.getKey().getValue())) {
-            return;
+            return bootstrapResponseMessage;
         }
 
         bootstrapResponseMessage = Message.builder()
@@ -292,7 +294,8 @@ class NodeEnvironment implements Observer<Message> {
         bootstrapResponseMessage.addParam(BootStrapResponseParams.NODE_FIND
                 .name(), chordNode.getKey().toString());*/
 
-        communicationManager.sendMessageUnicast(bootstrapResponseMessage);
+        //communicationManager.sendMessageUnicast(bootstrapResponseMessage);
+        return bootstrapResponseMessage;
     }
 
     /**
@@ -300,7 +303,7 @@ class NodeEnvironment implements Observer<Message> {
      *
      * @param message Message GET_PREDECESSOR
      */
-    private void processGetPredecessor(Message message) {
+    private Message processGetPredecessor(Message message) {
 
         Message.MessageBuilder getPredecessorResponseMessage;
 
@@ -334,8 +337,9 @@ class NodeEnvironment implements Observer<Message> {
 
         }
 
-        communicationManager.sendMessageUnicast(getPredecessorResponseMessage.build());
+        //communicationManager.sendMessageUnicast(getPredecessorResponseMessage.build());
 
+        return getPredecessorResponseMessage.build();
     }
 
     /**
@@ -343,7 +347,7 @@ class NodeEnvironment implements Observer<Message> {
      *
      * @param message Message NOTIFY
      */
-    private void processNotify(Message message) {
+    private Message processNotify(Message message) {
         if (!message.isMessageFromMySelf()) {
             Key node;
 
@@ -351,6 +355,7 @@ class NodeEnvironment implements Observer<Message> {
 
             chordNode.notify(node);
         }
+        return null;
     }
 
     /**
@@ -358,7 +363,7 @@ class NodeEnvironment implements Observer<Message> {
      *
      * @param message Message PING
      */
-    private void processPing(Message message) {
+    private Message processPing(Message message) {
 
         Message pingMessage;
 
@@ -379,7 +384,8 @@ class NodeEnvironment implements Observer<Message> {
         pingMessage.addParam(PingResponseParams.PING.name(), Boolean.TRUE
                 .toString());*/
 
-        communicationManager.sendMessageUnicast(pingMessage);
+        //communicationManager.sendMessageUnicast(pingMessage);
+        return pingMessage;
     }
 
     /**
@@ -387,7 +393,7 @@ class NodeEnvironment implements Observer<Message> {
      *
      * @param message Message LOOKUP
      */
-    private void processLookUp(Message message) {
+    private Message processLookUp(Message message) {
 
         Message.MessageBuilder lookupResponseMessage;
 
@@ -444,7 +450,8 @@ class NodeEnvironment implements Observer<Message> {
 
         }
 
-        communicationManager.sendMessageUnicast(lookupResponseMessage.build());
+        //communicationManager.sendMessageUnicast(lookupResponseMessage.build());
+        return lookupResponseMessage.build();
     }
 
     /**
@@ -459,9 +466,9 @@ class NodeEnvironment implements Observer<Message> {
     /**
      * Gets chord node name from key value
      */
-    public String getName() {
+    /*public String getName() {
         return chordNode.getKey().getValue();
-    }
+    }*/
 
     void setProcess(boolean process) {
         this.process = process;

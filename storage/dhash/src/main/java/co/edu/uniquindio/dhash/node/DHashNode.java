@@ -134,7 +134,7 @@ public class DHashNode implements StorageNode {
                     ResourceTransferParams.RESOURCE_KEY.name(), id);*/
 
             Message resource = communicationManager
-                    .recieverBigMessage(resourceTransferMessage);
+                    .sendMessageUnicast(resourceTransferMessage, Message.class);
 
             return serializationHandler.decode(resource
                     .getData(ResourceTransferResponseData.RESOURCE.name()));
@@ -262,7 +262,7 @@ public class DHashNode implements StorageNode {
         putMessage
                 .addData(PutDatas.RESOURCE.name(), serializationHandler.encode(resource));*/
 
-        communicationManager.sendBigMessage(putMessage);
+        communicationManager.sendMessageUnicast(putMessage);
 
     }
 

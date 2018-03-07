@@ -140,7 +140,7 @@ public class ChordNodeFactory implements OverlayNodeFactory {
 
         nodeEnviroment = getNodeEnviroment(nodeChord, stableRingTask);
 
-        communicationManager.addObserver(nodeEnviroment);
+        communicationManager.addMessageProcessor(name, nodeEnviroment);
 
         bootStrap.boot(nodeChord, communicationManager);
 

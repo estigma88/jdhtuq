@@ -258,7 +258,7 @@ public class Controller implements Observer<Message> {
     // TODO Documentar
     @Override
     public void update(Message message) {
-        if (message.getMessageType().equals(Protocol.LOOKUP_RESPONSE)) {
+        if (message != null && message.getMessageType().equals(Protocol.LOOKUP_RESPONSE)) {
             if (message.getParam(LookupParams.TYPE.name()).equals(
                     LookupType.LOOKUP.name())) {
 

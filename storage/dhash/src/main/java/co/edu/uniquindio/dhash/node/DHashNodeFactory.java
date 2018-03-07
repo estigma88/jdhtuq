@@ -116,7 +116,7 @@ public class DHashNodeFactory implements StorageNodeFactory {
 
         dHashEnviroment = getDHashEnviroment(dhashNode, resourceManager);
 
-        communicationManager.addObserver(dHashEnviroment);
+        communicationManager.addMessageProcessor(name, dHashEnviroment);
 
         logger.debug("DHash Node " + name + " Created");
 

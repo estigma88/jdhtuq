@@ -26,12 +26,11 @@ import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
 import co.edu.uniquindio.overlay.OverlayException;
 import co.edu.uniquindio.storage.resource.Resource;
-import co.edu.uniquindio.utils.communication.Observer;
 import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.Message.SendType;
-import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
+import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
 import org.apache.log4j.Logger;
 
 /**
@@ -46,7 +45,7 @@ import org.apache.log4j.Logger;
  * @see DHashNode
  * @since 1.0
  */
-public class DHashEnvironment implements Observer<Message> {
+public class DHashEnvironment implements MessageProcessor {
     private static final Logger logger = Logger
             .getLogger(DHashEnvironment.class);
 
@@ -69,31 +68,32 @@ public class DHashEnvironment implements Observer<Message> {
      * TransferManagerto receive the messages
      * The interface that will be used for receiving the messages.
      */
-    public void update(Message message) {
+    @Override
+    public Message process(Message message) {
 
         logger.debug("Message to: " + dHashNode.getName() + " Message:["
                 + message.toString() + "]");
         logger.debug("Node " + dHashNode.getName() + ", arrived message of "
                 + message.getMessageType());
 
+        Message response = null;
+
         if (message.getMessageType().equals(Protocol.PUT)) {
-            processPut(message);
-            return;
+            response = processPut(message);
         }
 
         if (message.getMessageType().equals(Protocol.RESOURCE_COMPARE)) {
-            processResourceCompare(message);
-            return;
+            response = processResourceCompare(message);
         }
 
         if (message.getMessageType().equals(Protocol.GET)) {
-            processGet(message);
-            return;
+            response = processGet(message);
         }
         if (message.getMessageType().equals(Protocol.RESOURCE_TRANSFER)) {
-            processResourceTransfer(message);
-            return;
+            response = processResourceTransfer(message);
         }
+
+        return response;
     }
 
     /**
@@ -101,7 +101,7 @@ public class DHashEnvironment implements Observer<Message> {
      *
      * @param message Message RESOURCE_TRANSFER
      */
-    private void processResourceTransfer(Message message) {
+    private Message processResourceTransfer(Message message) {
 
         Message.MessageBuilder resourceTransferResponseMessage;
 
@@ -137,7 +137,9 @@ public class DHashEnvironment implements Observer<Message> {
 
         }
 
-        communicationManager.sendBigMessage(resourceTransferResponseMessage.build());
+        //communicationManager.sendBigMessage(resourceTransferResponseMessage.build());
+
+        return resourceTransferResponseMessage.build();
     }
 
     /**
@@ -145,7 +147,7 @@ public class DHashEnvironment implements Observer<Message> {
      *
      * @param message Message RESOURCE_COMPARE
      */
-    private void processResourceCompare(Message message) {
+    private Message processResourceCompare(Message message) {
 
         boolean isChecksumEquals = false;
         Message resourceCompareResponseMessage;
@@ -181,8 +183,9 @@ public class DHashEnvironment implements Observer<Message> {
                 ResourceCompareResponseParams.EXIST_RESOURCE.name(), String
                         .valueOf(isChecksumEquals));*/
 
-        communicationManager.sendMessageUnicast(resourceCompareResponseMessage);
+        //communicationManager.sendMessageUnicast(resourceCompareResponseMessage);
 
+        return resourceCompareResponseMessage;
     }
 
     /**
@@ -190,7 +193,7 @@ public class DHashEnvironment implements Observer<Message> {
      *
      * @param message Message GET
      */
-    private void processGet(Message message) {
+    private Message processGet(Message message) {
 
         Message.MessageBuilder getResponseMessage = Message.builder()
                 .sequenceNumber(message.getSequenceNumber())
@@ -219,11 +222,13 @@ public class DHashEnvironment implements Observer<Message> {
 
         }
 
-        communicationManager.sendMessageUnicast(getResponseMessage.build());
+        //communicationManager.sendMessageUnicast(getResponseMessage.build());
 
         logger.debug("Node " + dHashNode.getName() + ", confirmation for ");
         logger.debug("Response message: [" + getResponseMessage.toString()
                 + "]");
+
+        return getResponseMessage.build();
     }
 
     /**
@@ -231,37 +236,38 @@ public class DHashEnvironment implements Observer<Message> {
      *
      * @param message Message PUT
      */
-    private void processPut(Message message) {
+    private Message processPut(Message message) {
 
         /*if (message instanceof BigMessage) {
 
             BigMessage bigMessage = (BigMessage) message;*/
 
-            try {
-                Resource resource = serializationHandler.decode(
-                        message.getData(PutDatas.RESOURCE.name()));
+        try {
+            Resource resource = serializationHandler.decode(
+                    message.getData(PutDatas.RESOURCE.name()));
 
-                resourceManager.persist(resource);
+            resourceManager.persist(resource);
 
-                Boolean replicate = Boolean.valueOf(message
-                        .getParam(PutParams.REPLICATE.name()));
+            Boolean replicate = Boolean.valueOf(message
+                    .getParam(PutParams.REPLICATE.name()));
 
-                if (replicate) {
-                    dHashNode.replicateData(resource);
-                }
-            } catch (ResourceAlreadyExistException e) {
-                logger.error("Error replicating data", e);
-            } catch (OverlayException e) {
-                logger.error("Error replicating data", e);
+            if (replicate) {
+                dHashNode.replicateData(resource);
             }
+        } catch (ResourceAlreadyExistException e) {
+            logger.error("Error replicating data", e);
+        } catch (OverlayException e) {
+            logger.error("Error replicating data", e);
+        }
         //}
 
+        return null;
     }
 
     /**
      * Gets dhash node name
      */
-    public String getName() {
+    /*public String getName() {
         return dHashNode.getName();
-    }
+    }*/
 }

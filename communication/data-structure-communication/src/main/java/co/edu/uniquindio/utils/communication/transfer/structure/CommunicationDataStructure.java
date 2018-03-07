@@ -18,118 +18,221 @@
 
 package co.edu.uniquindio.utils.communication.transfer.structure;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import co.edu.uniquindio.utils.communication.Observable;
 import co.edu.uniquindio.utils.communication.Observer;
 import co.edu.uniquindio.utils.communication.message.Message;
+import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
+import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.*;
 
 /**
  * The <code>CommunicationDataStructure</code> class management all observer
  * that must to reciever messages from communication
- * 
+ *
  * @author Daniel Pelaez
  * @version 1.0, 17/06/2010
  * @since 1.0
- * 
  */
-public class CommunicationDataStructure extends Observable<Message> {
-	/**
-	 * Data struture map
-	 */
-	private Map<String, Observer<Message>> dataStructure;
+public class CommunicationDataStructure extends Observable<Message> implements CommunicationManager {
+    /**
+     * Data struture map
+     */
+    private Map<String, MessageProcessor> dataStructure;
 
-	/**
-	 * Names observers list
-	 */
-	private List<String> names;
+    /**
+     * Builds a CommunicationDataStructure
+     */
+    public CommunicationDataStructure() {
+        dataStructure = new HashMap<String, MessageProcessor>();
+    }
 
-	/**
-	 * Builds a CommunicationDataStructure
-	 */
-	public CommunicationDataStructure() {
-		dataStructure = new HashMap<String, Observer<Message>>();
-		this.names = new ArrayList<String>();
-	}
+    public Message notifyUnicast(Message message) {
+        Message response = null;
 
-	/**
-	 * Notify unicast message. Search from data structure of observer with
-	 * destination name and send message
-	 * 
-	 * @param message
-	 *            Message to send
-	 */
-	public void notifyUnicast(Message message) {
-		Observer<Message> observer;
+        MessageProcessor messageProcessor = dataStructure.get(message.getAddress().getDestination());
 
-		observer = dataStructure.get(message.getAddress().getDestination());
+        super.notifyMessage(message);
 
-		if (observer != null) {
-			observer.update(message);
-		}
+        if (messageProcessor != null) {
+            response = messageProcessor.process(message);
+        }
 
-		super.notifyMessage(message);
-	}
+        super.notifyMessage(response);
 
-	/**
-	 * Notify multicast message. Choose randomly an observer who is not sent and
-	 * send message
-	 * 
-	 * @param message
-	 *            Message to send
-	 */
-	public void notifyMulticast(Message message) {
-		String nameSource = message.getAddress().getSource();
-		String nameDestination = nameSource;
-		int randomNumber;
+        return response;
+    }
 
-		if (dataStructure.size() != 1) {
-			while (nameSource.equals(nameDestination)) {
-				randomNumber = (int) (Math.random() * dataStructure.size());
+    /**
+     * Notify multicast message. Choose randomly an observer who is not sent and
+     * send message
+     *
+     * @param message Message to send
+     */
+    public Message notifyMulticast(Message message) {
+        String nameSource = message.getAddress().getSource();
+        String nameDestination = nameSource;
+        Message response = null;
+        int randomNumber;
 
-				nameDestination = names.get(randomNumber);
-			}
+        if (dataStructure.size() != 1) {
+            List<String> keys = new ArrayList<>(dataStructure.keySet());
+            while (nameSource.equals(nameDestination)) {
+                randomNumber = (int) (Math.random() * dataStructure.size());
 
-			Observer<Message> observer;
+                nameDestination = keys.get(randomNumber);
+            }
 
-			observer = dataStructure.get(nameDestination);
+            MessageProcessor messageProcessor = dataStructure.get(nameDestination);
 
-			observer.update(message);
-		}
+            super.notifyMessage(message);
 
-		super.notifyMessage(message);
-	}
+            if (messageProcessor != null) {
+                response = messageProcessor.process(message);
+            }
 
-	/**
-	 * Adds observer. If observer name is null, only is adds to list general. If
-	 * is not null, is adds to map
-	 */
-	public void addObserver(Observer<Message> observer) {
-		if (observer.getName() != null) {
-			names.add(observer.getName());
+            super.notifyMessage(response);
+        }
 
-			dataStructure.put(observer.getName(), observer);
-		} else {
-			super.addObserver(observer);
-		}
+        return response;
+    }
 
-	}
+    @Override
+    public <T> T sendMessageUnicast(Message message, Class<T> typeReturn) {
+        Message response = notifyUnicast(message);
 
-	/**
-	 * Removes observer. If observer name is null, only is removes to list
-	 * general. If is not null, is removes to map
-	 */
-	public void removeObserver(Observer<Message> observer) {
-		if (observer.getName() != null) {
-			names.remove(observer.getName());
+        return processResponse(response, typeReturn, null);
+    }
 
-			dataStructure.remove(observer.getName());
-		} else {
-			super.removeObserver(observer);
-		}
+    @Override
+    public <T> T sendMessageUnicast(Message message, Class<T> typeReturn, String paramNameResult) {
+        Message response = notifyUnicast(message);
 
-	}
+        return processResponse(response, typeReturn, paramNameResult);
+    }
+
+    @Override
+    public void sendMessageUnicast(Message message) {
+        notifyUnicast(message);
+    }
+
+    @Override
+    public <T> T sendMessageMultiCast(Message message, Class<T> typeReturn) {
+        Message response = notifyMulticast(message);
+
+        return processResponse(response, typeReturn, null);
+    }
+
+    @Override
+    public <T> T sendMessageMultiCast(Message message, Class<T> typeReturn, String paramNameResult) {
+        Message response = notifyMulticast(message);
+
+        return processResponse(response, typeReturn, paramNameResult);
+    }
+
+    @Override
+    public void sendMessageMultiCast(Message message) {
+        notifyMulticast(message);
+    }
+
+    @Override
+    public void stopAll() {
+
+    }
+
+    @Override
+    public void addMessageProcessor(String name, MessageProcessor messageProcessor) {
+        dataStructure.put(name, messageProcessor);
+    }
+
+    @Override
+    public void removeMessageProcessor(String name) {
+        dataStructure.remove(name);
+    }
+
+    @Override
+    public void init() {
+
+    }
+
+    @Override
+    public Map<String, String> getCommunicationProperties() {
+        return null;
+    }
+
+    @Override
+    public void setCommunicationProperties(Map<String, String> communicationProperties) {
+
+    }
+
+    private <T> T processResponse(Message message, Class<T> type,
+                                  String paramNameResult) {
+
+        T typeInstance = null;
+
+        if (message == null) {
+            return null;
+        }
+
+        if (type.equals(Message.class)) {
+            return (T) message;
+        }
+
+        if (type.isInterface() || type.isAnnotation() || type.isArray()) {
+            throw new IllegalArgumentException("The type must a class ("
+                    + type.getName() + ")");
+        }
+
+        Set<String> params = message.getParamsKey();
+
+        String paramValue;
+
+        if (paramNameResult == null) {
+
+            if (params.size() != 1) {
+                throw new IllegalArgumentException(
+                        "The message contains more than one parameter, you can not convert to "
+                                + type.getName());
+            }
+
+            String paramName = (String) params.toArray()[0];
+
+            if (paramName == null || paramName.isEmpty()) {
+                throw new IllegalArgumentException(
+                        "The message contains a param name null or empty");
+            }
+
+            paramValue = message.getParam(paramName);
+        } else {
+
+            paramValue = message.getParam(paramNameResult);
+        }
+
+        if (paramValue == null || paramValue.isEmpty()) {
+            return null;
+        }
+
+        try {
+            Method valueOf = type
+                    .getMethod("valueOf", String.class);
+
+            typeInstance = (T) valueOf.invoke(null, paramValue);
+        } catch (Exception e) {
+            try {
+
+                Constructor<T> constructorString = type
+                        .getDeclaredConstructor(String.class);
+
+                typeInstance = constructorString.newInstance(paramValue);
+            } catch (Exception e1) {
+                throw new IllegalArgumentException(
+                        "The method valueOf(String) not must to be invoked in class "
+                                + type.getName(), e1);
+            }
+        }
+
+        return typeInstance;
+    }
 }

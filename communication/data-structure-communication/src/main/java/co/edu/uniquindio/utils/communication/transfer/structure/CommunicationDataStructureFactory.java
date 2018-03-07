@@ -9,7 +9,7 @@ import java.util.Map;
 public class CommunicationDataStructureFactory implements CommunicationManagerFactory {
     @Override
     public CommunicationManager newCommunicationManager(String name) {
-        CommunicationManagerStructure communication = new CommunicationManagerStructure();
+        CommunicationDataStructure communication = new CommunicationDataStructure();
 
         Map<String, String> params = new HashMap<>();
         params.put("RESPONSE_TIME", "2000");

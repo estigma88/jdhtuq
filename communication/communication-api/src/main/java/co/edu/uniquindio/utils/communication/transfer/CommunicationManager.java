@@ -83,23 +83,6 @@ public interface CommunicationManager {
     public void sendMessageMultiCast(Message message);
 
     /**
-     * Send big message. Used ByteTransfer instance called byteTransferManager
-     * to send message
-     *
-     * @param bigMessage Message to send
-     */
-    public void sendBigMessage(Message bigMessage);
-
-    /**
-     * Send request to reciever big message. Used BytesTransfer instance to send
-     * request
-     *
-     * @param message Request message
-     * @return Response
-     */
-    public Message recieverBigMessage(Message message);
-
-    /**
      * Stop all process
      */
     public void stopAll();
@@ -124,6 +107,11 @@ public interface CommunicationManager {
      * @param name Observer name
      */
     public void removeObserver(String name);
+
+
+    public void addMessageProcessor(String name, MessageProcessor messageProcessor);
+
+    public void removeMessageProcessor(String name);
 
     /**
      * Initialize communication manager.

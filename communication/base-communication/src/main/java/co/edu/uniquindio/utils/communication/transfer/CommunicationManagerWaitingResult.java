@@ -475,4 +475,13 @@ public abstract class CommunicationManagerWaitingResult implements
         this.communicationProperties = communicationProperties;
     }
 
+    @Override
+    public void addMessageProcessor(String name, MessageProcessor messageProcessor) {
+
+    }
+
+    @Override
+    public void removeMessageProcessor(String name) {
+
+    }
 }
