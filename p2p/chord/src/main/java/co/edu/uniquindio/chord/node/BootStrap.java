@@ -62,7 +62,7 @@ public class BootStrap {
 	 *            node who will be added to the network.
 	 * @param communicationManager
 	 */
-	public void boot(ChordNode nodeChord, CommunicationManager communicationManager) {
+	public void boot(ChordNode nodeChord, CommunicationManager communicationManager, SequenceGenerator sequenceGenerator) {
 
 		logger.info("Search node...");
 
@@ -70,7 +70,7 @@ public class BootStrap {
 		Message bootStrapMessage;
 
 		bootStrapMessage = Message.builder()
-				.sequenceNumber(SequenceGenerator.getSequenceNumber())
+				.sequenceNumber(sequenceGenerator.getSequenceNumber())
 				.sendType(Message.SendType.REQUEST)
 				.messageType(Protocol.BOOTSTRAP)
 				.address(Address.builder()
@@ -99,7 +99,7 @@ public class BootStrap {
 
 			if (nodeChord.getSuccessor() == null) {
 				/* If the join fails the boot is done again */
-				boot(nodeChord, communicationManager);
+				boot(nodeChord, communicationManager, sequenceGenerator);
 			}
 		}
 

@@ -67,8 +67,9 @@ public class DHashNode implements StorageNode {
     private final ChecksumeCalculator checksumeCalculator;
     private final ResourceManager resourceManager;
     private final KeyFactory keyFactory;
+    private final SequenceGenerator sequenceGenerator;
 
-    public DHashNode(OverlayNode overlayNode, int replicationFactor, String name, CommunicationManager communicationManager, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, ResourceManager resourceManager, KeyFactory keyFactory) {
+    public DHashNode(OverlayNode overlayNode, int replicationFactor, String name, CommunicationManager communicationManager, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, ResourceManager resourceManager, KeyFactory keyFactory, SequenceGenerator sequenceGenerator) {
         this.overlayNode = overlayNode;
         this.replicationFactor = replicationFactor;
         this.name = name;
@@ -77,6 +78,7 @@ public class DHashNode implements StorageNode {
         this.checksumeCalculator = checksumeCalculator;
         this.resourceManager = resourceManager;
         this.keyFactory = keyFactory;
+        this.sequenceGenerator = sequenceGenerator;
     }
 
     /*
@@ -99,7 +101,7 @@ public class DHashNode implements StorageNode {
         }
 
         getMessage = Message.builder()
-                .sequenceNumber(SequenceGenerator.getSequenceNumber())
+                .sequenceNumber(sequenceGenerator.getSequenceNumber())
                 .sendType(Message.SendType.REQUEST)
                 .messageType(Protocol.GET)
                 .address(Address.builder()
@@ -119,7 +121,7 @@ public class DHashNode implements StorageNode {
 
             resourceTransferMessage = Message.builder()
                     .sendType(Message.SendType.REQUEST)
-                    .sequenceNumber(SequenceGenerator.getSequenceNumber())
+                    .sequenceNumber(sequenceGenerator.getSequenceNumber())
                     .messageType(Protocol.RESOURCE_TRANSFER)
                     .address(Address.builder()
                             .destination(lookupKey.getValue())
@@ -217,7 +219,7 @@ public class DHashNode implements StorageNode {
         Message putMessage;
 
         resourceCompareMessage = Message.builder()
-                .sequenceNumber(SequenceGenerator.getSequenceNumber())
+                .sequenceNumber(sequenceGenerator.getSequenceNumber())
                 .sendType(Message.SendType.REQUEST)
                 .messageType(Protocol.RESOURCE_COMPARE)
                 .address(Address.builder()
@@ -243,7 +245,7 @@ public class DHashNode implements StorageNode {
         }
 
         putMessage = Message.builder()
-                .sequenceNumber(SequenceGenerator.getSequenceNumber())
+                .sequenceNumber(sequenceGenerator.getSequenceNumber())
                 .sendType(Message.SendType.REQUEST)
                 .messageType(Protocol.PUT)
                 .address(Address.builder()

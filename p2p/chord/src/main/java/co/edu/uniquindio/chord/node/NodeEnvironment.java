@@ -75,13 +75,15 @@ class NodeEnvironment implements MessageProcessor {
     private final ScheduledFuture<?> stableRing;
     private final ChordNodeFactory chordNodeFactory;
     private final KeyFactory keyFactory;
+    private final SequenceGenerator sequenceGenerator;
 
-    NodeEnvironment(CommunicationManager communicationManager, ChordNode chordNode, ScheduledFuture<?> stableRing, ChordNodeFactory chordNodeFactory, KeyFactory keyFactory) {
+    NodeEnvironment(CommunicationManager communicationManager, ChordNode chordNode, ScheduledFuture<?> stableRing, ChordNodeFactory chordNodeFactory, KeyFactory keyFactory, SequenceGenerator sequenceGenerator) {
         this.communicationManager = communicationManager;
         this.chordNode = chordNode;
         this.stableRing = stableRing;
         this.chordNodeFactory = chordNodeFactory;
         this.keyFactory = keyFactory;
+        this.sequenceGenerator = sequenceGenerator;
     }
 
     @Override
@@ -220,7 +222,7 @@ class NodeEnvironment implements MessageProcessor {
         if (!chordNode.getSuccessor().equals(chordNode.getKey())) {
 
             setSuccessorMessage = Message.builder()
-                    .sequenceNumber(SequenceGenerator.getSequenceNumber())
+                    .sequenceNumber(sequenceGenerator.getSequenceNumber())
                     .sendType(SendType.REQUEST)
                     .messageType(Protocol.SET_SUCCESSOR)
                     .address(Address.builder()
@@ -239,7 +241,7 @@ class NodeEnvironment implements MessageProcessor {
             communicationManager.sendMessageUnicast(setSuccessorMessage);
 
             setPredecessorMessage = Message.builder()
-                    .sequenceNumber(SequenceGenerator.getSequenceNumber())
+                    .sequenceNumber(sequenceGenerator.getSequenceNumber())
                     .sendType(SendType.REQUEST)
                     .messageType(Protocol.SET_PREDECESSOR)
                     .address(Address.builder()

@@ -28,10 +28,9 @@ import co.edu.uniquindio.overlay.OverlayNode;
 import co.edu.uniquindio.overlay.OverlayNodeFactory;
 import co.edu.uniquindio.storage.StorageNode;
 import co.edu.uniquindio.storage.StorageNodeFactory;
+import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.apache.log4j.Logger;
-
-import java.net.InetAddress;
 
 /**
  * The <code>DHashNodeFactory</code> class creates nodes for storage management
@@ -59,8 +58,9 @@ public class DHashNodeFactory implements StorageNodeFactory {
     private final ChecksumeCalculator checksumeCalculator;
     private final ResourceManagerFactory resourceManagerFactory;
     private final KeyFactory keyFactory;
+    private final SequenceGenerator sequenceGenerator;
 
-    public DHashNodeFactory(CommunicationManager communicationManager, OverlayNodeFactory overlayNodeFactory, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, ResourceManagerFactory resourceManagerFactory, int replicationFactor, KeyFactory keyFactory) {
+    public DHashNodeFactory(CommunicationManager communicationManager, OverlayNodeFactory overlayNodeFactory, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, ResourceManagerFactory resourceManagerFactory, int replicationFactor, KeyFactory keyFactory, SequenceGenerator sequenceGenerator) {
         this.communicationManager = communicationManager;
         this.overlayNodeFactory = overlayNodeFactory;
         this.serializationHandler = serializationHandler;
@@ -68,6 +68,7 @@ public class DHashNodeFactory implements StorageNodeFactory {
         this.resourceManagerFactory = resourceManagerFactory;
         this.replicationFactor = replicationFactor;
         this.keyFactory = keyFactory;
+        this.sequenceGenerator = sequenceGenerator;
     }
 
     /*
@@ -132,7 +133,7 @@ public class DHashNodeFactory implements StorageNodeFactory {
     }
 
     DHashNode getDhashNode(String name, OverlayNode overlayNode, ResourceManager resourceManager) {
-        return new DHashNode(overlayNode, replicationFactor, name, communicationManager, serializationHandler, checksumeCalculator, resourceManager, keyFactory);
+        return new DHashNode(overlayNode, replicationFactor, name, communicationManager, serializationHandler, checksumeCalculator, resourceManager, keyFactory, sequenceGenerator);
     }
 
     /*

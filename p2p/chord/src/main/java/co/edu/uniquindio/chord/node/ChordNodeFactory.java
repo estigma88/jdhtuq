@@ -22,12 +22,11 @@ package co.edu.uniquindio.chord.node;
 import co.edu.uniquindio.chord.Chord;
 import co.edu.uniquindio.overlay.Key;
 import co.edu.uniquindio.overlay.KeyFactory;
-import co.edu.uniquindio.overlay.OverlayNode;
 import co.edu.uniquindio.overlay.OverlayNodeFactory;
+import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.apache.log4j.Logger;
 
-import java.net.InetAddress;
 import java.util.List;
 import java.util.Observer;
 import java.util.Set;
@@ -77,8 +76,9 @@ public class ChordNodeFactory implements OverlayNodeFactory {
     private final ScheduledExecutorService scheduledStableRing;
     private final List<Observer> stableRingObservers;
     private final KeyFactory keyFactory;
+    private final SequenceGenerator sequenceGenerator;
 
-    public ChordNodeFactory(CommunicationManager communicationManager, Set<String> names, int stableRingTime, int successorListAmount, BootStrap bootStrap, ScheduledExecutorService scheduledStableRing, List<Observer> stableRingObservers, KeyFactory keyFactory) {
+    public ChordNodeFactory(CommunicationManager communicationManager, Set<String> names, int stableRingTime, int successorListAmount, BootStrap bootStrap, ScheduledExecutorService scheduledStableRing, List<Observer> stableRingObservers, KeyFactory keyFactory, SequenceGenerator sequenceGenerator) {
         this.communicationManager = communicationManager;
         this.names = names;
         this.stableRingTime = stableRingTime;
@@ -87,6 +87,7 @@ public class ChordNodeFactory implements OverlayNodeFactory {
         this.scheduledStableRing = scheduledStableRing;
         this.stableRingObservers = stableRingObservers;
         this.keyFactory = keyFactory;
+        this.sequenceGenerator = sequenceGenerator;
     }
 
     /**
@@ -142,7 +143,7 @@ public class ChordNodeFactory implements OverlayNodeFactory {
 
         communicationManager.addMessageProcessor(name, nodeEnviroment);
 
-        bootStrap.boot(nodeChord, communicationManager);
+        bootStrap.boot(nodeChord, communicationManager, sequenceGenerator);
 
         return nodeChord;
     }
@@ -163,11 +164,11 @@ public class ChordNodeFactory implements OverlayNodeFactory {
     }
 
     NodeEnvironment getNodeEnviroment(ChordNode nodeChord, ScheduledFuture<?> stableRing) {
-        return new NodeEnvironment(communicationManager, nodeChord, stableRing, this, keyFactory);
+        return new NodeEnvironment(communicationManager, nodeChord, stableRing, this, keyFactory, sequenceGenerator);
     }
 
     ChordNode getNodeChord(Key key) {
-        return new ChordNode(key, communicationManager, successorListAmount, bootStrap, keyFactory);
+        return new ChordNode(key, communicationManager, successorListAmount, bootStrap, keyFactory, sequenceGenerator);
     }
 
     /**

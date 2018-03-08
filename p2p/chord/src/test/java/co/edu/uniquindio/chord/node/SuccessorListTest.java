@@ -1,8 +1,10 @@
 package co.edu.uniquindio.chord.node;
 
+import co.edu.uniquindio.chord.hashing.HashingGenerator;
 import co.edu.uniquindio.chord.protocol.Protocol;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.overlay.Key;
+import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,12 +43,12 @@ public class SuccessorListTest {
     @Mock
     private HashingGenerator hashingGenerator;
     @Captor
-    private ArgumentCaptor<MessageXML> messageCaptor;
+    private ArgumentCaptor<Message> messageCaptor;
     private SuccessorList successorList;
 
     @Before
     public void before() {
-        successorList = new SuccessorList(communicationManager, new Key[]{key1, key2, key3}, size, chordNode);
+        successorList = new SuccessorList(communicationManager, new Key[]{key1, key2, key3}, size, chordNode, sequenceGenerator);
     }
 
     @Test

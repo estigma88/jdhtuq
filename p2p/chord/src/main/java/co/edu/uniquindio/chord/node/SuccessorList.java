@@ -72,20 +72,23 @@ public class SuccessorList {
      */
     private ChordNode chordNode;
     private KeyFactory keyFactory;
+    private final SequenceGenerator sequenceGenerator;
 
-    SuccessorList(ChordNode chordNode, CommunicationManager communicationManager, int successorListAmount, KeyFactory keyFactory) {
+    SuccessorList(ChordNode chordNode, CommunicationManager communicationManager, int successorListAmount, KeyFactory keyFactory, SequenceGenerator sequenceGenerator) {
         this.size = successorListAmount;
+        this.sequenceGenerator = sequenceGenerator;
         this.keyList = new Key[size];
         this.chordNode = chordNode;
         this.communicationManager = communicationManager;
         this.keyFactory = keyFactory;
     }
 
-    SuccessorList(CommunicationManager communicationManager, Key[] keyList, int size, ChordNode chordNode) {
+    SuccessorList(CommunicationManager communicationManager, Key[] keyList, int size, ChordNode chordNode, SequenceGenerator sequenceGenerator) {
         this.communicationManager = communicationManager;
         this.keyList = keyList;
         this.size = size;
         this.chordNode = chordNode;
+        this.sequenceGenerator = sequenceGenerator;
     }
 
     /**
@@ -99,7 +102,7 @@ public class SuccessorList {
         Message getSuccessorListMesssage;
 
         getSuccessorListMesssage = Message.builder()
-                .sequenceNumber(SequenceGenerator.getSequenceNumber())
+                .sequenceNumber(sequenceGenerator.getSequenceNumber())
                 .sendType(Message.SendType.REQUEST)
                 .messageType(Protocol.GET_SUCCESSOR_LIST)
                 .address(Address.builder()
@@ -161,7 +164,7 @@ public class SuccessorList {
         for (int i = 0; i < keyList.length; i++) {
 
             pingMessage = Message.builder()
-                    .sequenceNumber(SequenceGenerator.getSequenceNumber())
+                    .sequenceNumber(sequenceGenerator.getSequenceNumber())
                     .sendType(Message.SendType.REQUEST)
                     .messageType(Protocol.PING)
                     .address(Address.builder()

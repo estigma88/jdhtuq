@@ -93,11 +93,13 @@ public class ChordNode extends Observable implements Chord {
 
     private BootStrap bootStrap;
     private KeyFactory keyFactory;
+    private final SequenceGenerator sequenceGenerator;
 
-    ChordNode(Key key, CommunicationManager communicationManager, int successorListAmount, BootStrap bootStrap, KeyFactory keyFactory) {
+    ChordNode(Key key, CommunicationManager communicationManager, int successorListAmount, BootStrap bootStrap, KeyFactory keyFactory, SequenceGenerator sequenceGenerator) {
         this.keyFactory = keyFactory;
+        this.sequenceGenerator = sequenceGenerator;
         this.fingersTable = newFingersTable();
-        this.successorList = new SuccessorList(this, communicationManager, successorListAmount, keyFactory);
+        this.successorList = new SuccessorList(this, communicationManager, successorListAmount, keyFactory, sequenceGenerator);
         this.key = key;
         this.communicationManager = communicationManager;
         this.bootStrap = bootStrap;
@@ -105,13 +107,14 @@ public class ChordNode extends Observable implements Chord {
         logger.info("New ChordNode created = " + key);
     }
 
-    ChordNode(CommunicationManager communicationManager, Key successor, Key predecessor, FingersTable fingersTable, SuccessorList successorList, Key key) {
+    ChordNode(CommunicationManager communicationManager, Key successor, Key predecessor, FingersTable fingersTable, SuccessorList successorList, Key key, SequenceGenerator sequenceGenerator) {
         this.communicationManager = communicationManager;
         this.successor = successor;
         this.predecessor = predecessor;
         this.fingersTable = fingersTable;
         this.successorList = successorList;
         this.key = key;
+        this.sequenceGenerator = sequenceGenerator;
     }
 
     /**
@@ -149,7 +152,7 @@ public class ChordNode extends Observable implements Chord {
             next = fingersTable.findClosestPresedingNode(id);
 
             lookupMessage = Message.builder()
-                    .sequenceNumber(SequenceGenerator.getSequenceNumber())
+                    .sequenceNumber(sequenceGenerator.getSequenceNumber())
                     .sendType(Message.SendType.REQUEST)
                     .messageType(Protocol.LOOKUP)
                     .address(Address.builder()
@@ -197,7 +200,7 @@ public class ChordNode extends Observable implements Chord {
         predecessor = null;
 
         lookupMessage = Message.builder()
-                .sequenceNumber(SequenceGenerator.getSequenceNumber())
+                .sequenceNumber(sequenceGenerator.getSequenceNumber())
                 .sendType(Message.SendType.REQUEST)
                 .messageType(Protocol.LOOKUP)
                 .address(Address.builder()
@@ -270,7 +273,7 @@ public class ChordNode extends Observable implements Chord {
         Message pingMessage;
 
         pingMessage = Message.builder()
-                .sequenceNumber(SequenceGenerator.getSequenceNumber())
+                .sequenceNumber(sequenceGenerator.getSequenceNumber())
                 .sendType(Message.SendType.REQUEST)
                 .messageType(Protocol.PING)
                 .address(Address.builder()
@@ -309,7 +312,7 @@ public class ChordNode extends Observable implements Chord {
         Message notifyMessage;
 
         pingMessage = Message.builder()
-                .sequenceNumber(SequenceGenerator.getSequenceNumber())
+                .sequenceNumber(sequenceGenerator.getSequenceNumber())
                 .sendType(Message.SendType.REQUEST)
                 .messageType(Protocol.PING)
                 .address(Address.builder()
@@ -354,7 +357,7 @@ public class ChordNode extends Observable implements Chord {
              * predecessor
              */
             getPredecessorMessage = Message.builder()
-                    .sequenceNumber(SequenceGenerator.getSequenceNumber())
+                    .sequenceNumber(sequenceGenerator.getSequenceNumber())
                     .sendType(Message.SendType.REQUEST)
                     .messageType(Protocol.GET_PREDECESSOR)
                     .address(Address.builder()
@@ -386,7 +389,7 @@ public class ChordNode extends Observable implements Chord {
                     + successorList + "'");
 
             notifyMessage = Message.builder()
-                    .sequenceNumber(SequenceGenerator.getSequenceNumber())
+                    .sequenceNumber(sequenceGenerator.getSequenceNumber())
                     .sendType(Message.SendType.REQUEST)
                     .messageType(Protocol.NOTIFY)
                     .address(Address.builder()
@@ -403,7 +406,7 @@ public class ChordNode extends Observable implements Chord {
     }
 
     void bootUp() {
-        bootStrap.boot(this, communicationManager);
+        bootStrap.boot(this, communicationManager, sequenceGenerator);
     }
 
     FingersTable newFingersTable() {
@@ -522,7 +525,7 @@ public class ChordNode extends Observable implements Chord {
         Message leaveMessage;
 
         leaveMessage = Message.builder()
-                .sequenceNumber(SequenceGenerator.getSequenceNumber())
+                .sequenceNumber(sequenceGenerator.getSequenceNumber())
                 .sendType(Message.SendType.REQUEST)
                 .messageType(Protocol.LEAVE)
                 .address(Address.builder()
