@@ -6,25 +6,25 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class FixFingersCommandTest {
+public class FixFingersObserverTest {
     @Mock
     private FingersTable fingersTable;
     @Mock
     private ChordNode chordNode;
     @InjectMocks
-    private FixFingersCommand fixFingersCommand;
+    private FixFingersObserver fixFingersObserver;
 
     @Test
     public void run_chordNode_checkPredeccesor(){
         when(chordNode.getFingersTable()).thenReturn(fingersTable);
 
-        fixFingersCommand.run();
+        fixFingersObserver.update(null, chordNode);
 
         verify(fingersTable).fixFingers();
     }

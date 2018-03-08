@@ -1,26 +1,26 @@
 package co.edu.uniquindio.chord.node;
 
+import co.edu.uniquindio.chord.ChordKey;
 import co.edu.uniquindio.chord.protocol.Protocol;
 import co.edu.uniquindio.overlay.Key;
-import org.assertj.core.api.Java6Assertions;
-import org.junit.Before;
+import co.edu.uniquindio.utils.communication.message.Message;
+import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
+import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
-@PrepareForTest(CommunicationManagerCache.class)
-@RunWith(PowerMockRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class BootStrapTest {
     @Mock
     private CommunicationManager communicationManager;
@@ -31,17 +31,15 @@ public class BootStrapTest {
     @Mock
     private Key key;
     @Mock
-    private Key foundNode;
+    private ChordKey foundNode;
     @Mock
     private FingersTable fingersTable;
     @Captor
-    private ArgumentCaptor<MessageXML> messageCaptor;
-
-    @Before
-    public void before() {
-        mockStatic(CommunicationManagerCache.class);
-        when(CommunicationManagerCache.getCommunicationManager(ChordNodeFactory.CHORD)).thenReturn(communicationManager);
-    }
+    private ArgumentCaptor<Message> messageCaptor;
+    @Mock
+    private SequenceGenerator sequenceGenerator;
+    @InjectMocks
+    private BootStrap bootStrap;
 
     @Test
     public void boot_notOtherNodeFound_createRing() {
@@ -50,18 +48,17 @@ public class BootStrapTest {
         when(nodeChord.getSuccessor()).thenReturn(successor);
         when(nodeChord.getKey()).thenReturn(key);
         when(key.getValue()).thenReturn("keyHash");
-        when(communicationManager.sendMessageMultiCast(any(), eq(Key.class))).thenReturn(null);
 
-        BootStrap.boot(nodeChord, communicationManager);
+        bootStrap.boot(nodeChord, communicationManager, sequenceGenerator);
 
         verify(nodeChord).createRing();
         verify(communicationManager).sendMessageMultiCast(messageCaptor.capture(),
-                eq(Key.class));
+                eq(ChordKey.class));
 
         assertThat(fingersTable.getFingersTable()[0]).isEqualTo(successor);
-        Java6Assertions.assertThat(messageCaptor.getValue().getMessageType()).isEqualTo(Protocol.BOOTSTRAP);
-        Java6Assertions.assertThat(messageCaptor.getValue().getAddress().getDestination()).isNull();
-        Java6Assertions.assertThat(messageCaptor.getValue().getAddress().getSource()).isEqualTo("keyHash");
+        assertThat(messageCaptor.getValue().getMessageType()).isEqualTo(Protocol.BOOTSTRAP);
+        assertThat(messageCaptor.getValue().getAddress().getDestination()).isNull();
+        assertThat(messageCaptor.getValue().getAddress().getSource()).isEqualTo("keyHash");
     }
 
     @Test
@@ -71,18 +68,18 @@ public class BootStrapTest {
         when(nodeChord.getSuccessor()).thenReturn(successor);
         when(nodeChord.getKey()).thenReturn(key);
         when(key.getValue()).thenReturn("keyHash");
-        when(communicationManager.sendMessageMultiCast(any(), eq(Key.class))).thenReturn(foundNode);
+        when(communicationManager.sendMessageMultiCast(any(), eq(ChordKey.class))).thenReturn(foundNode);
 
-        BootStrap.boot(nodeChord, communicationManager);
+        bootStrap.boot(nodeChord, communicationManager, sequenceGenerator);
 
         verify(nodeChord).join(foundNode);
         verify(communicationManager).sendMessageMultiCast(messageCaptor.capture(),
-                eq(Key.class));
+                eq(ChordKey.class));
 
         assertThat(fingersTable.getFingersTable()[0]).isEqualTo(successor);
-        Java6Assertions.assertThat(messageCaptor.getValue().getMessageType()).isEqualTo(Protocol.BOOTSTRAP);
-        Java6Assertions.assertThat(messageCaptor.getValue().getAddress().getDestination()).isNull();
-        Java6Assertions.assertThat(messageCaptor.getValue().getAddress().getSource()).isEqualTo("keyHash");
+        assertThat(messageCaptor.getValue().getMessageType()).isEqualTo(Protocol.BOOTSTRAP);
+        assertThat(messageCaptor.getValue().getAddress().getDestination()).isNull();
+        assertThat(messageCaptor.getValue().getAddress().getSource()).isEqualTo("keyHash");
     }
 
 }

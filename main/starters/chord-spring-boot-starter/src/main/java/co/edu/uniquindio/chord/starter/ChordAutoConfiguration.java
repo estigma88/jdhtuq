@@ -5,10 +5,10 @@ import co.edu.uniquindio.chord.hashing.HashingGenerator;
 import co.edu.uniquindio.chord.hashing.HashingGeneratorImp;
 import co.edu.uniquindio.chord.node.BootStrap;
 import co.edu.uniquindio.chord.node.ChordNodeFactory;
-import co.edu.uniquindio.chord.node.command.CheckPredecessorCommand;
-import co.edu.uniquindio.chord.node.command.FixFingersCommand;
-import co.edu.uniquindio.chord.node.command.FixSuccessorsCommand;
-import co.edu.uniquindio.chord.node.command.StabilizeCommand;
+import co.edu.uniquindio.chord.node.command.CheckPredecessorObserver;
+import co.edu.uniquindio.chord.node.command.FixFingersObserver;
+import co.edu.uniquindio.chord.node.command.FixSuccessorsObserver;
+import co.edu.uniquindio.chord.node.command.StabilizeObserver;
 import co.edu.uniquindio.overlay.KeyFactory;
 import co.edu.uniquindio.overlay.OverlayNodeFactory;
 import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
@@ -74,6 +74,6 @@ public class ChordAutoConfiguration {
 
     @Bean
     public List<Observer> stableRingObservers() {
-        return Arrays.asList(new FixSuccessorsCommand(), new FixFingersCommand(), new CheckPredecessorCommand(), new StabilizeCommand());
+        return Arrays.asList(new FixSuccessorsObserver(), new FixFingersObserver(), new CheckPredecessorObserver(), new StabilizeObserver());
     }
 }

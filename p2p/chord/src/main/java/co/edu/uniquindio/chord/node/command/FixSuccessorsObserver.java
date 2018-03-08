@@ -22,11 +22,12 @@ package co.edu.uniquindio.chord.node.command;
 import co.edu.uniquindio.chord.node.ChordNode;
 import co.edu.uniquindio.chord.node.StableRing;
 
+import java.util.Objects;
 import java.util.Observable;
 import java.util.Observer;
 
 /**
- * The <code>FixSuccessorsCommand</code> class is responsible for executing the
+ * The <code>FixSuccessorsObserver</code> class is responsible for executing the
  * method {@code SuccessorList.fixSuccessors} in the successor list of the chord
  * node at once.
  * <p>
@@ -39,13 +40,15 @@ import java.util.Observer;
  * @see StableRing
  * @since 1.0
  */
-public class FixSuccessorsCommand implements Observer {
+public class FixSuccessorsObserver implements Observer {
     /**
      * Executes the method {@code SuccessorList.fixSuccessors} in the successor
      * list of the chord node at once.
      */
     @Override
     public void update(Observable observable, Object o) {
+        Objects.nonNull(o);
+
         ChordNode chordNode = (ChordNode) o;
 
         chordNode.getSuccessorList().fixSuccessors();

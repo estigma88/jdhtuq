@@ -5,23 +5,23 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
-public class StabilizeCommandTest {
+public class CheckPredecessorObserverTest {
     @Mock
     private ChordNode chordNode;
     @InjectMocks
-    private StabilizeCommand stabilizeCommand;
+    private CheckPredecessorObserver checkPredecessorObserver;
 
     @Test
     public void run_chordNode_checkPredeccesor(){
-        stabilizeCommand.run();
+        checkPredecessorObserver.update(null, chordNode);
 
-        verify(chordNode).stabilize();
+        verify(chordNode).checkPredecessor();
     }
+
 
 }

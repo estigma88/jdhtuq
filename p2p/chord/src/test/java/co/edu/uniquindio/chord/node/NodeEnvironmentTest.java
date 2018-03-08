@@ -1,20 +1,26 @@
 package co.edu.uniquindio.chord.node;
 
+import co.edu.uniquindio.chord.hashing.HashingGenerator;
 import co.edu.uniquindio.chord.protocol.Protocol;
+import co.edu.uniquindio.overlay.KeyFactory;
 import co.edu.uniquindio.overlay.OverlayException;
 import co.edu.uniquindio.overlay.OverlayNodeFactory;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.overlay.Key;
+import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
+import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.math.BigInteger;
+import java.util.concurrent.ScheduledFuture;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -22,8 +28,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
-@PrepareForTest({HashingGenerator.class, OverlayNodeFactory.class})
-@RunWith(PowerMockRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class NodeEnvironmentTest {
     @Mock
     private Key found;
@@ -38,11 +43,11 @@ public class NodeEnvironmentTest {
     @Mock
     private ChordNode chordNode;
     @Mock
-    private StableRing stableRing;
+    private ScheduledFuture stableRing;
 
     private NodeEnvironment nodeEnvironment;
     @Captor
-    private ArgumentCaptor<MessageXML> messageCaptor;
+    private ArgumentCaptor<Message> messageCaptor;
     @Captor
     private ArgumentCaptor<Key> keyCaptor;
     @Mock
@@ -53,34 +58,40 @@ public class NodeEnvironmentTest {
     private OverlayNodeFactory overlayNodeFactory;
     @Mock
     private SuccessorList successorList;
+    @Mock
+    private ChordNodeFactory chordNodeFactory;
+    @Mock
+    private KeyFactory keyFactory;
+    @Mock
+    private SequenceGenerator sequenceGenerator;
 
     @Before
     public void before() {
         when(key.getValue()).thenReturn("key");
         when(chordNode.getKey()).thenReturn(key);
 
-        nodeEnvironment = spy(new NodeEnvironment(communicationManager, chordNode, stableRing));
+        nodeEnvironment = spy(new NodeEnvironment(communicationManager, chordNode, stableRing, chordNodeFactory, keyFactory, sequenceGenerator));
     }
 
     @Test
     public void update_processFalse_doNothing() {
         nodeEnvironment.setProcess(false);
 
-        nodeEnvironment.update(message);
+        nodeEnvironment.process(message);
 
         verify(nodeEnvironment).setProcess(false);
-        verify(nodeEnvironment).update(message);
+        verify(nodeEnvironment).process(message);
         verifyNoMoreInteractions(nodeEnvironment);
     }
 
     @Test
     public void update_LOOKUPMessageAndMessageFromMySelf_response() {
-        when(message.getMessageSource()).thenReturn("source");
-        when(message.getType()).thenReturn(Protocol.LOOKUP.getName());
+        //when(message.getMessageSource()).thenReturn("source");
+        //when(message.getMessageType()).thenReturn(Protocol.LOOKUP.getName());
         when(message.getParam(Protocol.LookupParams.TYPE.name())).thenReturn("type");
         when(message.isMessageFromMySelf()).thenReturn(true);
 
-        nodeEnvironment.update(message);
+        nodeEnvironment.process(message);
 
         verify(communicationManager).sendMessageUnicast(messageCaptor.capture());
 
@@ -94,13 +105,13 @@ public class NodeEnvironmentTest {
 
     @Test
     public void update_LOOKUPMessageAndNotFindSuccessor_response() {
-        when(message.getMessageSource()).thenReturn("source");
-        when(message.getType()).thenReturn(Protocol.LOOKUP.getName());
+        //when(message.getMessageSource()).thenReturn("source");
+        //when(message.getType()).thenReturn(Protocol.LOOKUP.getName());
         when(message.getParam(Protocol.LookupParams.TYPE.name())).thenReturn("LOOKUP");
         when(message.getParam(Protocol.LookupParams.HASHING.name())).thenReturn("6887");
         when(chordNode.findSuccessor(any(), eq(LookupType.LOOKUP))).thenReturn(null);
 
-        nodeEnvironment.update(message);
+        //nodeEnvironment.update(message);
 
         verify(communicationManager).sendMessageUnicast(messageCaptor.capture());
         verify(chordNode).findSuccessor(keyCaptor.capture(), eq(LookupType.LOOKUP));
@@ -117,13 +128,13 @@ public class NodeEnvironmentTest {
     @Test
     public void update_LOOKUPMessageAndFindSuccessor_response() {
         when(found.getValue()).thenReturn("found");
-        when(message.getMessageSource()).thenReturn("source");
-        when(message.getType()).thenReturn(Protocol.LOOKUP.getName());
+        //when(message.getMessageSource()).thenReturn("source");
+        //when(message.getType()).thenReturn(Protocol.LOOKUP.getName());
         when(message.getParam(Protocol.LookupParams.TYPE.name())).thenReturn("LOOKUP");
         when(message.getParam(Protocol.LookupParams.HASHING.name())).thenReturn("6887");
         when(chordNode.findSuccessor(any(), eq(LookupType.LOOKUP))).thenReturn(found);
 
-        nodeEnvironment.update(message);
+        //nodeEnvironment.update(message);
 
         verify(communicationManager).sendMessageUnicast(messageCaptor.capture());
         verify(chordNode).findSuccessor(keyCaptor.capture(), eq(LookupType.LOOKUP));
@@ -139,10 +150,10 @@ public class NodeEnvironmentTest {
 
     @Test
     public void update_PINGMessage_responsePing() {
-        when(message.getMessageSource()).thenReturn("source");
-        when(message.getType()).thenReturn(Protocol.PING.getName());
+        //when(message.getMessageSource()).thenReturn("source");
+        //when(message.getType()).thenReturn(Protocol.PING.getName());
 
-        nodeEnvironment.update(message);
+        //nodeEnvironment.update(message);
 
         verify(communicationManager).sendMessageUnicast(messageCaptor.capture());
 
@@ -156,12 +167,12 @@ public class NodeEnvironmentTest {
     @Test
     public void update_NOTIFYMessage_chordNodeNotified() {
         mockStatic(HashingGenerator.class);
-        when(HashingGenerator.getInstance()).thenReturn(hashingGenerator);
+        //when(HashingGenerator.getInstance()).thenReturn(hashingGenerator);
 
-        when(message.getMessageSource()).thenReturn("source");
-        when(message.getType()).thenReturn(Protocol.NOTIFY.getName());
+        //when(message.getMessageSource()).thenReturn("source");
+        //when(message.getType()).thenReturn(Protocol.NOTIFY.getName());
 
-        nodeEnvironment.update(message);
+        //nodeEnvironment.update(message);
 
         verify(chordNode).notify(keyCaptor.capture());
 
@@ -170,11 +181,11 @@ public class NodeEnvironmentTest {
 
     @Test
     public void update_GET_PREDECESSORMessageAndPredecesorNull_sendPredecesorNull() {
-        when(message.getMessageSource()).thenReturn("source");
-        when(message.getType()).thenReturn(Protocol.GET_PREDECESSOR.getName());
+        //when(message.getMessageSource()).thenReturn("source");
+        //when(message.getType()).thenReturn(Protocol.GET_PREDECESSOR.getName());
         when(chordNode.getPredecessor()).thenReturn(null);
 
-        nodeEnvironment.update(message);
+        //nodeEnvironment.update(message);
 
         verify(communicationManager).sendMessageUnicast(messageCaptor.capture());
 
@@ -187,12 +198,12 @@ public class NodeEnvironmentTest {
 
     @Test
     public void update_GET_PREDECESSORMessageAndPredecesorNotNull_sendPredecesor() {
-        when(message.getMessageSource()).thenReturn("source");
-        when(message.getType()).thenReturn(Protocol.GET_PREDECESSOR.getName());
+        //when(message.getMessageSource()).thenReturn("source");
+        //when(message.getType()).thenReturn(Protocol.GET_PREDECESSOR.getName());
         when(predecesor.getValue()).thenReturn("predecesor");
         when(chordNode.getPredecessor()).thenReturn(predecesor);
 
-        nodeEnvironment.update(message);
+        //nodeEnvironment.update(message);
 
         verify(communicationManager).sendMessageUnicast(messageCaptor.capture());
 
@@ -205,20 +216,20 @@ public class NodeEnvironmentTest {
 
     @Test
     public void update_BOOTSTRAPMessageAndSourceEqualKey_doNothing() {
-        when(message.getMessageSource()).thenReturn("key");
-        when(message.getType()).thenReturn(Protocol.BOOTSTRAP.getName());
+        //when(message.getMessageSource()).thenReturn("key");
+        //when(message.getType()).thenReturn(Protocol.BOOTSTRAP.getName());
 
-        nodeEnvironment.update(message);
+        //nodeEnvironment.update(message);
 
         verifyZeroInteractions(communicationManager);
     }
 
     @Test
     public void update_BOOTSTRAPMessageAndSourceNotEqualKey_responseBoostrap() {
-        when(message.getMessageSource()).thenReturn("source");
-        when(message.getType()).thenReturn(Protocol.BOOTSTRAP.getName());
+        //when(message.getMessageSource()).thenReturn("source");
+        //when(message.getType()).thenReturn(Protocol.BOOTSTRAP.getName());
 
-        nodeEnvironment.update(message);
+        //nodeEnvironment.update(message);
 
         verify(communicationManager).sendMessageUnicast(messageCaptor.capture());
 
@@ -232,15 +243,15 @@ public class NodeEnvironmentTest {
     @Test
     public void update_LEAVEMessageAndSuccessorEqualsKey_onlyDestroyNode() throws OverlayException {
         mockStatic(OverlayNodeFactory.class);
-        when(OverlayNodeFactory.getInstance()).thenReturn(overlayNodeFactory);
-        when(message.getMessageSource()).thenReturn("source");
-        when(message.getType()).thenReturn(Protocol.LEAVE.getName());
+        //when(OverlayNodeFactory.getInstance()).thenReturn(overlayNodeFactory);
+        //when(message.getMessageSource()).thenReturn("source");
+        //when(message.getType()).thenReturn(Protocol.LEAVE.getName());
         when(chordNode.getSuccessor()).thenReturn(key);
         when(chordNode.getKey()).thenReturn(key);
 
-        nodeEnvironment.update(message);
+        //nodeEnvironment.update(message);
 
-        verify(stableRing).setRun(false);
+        //verify(stableRing).setRun(false);
         verify(overlayNodeFactory).destroyNode("key");
         verifyZeroInteractions(communicationManager);
     }
@@ -248,18 +259,18 @@ public class NodeEnvironmentTest {
     @Test
     public void update_LEAVEMessageAndSuccessorNotEqualsKey_nnotifyAndDestroyNode() throws OverlayException {
         mockStatic(OverlayNodeFactory.class);
-        when(OverlayNodeFactory.getInstance()).thenReturn(overlayNodeFactory);
-        when(message.getMessageSource()).thenReturn("source");
-        when(message.getType()).thenReturn(Protocol.LEAVE.getName());
+        //when(OverlayNodeFactory.getInstance()).thenReturn(overlayNodeFactory);
+        //when(message.getMessageSource()).thenReturn("source");
+        //when(message.getType()).thenReturn(Protocol.LEAVE.getName());
         when(successor.getValue()).thenReturn("successor");
         when(chordNode.getSuccessor()).thenReturn(successor);
         when(predecesor.getValue()).thenReturn("predecesor");
         when(chordNode.getPredecessor()).thenReturn(predecesor);
         when(chordNode.getKey()).thenReturn(key);
 
-        nodeEnvironment.update(message);
+        //nodeEnvironment.update(message);
 
-        verify(stableRing).setRun(false);
+        //verify(stableRing).setRun(false);
         verify(overlayNodeFactory).destroyNode("key");
 
         verify(communicationManager, times(2)).sendMessageUnicast(messageCaptor.capture());
@@ -280,13 +291,13 @@ public class NodeEnvironmentTest {
     @Test
     public void update_SET_PREDECESSORMessage_changePredecesor() {
         mockStatic(HashingGenerator.class);
-        when(HashingGenerator.getInstance()).thenReturn(hashingGenerator);
+        //when(HashingGenerator.getInstance()).thenReturn(hashingGenerator);
 
-        when(message.getMessageSource()).thenReturn("source");
-        when(message.getType()).thenReturn(Protocol.SET_PREDECESSOR.getName());
+        //when(message.getMessageSource()).thenReturn("source");
+        //when(message.getType()).thenReturn(Protocol.SET_PREDECESSOR.getName());
         when(message.getParam(Protocol.SetPredecessorParams.PREDECESSOR.name())).thenReturn("predecesor");
 
-        nodeEnvironment.update(message);
+        //nodeEnvironment.update(message);
 
         verify(chordNode).setPredecessor(keyCaptor.capture());
 
@@ -296,13 +307,13 @@ public class NodeEnvironmentTest {
     @Test
     public void update_SET_SUCCESSORMessage_changeSuccessor() {
         mockStatic(HashingGenerator.class);
-        when(HashingGenerator.getInstance()).thenReturn(hashingGenerator);
+        //when(HashingGenerator.getInstance()).thenReturn(hashingGenerator);
 
-        when(message.getMessageSource()).thenReturn("source");
-        when(message.getType()).thenReturn(Protocol.SET_SUCCESSOR.getName());
+        //when(message.getMessageSource()).thenReturn("source");
+        //when(message.getType()).thenReturn(Protocol.SET_SUCCESSOR.getName());
         when(message.getParam(Protocol.SetSuccessorParams.SUCCESSOR.name())).thenReturn("successor");
 
-        nodeEnvironment.update(message);
+        //nodeEnvironment.update(message);
 
         verify(chordNode).setSuccessor(keyCaptor.capture());
 
@@ -311,12 +322,12 @@ public class NodeEnvironmentTest {
 
     @Test
     public void update_GET_SUCCESSOR_LISTMessageAndSourceNotEqualKey_responseBoostrap() {
-        when(message.getMessageSource()).thenReturn("source");
-        when(message.getType()).thenReturn(Protocol.GET_SUCCESSOR_LIST.getName());
+        //when(message.getMessageSource()).thenReturn("source");
+        //when(message.getType()).thenReturn(Protocol.GET_SUCCESSOR_LIST.getName());
         when(successorList.toString()).thenReturn("successorList");
         when(chordNode.getSuccessorList()).thenReturn(successorList);
 
-        nodeEnvironment.update(message);
+        //nodeEnvironment.update(message);
 
         verify(communicationManager).sendMessageUnicast(messageCaptor.capture());
 

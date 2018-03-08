@@ -4,6 +4,7 @@ import co.edu.uniquindio.chord.hashing.HashingGenerator;
 import co.edu.uniquindio.chord.protocol.Protocol;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.overlay.Key;
+import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,6 +43,8 @@ public class SuccessorListTest {
     private ChordNode chordNode;
     @Mock
     private HashingGenerator hashingGenerator;
+    @Mock
+    private SequenceGenerator sequenceGenerator;
     @Captor
     private ArgumentCaptor<Message> messageCaptor;
     private SuccessorList successorList;
@@ -72,7 +75,7 @@ public class SuccessorListTest {
     @Test
     public void fixSuccessors_successorListFromSuccessorAndGreaterThan3_doNothing() {
         mockStatic(HashingGenerator.class);
-        when(HashingGenerator.getInstance()).thenReturn(hashingGenerator);
+        //when(HashingGenerator.getInstance()).thenReturn(hashingGenerator);
 
         when(key1.getValue()).thenReturn("successor");
         when(key.getValue()).thenReturn("key");
@@ -95,7 +98,7 @@ public class SuccessorListTest {
     @Test
     public void fixSuccessors_successorListFromSuccessorAndLowerThan3_doNothing() {
         mockStatic(HashingGenerator.class);
-        when(HashingGenerator.getInstance()).thenReturn(hashingGenerator);
+        //when(HashingGenerator.getInstance()).thenReturn(hashingGenerator);
 
         when(key1.getValue()).thenReturn("successor");
         when(key.getValue()).thenReturn("key");
@@ -137,7 +140,7 @@ public class SuccessorListTest {
     @Test
     public void getNextSuccessorAvailable_notFound_returnNull() {
         mockStatic(HashingGenerator.class);
-        when(HashingGenerator.getInstance()).thenReturn(hashingGenerator);
+        //when(HashingGenerator.getInstance()).thenReturn(hashingGenerator);
 
         when(key1.getValue()).thenReturn("key1");
         when(key2.getValue()).thenReturn("key2");
@@ -167,7 +170,7 @@ public class SuccessorListTest {
     @Test
     public void getNextSuccessorAvailable_found_returnSuccessor() {
         mockStatic(HashingGenerator.class);
-        when(HashingGenerator.getInstance()).thenReturn(hashingGenerator);
+        //when(HashingGenerator.getInstance()).thenReturn(hashingGenerator);
 
         when(key1.getValue()).thenReturn("key1");
         when(key2.getValue()).thenReturn("key2");

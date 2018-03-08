@@ -21,11 +21,12 @@ package co.edu.uniquindio.chord.node.command;
 import co.edu.uniquindio.chord.node.ChordNode;
 import co.edu.uniquindio.chord.node.StableRing;
 
+import java.util.Objects;
 import java.util.Observable;
 import java.util.Observer;
 
 /**
- * <code>FixFingersCommand</code> class is responsible for executing the method
+ * <code>FixFingersObserver</code> class is responsible for executing the method
  * {@code FingersTable.fixFingers} in the fingers table of the chord node at
  * once.
  * <p>
@@ -38,7 +39,7 @@ import java.util.Observer;
  * @see StableRing
  * @since 1.0
  */
-public class FixFingersCommand implements Observer {
+public class FixFingersObserver implements Observer {
 
     /**
      * Executes the method {@code FingersTable.fixFingers} in the fingers table
@@ -46,6 +47,8 @@ public class FixFingersCommand implements Observer {
      */
     @Override
     public void update(Observable observable, Object o) {
+        Objects.nonNull(o);
+
         ChordNode chordNode = (ChordNode) o;
 
         chordNode.getFingersTable().fixFingers();

@@ -6,25 +6,25 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class FixSuccessorsCommandTest {
+public class FixSuccessorsObserverTest {
     @Mock
     private SuccessorList successorList;
     @Mock
     private ChordNode chordNode;
     @InjectMocks
-    private FixSuccessorsCommand fixSuccessorsCommand;
+    private FixSuccessorsObserver fixSuccessorsObserver;
 
     @Test
     public void run_chordNode_checkPredeccesor() {
         when(chordNode.getSuccessorList()).thenReturn(successorList);
 
-        fixSuccessorsCommand.run();
+        fixSuccessorsObserver.update(null, chordNode);
 
         verify(successorList).fixSuccessors();
     }
