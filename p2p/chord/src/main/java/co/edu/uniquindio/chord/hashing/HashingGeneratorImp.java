@@ -71,23 +71,4 @@ public class HashingGeneratorImp implements HashingGenerator {
 		}
 	}
 
-	/**
-	 * Gets hashing algorithm
-	 * 
-	 * @return Algorithm name
-	 */
-	public String getAlgorithm() {
-		return algorithm;
-	}
-
-	/**
-	 * Sets hashing algorithm
-	 * 
-	 * @param algorithm
-	 *            Algorithm name
-	 */
-	public void setAlgorithm(String algorithm) {
-		this.algorithm = algorithm;
-	}
-
 }

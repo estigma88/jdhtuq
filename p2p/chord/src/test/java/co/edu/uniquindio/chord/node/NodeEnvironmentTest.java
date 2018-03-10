@@ -2,11 +2,12 @@ package co.edu.uniquindio.chord.node;
 
 import co.edu.uniquindio.chord.hashing.HashingGenerator;
 import co.edu.uniquindio.chord.protocol.Protocol;
+import co.edu.uniquindio.overlay.Key;
 import co.edu.uniquindio.overlay.KeyFactory;
 import co.edu.uniquindio.overlay.OverlayException;
 import co.edu.uniquindio.overlay.OverlayNodeFactory;
+import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
-import co.edu.uniquindio.overlay.Key;
 import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.junit.Before;
@@ -16,17 +17,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.math.BigInteger;
 import java.util.concurrent.ScheduledFuture;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NodeEnvironmentTest {
@@ -85,193 +82,172 @@ public class NodeEnvironmentTest {
     }
 
     @Test
-    public void update_LOOKUPMessageAndMessageFromMySelf_response() {
-        //when(message.getMessageSource()).thenReturn("source");
-        //when(message.getMessageType()).thenReturn(Protocol.LOOKUP.getName());
+    public void process_LOOKUPMessageAndMessageFromMySelf_response() {
+        when(message.getAddress()).thenReturn(Address.builder().source("source").build());
+        when(message.getMessageType()).thenReturn(Protocol.LOOKUP);
         when(message.getParam(Protocol.LookupParams.TYPE.name())).thenReturn("type");
         when(message.isMessageFromMySelf()).thenReturn(true);
 
-        nodeEnvironment.process(message);
+        Message response = nodeEnvironment.process(message);
 
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture());
-
-        assertThat(messageCaptor.getValue().getSendType()).isEqualTo(Message.SendType.RESPONSE);
-        assertThat(messageCaptor.getValue().getMessageType()).isEqualTo(Protocol.LOOKUP_RESPONSE);
-        assertThat(messageCaptor.getValue().getAddress().getDestination()).isEqualTo("source");
-        assertThat(messageCaptor.getValue().getAddress().getSource()).isEqualTo(key.getValue());
-        assertThat(messageCaptor.getValue().getParam(Protocol.LookupParams.TYPE.name())).isEqualTo("type");
-        assertThat(messageCaptor.getValue().getParam(Protocol.LookupResponseParams.NODE_FIND.name())).isEqualTo("key");
+        assertThat(response.getSendType()).isEqualTo(Message.SendType.RESPONSE);
+        assertThat(response.getMessageType()).isEqualTo(Protocol.LOOKUP_RESPONSE);
+        assertThat(response.getAddress().getDestination()).isEqualTo("source");
+        assertThat(response.getAddress().getSource()).isEqualTo(key.getValue());
+        assertThat(response.getParam(Protocol.LookupParams.TYPE.name())).isEqualTo("type");
+        assertThat(response.getParam(Protocol.LookupResponseParams.NODE_FIND.name())).isEqualTo("key");
     }
 
     @Test
-    public void update_LOOKUPMessageAndNotFindSuccessor_response() {
-        //when(message.getMessageSource()).thenReturn("source");
-        //when(message.getType()).thenReturn(Protocol.LOOKUP.getName());
+    public void process_LOOKUPMessageAndNotFindSuccessor_response() {
+        when(message.getAddress()).thenReturn(Address.builder().source("source").build());
+        when(message.getMessageType()).thenReturn(Protocol.LOOKUP);
         when(message.getParam(Protocol.LookupParams.TYPE.name())).thenReturn("LOOKUP");
         when(message.getParam(Protocol.LookupParams.HASHING.name())).thenReturn("6887");
-        when(chordNode.findSuccessor(any(), eq(LookupType.LOOKUP))).thenReturn(null);
+        when(chordNode.findSuccessor(successor, LookupType.LOOKUP)).thenReturn(null);
+        when(keyFactory.newKey(new BigInteger("6887"))).thenReturn(successor);
 
-        //nodeEnvironment.update(message);
+        Message response = nodeEnvironment.process(message);
 
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture());
-        verify(chordNode).findSuccessor(keyCaptor.capture(), eq(LookupType.LOOKUP));
+        verify(chordNode).findSuccessor(successor, LookupType.LOOKUP);
 
-        assertThat(keyCaptor.getValue().getHashing()).isEqualTo(new BigInteger("6887"));
-        assertThat(messageCaptor.getValue().getSendType()).isEqualTo(Message.SendType.RESPONSE);
-        assertThat(messageCaptor.getValue().getMessageType()).isEqualTo(Protocol.LOOKUP_RESPONSE);
-        assertThat(messageCaptor.getValue().getAddress().getDestination()).isEqualTo("source");
-        assertThat(messageCaptor.getValue().getAddress().getSource()).isEqualTo(key.getValue());
-        assertThat(messageCaptor.getValue().getParam(Protocol.LookupParams.TYPE.name())).isEqualTo("LOOKUP");
-        assertThat(messageCaptor.getValue().getParam(Protocol.LookupResponseParams.NODE_FIND.name())).isEqualTo("key");
+        assertThat(response.getSendType()).isEqualTo(Message.SendType.RESPONSE);
+        assertThat(response.getMessageType()).isEqualTo(Protocol.LOOKUP_RESPONSE);
+        assertThat(response.getAddress().getDestination()).isEqualTo("source");
+        assertThat(response.getAddress().getSource()).isEqualTo(key.getValue());
+        assertThat(response.getParam(Protocol.LookupParams.TYPE.name())).isEqualTo("LOOKUP");
+        assertThat(response.getParam(Protocol.LookupResponseParams.NODE_FIND.name())).isEqualTo("key");
     }
 
     @Test
-    public void update_LOOKUPMessageAndFindSuccessor_response() {
-        when(found.getValue()).thenReturn("found");
-        //when(message.getMessageSource()).thenReturn("source");
-        //when(message.getType()).thenReturn(Protocol.LOOKUP.getName());
+    public void process_LOOKUPMessageAndFindSuccessor_response() {
+        when(message.getAddress()).thenReturn(Address.builder().source("source").build());
+        when(message.getMessageType()).thenReturn(Protocol.LOOKUP);
         when(message.getParam(Protocol.LookupParams.TYPE.name())).thenReturn("LOOKUP");
         when(message.getParam(Protocol.LookupParams.HASHING.name())).thenReturn("6887");
-        when(chordNode.findSuccessor(any(), eq(LookupType.LOOKUP))).thenReturn(found);
+        when(keyFactory.newKey(new BigInteger("6887"))).thenReturn(successor);
+        when(chordNode.findSuccessor(successor, LookupType.LOOKUP)).thenReturn(found);
 
-        //nodeEnvironment.update(message);
+        Message response = nodeEnvironment.process(message);
 
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture());
-        verify(chordNode).findSuccessor(keyCaptor.capture(), eq(LookupType.LOOKUP));
+        verify(chordNode).findSuccessor(successor, LookupType.LOOKUP);
 
-        assertThat(keyCaptor.getValue().getHashing()).isEqualTo(new BigInteger("6887"));
-        assertThat(messageCaptor.getValue().getSendType()).isEqualTo(Message.SendType.RESPONSE);
-        assertThat(messageCaptor.getValue().getMessageType()).isEqualTo(Protocol.LOOKUP_RESPONSE);
-        assertThat(messageCaptor.getValue().getAddress().getDestination()).isEqualTo("source");
-        assertThat(messageCaptor.getValue().getAddress().getSource()).isEqualTo("key");
-        assertThat(messageCaptor.getValue().getParam(Protocol.LookupParams.TYPE.name())).isEqualTo("LOOKUP");
-        assertThat(messageCaptor.getValue().getParam(Protocol.LookupResponseParams.NODE_FIND.name())).isEqualTo("found");
+        assertThat(response.getSendType()).isEqualTo(Message.SendType.RESPONSE);
+        assertThat(response.getMessageType()).isEqualTo(Protocol.LOOKUP_RESPONSE);
+        assertThat(response.getAddress().getDestination()).isEqualTo("source");
+        assertThat(response.getAddress().getSource()).isEqualTo("key");
+        assertThat(response.getParam(Protocol.LookupParams.TYPE.name())).isEqualTo("LOOKUP");
+        assertThat(response.getParam(Protocol.LookupResponseParams.NODE_FIND.name())).isEqualTo("found");
     }
 
     @Test
-    public void update_PINGMessage_responsePing() {
-        //when(message.getMessageSource()).thenReturn("source");
-        //when(message.getType()).thenReturn(Protocol.PING.getName());
+    public void process_PINGMessage_responsePing() {
+        when(message.getAddress()).thenReturn(Address.builder().source("source").build());
+        when(message.getMessageType()).thenReturn(Protocol.PING);
 
-        //nodeEnvironment.update(message);
+        Message response = nodeEnvironment.process(message);
 
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture());
-
-        assertThat(messageCaptor.getValue().getSendType()).isEqualTo(Message.SendType.RESPONSE);
-        assertThat(messageCaptor.getValue().getMessageType()).isEqualTo(Protocol.PING_RESPONSE);
-        assertThat(messageCaptor.getValue().getAddress().getDestination()).isEqualTo("source");
-        assertThat(messageCaptor.getValue().getAddress().getSource()).isEqualTo("key");
-        assertThat(messageCaptor.getValue().getParam(Protocol.PingResponseParams.PING.name())).isEqualTo("true");
+        assertThat(response.getSendType()).isEqualTo(Message.SendType.RESPONSE);
+        assertThat(response.getMessageType()).isEqualTo(Protocol.PING_RESPONSE);
+        assertThat(response.getAddress().getDestination()).isEqualTo("source");
+        assertThat(response.getAddress().getSource()).isEqualTo("key");
+        assertThat(response.getParam(Protocol.PingResponseParams.PING.name())).isEqualTo("true");
     }
 
     @Test
-    public void update_NOTIFYMessage_chordNodeNotified() {
-        mockStatic(HashingGenerator.class);
-        //when(HashingGenerator.getInstance()).thenReturn(hashingGenerator);
+    public void process_NOTIFYMessage_chordNodeNotified() {
+        when(message.getAddress()).thenReturn(Address.builder().source("source").build());
+        when(message.getMessageType()).thenReturn(Protocol.NOTIFY);
+        when(keyFactory.newKey("source")).thenReturn(key);
+        doNothing().when(chordNode).notify(key);
 
-        //when(message.getMessageSource()).thenReturn("source");
-        //when(message.getType()).thenReturn(Protocol.NOTIFY.getName());
+        Message response = nodeEnvironment.process(message);
 
-        //nodeEnvironment.update(message);
+        verify(chordNode).notify(key);
 
-        verify(chordNode).notify(keyCaptor.capture());
-
-        assertThat(keyCaptor.getValue().getValue()).isEqualTo("source");
+        assertThat(response).isNull();
     }
 
     @Test
-    public void update_GET_PREDECESSORMessageAndPredecesorNull_sendPredecesorNull() {
-        //when(message.getMessageSource()).thenReturn("source");
-        //when(message.getType()).thenReturn(Protocol.GET_PREDECESSOR.getName());
+    public void process_GET_PREDECESSORMessageAndPredecesorNull_sendPredecesorNull() {
+        when(message.getAddress()).thenReturn(Address.builder().source("source").build());
+        when(message.getMessageType()).thenReturn(Protocol.GET_PREDECESSOR);
         when(chordNode.getPredecessor()).thenReturn(null);
 
-        //nodeEnvironment.update(message);
+        Message response = nodeEnvironment.process(message);
 
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture());
-
-        assertThat(messageCaptor.getValue().getSendType()).isEqualTo(Message.SendType.RESPONSE);
-        assertThat(messageCaptor.getValue().getMessageType()).isEqualTo(Protocol.GET_PREDECESSOR_RESPONSE);
-        assertThat(messageCaptor.getValue().getAddress().getDestination()).isEqualTo("source");
-        assertThat(messageCaptor.getValue().getAddress().getSource()).isEqualTo("key");
-        assertThat(messageCaptor.getValue().getParam(Protocol.GetPredecessorResponseParams.PREDECESSOR.name())).isNull();
+        assertThat(response.getSendType()).isEqualTo(Message.SendType.RESPONSE);
+        assertThat(response.getMessageType()).isEqualTo(Protocol.GET_PREDECESSOR_RESPONSE);
+        assertThat(response.getAddress().getDestination()).isEqualTo("source");
+        assertThat(response.getAddress().getSource()).isEqualTo("key");
+        assertThat(response.getParam(Protocol.GetPredecessorResponseParams.PREDECESSOR.name())).isNull();
     }
 
     @Test
-    public void update_GET_PREDECESSORMessageAndPredecesorNotNull_sendPredecesor() {
-        //when(message.getMessageSource()).thenReturn("source");
-        //when(message.getType()).thenReturn(Protocol.GET_PREDECESSOR.getName());
-        when(predecesor.getValue()).thenReturn("predecesor");
+    public void process_GET_PREDECESSORMessageAndPredecesorNotNull_sendPredecesor() {
+        when(message.getAddress()).thenReturn(Address.builder().source("source").build());
+        when(message.getMessageType()).thenReturn(Protocol.GET_PREDECESSOR);
         when(chordNode.getPredecessor()).thenReturn(predecesor);
 
-        //nodeEnvironment.update(message);
+        Message response = nodeEnvironment.process(message);
 
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture());
-
-        assertThat(messageCaptor.getValue().getSendType()).isEqualTo(Message.SendType.RESPONSE);
-        assertThat(messageCaptor.getValue().getMessageType()).isEqualTo(Protocol.GET_PREDECESSOR_RESPONSE);
-        assertThat(messageCaptor.getValue().getAddress().getDestination()).isEqualTo("source");
-        assertThat(messageCaptor.getValue().getAddress().getSource()).isEqualTo("key");
-        assertThat(messageCaptor.getValue().getParam(Protocol.GetPredecessorResponseParams.PREDECESSOR.name())).isEqualTo("predecesor");
+        assertThat(response.getSendType()).isEqualTo(Message.SendType.RESPONSE);
+        assertThat(response.getMessageType()).isEqualTo(Protocol.GET_PREDECESSOR_RESPONSE);
+        assertThat(response.getAddress().getDestination()).isEqualTo("source");
+        assertThat(response.getAddress().getSource()).isEqualTo("key");
+        assertThat(response.getParam(Protocol.GetPredecessorResponseParams.PREDECESSOR.name())).isEqualTo("predecesor");
     }
 
     @Test
-    public void update_BOOTSTRAPMessageAndSourceEqualKey_doNothing() {
-        //when(message.getMessageSource()).thenReturn("key");
-        //when(message.getType()).thenReturn(Protocol.BOOTSTRAP.getName());
+    public void process_BOOTSTRAPMessageAndSourceEqualKey_doNothing() {
+        when(message.getAddress()).thenReturn(Address.builder().source("key").build());
+        when(message.getMessageType()).thenReturn(Protocol.BOOTSTRAP);
 
-        //nodeEnvironment.update(message);
+        nodeEnvironment.process(message);
 
         verifyZeroInteractions(communicationManager);
     }
 
     @Test
-    public void update_BOOTSTRAPMessageAndSourceNotEqualKey_responseBoostrap() {
-        //when(message.getMessageSource()).thenReturn("source");
-        //when(message.getType()).thenReturn(Protocol.BOOTSTRAP.getName());
+    public void process_BOOTSTRAPMessageAndSourceNotEqualKey_responseBoostrap() {
+        when(message.getAddress()).thenReturn(Address.builder().source("source").build());
+        when(message.getMessageType()).thenReturn(Protocol.BOOTSTRAP);
 
-        //nodeEnvironment.update(message);
+        Message response = nodeEnvironment.process(message);
 
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture());
-
-        assertThat(messageCaptor.getValue().getSendType()).isEqualTo(Message.SendType.RESPONSE);
-        assertThat(messageCaptor.getValue().getMessageType()).isEqualTo(Protocol.BOOTSTRAP_RESPONSE);
-        assertThat(messageCaptor.getValue().getAddress().getDestination()).isEqualTo("source");
-        assertThat(messageCaptor.getValue().getAddress().getSource()).isEqualTo("key");
-        assertThat(messageCaptor.getValue().getParam(Protocol.BootStrapResponseParams.NODE_FIND.name())).isEqualTo("key");
+        assertThat(response.getSendType()).isEqualTo(Message.SendType.RESPONSE);
+        assertThat(response.getMessageType()).isEqualTo(Protocol.BOOTSTRAP_RESPONSE);
+        assertThat(response.getAddress().getDestination()).isEqualTo("source");
+        assertThat(response.getAddress().getSource()).isEqualTo("key");
+        assertThat(response.getParam(Protocol.BootStrapResponseParams.NODE_FIND.name())).isEqualTo("key");
     }
 
     @Test
-    public void update_LEAVEMessageAndSuccessorEqualsKey_onlyDestroyNode() throws OverlayException {
-        mockStatic(OverlayNodeFactory.class);
-        //when(OverlayNodeFactory.getInstance()).thenReturn(overlayNodeFactory);
-        //when(message.getMessageSource()).thenReturn("source");
-        //when(message.getType()).thenReturn(Protocol.LEAVE.getName());
+    public void process_LEAVEMessageAndSuccessorEqualsKey_onlyDestroyNode() throws OverlayException {
+        when(message.getMessageType()).thenReturn(Protocol.LEAVE);
         when(chordNode.getSuccessor()).thenReturn(key);
         when(chordNode.getKey()).thenReturn(key);
 
-        //nodeEnvironment.update(message);
+        nodeEnvironment.process(message);
 
-        //verify(stableRing).setRun(false);
-        verify(overlayNodeFactory).destroyNode("key");
+        verify(stableRing).cancel(true);
+        verify(chordNodeFactory).destroyNode("key");
         verifyZeroInteractions(communicationManager);
     }
 
     @Test
-    public void update_LEAVEMessageAndSuccessorNotEqualsKey_nnotifyAndDestroyNode() throws OverlayException {
-        mockStatic(OverlayNodeFactory.class);
-        //when(OverlayNodeFactory.getInstance()).thenReturn(overlayNodeFactory);
-        //when(message.getMessageSource()).thenReturn("source");
-        //when(message.getType()).thenReturn(Protocol.LEAVE.getName());
+    public void process_LEAVEMessageAndSuccessorNotEqualsKey_nnotifyAndDestroyNode() throws OverlayException {
+        when(message.getMessageType()).thenReturn(Protocol.LEAVE);
         when(successor.getValue()).thenReturn("successor");
         when(chordNode.getSuccessor()).thenReturn(successor);
         when(predecesor.getValue()).thenReturn("predecesor");
         when(chordNode.getPredecessor()).thenReturn(predecesor);
         when(chordNode.getKey()).thenReturn(key);
 
-        //nodeEnvironment.update(message);
+        nodeEnvironment.process(message);
 
-        //verify(stableRing).setRun(false);
-        verify(overlayNodeFactory).destroyNode("key");
+        verify(stableRing).cancel(true);
+        verify(chordNodeFactory).destroyNode("key");
 
         verify(communicationManager, times(2)).sendMessageUnicast(messageCaptor.capture());
 
@@ -289,52 +265,40 @@ public class NodeEnvironmentTest {
     }
 
     @Test
-    public void update_SET_PREDECESSORMessage_changePredecesor() {
-        mockStatic(HashingGenerator.class);
-        //when(HashingGenerator.getInstance()).thenReturn(hashingGenerator);
-
-        //when(message.getMessageSource()).thenReturn("source");
-        //when(message.getType()).thenReturn(Protocol.SET_PREDECESSOR.getName());
+    public void process_SET_PREDECESSORMessage_changePredecesor() {
+        when(message.getMessageType()).thenReturn(Protocol.SET_PREDECESSOR);
         when(message.getParam(Protocol.SetPredecessorParams.PREDECESSOR.name())).thenReturn("predecesor");
+        when(keyFactory.newKey("predecesor")).thenReturn(predecesor);
 
-        //nodeEnvironment.update(message);
+        nodeEnvironment.process(message);
 
-        verify(chordNode).setPredecessor(keyCaptor.capture());
-
-        assertThat(keyCaptor.getValue().getValue()).isEqualTo("predecesor");
+        verify(chordNode).setPredecessor(predecesor);
     }
 
     @Test
-    public void update_SET_SUCCESSORMessage_changeSuccessor() {
-        mockStatic(HashingGenerator.class);
-        //when(HashingGenerator.getInstance()).thenReturn(hashingGenerator);
-
-        //when(message.getMessageSource()).thenReturn("source");
-        //when(message.getType()).thenReturn(Protocol.SET_SUCCESSOR.getName());
+    public void process_SET_SUCCESSORMessage_changeSuccessor() {
+        when(message.getMessageType()).thenReturn(Protocol.SET_SUCCESSOR);
         when(message.getParam(Protocol.SetSuccessorParams.SUCCESSOR.name())).thenReturn("successor");
+        when(keyFactory.newKey("successor")).thenReturn(successor);
 
-        //nodeEnvironment.update(message);
+        nodeEnvironment.process(message);
 
-        verify(chordNode).setSuccessor(keyCaptor.capture());
-
-        assertThat(keyCaptor.getValue().getValue()).isEqualTo("successor");
+        verify(chordNode).setSuccessor(successor);
     }
 
     @Test
-    public void update_GET_SUCCESSOR_LISTMessageAndSourceNotEqualKey_responseBoostrap() {
-        //when(message.getMessageSource()).thenReturn("source");
-        //when(message.getType()).thenReturn(Protocol.GET_SUCCESSOR_LIST.getName());
+    public void process_GET_SUCCESSOR_LISTMessageAndSourceNotEqualKey_responseBoostrap() {
+        when(message.getAddress()).thenReturn(Address.builder().source("source").build());
+        when(message.getMessageType()).thenReturn(Protocol.GET_SUCCESSOR_LIST);
         when(successorList.toString()).thenReturn("successorList");
         when(chordNode.getSuccessorList()).thenReturn(successorList);
 
-        //nodeEnvironment.update(message);
+        Message response = nodeEnvironment.process(message);
 
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture());
-
-        assertThat(messageCaptor.getValue().getSendType()).isEqualTo(Message.SendType.RESPONSE);
-        assertThat(messageCaptor.getValue().getMessageType()).isEqualTo(Protocol.GET_SUCCESSOR_LIST_RESPONSE);
-        assertThat(messageCaptor.getValue().getAddress().getDestination()).isEqualTo("source");
-        assertThat(messageCaptor.getValue().getAddress().getSource()).isEqualTo("key");
-        assertThat(messageCaptor.getValue().getParam(Protocol.GetSuccessorListResponseParams.SUCCESSOR_LIST.name())).isEqualTo("successorList");
+        assertThat(response.getSendType()).isEqualTo(Message.SendType.RESPONSE);
+        assertThat(response.getMessageType()).isEqualTo(Protocol.GET_SUCCESSOR_LIST_RESPONSE);
+        assertThat(response.getAddress().getDestination()).isEqualTo("source");
+        assertThat(response.getAddress().getSource()).isEqualTo("key");
+        assertThat(response.getParam(Protocol.GetSuccessorListResponseParams.SUCCESSOR_LIST.name())).isEqualTo("successorList");
     }
 }

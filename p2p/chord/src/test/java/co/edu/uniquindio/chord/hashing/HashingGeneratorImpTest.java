@@ -20,6 +20,6 @@ public class HashingGeneratorImpTest {
     public void generateHashing_value_hashing(){
         BigInteger hashing = hashingGeneratorImp.generateHashing("value", 16);
 
-        assertThat(hashing).isEqualTo(new BigInteger("1"));
+        assertThat(hashing).isEqualTo(new BigInteger("33221"));
     }
 }

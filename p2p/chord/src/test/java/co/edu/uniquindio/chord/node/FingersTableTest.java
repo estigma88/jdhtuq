@@ -1,6 +1,7 @@
 package co.edu.uniquindio.chord.node;
 
 import co.edu.uniquindio.overlay.Key;
+import co.edu.uniquindio.overlay.KeyFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,6 +27,8 @@ public class FingersTableTest {
     @Mock
     private Key successor;
     @Mock
+    private KeyFactory keyFactory;
+    @Mock
     private ChordNode chordNode;
     private FingersTable fingersTable;
 
@@ -34,7 +37,7 @@ public class FingersTableTest {
         when(chordNode.getKey()).thenReturn(key);
 
         fingersTableArray = new Key[]{finger1, finger2, finger3};
-        fingersTable = spy(new FingersTable(fingersTableArray, chordNode, 0, 3));
+        fingersTable = spy(new FingersTable(fingersTableArray, chordNode, 0, 3, keyFactory));
     }
 
     @Test
@@ -48,7 +51,7 @@ public class FingersTableTest {
 
     @Test
     public void findClosestPresedingNode_notFoundNullFingers_returnNodeKey() {
-        fingersTable = spy(new FingersTable(new Key[]{null, null, null}, chordNode, 0, 3));
+        fingersTable = spy(new FingersTable(new Key[]{null, null, null}, chordNode, 0, 3, keyFactory));
 
         Key search = mock(Key.class);
 
@@ -98,7 +101,7 @@ public class FingersTableTest {
 
     @Test
     public void fixFingers_turnFingers_setNodeSuccessor() {
-        fingersTable = spy(new FingersTable(fingersTableArray, chordNode, 3, 3));
+        fingersTable = spy(new FingersTable(fingersTableArray, chordNode, 3, 3, keyFactory));
 
         Key next = mock(Key.class);
 
@@ -124,8 +127,11 @@ public class FingersTableTest {
     @Test
     public void createNext_next0_newKey() {
         Key key = mock(Key.class);
+        Key newKey = mock(Key.class);
 
         when(key.getHashing()).thenReturn(new BigInteger("10"));
+        when(newKey.getHashing()).thenReturn(new BigInteger("3"));
+        when(keyFactory.newKey(new BigInteger("3"))).thenReturn(newKey);
 
         Key next = fingersTable.createNext(key);
 
@@ -134,11 +140,14 @@ public class FingersTableTest {
 
     @Test
     public void createNext_next2_newKey() {
-        fingersTable = spy(new FingersTable(fingersTableArray, chordNode, 2, 3));
+        fingersTable = spy(new FingersTable(fingersTableArray, chordNode, 2, 3, keyFactory));
 
         Key key = mock(Key.class);
+        Key newKey = mock(Key.class);
 
         when(key.getHashing()).thenReturn(new BigInteger("10"));
+        when(newKey.getHashing()).thenReturn(new BigInteger("6"));
+        when(keyFactory.newKey(new BigInteger("6"))).thenReturn(newKey);
 
         Key next = fingersTable.createNext(key);
 

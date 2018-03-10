@@ -2,6 +2,7 @@ package co.edu.uniquindio.chord.node;
 
 import co.edu.uniquindio.chord.hashing.HashingGenerator;
 import co.edu.uniquindio.chord.protocol.Protocol;
+import co.edu.uniquindio.overlay.KeyFactory;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.overlay.Key;
 import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
@@ -20,9 +21,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @PrepareForTest({HashingGenerator.class})
@@ -42,7 +41,7 @@ public class SuccessorListTest {
     @Mock
     private ChordNode chordNode;
     @Mock
-    private HashingGenerator hashingGenerator;
+    private KeyFactory keyFactory;
     @Mock
     private SequenceGenerator sequenceGenerator;
     @Captor
@@ -51,7 +50,7 @@ public class SuccessorListTest {
 
     @Before
     public void before() {
-        successorList = new SuccessorList(communicationManager, new Key[]{key1, key2, key3}, size, chordNode, sequenceGenerator);
+        successorList = new SuccessorList(communicationManager, new Key[]{key1, key2, key3}, size, chordNode, sequenceGenerator, keyFactory);
     }
 
     @Test
@@ -74,11 +73,15 @@ public class SuccessorListTest {
 
     @Test
     public void fixSuccessors_successorListFromSuccessorAndGreaterThan3_doNothing() {
-        mockStatic(HashingGenerator.class);
-        //when(HashingGenerator.getInstance()).thenReturn(hashingGenerator);
+        Key newKey1 = mock(Key.class);
+        Key newKey2 = mock(Key.class);
 
-        when(key1.getValue()).thenReturn("successor");
         when(key.getValue()).thenReturn("key");
+        when(key1.getValue()).thenReturn("successor");
+        when(newKey1.getValue()).thenReturn("123");
+        when(newKey2.getValue()).thenReturn("456");
+        when(keyFactory.newKey("123")).thenReturn(newKey1);
+        when(keyFactory.newKey("456")).thenReturn(newKey2);
         when(chordNode.getKey()).thenReturn(key);
         when(communicationManager.sendMessageUnicast(any(), eq(String.class))).thenReturn("123->456->798->753");
 
@@ -97,11 +100,15 @@ public class SuccessorListTest {
 
     @Test
     public void fixSuccessors_successorListFromSuccessorAndLowerThan3_doNothing() {
-        mockStatic(HashingGenerator.class);
-        //when(HashingGenerator.getInstance()).thenReturn(hashingGenerator);
+        Key newKey1 = mock(Key.class);
+        Key newKey2 = mock(Key.class);
 
         when(key1.getValue()).thenReturn("successor");
         when(key.getValue()).thenReturn("key");
+        when(newKey1.getValue()).thenReturn("123");
+        when(newKey2.getValue()).thenReturn("456");
+        when(keyFactory.newKey("123")).thenReturn(newKey1);
+        when(keyFactory.newKey("456")).thenReturn(newKey2);
         when(chordNode.getKey()).thenReturn(key);
         when(communicationManager.sendMessageUnicast(any(), eq(String.class))).thenReturn("123->456");
 

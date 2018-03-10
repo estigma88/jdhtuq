@@ -88,11 +88,12 @@ public class FingersTable {
 		this.keyFactory = keyFactory;
 	}
 
-	FingersTable(Key[] fingersTable, ChordNode chordNode, int next, int size) {
+	FingersTable(Key[] fingersTable, ChordNode chordNode, int next, int size, KeyFactory keyFactory) {
 		this.fingersTable = fingersTable;
 		this.chordNode = chordNode;
 		this.next = next;
 		this.size = size;
+		this.keyFactory = keyFactory;
 	}
 
 	/**

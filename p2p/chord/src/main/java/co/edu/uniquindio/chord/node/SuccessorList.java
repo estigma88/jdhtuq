@@ -83,12 +83,13 @@ public class SuccessorList {
         this.keyFactory = keyFactory;
     }
 
-    SuccessorList(CommunicationManager communicationManager, Key[] keyList, int size, ChordNode chordNode, SequenceGenerator sequenceGenerator) {
+    SuccessorList(CommunicationManager communicationManager, Key[] keyList, int size, ChordNode chordNode, SequenceGenerator sequenceGenerator, KeyFactory keyFactory) {
         this.communicationManager = communicationManager;
         this.keyList = keyList;
         this.size = size;
         this.chordNode = chordNode;
         this.sequenceGenerator = sequenceGenerator;
+        this.keyFactory = keyFactory;
     }
 
     /**
