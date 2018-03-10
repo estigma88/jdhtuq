@@ -2,74 +2,65 @@ package co.edu.uniquindio.dhash.node;
 
 import co.edu.uniquindio.dhash.resource.ResourceAlreadyExistException;
 import co.edu.uniquindio.overlay.Key;
-import org.junit.Before;
+import co.edu.uniquindio.overlay.KeyFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
-@PrepareForTest({HashingGenerator.class})
-@RunWith(PowerMockRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class ReAssignObserverTest {
     @Mock
     private DHashNode dhashNode;
     @Mock
-    private HashingGenerator hashingGenerator;
+    private KeyFactory keyFactory;
     @Captor
     private ArgumentCaptor<Key> keyCaptor;
+    @InjectMocks
     private ReAssignObserver reAssignObserver;
-
-    @Before
-    public void before(){
-        reAssignObserver = new ReAssignObserver(dHashNode, keyFactory);
-        reAssignObserver.setDHashNode(dhashNode);
-    }
+    @Mock
+    private Key key;
 
     @Test
-    public void update_messageLength1_doNothing(){
+    public void update_messageLength1_doNothing() {
         String[] message = new String[]{"REASSIGN"};
 
-        reAssignObserver.update(message);
+        reAssignObserver.update(null, message);
 
         verifyZeroInteractions(dhashNode);
     }
 
     @Test
-    public void update_messageLength3_doNothing(){
+    public void update_messageLength3_doNothing() {
         String[] message = new String[]{"REASSIGN", "REASSIGN", "REASSIGN"};
 
-        reAssignObserver.update(message);
+        reAssignObserver.update(null, message);
 
         verifyZeroInteractions(dhashNode);
     }
 
     @Test
-    public void update_messageTypeWrong_doNothing(){
+    public void update_messageTypeWrong_doNothing() {
         String[] message = new String[]{"REASSIGNWRONG", "123"};
 
-        reAssignObserver.update(message);
+        reAssignObserver.update(null, message);
 
         verifyZeroInteractions(dhashNode);
     }
 
     @Test
     public void update_messageCorrect_relocateAllResources() throws ResourceAlreadyExistException {
-        mockStatic(HashingGenerator.class);
-        when(HashingGenerator.getInstance()).thenReturn(hashingGenerator);
-
         String[] message = new String[]{"REASSIGN", "123"};
 
-        reAssignObserver.update(message);
+        when(keyFactory.newKey("123")).thenReturn(key);
 
-        verify(dhashNode).relocateAllResources(keyCaptor.capture());
+        reAssignObserver.update(null, message);
 
-        assertThat(keyCaptor.getValue().getValue()).isEqualTo("123");
+        verify(dhashNode).relocateAllResources(key);
     }
 }

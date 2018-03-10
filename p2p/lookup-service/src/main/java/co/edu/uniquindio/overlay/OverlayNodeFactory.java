@@ -33,15 +33,6 @@ import java.net.InetAddress;
  */
 public interface OverlayNodeFactory {
 	/**
-	 * Creates a node
-	 * 
-	 * @return Overlay node
-	 * @throws OverlayException
-	 *             throw when occur an error
-	 */
-	OverlayNode createNode() throws OverlayException;
-
-	/**
 	 * Creates a node with a specified name
 	 * 
 	 * @param name

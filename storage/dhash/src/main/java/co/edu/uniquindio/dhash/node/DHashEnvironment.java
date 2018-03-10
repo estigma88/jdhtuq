@@ -49,11 +49,11 @@ public class DHashEnvironment implements MessageProcessor {
     private static final Logger logger = Logger
             .getLogger(DHashEnvironment.class);
 
-    private CommunicationManager communicationManager;
-    private DHashNode dHashNode;
-    private SerializationHandler serializationHandler;
-    private ChecksumeCalculator checksumeCalculator;
-    private ResourceManager resourceManager;
+    private final CommunicationManager communicationManager;
+    private final DHashNode dHashNode;
+    private final SerializationHandler serializationHandler;
+    private final ChecksumeCalculator checksumeCalculator;
+    private final ResourceManager resourceManager;
 
     DHashEnvironment(CommunicationManager communicationManager, DHashNode dHashNode, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, ResourceManager resourceManager) {
         this.communicationManager = communicationManager;
@@ -246,7 +246,7 @@ public class DHashEnvironment implements MessageProcessor {
             Resource resource = serializationHandler.decode(
                     message.getData(PutDatas.RESOURCE.name()));
 
-            resourceManager.persist(resource);
+            resourceManager.save(resource);
 
             Boolean replicate = Boolean.valueOf(message
                     .getParam(PutParams.REPLICATE.name()));

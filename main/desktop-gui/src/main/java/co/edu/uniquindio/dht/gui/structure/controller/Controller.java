@@ -22,9 +22,7 @@ import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 //TODO Documentar
 public class Controller implements Observer<Message> {
@@ -49,6 +47,8 @@ public class Controller implements Observer<Message> {
     private StorageNodeFactory storageNodeFactory;
     private CommunicationManager communicationManager;
     private KeyFactory keyFactory;
+    private Set<String> nodeNames;
+    private int indexName;
 
     // TODO Documentar
     public Controller() {
@@ -61,6 +61,8 @@ public class Controller implements Observer<Message> {
         this.communicationManager = communicationManager;
         this.keyFactory = keyFactory;
         this.hashingGenerator = hashingGenerator;
+        this.nodeNames = new HashSet<>();
+        this.indexName = 1;
     }
 
     // TODO Documentar
@@ -111,9 +113,20 @@ public class Controller implements Observer<Message> {
         try {
             StorageNode dHash;
             if (name.equals("")) {
-                dHash = storageNodeFactory.createNode();
+                while (nodeNames.contains(String.valueOf(indexName))){
+                    indexName++;
+                }
+
+                dHash = storageNodeFactory.createNode(String.valueOf(indexName));
+
+                nodeNames.add(String.valueOf(indexName));
             } else {
-                dHash = storageNodeFactory.createNode(name);
+                if (nodeNames.contains(name)){
+                    throw new IllegalArgumentException("Node with name "+name+" is already created");
+                }else{
+                    dHash = storageNodeFactory.createNode(name);
+                    nodeNames.add(name);
+                }
             }
 
             if (isFirstNode) {

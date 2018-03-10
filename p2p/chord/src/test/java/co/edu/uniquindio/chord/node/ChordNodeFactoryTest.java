@@ -57,15 +57,6 @@ public class ChordNodeFactoryTest {
     }
 
     @Test
-    public void createNode_byCount_nodeCreated() throws ChordNodeFactoryException {
-        doReturn(chord).when(chordNodeFactory).createNode("2");
-
-        Chord node = chordNodeFactory.createNode();
-
-        assertThat(node).isEqualTo(chord);
-    }
-
-    @Test
     public void createNode_byName_nodeCreated() throws ChordNodeFactoryException {
         when(key.getValue()).thenReturn("key");
         when(nodeChord.getKey()).thenReturn(key);
@@ -85,8 +76,6 @@ public class ChordNodeFactoryTest {
     @Test
     public void destroyNode_byName_nodeDestroyed() throws ChordNodeFactoryException {
         chordNodeFactory.destroyNode("1");
-
-        assertThat(chordNodeFactory.getNames()).doesNotContain("1");
 
         verify(communicationManager).removeObserver("1");
     }

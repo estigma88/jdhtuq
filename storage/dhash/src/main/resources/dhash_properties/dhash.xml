@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<dhash xmlns="http://www.DHT-UQ.org/dhash" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.DHT-UQ.org/dhash dhash.xsd ">
-  <overlay factoryClass="co.edu.uniquindio.chord.node.ChordNodeFactory" observerClass="co.edu.uniquindio.dhash.node.ReAssignObserver"/>
-  <replication amount="1"/>
-</dhash>

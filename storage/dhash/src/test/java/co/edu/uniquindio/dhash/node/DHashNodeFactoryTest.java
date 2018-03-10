@@ -1,18 +1,20 @@
 package co.edu.uniquindio.dhash.node;
 
-import co.edu.uniquindio.overlay.OverlayException;
-import co.edu.uniquindio.overlay.OverlayNode;
-import co.edu.uniquindio.overlay.OverlayNodeFactory;
+import co.edu.uniquindio.dhash.resource.checksum.ChecksumeCalculator;
+import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
+import co.edu.uniquindio.dhash.resource.manager.ResourceManagerFactory;
+import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
+import co.edu.uniquindio.overlay.*;
 import co.edu.uniquindio.storage.StorageNode;
-import co.edu.uniquindio.overlay.Key;
+import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
+import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.net.InetAddress;
+import java.util.Observable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -24,67 +26,50 @@ public class DHashNodeFactoryTest {
     @Mock
     private OverlayNodeFactory overlayNodeFactory;
     @Mock
+    private SerializationHandler serializationHandler;
+    @Mock
+    private ChecksumeCalculator checksumeCalculator;
+    @Mock
+    private ResourceManagerFactory resourceManagerFactory;
+    @Mock
+    private ResourceManager resourceManager;
+    @Mock
+    private KeyFactory keyFactory;
+    @Mock
+    private SequenceGenerator sequenceGenerator;
+    @Mock
+    private Key key;
+    @Mock
     private OverlayNode overlayNode;
     @Mock
     private DHashNode dhashNode;
     @Mock
     private DHashEnvironment dHashEnviroment;
-    @Mock
-    private Key key;
-    @Mock
-    private InetAddress inetAddress;
-    @InjectMocks
-    @Spy
     private DHashNodeFactory dHashNodeFactory;
+    @Mock
+    private Observable observable;
+    @Mock
+    private ReAssignObserver reAssignObserver;
+
+    @Before
+    public void before() {
+        dHashNodeFactory = spy(new DHashNodeFactory(communicationManager, overlayNodeFactory, serializationHandler, checksumeCalculator, resourceManagerFactory, 2, keyFactory, sequenceGenerator));
+    }
 
     @Test
     public void create_byName_nodeCreated() throws OverlayException, DHashFactoryException {
         when(overlayNodeFactory.createNode("node")).thenReturn(overlayNode);
-        doReturn(dhashNode).when(dHashNodeFactory).getDhashNode("node", overlayNode, persistenceManager);
-        doReturn(dHashEnviroment).when(dHashNodeFactory).getDHashEnviroment(dhashNode, persistenceManager);
+        when(overlayNode.getObservable()).thenReturn(observable);
+        when(resourceManagerFactory.of("node")).thenReturn(resourceManager);
+        doReturn(dhashNode).when(dHashNodeFactory).getDhashNode("node", overlayNode, resourceManager);
+        doReturn(dHashEnviroment).when(dHashNodeFactory).getDHashEnviroment(dhashNode, resourceManager);
+        doReturn(reAssignObserver).when(dHashNodeFactory).getReAssignObserver(dhashNode);
 
         StorageNode node = dHashNodeFactory.createNode("node");
 
         assertThat(node).isEqualTo(dhashNode);
 
-        verify(communicationManager).addObserver(dHashEnviroment);
+        verify(observable).addObserver(reAssignObserver);
+        verify(communicationManager).addMessageProcessor("node", dHashEnviroment);
     }
-
-    @Test
-    public void create_byDefault_nodeCreated() throws OverlayException, DHashFactoryException {
-        when(overlayNodeFactory.createNode()).thenReturn(overlayNode);
-        when(overlayNode.getKey()).thenReturn(key);
-        when(key.getValue()).thenReturn("node");
-        doReturn(dhashNode).when(dHashNodeFactory).getDhashNode("node", overlayNode, persistenceManager);
-        doReturn(dHashEnviroment).when(dHashNodeFactory).getDHashEnviroment(dhashNode, persistenceManager);
-
-        StorageNode node = dHashNodeFactory.createNode();
-
-        assertThat(node).isEqualTo(dhashNode);
-
-        verify(communicationManager).addObserver(dHashEnviroment);
-    }
-
-    @Test
-    public void create_byInitAddress_nodeCreated() throws OverlayException, DHashFactoryException {
-        when(overlayNodeFactory.createNode(inetAddress)).thenReturn(overlayNode);
-        when(overlayNode.getKey()).thenReturn(key);
-        when(key.getValue()).thenReturn("node");
-        doReturn(dhashNode).when(dHashNodeFactory).getDhashNode("node", overlayNode, persistenceManager);
-        doReturn(dHashEnviroment).when(dHashNodeFactory).getDHashEnviroment(dhashNode, persistenceManager);
-
-        StorageNode node = dHashNodeFactory.createNode(inetAddress);
-
-        assertThat(node).isEqualTo(dhashNode);
-
-        verify(communicationManager).addObserver(dHashEnviroment);
-    }
-
-    @Test
-    public void destroyNode_byName_nodeDestroyed() throws OverlayException, DHashFactoryException {
-        dHashNodeFactory.destroyNode("node");
-
-        verify(communicationManager).removeObserver("node");
-    }
-
 }

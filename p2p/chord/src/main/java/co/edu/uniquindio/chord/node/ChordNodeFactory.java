@@ -63,15 +63,6 @@ public class ChordNodeFactory implements OverlayNodeFactory {
      * Communication manager
      */
     private final CommunicationManager communicationManager;
-
-    /**
-     * Allows to create a node with no specified name.
-     */
-    private int nodeKey;
-    /**
-     * List of names of the nodes created
-     */
-    private final Set<String> names;
     private final BootStrap bootStrap;
     private final ScheduledExecutorService scheduledStableRing;
     private final List<Observer> stableRingObservers;
@@ -80,7 +71,6 @@ public class ChordNodeFactory implements OverlayNodeFactory {
 
     public ChordNodeFactory(CommunicationManager communicationManager, Set<String> names, int stableRingTime, int successorListAmount, BootStrap bootStrap, ScheduledExecutorService scheduledStableRing, List<Observer> stableRingObservers, KeyFactory keyFactory, SequenceGenerator sequenceGenerator) {
         this.communicationManager = communicationManager;
-        this.names = names;
         this.stableRingTime = stableRingTime;
         this.successorListAmount = successorListAmount;
         this.bootStrap = bootStrap;
@@ -88,22 +78,6 @@ public class ChordNodeFactory implements OverlayNodeFactory {
         this.stableRingObservers = stableRingObservers;
         this.keyFactory = keyFactory;
         this.sequenceGenerator = sequenceGenerator;
-    }
-
-    /**
-     * Creates a ChordNode with a default name and starts the node.
-     *
-     * @return {@link Chord}
-     * @throws ChordNodeFactoryException
-     */
-    public Chord createNode() throws ChordNodeFactoryException {
-
-        nodeKey++;
-        while (names.contains(String.valueOf(nodeKey))) {
-            nodeKey++;
-        }
-
-        return createNode(String.valueOf(nodeKey));
     }
 
     /*
@@ -116,17 +90,6 @@ public class ChordNodeFactory implements OverlayNodeFactory {
         ChordNode nodeChord;
         NodeEnvironment nodeEnviroment;
         Key key;
-
-        if (!names.contains(name)) {
-            names.add(name);
-        } else {
-            NameAlreadyInUseException exception = new NameAlreadyInUseException(
-                    "The specified name is already being used");
-
-            logger.fatal("The specified name is already being used", exception);
-
-            throw exception;
-        }
 
         key = getKey(name);
         nodeChord = getNodeChord(key);
@@ -177,12 +140,6 @@ public class ChordNodeFactory implements OverlayNodeFactory {
      * @param name The key of the node that will be destroyed.
      */
     public void destroyNode(String name) {
-        names.remove(name);
-
         communicationManager.removeObserver(name);
-    }
-
-    Set<String> getNames() {
-        return names;
     }
 }

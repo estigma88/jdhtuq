@@ -135,26 +135,4 @@ public class DHashNodeFactory implements StorageNodeFactory {
     DHashNode getDhashNode(String name, OverlayNode overlayNode, ResourceManager resourceManager) {
         return new DHashNode(overlayNode, replicationFactor, name, communicationManager, serializationHandler, checksumeCalculator, resourceManager, keyFactory, sequenceGenerator);
     }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see co.edu.uniquindio.storage.StorageNodeFactory#createNode()
-     */
-    public StorageNode createNode() throws DHashFactoryException {
-
-        OverlayNode overlayNode;
-        DHashNode dhashNode;
-
-        try {
-            overlayNode = overlayNodeFactory.createNode();
-
-            dhashNode = createNode(overlayNode.getKey().getValue(), overlayNode);
-
-        } catch (OverlayException e) {
-            throw new DHashFactoryException("Error creating overlay node", e);
-        }
-
-        return dhashNode;
-    }
 }

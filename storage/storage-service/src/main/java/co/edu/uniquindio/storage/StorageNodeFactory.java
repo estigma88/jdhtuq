@@ -31,15 +31,6 @@ import java.net.InetAddress;
  * @since 1.0
  */
 public interface StorageNodeFactory {
-
-    /**
-     * Creates a storage node
-     *
-     * @return StorageNode node
-     * @throws StorageException throw when occur an error
-     */
-    StorageNode createNode() throws StorageException;
-
     /**
      * Creates a storage node from name
      *
