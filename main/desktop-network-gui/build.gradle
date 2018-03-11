@@ -12,7 +12,7 @@ dependencies {
 
     compile project(':main:starters:chord-spring-boot-starter')
     compile project(':main:starters:dhash-spring-boot-starter')
-    compile project(':main:starters:socker-communication-spring-boot-starter')
+    compile project(':main:starters:socket-communication-spring-boot-starter')
 }
 
 mainClassName = "co.edu.uniquindio.dht.Main"
