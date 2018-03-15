@@ -1,3 +1,4 @@
+@enable
 Feature: I create a stable ring
   Scenario: I create a stable ring
     Given I set the key length to 16

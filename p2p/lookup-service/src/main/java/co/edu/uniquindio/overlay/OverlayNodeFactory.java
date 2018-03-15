@@ -46,11 +46,11 @@ public interface OverlayNodeFactory {
 	/**
 	 * Destroy node by name
 	 * 
-	 * @param name
-	 *            Node name
+	 * @param overlayNode
+	 *            Node
 	 * @throws OverlayException
 	 *             throw when occur an error
 	 */
-	void destroyNode(String name) throws OverlayException;
+	void destroyNode(OverlayNode overlayNode) throws OverlayException;
 
 }

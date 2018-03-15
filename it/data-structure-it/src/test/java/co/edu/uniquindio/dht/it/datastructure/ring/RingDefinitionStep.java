@@ -5,7 +5,9 @@ import co.edu.uniquindio.dhash.node.DHashNode;
 import co.edu.uniquindio.dht.it.datastructure.CucumberRoot;
 import co.edu.uniquindio.dht.it.datastructure.World;
 import co.edu.uniquindio.overlay.KeyFactory;
+import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.StorageNodeFactory;
+import cucumber.api.java.After;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -76,6 +78,17 @@ public class RingDefinitionStep extends CucumberRoot {
 
             assertThat(chordNode.getSuccessor()).isNotNull();
             assertThat(chordNode.getSuccessor().getValue()).isEqualTo(nodeSuccessors.get(node.getName()));
+        }
+    }
+
+    @After
+    public void destroyRing() throws StorageException {
+        Ring ring = world.getRing();
+
+        for (String nodeName: ring.getNodeNames()){
+            DHashNode dHashNode = ring.getNode(nodeName);
+
+            storageNodeFactory.destroyNode(dHashNode);
         }
     }
 }

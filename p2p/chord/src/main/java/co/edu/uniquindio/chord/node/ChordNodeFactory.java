@@ -20,9 +20,7 @@
 package co.edu.uniquindio.chord.node;
 
 import co.edu.uniquindio.chord.Chord;
-import co.edu.uniquindio.overlay.Key;
-import co.edu.uniquindio.overlay.KeyFactory;
-import co.edu.uniquindio.overlay.OverlayNodeFactory;
+import co.edu.uniquindio.overlay.*;
 import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.apache.log4j.Logger;
@@ -134,12 +132,8 @@ public class ChordNodeFactory implements OverlayNodeFactory {
         return new ChordNode(key, communicationManager, successorListAmount, bootStrap, keyFactory, sequenceGenerator);
     }
 
-    /**
-     * Removes the node form the ring.
-     *
-     * @param name The key of the node that will be destroyed.
-     */
-    public void destroyNode(String name) {
-        communicationManager.removeObserver(name);
+    @Override
+    public void destroyNode(OverlayNode overlayNode) throws OverlayException {
+        overlayNode.leave();
     }
 }
