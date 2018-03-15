@@ -1,28 +1,29 @@
+
 Feature: I put resources into the network
   Background: I create a stable ring
     Given I set the key length to 16
     And I have the following node's names and hashings:
       | name | hashing |
-      | node1 | 922 |
-      | node2 | 11198 |
-      | node3 | 14654 |
-      | node4 | 14018 |
-      | node5 | 45027 |
-      | node6 | 9703 |
-      | node7 | 62942 |
-      | node8 | 17323 |
-      | node9 | 63438 |
-      | node10 | 29382 |
-      | node11 | 16431 |
-      | node12 | 49027 |
-      | node13 | 17336 |
-      | node14 | 44055 |
-      | node15 | 46322 |
-      | node16 | 22357 |
-      | node17 | 39795 |
-      | node18 | 56773 |
-      | node19 | 50136 |
-      | node20 | 18085 |
+      | 127.0.0.1 | 18393 |
+      | 172.16.0.4 | 13193 |
+      | 172.16.0.5 | 59488 |
+      | 172.16.0.6 | 38116 |
+      | 172.16.0.7 | 31925 |
+      | 172.16.0.8 | 1833 |
+      | 172.16.0.9 | 5441 |
+      | 172.16.0.10 | 29236 |
+      | 172.16.0.11 | 54023 |
+      | 172.16.0.12 | 16020 |
+      | 172.16.0.13 | 34177 |
+      | 172.16.0.14 | 58901 |
+      | 172.16.0.15 | 63701 |
+      | 172.16.0.16 | 22313 |
+      | 172.16.0.17 | 48279 |
+      | 172.16.0.18 | 48681 |
+      | 172.16.0.19 | 10276 |
+      | 172.16.0.20 | 23517 |
+      | 172.16.0.21 | 32272 |
+      | 172.16.0.22 | 64158 |
     And I create the Chord ring
     And I wait for stabilizing after 60 seconds
 
@@ -39,7 +40,7 @@ Feature: I put resources into the network
       | resource8.txt | Far concluded not his something extremity. Want four we face an he gate. On he of played he ladies answer little though nature. Blessing oh do pleasure as so formerly. Took four spot soon led size you. Outlived it received he material. Him yourself joy moderate off repeated laughter outweigh screened.  |
       | resource9.txt | Scarcely on striking packages by so property in delicate. Up or well must less rent read walk so be. Easy sold at do hour sing spot. Any meant has cease too the decay. Since party burst am it match. By or blushes between besides offices noisier as. Sending do brought winding compass in. Paid day till shed only fact age its end.  |
       | resource10.txt | Unpleasant astonished an diminution up partiality. Noisy an their of meant. Death means up civil do an offer wound of. Called square an in afraid direct. Resolution diminution conviction so mr at unpleasing simplicity no. No it as breakfast up conveying earnestly immediate principle. Him son disposed produced humoured overcame she bachelor improved. Studied however out wishing but inhabit fortune windows.  |
-    Given I use the "node8" as a gateway
+    Given I use the "127.0.0.1" as a gateway
     When I put resources into the network
     Then The resources are put in the following nodes:
       | name | node |
