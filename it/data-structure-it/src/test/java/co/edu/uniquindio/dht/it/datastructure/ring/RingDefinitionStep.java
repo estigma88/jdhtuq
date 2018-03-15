@@ -24,58 +24,58 @@ public class RingDefinitionStep extends CucumberRoot {
     private StorageNodeFactory storageNodeFactory;
     @Autowired
     private KeyFactory keyFactory;
-    private Map<String, String> nodeData;
+    private List<Node> nodes;
 
-    @When("^Key length is (\\d+)$")
+    @Given("^I set the key length to (\\d+)$")
     public void key_length_is(int keyLength) throws Throwable {
         keyFactory.updateKeyLength(keyLength);
     }
 
-    @Given("^the following node's names:$")
-    public void the_following_node_s_names(Map<String, String> nodeNames) throws Throwable {
-        this.nodeData = nodeNames;
+    @Given("^I have the following node's names and hashings:$")
+    public void the_following_node_s_names(List<Node> nodes) throws Throwable {
+        this.nodes = nodes;
     }
 
-    @When("^Chord ring is created$")
+    @When("^I create the Chord ring$")
     public void chord_ring_is_created() throws Throwable {
         Ring.RingBuilder ringBuilder = Ring.builder();
 
-        for (String nodeName : nodeData.keySet()) {
-            ringBuilder.nodeName(nodeName)
-                    .node(nodeName, (DHashNode) storageNodeFactory.createNode(nodeName));
+        for (Node node : nodes) {
+            ringBuilder.nodeName(node.getName())
+                    .node(node.getName(), (DHashNode) storageNodeFactory.createNode(node.getName()));
         }
 
         Ring ring = ringBuilder.build();
 
-        for(String nodeName : ring.getNodeNames()){
-            DHashNode node = ring.getNode(nodeName);
+        for(Node node : nodes){
+            DHashNode dHashNode = ring.getNode(node.getName());
 
-            ChordNode chordNode = (ChordNode) node.getOverlayNode();
+            ChordNode chordNode = (ChordNode) dHashNode.getOverlayNode();
 
             assertThat(chordNode.getKey()).isNotNull();
-            assertThat(chordNode.getKey().getValue()).isEqualTo(nodeName);
-            assertThat(chordNode.getKey().getHashing()).isEqualTo(new BigInteger(nodeData.get(nodeName)));
+            assertThat(chordNode.getKey().getValue()).isEqualTo(node.getName());
+            assertThat(chordNode.getKey().getHashing()).isEqualTo(new BigInteger(node.getHashing()));
         }
 
         world.setRing(ring);
     }
 
-    @When("^Wating for stabilizing after (\\d+) seconds$")
+    @When("^I wait for stabilizing after (\\d+) seconds$")
     public void wating_for_stabilizing_after_seconds(int timeToStabilize) throws Throwable {
         Thread.sleep(timeToStabilize * 1000);
     }
 
     @Then("^Chord ring is stable with the following successors:$")
-    public void chord_ring_is_stable_with_the_following_successors(Map<String, String> successorNode) throws Throwable {
+    public void chord_ring_is_stable_with_the_following_successors(Map<String, String> nodeSuccessors) throws Throwable {
         Ring ring = world.getRing();
 
-        for (String nodeName : successorNode.keySet()) {
-            DHashNode node = ring.getNode(nodeName);
+        for (Node node : nodes) {
+            DHashNode dHashNode = ring.getNode(node.getName());
 
-            ChordNode chordNode = (ChordNode) node.getOverlayNode();
+            ChordNode chordNode = (ChordNode) dHashNode.getOverlayNode();
 
             assertThat(chordNode.getSuccessor()).isNotNull();
-            assertThat(chordNode.getSuccessor().getValue()).isEqualTo(successorNode.get(nodeName));
+            assertThat(chordNode.getSuccessor().getValue()).isEqualTo(nodeSuccessors.get(node.getName()));
         }
     }
 }

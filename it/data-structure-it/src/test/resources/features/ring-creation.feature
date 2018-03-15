@@ -1,6 +1,8 @@
-Feature: Create a stable ring
-  Scenario: Create a stable ring
-    Given the following node's names:
+Feature: I create a stable ring
+  Scenario: I create a stable ring
+    Given I set the key length to 16
+    And I have the following node's names and hashings:
+      | name | hashing |
       | node1 | 922 |
       | node2 | 11198 |
       | node3 | 14654 |
@@ -21,10 +23,10 @@ Feature: Create a stable ring
       | node18 | 56773 |
       | node19 | 50136 |
       | node20 | 18085 |
-    When Key length is 16
-    When Chord ring is created
-    When Wating for stabilizing after 60 seconds
+    When I create the Chord ring
+    And I wait for stabilizing after 60 seconds
     Then Chord ring is stable with the following successors:
+      | name | successor |
       | node1 | node6 |
       | node2 | node4 |
       | node3 | node11 |
