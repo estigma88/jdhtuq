@@ -539,6 +539,14 @@ public class ChordNode extends Observable implements Chord {
 
         communicationManager.sendMessageUnicast(leaveMessage);
 
+        String[] message = new String[2];
+        message[0] = "REASSIGN";
+        message[1] = successor.getValue();
+
+        setChanged();
+        notifyObservers(message);
+        clearChanged();
+
         return successorList.getKeyList();
     }
 

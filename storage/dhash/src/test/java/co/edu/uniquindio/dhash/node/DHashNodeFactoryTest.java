@@ -5,6 +5,7 @@ import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManagerFactory;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
 import co.edu.uniquindio.overlay.*;
+import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.StorageNode;
 import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
@@ -71,5 +72,16 @@ public class DHashNodeFactoryTest {
 
         verify(observable).addObserver(reAssignObserver);
         verify(communicationManager).addMessageProcessor("node", dHashEnviroment);
+    }
+
+    @Test
+    public void destroyNode_nodeDestroyed() throws OverlayException, StorageException {
+        when(dhashNode.getOverlayNode()).thenReturn(overlayNode);
+        when(dhashNode.getName()).thenReturn("node");
+
+        dHashNodeFactory.destroyNode(dhashNode);
+
+        verify(overlayNodeFactory).destroyNode(overlayNode);
+        verify(communicationManager).removeMessageProcessor("node");
     }
 }

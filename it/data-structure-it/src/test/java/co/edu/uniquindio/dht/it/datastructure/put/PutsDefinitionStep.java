@@ -28,8 +28,6 @@ public class PutsDefinitionStep extends CucumberRoot {
     @Autowired
     private World world;
     @Autowired
-    private HashingGenerator hashingGenerator;
-    @Autowired
     private DHashProperties dHashProperties;
     private Map<String, Content> contents;
     private String nodeGateway;
@@ -52,8 +50,6 @@ public class PutsDefinitionStep extends CucumberRoot {
         StorageNode storageNode = ring.getNode(nodeGateway);
 
         for (String contentName : contents.keySet()) {
-            System.out.println(contentName + ": " + hashingGenerator.generateHashing(contentName, 16));
-
             storageNode.put(new BytesResource(contentName, contents.get(contentName).getContent().getBytes()));
         }
 
