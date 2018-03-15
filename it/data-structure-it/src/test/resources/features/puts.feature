@@ -43,14 +43,13 @@ Feature: I put resources into the network
     Given I use the "127.0.0.1" as a gateway
     When I put resources into the network
     Then The resources are put in the following nodes:
-      | name | node |
-      | resource1.txt | node6 |
-      | resource2.txt | node4 |
-      | resource3.txt | node11 |
-      | resource4.txt | node3 |
-      | resource5.txt | node15 |
-      | resource6.txt | node2 |
-      | resource7.txt | node9 |
-      | resource8.txt | node13 |
-      | resource9.txt | node1 |
-      | resource10.txt | node17 |
+      | resource1.txt | 172.16.0.7 |
+      | resource2.txt | 172.16.0.10 |
+      | resource3.txt | 172.16.0.12 |
+      | resource4.txt | 172.16.0.20 |
+      | resource5.txt | 172.16.0.17 |
+      | resource6.txt | 172.16.0.19 |
+      | resource7.txt | 172.16.0.10 |
+      | resource8.txt | 172.16.0.17 |
+      | resource9.txt | 172.16.0.11 |
+      | resource10.txt | 172.16.0.10 |
