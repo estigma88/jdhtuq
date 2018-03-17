@@ -270,4 +270,19 @@ public final class Protocol {
     /**
      * SET_SUCCESSOR END
      */
+
+    /**
+     * RE_ASSIGN BEGIN
+     */
+    public static final MessageType RE_ASSIGN = MessageType.builder()
+            .name("RE_ASSIGN")
+            .amountParams(SetSuccessorParams.values().length)
+            .build();
+
+    public enum ReAssignParams {
+        PREDECESSOR
+    }
+    /**
+     * RE_ASSIGN END
+     */
 }

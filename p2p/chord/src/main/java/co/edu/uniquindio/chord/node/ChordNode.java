@@ -243,9 +243,10 @@ public class ChordNode extends Observable implements Chord {
 
             predecessor = node;
 
-            String[] message = new String[2];
-            message[0] = "REASSIGN";
-            message[1] = predecessor.getValue();
+            Message message = Message.builder()
+                    .messageType(Protocol.RE_ASSIGN)
+                    .param(Protocol.ReAssignParams.PREDECESSOR.name(), predecessor.getValue())
+                    .build();
 
             setChanged();
             notifyObservers(message);

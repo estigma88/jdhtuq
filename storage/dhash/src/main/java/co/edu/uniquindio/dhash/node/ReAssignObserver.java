@@ -19,11 +19,10 @@
 package co.edu.uniquindio.dhash.node;
 
 import co.edu.uniquindio.dhash.resource.ResourceAlreadyExistException;
-import co.edu.uniquindio.overlay.Key;
 import co.edu.uniquindio.overlay.KeyFactory;
+import co.edu.uniquindio.utils.communication.message.Message;
 import org.apache.log4j.Logger;
 
-import java.util.Arrays;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -44,6 +43,8 @@ public class ReAssignObserver implements Observer {
      */
     private static final Logger logger = Logger
             .getLogger(ReAssignObserver.class);
+    public static final String RE_ASSIGN = "RE_ASSIGN";
+    public static final String PREDECESSOR = "PREDECESSOR";
 
     private final DHashNode dHashNode;
     private final KeyFactory keyFactory;
@@ -55,27 +56,16 @@ public class ReAssignObserver implements Observer {
 
     @Override
     public void update(Observable observable, Object object) {
-        if (object instanceof String[]) {
+        if (object instanceof Message) {
+            Message message = (Message) object;
 
-            String[] message = (String[]) object;
+            logger.info("Update: " + message);
 
-            if (message.length != 2) {
-                logger
-                        .error(
-                                "Incorrect message",
-                                new IllegalArgumentException(
-                                        "Message must to be an String[] and to have two elements only"));
-
-                return;
-            }
-
-            logger.info("Update: " + Arrays.toString(message));
-
-            if (message[0].equals("REASSIGN")) {
+            if (message.getMessageType().getName().equals(RE_ASSIGN)) {
                 try {
-                    dHashNode.relocateAllResources(keyFactory.newKey(message[1]));
+                    dHashNode.relocateAllResources(keyFactory.newKey(message.getParam(PREDECESSOR)));
                 } catch (ResourceAlreadyExistException e) {
-                    logger.error("Error relocaled", e);
+                    logger.error("Error relocaling", e);
                 }
             }
         }

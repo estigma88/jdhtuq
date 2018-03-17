@@ -3,6 +3,8 @@ package co.edu.uniquindio.dhash.node;
 import co.edu.uniquindio.dhash.resource.ResourceAlreadyExistException;
 import co.edu.uniquindio.overlay.Key;
 import co.edu.uniquindio.overlay.KeyFactory;
+import co.edu.uniquindio.utils.communication.message.Message;
+import co.edu.uniquindio.utils.communication.message.MessageType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -46,8 +48,9 @@ public class ReAssignObserverTest {
 
     @Test
     public void update_messageTypeWrong_doNothing() {
-        String[] message = new String[]{"REASSIGNWRONG", "123"};
-
+        Message message = Message.builder()
+                .messageType(MessageType.builder().name("WRONG").build())
+                .build();
         reAssignObserver.update(null, message);
 
         verifyZeroInteractions(dhashNode);
@@ -55,7 +58,10 @@ public class ReAssignObserverTest {
 
     @Test
     public void update_messageCorrect_relocateAllResources() throws ResourceAlreadyExistException {
-        String[] message = new String[]{"REASSIGN", "123"};
+        Message message = Message.builder()
+                .messageType(MessageType.builder().name("RE_ASSIGN").build())
+                .param("PREDECESSOR", "123")
+                .build();
 
         when(keyFactory.newKey("123")).thenReturn(key);
 

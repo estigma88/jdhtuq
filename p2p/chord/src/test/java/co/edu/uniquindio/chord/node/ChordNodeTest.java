@@ -161,9 +161,10 @@ public class ChordNodeTest {
     public void notify_predecessorIsNullAndNodeNotEqualKey_predecessorNull() {
         Key node = mock(Key.class);
 
-        String[] message = new String[2];
-        message[0] = "REASSIGN";
-        message[1] = null;
+        Message message = Message.builder()
+                .messageType(Protocol.RE_ASSIGN)
+                .param(Protocol.ReAssignParams.PREDECESSOR.name(), null)
+                .build();
 
         chordNode = spy(new ChordNode(communicationManager, successor, null, fingersTable, successorList, key, sequenceGenerator));
 
@@ -180,9 +181,10 @@ public class ChordNodeTest {
     public void notify_predecessorIsNotNullAndNodeNotEqualKey_predecessorNull() {
         Key node = mock(Key.class);
 
-        String[] message = new String[2];
-        message[0] = "REASSIGN";
-        message[1] = "hashPredecessor";
+        Message message = Message.builder()
+                .messageType(Protocol.RE_ASSIGN)
+                .param(Protocol.ReAssignParams.PREDECESSOR.name(), "hashPredecessor")
+                .build();
 
         when(node.isBetween(predecessor, key)).thenReturn(true);
         when(node.getValue()).thenReturn("hashPredecessor");
