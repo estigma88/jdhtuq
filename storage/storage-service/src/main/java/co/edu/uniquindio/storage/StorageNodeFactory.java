@@ -18,8 +18,6 @@
 
 package co.edu.uniquindio.storage;
 
-import java.net.InetAddress;
-
 /**
  * The <code>StorageNodeFactory</code> abstract class defined methods for to create
  * StorageNode nodes. The class is a single instance.
@@ -39,4 +37,12 @@ public interface StorageNodeFactory {
      * @throws StorageException throw when occur an error
      */
     StorageNode createNode(String name) throws StorageException;
+
+    /**
+     * Destroys a node
+     *
+     * @param storageNode node
+     * @throws StorageException throw when occur an error
+     */
+    void destroyNode(StorageNode storageNode) throws StorageException;
 }

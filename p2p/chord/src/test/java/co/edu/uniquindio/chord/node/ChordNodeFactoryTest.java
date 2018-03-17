@@ -3,6 +3,8 @@ package co.edu.uniquindio.chord.node;
 import co.edu.uniquindio.chord.Chord;
 import co.edu.uniquindio.overlay.Key;
 import co.edu.uniquindio.overlay.KeyFactory;
+import co.edu.uniquindio.overlay.OverlayException;
+import co.edu.uniquindio.overlay.OverlayNode;
 import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.junit.Before;
@@ -74,9 +76,9 @@ public class ChordNodeFactoryTest {
     }
 
     @Test
-    public void destroyNode_byName_nodeDestroyed() throws ChordNodeFactoryException {
-        chordNodeFactory.destroyNode("1");
+    public void destroyNode_byName_nodeDestroyed() throws OverlayException {
+        chordNodeFactory.destroyNode(nodeChord);
 
-        verify(communicationManager).removeObserver("1");
+        verify(nodeChord).leave();
     }
 }

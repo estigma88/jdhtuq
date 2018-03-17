@@ -231,8 +231,7 @@ public class NodeEnvironmentTest {
         nodeEnvironment.process(message);
 
         verify(stableRing).cancel(true);
-        verify(chordNodeFactory).destroyNode("key");
-        verifyZeroInteractions(communicationManager);
+        verify(communicationManager).removeMessageProcessor(chordNode.getKey().getValue());
     }
 
     @Test
@@ -247,7 +246,6 @@ public class NodeEnvironmentTest {
         nodeEnvironment.process(message);
 
         verify(stableRing).cancel(true);
-        verify(chordNodeFactory).destroyNode("key");
 
         verify(communicationManager, times(2)).sendMessageUnicast(messageCaptor.capture());
 

@@ -26,6 +26,7 @@ import co.edu.uniquindio.overlay.KeyFactory;
 import co.edu.uniquindio.overlay.OverlayException;
 import co.edu.uniquindio.overlay.OverlayNode;
 import co.edu.uniquindio.overlay.OverlayNodeFactory;
+import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.StorageNode;
 import co.edu.uniquindio.storage.StorageNodeFactory;
 import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
@@ -134,5 +135,18 @@ public class DHashNodeFactory implements StorageNodeFactory {
 
     DHashNode getDhashNode(String name, OverlayNode overlayNode, ResourceManager resourceManager) {
         return new DHashNode(overlayNode, replicationFactor, name, communicationManager, serializationHandler, checksumeCalculator, resourceManager, keyFactory, sequenceGenerator);
+    }
+
+    @Override
+    public void destroyNode(StorageNode storageNode) throws StorageException {
+        try {
+            DHashNode dHashNode = (DHashNode) storageNode;
+
+            overlayNodeFactory.destroyNode(dHashNode.getOverlayNode());
+
+            communicationManager.removeMessageProcessor(storageNode.getName());
+        } catch (OverlayException e) {
+            throw new StorageException("Problem destroying overlaynode", e);
+        }
     }
 }

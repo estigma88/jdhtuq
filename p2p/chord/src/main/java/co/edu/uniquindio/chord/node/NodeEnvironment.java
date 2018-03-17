@@ -260,8 +260,7 @@ class NodeEnvironment implements MessageProcessor {
             communicationManager.sendMessageUnicast(setPredecessorMessage);
         }
 
-        chordNodeFactory.destroyNode(
-                this.chordNode.getKey().getValue());
+        communicationManager.removeMessageProcessor(this.chordNode.getKey().getValue());
 
         return null;
     }

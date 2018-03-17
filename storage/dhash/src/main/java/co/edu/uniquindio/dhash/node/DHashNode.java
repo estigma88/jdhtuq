@@ -349,4 +349,8 @@ public class DHashNode implements StorageNode {
     public String getName() {
         return name;
     }
+
+    public OverlayNode getOverlayNode(){
+        return overlayNode;
+    }
 }
