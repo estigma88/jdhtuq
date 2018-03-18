@@ -70,6 +70,8 @@ public class FileResourceManager implements ResourceManager {
 
             directory.delete();
         }
+
+        keys.clear();
     }
 
     @Override

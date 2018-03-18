@@ -46,8 +46,9 @@ public interface StorageNode {
      *
      * @param resource The resource that will be put.
      * @throws StorageException throw when occur an error.
+     * @return  False if the resource already exists, true if the put was successful
      */
-    public void put(Resource resource) throws StorageException;
+    public boolean put(Resource resource) throws StorageException;
 
     /**
      * Allows the node to leave in a regular mode.

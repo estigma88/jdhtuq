@@ -20,7 +20,6 @@ package co.edu.uniquindio.dhash.node;
 
 import co.edu.uniquindio.dhash.protocol.Protocol;
 import co.edu.uniquindio.dhash.protocol.Protocol.*;
-import co.edu.uniquindio.dhash.resource.ResourceAlreadyExistException;
 import co.edu.uniquindio.dhash.resource.checksum.ChecksumeCalculator;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
@@ -254,9 +253,7 @@ public class DHashEnvironment implements MessageProcessor {
             if (replicate) {
                 dHashNode.replicateData(resource);
             }
-        } catch (ResourceAlreadyExistException e) {
-            logger.error("Error replicating data", e);
-        } catch (OverlayException e) {
+        }catch (OverlayException e) {
             logger.error("Error replicating data", e);
         }
         //}

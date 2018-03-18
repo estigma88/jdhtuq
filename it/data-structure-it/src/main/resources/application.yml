@@ -1,7 +1,7 @@
 p2p:
   dhash:
     resource-directory: out/dhash/
-    replication-amount: 0
+    replication-amount: 1
   chord:
     stable-ring-time: 1000
     stable-ring-thread-pool: 20

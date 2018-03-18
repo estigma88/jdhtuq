@@ -551,8 +551,7 @@ public class ChordNode extends Observable implements Chord {
         /* Ends all stable threads */
         stableRing.cancel(true);
 
-        if (!successor.equals(key)) {
-
+        if (!successor.equals(key) && predecessor != null) {
             setSuccessorMessage = Message.builder()
                     .sequenceNumber(sequenceGenerator.getSequenceNumber())
                     .sendType(Message.SendType.REQUEST)
@@ -610,7 +609,7 @@ public class ChordNode extends Observable implements Chord {
         this.stableRing = stableRing;
     }
 
-    public void stopStabilizing(){
+    public void stopStabilizing() {
         stableRing.cancel(true);
     }
 }

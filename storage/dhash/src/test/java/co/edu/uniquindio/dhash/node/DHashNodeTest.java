@@ -1,7 +1,6 @@
 package co.edu.uniquindio.dhash.node;
 
 import co.edu.uniquindio.dhash.protocol.Protocol;
-import co.edu.uniquindio.dhash.resource.ResourceAlreadyExistException;
 import co.edu.uniquindio.dhash.resource.ResourceNotFoundException;
 import co.edu.uniquindio.dhash.resource.checksum.ChecksumeCalculator;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
@@ -27,7 +26,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -150,20 +148,18 @@ public class DHashNodeTest {
 
     @Test
     public void put_existResource_exception() throws StorageException {
-        thrown.expect(ResourceAlreadyExistException.class);
-        thrown.expectMessage("Resource existe yet");
-
         when(keyFactory.newKey("resourceKey")).thenReturn(key1);
         when(resource1.getId()).thenReturn("resourceKey");
         when(overlayNode.lookUp(key1)).thenReturn(key);
         when(checksumeCalculator.calculate(resource1)).thenReturn("checksum");
         when(communicationManager.sendMessageUnicast(any(), eq(Boolean.class))).thenReturn(true);
 
-        dHashNode.put(resource1);
+        boolean result = dHashNode.put(resource1);
 
         verify(communicationManager).sendMessageUnicast(messageCaptor.capture(), eq(Boolean.class));
         verify(overlayNode).lookUp(key1);
 
+        assertThat(result).isFalse();
         assertThat(messageCaptor.getAllValues().get(0).getMessageType()).isEqualTo(Protocol.RESOURCE_COMPARE);
         assertThat(messageCaptor.getAllValues().get(0).getAddress().getDestination()).isEqualTo("key");
         assertThat(messageCaptor.getAllValues().get(0).getAddress().getSource()).isEqualTo("dhash");
@@ -200,7 +196,7 @@ public class DHashNodeTest {
     }
 
     @Test
-    public void relocateAllResources_put_relocate2() throws ResourceAlreadyExistException {
+    public void relocateAllResources_put_relocate2() {
         Set<String> resourcesNames = new HashSet<>();
         resourcesNames.add("resource1");
         resourcesNames.add("resource2");
@@ -219,7 +215,7 @@ public class DHashNodeTest {
         when(key1.isBetween(relocateKey, key)).thenReturn(false);
         when(key2.isBetween(relocateKey, key)).thenReturn(true);
         when(key3.isBetween(relocateKey, key)).thenReturn(false);
-        doNothing().when(dHashNode).put(any(), any(), anyBoolean());
+        doReturn(true).when(dHashNode).put(any(), any(), anyBoolean());
 
         dHashNode.relocateAllResources(relocateKey);
 
@@ -260,7 +256,7 @@ public class DHashNodeTest {
         when(resourceManager.find("resource1")).thenReturn(resource1);
         when(resourceManager.find("resource2")).thenReturn(resource2);
         when(resourceManager.find("resource3")).thenReturn(resource3);
-        doNothing().when(dHashNode).put(any(), any(), anyBoolean());
+        doReturn(true).when(dHashNode).put(any(), any(), anyBoolean());
 
         dHashNode.leave();
 
@@ -272,9 +268,9 @@ public class DHashNodeTest {
     }
 
     @Test
-    public void replicateData_neighborsListEqualReplicationFactor_replicateAll() throws ResourceAlreadyExistException, OverlayException {
+    public void replicateData_neighborsListEqualReplicationFactor_replicateAll() throws OverlayException {
         when(overlayNode.getNeighborsList()).thenReturn(new Key[]{key1, key2, key3});
-        doNothing().when(dHashNode).put(any(), any(), anyBoolean());
+        doReturn(true).when(dHashNode).put(any(), any(), anyBoolean());
 
         dHashNode.replicateData(resource1);
 
@@ -284,9 +280,9 @@ public class DHashNodeTest {
     }
 
     @Test
-    public void replicateData_neighborsListLessThanReplicationFactor_replicate2() throws ResourceAlreadyExistException, OverlayException {
+    public void replicateData_neighborsListLessThanReplicationFactor_replicate2() throws OverlayException {
         when(overlayNode.getNeighborsList()).thenReturn(new Key[]{key1, key2});
-        doNothing().when(dHashNode).put(any(), any(), anyBoolean());
+        doReturn(true).when(dHashNode).put(any(), any(), anyBoolean());
 
         dHashNode.replicateData(resource1);
 
@@ -295,9 +291,9 @@ public class DHashNodeTest {
     }
 
     @Test
-    public void replicateData_neighborsListGreaterThanReplicationFactor_replicate3() throws ResourceAlreadyExistException, OverlayException {
+    public void replicateData_neighborsListGreaterThanReplicationFactor_replicate3() throws OverlayException {
         when(overlayNode.getNeighborsList()).thenReturn(new Key[]{key1, key2, key3, key});
-        doNothing().when(dHashNode).put(any(), any(), anyBoolean());
+        doReturn(true).when(dHashNode).put(any(), any(), anyBoolean());
 
         dHashNode.replicateData(resource1);
 

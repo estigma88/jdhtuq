@@ -25,7 +25,6 @@ package co.edu.uniquindio.dhash.node;
 
 import co.edu.uniquindio.dhash.protocol.Protocol;
 import co.edu.uniquindio.dhash.protocol.Protocol.*;
-import co.edu.uniquindio.dhash.resource.ResourceAlreadyExistException;
 import co.edu.uniquindio.dhash.resource.ResourceNotFoundException;
 import co.edu.uniquindio.dhash.resource.checksum.ChecksumeCalculator;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
@@ -159,7 +158,7 @@ public class DHashNode implements StorageNode {
      * co.edu.uniquindio.storage.StorageNode#put(co.edu.uniquindio.storage.resource
      * .Resource)
      */
-    public void put(Resource resource) throws StorageException {
+    public boolean put(Resource resource) throws StorageException {
 
         Key key = keyFactory.newKey(resource.getId());
 
@@ -179,18 +178,17 @@ public class DHashNode implements StorageNode {
         logger.debug("Lookup key for " + key.getHashing() + ": ["
                 + lookupKey.getValue() + "]");
 
-        put(resource, lookupKey, true);
+        return put(resource, lookupKey, true);
     }
 
     /**
      * Replicates the specified file in its successors.
      *
      * @param resource The specified {@link Resource} to replicate.
-     * @throws ResourceAlreadyExistException
      * @throws OverlayException
      */
     public void replicateData(Resource resource)
-            throws ResourceAlreadyExistException, OverlayException {
+            throws OverlayException {
         Key[] succesorList = overlayNode.getNeighborsList();
 
         for (int i = 0; i < Math.min(replicationFactor, succesorList.length); i++) {
@@ -210,10 +208,9 @@ public class DHashNode implements StorageNode {
      * @param resource  The resource to put.
      * @param lookupKey The key where the file will be put.
      * @param replicate Determines if the file will be replicated.
-     * @throws ResourceAlreadyExistException
+     * @return  False if the resource already exists, true if it does not exist
      */
-    void put(Resource resource, Key lookupKey, boolean replicate)
-            throws ResourceAlreadyExistException {
+    boolean put(Resource resource, Key lookupKey, boolean replicate) {
 
         Message resourceCompareMessage;
         Message putMessage;
@@ -241,7 +238,7 @@ public class DHashNode implements StorageNode {
                 resourceCompareMessage, Boolean.class);
 
         if (existResource) {
-            throw new ResourceAlreadyExistException("Resource existe yet");
+            return false;
         }
 
         putMessage = Message.builder()
@@ -266,16 +263,15 @@ public class DHashNode implements StorageNode {
 
         communicationManager.sendMessageUnicast(putMessage);
 
+        return true;
     }
 
     /**
      * Relocates the resources of the node.
      *
      * @param key The node where the files will be relocated.
-     * @throws ResourceAlreadyExistException
      */
-    public void relocateAllResources(Key key)
-            throws ResourceAlreadyExistException {
+    public void relocateAllResources(Key key) {
 
         Set<String> resourcesNames = resourceManager.getAllKeys();
 

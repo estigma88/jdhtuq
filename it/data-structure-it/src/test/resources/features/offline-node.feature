@@ -1,4 +1,4 @@
-
+@enable
 Feature: I put resources into the network
   Background: I create a stable ring
     Given I set the key length to 16

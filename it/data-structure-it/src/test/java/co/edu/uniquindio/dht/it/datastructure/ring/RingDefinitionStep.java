@@ -115,8 +115,15 @@ public class RingDefinitionStep extends CucumberRoot {
         for (String nodeName : ring.getNodeNames()) {
             DHashNode dHashNode = ring.getNode(nodeName);
 
-            storageNodeFactory.destroyNode(dHashNode);
+            ChordNode chordNode = (ChordNode) dHashNode.getOverlayNode();
+
+            chordNode.stopStabilizing();
+
+            communicationManagerChord.removeMessageProcessor(nodeName);
+            communicationManagerDHash.removeMessageProcessor(nodeName);
         }
+
+        world.setRing(null);
 
         FileUtils.deleteDirectory(new File(dHashProperties.getResourceDirectory()));
     }

@@ -453,7 +453,7 @@ public class ChordNodeTest {
     }
 
     @Test
-    public void leave_successorEqualsKey_onlyDestroyNode() throws OverlayException {
+    public void leave_successorEqualsKey_onlyUnlinkNode() throws OverlayException {
         chordNode = spy(new ChordNode(communicationManager, key, predecessor, fingersTable, successorList, key, sequenceGenerator, stableRing));
 
         Key[] keys = {mock(Key.class), mock(Key.class)};
@@ -469,7 +469,24 @@ public class ChordNodeTest {
     }
 
     @Test
-    public void leave_successorNotEqualsKey_nnotifyAndDestroyNode() throws OverlayException {
+    public void leave_successorNotEqualsKeyAndPredecessorNull_notifyAndUnlinkNode() throws OverlayException {
+        chordNode = spy(new ChordNode(communicationManager, successor, null, fingersTable, successorList, key, sequenceGenerator, stableRing));
+
+        Key[] keys = {mock(Key.class), mock(Key.class)};
+
+        when(key.getValue()).thenReturn("hashKey");
+        when(successorList.getKeyList()).thenReturn(keys);
+
+        Key[] keysResult = chordNode.leave();
+
+        verify(stableRing).cancel(true);
+        verify(communicationManager).removeMessageProcessor(chordNode.getKey().getValue());
+        assertThat(keysResult).isEqualTo(keys);
+    }
+
+
+    @Test
+    public void leave_successorNotEqualsKey_notifyAndUnlinkNode() throws OverlayException {
         Key[] keys = {mock(Key.class), mock(Key.class)};
 
         when(successorList.getKeyList()).thenReturn(keys);
@@ -484,6 +501,7 @@ public class ChordNodeTest {
         assertThat(keysResult).isEqualTo(keys);
 
         verify(communicationManager, times(2)).sendMessageUnicast(messageCaptor.capture());
+        verify(communicationManager).removeMessageProcessor(chordNode.getKey().getValue());
 
         assertThat(messageCaptor.getAllValues().get(0).getSendType()).isEqualTo(Message.SendType.REQUEST);
         assertThat(messageCaptor.getAllValues().get(0).getMessageType()).isEqualTo(Protocol.SET_SUCCESSOR);

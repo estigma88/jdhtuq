@@ -1,7 +1,6 @@
 package co.edu.uniquindio.dhash.node;
 
 import co.edu.uniquindio.dhash.protocol.Protocol;
-import co.edu.uniquindio.dhash.resource.ResourceAlreadyExistException;
 import co.edu.uniquindio.dhash.resource.checksum.ChecksumeCalculator;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
@@ -49,7 +48,7 @@ public class DHashEnvironmentTest {
     private ArgumentCaptor<Message> bigMessageCaptor;
 
     @Test
-    public void put_bigMessageNotReplicate_save() throws OverlayException, ResourceAlreadyExistException {
+    public void put_bigMessageNotReplicate_save() throws OverlayException {
         when(bigMessage.getMessageType()).thenReturn(Protocol.PUT);
         when(bigMessage.getData(Protocol.PutDatas.RESOURCE.name())).thenReturn(new byte[]{1, 2, 3, 5});
         when(bigMessage.getParam(Protocol.PutParams.REPLICATE.name())).thenReturn("false");
@@ -62,7 +61,7 @@ public class DHashEnvironmentTest {
     }
 
     @Test
-    public void put_bigMessageReplicate_replicate() throws OverlayException, ResourceAlreadyExistException, IOException, ClassNotFoundException {
+    public void put_bigMessageReplicate_replicate() throws OverlayException, IOException, ClassNotFoundException {
         when(bigMessage.getMessageType()).thenReturn(Protocol.PUT);
         when(bigMessage.getData(Protocol.PutDatas.RESOURCE.name())).thenReturn(new byte[]{1, 2, 3, 5});
         when(bigMessage.getParam(Protocol.PutParams.REPLICATE.name())).thenReturn("true");
@@ -75,7 +74,7 @@ public class DHashEnvironmentTest {
     }
 
     @Test
-    public void resourceCompare_notExist_returnFalse() throws OverlayException, ResourceAlreadyExistException {
+    public void resourceCompare_notExist_returnFalse() throws OverlayException {
         when(message.getMessageType()).thenReturn(Protocol.RESOURCE_COMPARE);
         when(message.getParam(Protocol.ResourceCompareParams.RESOURCE_KEY.name())).thenReturn("resource");
         when(message.getAddress()).thenReturn(Address.builder().source("source").build());
@@ -93,7 +92,7 @@ public class DHashEnvironmentTest {
     }
 
     @Test
-    public void resourceCompare_existChecksumNotEqual_returnFalse() throws OverlayException, ResourceAlreadyExistException {
+    public void resourceCompare_existChecksumNotEqual_returnFalse() throws OverlayException {
         when(message.getMessageType()).thenReturn(Protocol.RESOURCE_COMPARE);
         when(message.getParam(Protocol.ResourceCompareParams.RESOURCE_KEY.name())).thenReturn("resource");
         when(message.getParam(Protocol.ResourceCompareParams.CHECK_SUM.name())).thenReturn("checksum");
@@ -114,7 +113,7 @@ public class DHashEnvironmentTest {
     }
 
     @Test
-    public void resourceCompare_existChecksumEqual_returnTrue() throws OverlayException, ResourceAlreadyExistException {
+    public void resourceCompare_existChecksumEqual_returnTrue() throws OverlayException {
         when(message.getMessageType()).thenReturn(Protocol.RESOURCE_COMPARE);
         when(message.getParam(Protocol.ResourceCompareParams.RESOURCE_KEY.name())).thenReturn("resource");
         when(message.getParam(Protocol.ResourceCompareParams.CHECK_SUM.name())).thenReturn("checksum");
@@ -135,7 +134,7 @@ public class DHashEnvironmentTest {
     }
 
     @Test
-    public void get_hasResource_returnTrue() throws OverlayException, ResourceAlreadyExistException {
+    public void get_hasResource_returnTrue() throws OverlayException {
         when(message.getMessageType()).thenReturn(Protocol.GET);
         when(message.getParam(Protocol.ResourceCompareParams.RESOURCE_KEY.name())).thenReturn("resource");
         when(message.getAddress()).thenReturn(Address.builder().source("source").build());
@@ -153,7 +152,7 @@ public class DHashEnvironmentTest {
     }
 
     @Test
-    public void get_notHasResource_returnTrue() throws OverlayException, ResourceAlreadyExistException {
+    public void get_notHasResource_returnTrue() throws OverlayException {
         when(message.getMessageType()).thenReturn(Protocol.GET);
         when(message.getParam(Protocol.ResourceCompareParams.RESOURCE_KEY.name())).thenReturn("resource");
         when(message.getAddress()).thenReturn(Address.builder().source("source").build());
@@ -171,7 +170,7 @@ public class DHashEnvironmentTest {
     }
 
     @Test
-    public void resourceTransfere_hasResource_returnTrue() throws OverlayException, ResourceAlreadyExistException {
+    public void resourceTransfere_hasResource_returnTrue() throws OverlayException {
         when(message.getMessageType()).thenReturn(Protocol.RESOURCE_TRANSFER);
         when(message.getParam(Protocol.ResourceCompareParams.RESOURCE_KEY.name())).thenReturn("resource");
         when(message.getAddress()).thenReturn(Address.builder().source("source").build());
@@ -191,7 +190,7 @@ public class DHashEnvironmentTest {
     }
 
     @Test
-    public void resourceTransfere_notHasResource_returnTrue() throws OverlayException, ResourceAlreadyExistException {
+    public void resourceTransfere_notHasResource_returnTrue() throws OverlayException {
         when(message.getMessageType()).thenReturn(Protocol.RESOURCE_TRANSFER);
         when(message.getParam(Protocol.ResourceCompareParams.RESOURCE_KEY.name())).thenReturn("resource");
         when(message.getAddress()).thenReturn(Address.builder().source("source").build());
