@@ -309,7 +309,7 @@ public class DHashNode implements StorageNode {
      */
     public void leave() throws StorageException {
         try {
-            Key[] key = overlayNode.leave();
+            Key[] keys = overlayNode.leave();
 
             Set<String> resourcesNames = resourceManager.getAllKeys();
 
@@ -317,11 +317,11 @@ public class DHashNode implements StorageNode {
             logger.debug("Number of files to transfer: ["
                     + resourcesNames.size() + "]");
 
-            if (!key.equals(overlayNode.getKey())) {
+            if (!keys[0].equals(overlayNode.getKey())) {
                 for (String name : resourcesNames) {
                     Resource resource = resourceManager.find(name);
 
-                    put(resource, key[0], false);
+                    put(resource, keys[0], false);
                 }
             }
 
@@ -331,14 +331,7 @@ public class DHashNode implements StorageNode {
         } catch (OverlayException e) {
             logger.error("Error while leaving dhash node: '"
                     + overlayNode.getKey().toString() + "'");
-        } catch (ResourceAlreadyExistException e) {
-            logger.error("Error while leaving dhash node: '"
-                    + overlayNode.getKey().toString() + "'");
-        } catch (StorageException e) {
-            logger.error("Error while leaving dhash node: '"
-                    + overlayNode.getKey().toString() + "'");
         }
-
     }
 
     /**
@@ -350,7 +343,7 @@ public class DHashNode implements StorageNode {
         return name;
     }
 
-    public OverlayNode getOverlayNode(){
+    public OverlayNode getOverlayNode() {
         return overlayNode;
     }
 }

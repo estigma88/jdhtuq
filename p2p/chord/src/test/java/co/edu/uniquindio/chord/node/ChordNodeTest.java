@@ -3,6 +3,7 @@ package co.edu.uniquindio.chord.node;
 import co.edu.uniquindio.chord.ChordKey;
 import co.edu.uniquindio.chord.protocol.Protocol;
 import co.edu.uniquindio.overlay.Key;
+import co.edu.uniquindio.overlay.OverlayException;
 import co.edu.uniquindio.utils.communication.Observable;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
@@ -16,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.math.BigInteger;
+import java.util.concurrent.ScheduledFuture;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.anyObject;
@@ -42,12 +44,16 @@ public class ChordNodeTest {
     private ArgumentCaptor<Message> messageCaptor;
     @Mock
     private SequenceGenerator sequenceGenerator;
+    @Mock
+    private ScheduledFuture<?> stableRing;
+    @Mock
+    private Message message;
 
     private ChordNode chordNode;
 
     @Before
     public void before() {
-        chordNode = spy(new ChordNode(communicationManager, successor, predecessor, fingersTable, successorList, key, sequenceGenerator));
+        chordNode = spy(new ChordNode(communicationManager, successor, predecessor, fingersTable, successorList, key, sequenceGenerator, stableRing));
     }
 
     @Test
@@ -139,7 +145,7 @@ public class ChordNodeTest {
     public void notify_predecessorIsNullAndNodeEqualKey_predecessorNull() {
         Key node = key;
 
-        chordNode = new ChordNode(communicationManager, successor, null, fingersTable, successorList, key, sequenceGenerator);
+        chordNode = new ChordNode(communicationManager, successor, null, fingersTable, successorList, key, sequenceGenerator, stableRing);
 
         chordNode.notify(node);
 
@@ -166,7 +172,7 @@ public class ChordNodeTest {
                 .param(Protocol.ReAssignParams.PREDECESSOR.name(), null)
                 .build();
 
-        chordNode = spy(new ChordNode(communicationManager, successor, null, fingersTable, successorList, key, sequenceGenerator));
+        chordNode = spy(new ChordNode(communicationManager, successor, null, fingersTable, successorList, key, sequenceGenerator, stableRing));
 
         doNothing().when(chordNode).notifyObservers(message);
 
@@ -199,7 +205,7 @@ public class ChordNodeTest {
 
     @Test
     public void checkPredecessor_predecessorIsNotNull_doNothing() {
-        chordNode = new ChordNode(communicationManager, successor, null, fingersTable, successorList, key, sequenceGenerator);
+        chordNode = new ChordNode(communicationManager, successor, null, fingersTable, successorList, key, sequenceGenerator, stableRing);
 
         chordNode.checkPredecessor();
 
@@ -353,7 +359,7 @@ public class ChordNodeTest {
     public void stabilize_pingSuccessorNotNullGetPredecessorNotBetweenKeyEqual_notifyChange() {
         ChordKey getPredecessor = mock(ChordKey.class);
 
-        chordNode = new ChordNode(communicationManager, successor, predecessor, fingersTable, successorList, successor, sequenceGenerator);
+        chordNode = new ChordNode(communicationManager, successor, predecessor, fingersTable, successorList, successor, sequenceGenerator, stableRing);
 
         when(communicationManager.sendMessageUnicast(anyObject(),
                 eq(Boolean.class))).thenReturn(true);
@@ -439,7 +445,7 @@ public class ChordNodeTest {
     public void setPredecessor_predecessorEqualKey_setNull() {
         Key predecessorNew = mock(Key.class);
 
-        chordNode = new ChordNode(communicationManager, successor, predecessor, fingersTable, successorList, predecessorNew, sequenceGenerator);
+        chordNode = new ChordNode(communicationManager, successor, predecessor, fingersTable, successorList, predecessorNew, sequenceGenerator, stableRing);
 
         chordNode.setPredecessor(predecessorNew);
 
@@ -447,7 +453,9 @@ public class ChordNodeTest {
     }
 
     @Test
-    public void leave_predecessorNotEqualKey_setNewPredecessor() {
+    public void leave_successorEqualsKey_onlyDestroyNode() throws OverlayException {
+        chordNode = spy(new ChordNode(communicationManager, key, predecessor, fingersTable, successorList, key, sequenceGenerator, stableRing));
+
         Key[] keys = {mock(Key.class), mock(Key.class)};
 
         when(key.getValue()).thenReturn("hashKey");
@@ -455,12 +463,46 @@ public class ChordNodeTest {
 
         Key[] keysResult = chordNode.leave();
 
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture());
-
-        assertThat(messageCaptor.getValue().getMessageType()).isEqualTo(Protocol.LEAVE);
-        assertThat(messageCaptor.getValue().getAddress().getDestination()).isEqualTo("hashKey");
-        assertThat(messageCaptor.getValue().getAddress().getSource()).isEqualTo("hashKey");
-
+        verify(stableRing).cancel(true);
+        verify(communicationManager).removeMessageProcessor(chordNode.getKey().getValue());
         assertThat(keysResult).isEqualTo(keys);
     }
+
+    @Test
+    public void leave_successorNotEqualsKey_nnotifyAndDestroyNode() throws OverlayException {
+        Key[] keys = {mock(Key.class), mock(Key.class)};
+
+        when(successorList.getKeyList()).thenReturn(keys);
+        when(predecessor.getValue()).thenReturn("predecessor");
+        when(successor.getValue()).thenReturn("successor");
+        when(key.getValue()).thenReturn("key");
+
+        Key[] keysResult = chordNode.leave();
+
+        verify(stableRing).cancel(true);
+
+        assertThat(keysResult).isEqualTo(keys);
+
+        verify(communicationManager, times(2)).sendMessageUnicast(messageCaptor.capture());
+
+        assertThat(messageCaptor.getAllValues().get(0).getSendType()).isEqualTo(Message.SendType.REQUEST);
+        assertThat(messageCaptor.getAllValues().get(0).getMessageType()).isEqualTo(Protocol.SET_SUCCESSOR);
+        assertThat(messageCaptor.getAllValues().get(0).getAddress().getDestination()).isEqualTo("predecessor");
+        assertThat(messageCaptor.getAllValues().get(0).getAddress().getSource()).isEqualTo("key");
+        assertThat(messageCaptor.getAllValues().get(0).getParam(Protocol.SetSuccessorParams.SUCCESSOR.name())).isEqualTo("successor");
+
+        assertThat(messageCaptor.getAllValues().get(1).getSendType()).isEqualTo(Message.SendType.REQUEST);
+        assertThat(messageCaptor.getAllValues().get(1).getMessageType()).isEqualTo(Protocol.SET_PREDECESSOR);
+        assertThat(messageCaptor.getAllValues().get(1).getAddress().getDestination()).isEqualTo("successor");
+        assertThat(messageCaptor.getAllValues().get(1).getAddress().getSource()).isEqualTo("key");
+        assertThat(messageCaptor.getAllValues().get(1).getParam(Protocol.SetPredecessorParams.PREDECESSOR.name())).isEqualTo("predecessor");
+    }
+
+    @Test
+    public void stopStabilizing_stop(){
+        chordNode.stopStabilizing();
+
+        verify(stableRing).cancel(true);
+    }
+
 }

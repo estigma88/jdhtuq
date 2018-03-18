@@ -31,7 +31,6 @@ import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
 import org.apache.log4j.Logger;
 
 import java.math.BigInteger;
-import java.util.concurrent.ScheduledFuture;
 
 /**
  * The <code>NodeEnvironment</code> class is the node responsible for handling
@@ -72,16 +71,12 @@ class NodeEnvironment implements MessageProcessor {
     /**
      * The thread that uses the commands for stabilizing the node.
      */
-    private final ScheduledFuture<?> stableRing;
-    private final ChordNodeFactory chordNodeFactory;
     private final KeyFactory keyFactory;
     private final SequenceGenerator sequenceGenerator;
 
-    NodeEnvironment(CommunicationManager communicationManager, ChordNode chordNode, ScheduledFuture<?> stableRing, ChordNodeFactory chordNodeFactory, KeyFactory keyFactory, SequenceGenerator sequenceGenerator) {
+    NodeEnvironment(CommunicationManager communicationManager, ChordNode chordNode, KeyFactory keyFactory, SequenceGenerator sequenceGenerator) {
         this.communicationManager = communicationManager;
         this.chordNode = chordNode;
-        this.stableRing = stableRing;
-        this.chordNodeFactory = chordNodeFactory;
         this.keyFactory = keyFactory;
         this.sequenceGenerator = sequenceGenerator;
     }
@@ -121,9 +116,9 @@ class NodeEnvironment implements MessageProcessor {
         if (message.getMessageType().equals(Protocol.BOOTSTRAP)) {
             response = processBootStrap(message);
         }
-        if (message.getMessageType().equals(Protocol.LEAVE)) {
+        /*if (message.getMessageType().equals(Protocol.LEAVE)) {
             response = processLeave(message);
-        }
+        }*/
         if (message.getMessageType().equals(Protocol.SET_PREDECESSOR)) {
             response = processSetPredecessor(message);
         }
@@ -215,7 +210,7 @@ class NodeEnvironment implements MessageProcessor {
         Message setPredecessorMessage;
 
         /* Ends all stable threads */
-        stableRing.cancel(true);
+        //stableRing.cancel(true);
 
         process = false;
 

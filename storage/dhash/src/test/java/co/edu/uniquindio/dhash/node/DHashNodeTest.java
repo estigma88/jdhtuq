@@ -229,13 +229,31 @@ public class DHashNodeTest {
     }
 
     @Test
-    public void leave_put_relocate2() throws StorageException, OverlayException {
+    public void leave_keyEqualsSuccessor_notRelocate() throws StorageException, OverlayException {
         Set<String> resourcesNames = new HashSet<>();
         resourcesNames.add("resource1");
         resourcesNames.add("resource2");
         resourcesNames.add("resource3");
 
         when(overlayNode.leave()).thenReturn(new Key[]{key, key1, key2});
+        when(overlayNode.getKey()).thenReturn(key);
+        when(key.getValue()).thenReturn("key");
+        when(resourceManager.getAllKeys()).thenReturn(resourcesNames);
+
+        dHashNode.leave();
+
+        verify(resourceManager).deleteAll();
+        verify(communicationManager).removeObserver("key");
+    }
+
+    @Test
+    public void leave_put_relocate2() throws StorageException, OverlayException {
+        Set<String> resourcesNames = new HashSet<>();
+        resourcesNames.add("resource1");
+        resourcesNames.add("resource2");
+        resourcesNames.add("resource3");
+
+        when(overlayNode.leave()).thenReturn(new Key[]{key1, key2, key3});
         when(overlayNode.getKey()).thenReturn(key);
         when(key.getValue()).thenReturn("key");
         when(resourceManager.getAllKeys()).thenReturn(resourcesNames);
@@ -246,9 +264,9 @@ public class DHashNodeTest {
 
         dHashNode.leave();
 
-        verify(dHashNode).put(resource1, key, false);
-        verify(dHashNode).put(resource2, key, false);
-        verify(dHashNode).put(resource3, key, false);
+        verify(dHashNode).put(resource1, key1, false);
+        verify(dHashNode).put(resource2, key1, false);
+        verify(dHashNode).put(resource3, key1, false);
         verify(resourceManager).deleteAll();
         verify(communicationManager).removeObserver("key");
     }

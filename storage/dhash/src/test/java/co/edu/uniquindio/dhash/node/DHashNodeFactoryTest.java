@@ -76,12 +76,8 @@ public class DHashNodeFactoryTest {
 
     @Test
     public void destroyNode_nodeDestroyed() throws OverlayException, StorageException {
-        when(dhashNode.getOverlayNode()).thenReturn(overlayNode);
-        when(dhashNode.getName()).thenReturn("node");
-
         dHashNodeFactory.destroyNode(dhashNode);
 
-        verify(overlayNodeFactory).destroyNode(overlayNode);
-        verify(communicationManager).removeMessageProcessor("node");
+        verify(dhashNode).leave();
     }
 }

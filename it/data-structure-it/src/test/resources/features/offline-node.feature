@@ -1,4 +1,4 @@
-@enable
+
 Feature: I put resources into the network
   Background: I create a stable ring
     Given I set the key length to 16
@@ -26,9 +26,7 @@ Feature: I put resources into the network
       | 172.16.0.22 | 64158 |
     And I create the Chord ring
     And I wait for stabilizing after 60 seconds
-
-  Scenario: I put resources into the network
-    Given I have the resources names and values:
+    And I have the resources names and values:
       | name | content |
       | resource1.txt | Inquietude simplicity terminated she compliment remarkably few her nay. The weeks are ham asked jokes. Neglected perceived shy nay concluded. Not mile draw plan snug next all. Houses latter an valley be indeed wished merely in my. Money doubt oh drawn every or an china. Visited out friends for expense message set eat.  |
       | resource2.txt | Literature admiration frequently indulgence announcing are who you her. Was least quick after six. So it yourself repeated together cheerful. Neither it cordial so painful picture studied if. Sex him position doubtful resolved boy expenses. Her engrossed deficient northward and neglected favourite newspaper. But use peculiar produced concerns ten.  |
@@ -40,16 +38,29 @@ Feature: I put resources into the network
       | resource8.txt | Far concluded not his something extremity. Want four we face an he gate. On he of played he ladies answer little though nature. Blessing oh do pleasure as so formerly. Took four spot soon led size you. Outlived it received he material. Him yourself joy moderate off repeated laughter outweigh screened.  |
       | resource9.txt | Scarcely on striking packages by so property in delicate. Up or well must less rent read walk so be. Easy sold at do hour sing spot. Any meant has cease too the decay. Since party burst am it match. By or blushes between besides offices noisier as. Sending do brought winding compass in. Paid day till shed only fact age its end.  |
       | resource10.txt | Unpleasant astonished an diminution up partiality. Noisy an their of meant. Death means up civil do an offer wound of. Called square an in afraid direct. Resolution diminution conviction so mr at unpleasing simplicity no. No it as breakfast up conveying earnestly immediate principle. Him son disposed produced humoured overcame she bachelor improved. Studied however out wishing but inhabit fortune windows.  |
-    Given I use the "127.0.0.1" as a gateway
-    When I put resources into the network
-    Then The resources are put in the following nodes:
-      | resource1.txt | 172.16.0.7 |
-      | resource2.txt | 172.16.0.10 |
-      | resource3.txt | 172.16.0.12 |
-      | resource4.txt | 172.16.0.20 |
-      | resource5.txt | 172.16.0.17 |
-      | resource6.txt | 172.16.0.19 |
-      | resource7.txt | 172.16.0.10 |
-      | resource8.txt | 172.16.0.17 |
-      | resource9.txt | 172.16.0.11 |
-      | resource10.txt | 172.16.0.10 |
+    And I use the "127.0.0.1" as a gateway
+    And I put resources into the network
+
+  Scenario: The node 172.16.0.10 is offline
+    Given The "172.16.0.10" is offline
+    When I wait for stabilizing after 60 seconds
+    Then Chord ring is stable with the following successors:
+      | 127.0.0.1 | 172.16.0.16 |
+      | 172.16.0.4 | 172.16.0.12 |
+      | 172.16.0.5 | 172.16.0.15 |
+      | 172.16.0.6 | 172.16.0.17 |
+      | 172.16.0.7 | 172.16.0.21 |
+      | 172.16.0.8 | 172.16.0.9 |
+      | 172.16.0.9 | 172.16.0.19 |
+      | 172.16.0.11 | 172.16.0.14 |
+      | 172.16.0.12 | 127.0.0.1 |
+      | 172.16.0.13 | 172.16.0.6 |
+      | 172.16.0.14 | 172.16.0.5 |
+      | 172.16.0.15 | 172.16.0.22 |
+      | 172.16.0.16 | 172.16.0.20 |
+      | 172.16.0.17 | 172.16.0.18 |
+      | 172.16.0.18 | 172.16.0.11 |
+      | 172.16.0.19 | 172.16.0.4 |
+      | 172.16.0.20 | 172.16.0.7 |
+      | 172.16.0.21 | 172.16.0.13 |
+      | 172.16.0.22 | 172.16.0.8 |

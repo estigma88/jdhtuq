@@ -5,6 +5,8 @@ import co.edu.uniquindio.storage.resource.Resource;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.Set;
 
 public class FileResourceManager implements ResourceManager {
@@ -57,7 +59,17 @@ public class FileResourceManager implements ResourceManager {
 
     @Override
     public void deleteAll() {
-        throw new UnsupportedOperationException();
+        StringBuilder directoryPath = new StringBuilder(directory);
+        directoryPath.append(name);
+        directoryPath.append("/");
+
+        File directory = new File(directoryPath.toString());
+
+        if (directory.exists()) {
+            Arrays.stream(Optional.ofNullable(directory.listFiles()).orElse(new File[0])).forEach(File::delete);
+
+            directory.delete();
+        }
     }
 
     @Override

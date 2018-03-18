@@ -85,28 +85,26 @@ public class ChordNodeFactory implements OverlayNodeFactory {
      * co.edu.uniquindio.overlay.OverlayNodeFactory#createNode(java.lang.String)
      */
     public Chord createNode(String name) throws ChordNodeFactoryException {
-        ChordNode nodeChord;
-        NodeEnvironment nodeEnviroment;
-        Key key;
+        Key key = getKey(name);
+        ChordNode chordNode = getNodeChord(key);
 
-        key = getKey(name);
-        nodeChord = getNodeChord(key);
-
-        logger.info("Created node with name '" + nodeChord.getKey().getValue()
-                + "' and hashing '" + nodeChord.getKey().getHashing()
+        logger.info("Created node with name '" + chordNode.getKey().getValue()
+                + "' and hashing '" + chordNode.getKey().getHashing()
                 + "'");
 
-        StableRing stableRing = getStableRing(nodeChord);
+        StableRing stableRing = getStableRing(chordNode);
 
         ScheduledFuture<?> stableRingTask = scheduledStableRing.scheduleAtFixedRate(stableRing, START_STABLE_RING, stableRingTime, TimeUnit.MILLISECONDS);
 
-        nodeEnviroment = getNodeEnviroment(nodeChord, stableRingTask);
+        chordNode.setStableRing(stableRingTask);
+
+        NodeEnvironment nodeEnviroment = getNodeEnviroment(chordNode);
 
         communicationManager.addMessageProcessor(name, nodeEnviroment);
 
-        bootStrap.boot(nodeChord, communicationManager, sequenceGenerator);
+        bootStrap.boot(chordNode, communicationManager, sequenceGenerator);
 
-        return nodeChord;
+        return chordNode;
     }
 
 
@@ -124,8 +122,8 @@ public class ChordNodeFactory implements OverlayNodeFactory {
         return stableRing;
     }
 
-    NodeEnvironment getNodeEnviroment(ChordNode nodeChord, ScheduledFuture<?> stableRing) {
-        return new NodeEnvironment(communicationManager, nodeChord, stableRing, this, keyFactory, sequenceGenerator);
+    NodeEnvironment getNodeEnviroment(ChordNode nodeChord) {
+        return new NodeEnvironment(communicationManager, nodeChord, keyFactory, sequenceGenerator);
     }
 
     ChordNode getNodeChord(Key key) {

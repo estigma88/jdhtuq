@@ -32,6 +32,8 @@ import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.apache.log4j.Logger;
 
 import java.util.Observable;
+import java.util.Optional;
+import java.util.concurrent.ScheduledFuture;
 
 /**
  * The <code>ChordNode</code> class represents a node in the Chord network. It
@@ -94,10 +96,12 @@ public class ChordNode extends Observable implements Chord {
     private BootStrap bootStrap;
     private KeyFactory keyFactory;
     private final SequenceGenerator sequenceGenerator;
+    private ScheduledFuture<?> stableRing;
 
     ChordNode(Key key, CommunicationManager communicationManager, int successorListAmount, BootStrap bootStrap, KeyFactory keyFactory, SequenceGenerator sequenceGenerator) {
         this.keyFactory = keyFactory;
         this.sequenceGenerator = sequenceGenerator;
+        this.stableRing = stableRing;
         this.fingersTable = newFingersTable();
         this.successorList = new SuccessorList(this, communicationManager, successorListAmount, keyFactory, sequenceGenerator);
         this.key = key;
@@ -107,7 +111,7 @@ public class ChordNode extends Observable implements Chord {
         logger.info("New ChordNode created = " + key);
     }
 
-    ChordNode(CommunicationManager communicationManager, Key successor, Key predecessor, FingersTable fingersTable, SuccessorList successorList, Key key, SequenceGenerator sequenceGenerator) {
+    ChordNode(CommunicationManager communicationManager, Key successor, Key predecessor, FingersTable fingersTable, SuccessorList successorList, Key key, SequenceGenerator sequenceGenerator, ScheduledFuture<?> stableRing) {
         this.communicationManager = communicationManager;
         this.successor = successor;
         this.predecessor = predecessor;
@@ -115,6 +119,7 @@ public class ChordNode extends Observable implements Chord {
         this.successorList = successorList;
         this.key = key;
         this.sequenceGenerator = sequenceGenerator;
+        this.stableRing = stableRing;
     }
 
     /**
@@ -253,11 +258,11 @@ public class ChordNode extends Observable implements Chord {
             clearChanged();
 
             logger.debug("Node: '" + key.getValue()
-                    + "' Predecessor changed for '" + predecessor.getValue());
+                    + "' Predecessor changed for '" + Optional.ofNullable(predecessor).map(p -> p.getValue()).orElse(null));
         }
 
         logger.info("Notify to node '" + key.getValue() + "', predecessor is '"
-                + predecessor.getValue() + "'");
+                + Optional.ofNullable(predecessor).map(p -> p.getValue()).orElse(null) + "'");
     }
 
     /**
@@ -523,7 +528,7 @@ public class ChordNode extends Observable implements Chord {
     @Override
     public Key[] leave() {
 
-        Message leaveMessage;
+        /*Message leaveMessage;
 
         leaveMessage = Message.builder()
                 .sequenceNumber(sequenceGenerator.getSequenceNumber())
@@ -533,20 +538,61 @@ public class ChordNode extends Observable implements Chord {
                         .destination(key.getValue())
                         .source(key.getValue())
                         .build())
-                .build();
+                .build();*/
 
         /*leaveMessage = new MessageXML(Protocol.LEAVE, key.getValue(), key
                 .getValue());*/
 
-        communicationManager.sendMessageUnicast(leaveMessage);
+        //communicationManager.sendMessageUnicast(leaveMessage);
 
-        String[] message = new String[2];
-        message[0] = "REASSIGN";
-        message[1] = successor.getValue();
+        Message setSuccessorMessage;
+        Message setPredecessorMessage;
 
-        setChanged();
-        notifyObservers(message);
-        clearChanged();
+        /* Ends all stable threads */
+        stableRing.cancel(true);
+
+        if (!successor.equals(key)) {
+
+            setSuccessorMessage = Message.builder()
+                    .sequenceNumber(sequenceGenerator.getSequenceNumber())
+                    .sendType(Message.SendType.REQUEST)
+                    .messageType(Protocol.SET_SUCCESSOR)
+                    .address(Address.builder()
+                            .destination(predecessor.getValue())
+                            .source(key.getValue())
+                            .build())
+                    .param(Protocol.SetSuccessorParams.SUCCESSOR.name(), successor.getValue())
+                    .build();
+
+            /*setSuccessorMessage = new MessageXML(Protocol.SET_SUCCESSOR,
+                    chordNode.getPredecessor().getValue(), chordNode.getKey()
+                    .getValue());
+            setSuccessorMessage.addParam(SetSuccessorParams.SUCCESSOR.name(),
+                    chordNode.getSuccessor().getValue());*/
+
+            communicationManager.sendMessageUnicast(setSuccessorMessage);
+
+            setPredecessorMessage = Message.builder()
+                    .sequenceNumber(sequenceGenerator.getSequenceNumber())
+                    .sendType(Message.SendType.REQUEST)
+                    .messageType(Protocol.SET_PREDECESSOR)
+                    .address(Address.builder()
+                            .destination(successor.getValue())
+                            .source(key.getValue())
+                            .build())
+                    .param(Protocol.SetPredecessorParams.PREDECESSOR.name(), predecessor.toString())
+                    .build();
+
+            /*setPredecessorMessage = new MessageXML(Protocol.SET_PREDECESSOR,
+                    chordNode.getSuccessor().getValue(), chordNode.getKey()
+                    .getValue());
+            setPredecessorMessage.addParam(SetPredecessorParams.PREDECESSOR
+                    .name(), chordNode.getPredecessor().toString());*/
+
+            communicationManager.sendMessageUnicast(setPredecessorMessage);
+        }
+
+        communicationManager.removeMessageProcessor(key.getValue());
 
         return successorList.getKeyList();
     }
@@ -560,4 +606,11 @@ public class ChordNode extends Observable implements Chord {
         return successorList.getKeyList();
     }
 
+    void setStableRing(ScheduledFuture<?> stableRing) {
+        this.stableRing = stableRing;
+    }
+
+    public void stopStabilizing(){
+        stableRing.cancel(true);
+    }
 }

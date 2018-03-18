@@ -22,7 +22,6 @@ import java.math.BigInteger;
 import java.util.concurrent.ScheduledFuture;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -67,7 +66,7 @@ public class NodeEnvironmentTest {
         when(key.getValue()).thenReturn("key");
         when(chordNode.getKey()).thenReturn(key);
 
-        nodeEnvironment = spy(new NodeEnvironment(communicationManager, chordNode, stableRing, chordNodeFactory, keyFactory, sequenceGenerator));
+        nodeEnvironment = spy(new NodeEnvironment(communicationManager, chordNode, keyFactory, sequenceGenerator));
     }
 
     @Test
@@ -220,46 +219,6 @@ public class NodeEnvironmentTest {
         assertThat(response.getAddress().getDestination()).isEqualTo("source");
         assertThat(response.getAddress().getSource()).isEqualTo("key");
         assertThat(response.getParam(Protocol.BootStrapResponseParams.NODE_FIND.name())).isEqualTo("key");
-    }
-
-    @Test
-    public void process_LEAVEMessageAndSuccessorEqualsKey_onlyDestroyNode() throws OverlayException {
-        when(message.getMessageType()).thenReturn(Protocol.LEAVE);
-        when(chordNode.getSuccessor()).thenReturn(key);
-        when(chordNode.getKey()).thenReturn(key);
-
-        nodeEnvironment.process(message);
-
-        verify(stableRing).cancel(true);
-        verify(communicationManager).removeMessageProcessor(chordNode.getKey().getValue());
-    }
-
-    @Test
-    public void process_LEAVEMessageAndSuccessorNotEqualsKey_nnotifyAndDestroyNode() throws OverlayException {
-        when(message.getMessageType()).thenReturn(Protocol.LEAVE);
-        when(successor.getValue()).thenReturn("successor");
-        when(chordNode.getSuccessor()).thenReturn(successor);
-        when(predecesor.getValue()).thenReturn("predecesor");
-        when(chordNode.getPredecessor()).thenReturn(predecesor);
-        when(chordNode.getKey()).thenReturn(key);
-
-        nodeEnvironment.process(message);
-
-        verify(stableRing).cancel(true);
-
-        verify(communicationManager, times(2)).sendMessageUnicast(messageCaptor.capture());
-
-        assertThat(messageCaptor.getAllValues().get(0).getSendType()).isEqualTo(Message.SendType.REQUEST);
-        assertThat(messageCaptor.getAllValues().get(0).getMessageType()).isEqualTo(Protocol.SET_SUCCESSOR);
-        assertThat(messageCaptor.getAllValues().get(0).getAddress().getDestination()).isEqualTo("predecesor");
-        assertThat(messageCaptor.getAllValues().get(0).getAddress().getSource()).isEqualTo("key");
-        assertThat(messageCaptor.getAllValues().get(0).getParam(Protocol.SetSuccessorParams.SUCCESSOR.name())).isEqualTo("successor");
-
-        assertThat(messageCaptor.getAllValues().get(1).getSendType()).isEqualTo(Message.SendType.REQUEST);
-        assertThat(messageCaptor.getAllValues().get(1).getMessageType()).isEqualTo(Protocol.SET_PREDECESSOR);
-        assertThat(messageCaptor.getAllValues().get(1).getAddress().getDestination()).isEqualTo("successor");
-        assertThat(messageCaptor.getAllValues().get(1).getAddress().getSource()).isEqualTo("key");
-        assertThat(messageCaptor.getAllValues().get(1).getParam(Protocol.SetPredecessorParams.PREDECESSOR.name())).isEqualTo("predecesor");
     }
 
     @Test

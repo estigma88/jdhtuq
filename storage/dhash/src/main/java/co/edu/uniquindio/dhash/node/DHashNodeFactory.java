@@ -139,14 +139,6 @@ public class DHashNodeFactory implements StorageNodeFactory {
 
     @Override
     public void destroyNode(StorageNode storageNode) throws StorageException {
-        try {
-            DHashNode dHashNode = (DHashNode) storageNode;
-
-            overlayNodeFactory.destroyNode(dHashNode.getOverlayNode());
-
-            communicationManager.removeMessageProcessor(storageNode.getName());
-        } catch (OverlayException e) {
-            throw new StorageException("Problem destroying overlaynode", e);
-        }
+        storageNode.leave();
     }
 }

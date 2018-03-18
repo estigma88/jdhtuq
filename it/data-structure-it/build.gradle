@@ -14,6 +14,7 @@ dependencies {
     compile project(':main:starters:dhash-spring-boot-starter')
     compile project(':main:starters:data-structure-communication-spring-boot-starter')
 
+    testCompile group: 'commons-io', name: 'commons-io', version: '2.6'
     testCompile 'org.projectlombok:lombok:1.16.20'
     testCompile group: 'info.cukes', name: 'cucumber-java', version: '1.2.5'
     testCompile group: 'info.cukes', name: 'cucumber-junit', version: '1.2.5'
