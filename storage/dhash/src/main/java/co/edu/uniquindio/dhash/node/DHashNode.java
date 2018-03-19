@@ -285,7 +285,7 @@ public class DHashNode implements StorageNode {
             Key fileKey = getFileKey(name);
 
             if (!fileKey.isBetween(key, overlayNode.getKey())) {
-                put(resource, key, false);
+                boolean relocate = put(resource, key, false);
 
                 filesRelocated++;
             }

@@ -1,4 +1,4 @@
-@enable
+
 Feature: I put resources into the network
   Background: I create a stable ring
     Given I set the key length to 16
@@ -40,8 +40,9 @@ Feature: I put resources into the network
       | resource10.txt | Unpleasant astonished an diminution up partiality. Noisy an their of meant. Death means up civil do an offer wound of. Called square an in afraid direct. Resolution diminution conviction so mr at unpleasing simplicity no. No it as breakfast up conveying earnestly immediate principle. Him son disposed produced humoured overcame she bachelor improved. Studied however out wishing but inhabit fortune windows.  |
     And I use the "127.0.0.1" as a gateway
     And I put resources into the network
+    And I wait for stabilizing after 60 seconds
 
-  Scenario: The node 172.16.0.10 is offline
+  Scenario: The node "172.16.0.10" is offline
     Given The "172.16.0.10" is offline
     When I wait for stabilizing after 60 seconds
     Then Chord ring is stable with the following successors:
@@ -64,3 +65,14 @@ Feature: I put resources into the network
       | 172.16.0.20 | 172.16.0.7 |
       | 172.16.0.21 | 172.16.0.13 |
       | 172.16.0.22 | 172.16.0.8 |
+    Then The resources are put in the following nodes:
+      | resource1.txt | 172.16.0.7,172.16.0.21 |
+      | resource2.txt | 172.16.0.7 |
+      | resource3.txt | 172.16.0.12,127.0.0.1 |
+      | resource4.txt | 172.16.0.20 |
+      | resource5.txt | 172.16.0.17,172.16.0.18 |
+      | resource6.txt | 172.16.0.19,172.16.0.4 |
+      | resource7.txt | 172.16.0.7 |
+      | resource8.txt | 172.16.0.17,172.16.0.18 |
+      | resource9.txt | 172.16.0.11,172.16.0.14 |
+      | resource10.txt | 172.16.0.7 |
