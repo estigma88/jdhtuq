@@ -1,24 +1,28 @@
 package co.edu.uniquindio.dht.it.datastructure.ring;
 
-import co.edu.uniquindio.chord.node.ChordNode;
 import co.edu.uniquindio.dhash.node.DHashNode;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Singular;
 
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
-@Data
-@Builder
 public class Ring {
-    @Singular
-    private final List<String> nodeNames;
-    @Singular
     private final Map<String, DHashNode> nodes;
+
+    public Ring() {
+        this.nodes = new HashMap<>();
+    }
 
     public DHashNode getNode(String name){
         return nodes.get(name);
+    }
+
+    public void add(String name, DHashNode dHashNode){
+        nodes.put(name, dHashNode);
+    }
+
+    public Set<String> getNodeNames() {
+        return nodes.keySet();
     }
 }
 

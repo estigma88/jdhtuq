@@ -1,4 +1,4 @@
-@enable
+
 Feature: I put resources into the network
   Background: I create a stable ring
     Given I set the key length to 16
@@ -43,7 +43,7 @@ Feature: I put resources into the network
     And I wait for stabilizing after 60 seconds
 
   Scenario: The node "172.16.0.10" is offline
-    Given The "172.16.0.10" is offline
+    Given The "172.16.0.10" left the network
     When I wait for stabilizing after 60 seconds
     Then Chord ring is stable with the following successors:
       | 127.0.0.1 | 172.16.0.16 |

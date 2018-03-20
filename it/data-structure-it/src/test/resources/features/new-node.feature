@@ -11,7 +11,6 @@ Feature: I put resources into the network
       | 172.16.0.7 | 31925 |
       | 172.16.0.8 | 1833 |
       | 172.16.0.9 | 5441 |
-      | 172.16.0.10 | 29236 |
       | 172.16.0.11 | 54023 |
       | 172.16.0.12 | 16020 |
       | 172.16.0.13 | 34177 |
@@ -42,8 +41,8 @@ Feature: I put resources into the network
     And I put resources into the network
     And I wait for stabilizing after 60 seconds
 
-  Scenario: The node "172.16.0.10" is offline
-    Given The "172.16.0.10" is offline
+  Scenario: The node "172.16.0.10" is add to the network
+    Given The "172.16.0.10" is added to the network
     When I wait for stabilizing after 60 seconds
     Then Chord ring is stable with the following successors:
       | 127.0.0.1 | 172.16.0.16 |
@@ -53,6 +52,7 @@ Feature: I put resources into the network
       | 172.16.0.7 | 172.16.0.21 |
       | 172.16.0.8 | 172.16.0.9 |
       | 172.16.0.9 | 172.16.0.19 |
+      | 172.16.0.10 | 172.16.0.7 |
       | 172.16.0.11 | 172.16.0.14 |
       | 172.16.0.12 | 127.0.0.1 |
       | 172.16.0.13 | 172.16.0.6 |
@@ -62,17 +62,17 @@ Feature: I put resources into the network
       | 172.16.0.17 | 172.16.0.18 |
       | 172.16.0.18 | 172.16.0.11 |
       | 172.16.0.19 | 172.16.0.4 |
-      | 172.16.0.20 | 172.16.0.7 |
+      | 172.16.0.20 | 172.16.0.10 |
       | 172.16.0.21 | 172.16.0.13 |
       | 172.16.0.22 | 172.16.0.8 |
     Then The resources are put in the following nodes:
       | resource1.txt | 172.16.0.7,172.16.0.21 |
-      | resource2.txt | 172.16.0.7 |
+      | resource2.txt | 172.16.0.7,172.16.0.21,172.16.0.10 |
       | resource3.txt | 172.16.0.12,127.0.0.1 |
-      | resource4.txt | 172.16.0.20 |
+      | resource4.txt | 172.16.0.7,172.16.0.20,172.16.0.10 |
       | resource5.txt | 172.16.0.17,172.16.0.18 |
       | resource6.txt | 172.16.0.19,172.16.0.4 |
-      | resource7.txt | 172.16.0.7 |
+      | resource7.txt | 172.16.0.7,172.16.0.21,172.16.0.10 |
       | resource8.txt | 172.16.0.17,172.16.0.18 |
       | resource9.txt | 172.16.0.11,172.16.0.14 |
-      | resource10.txt | 172.16.0.7 |
+      | resource10.txt | 172.16.0.7,172.16.0.21,172.16.0.10 |

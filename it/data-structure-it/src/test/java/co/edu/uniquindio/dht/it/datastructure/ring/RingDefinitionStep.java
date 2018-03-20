@@ -19,10 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -65,16 +63,29 @@ public class RingDefinitionStep extends CucumberRoot {
         communicationManagerDHash.removeMessageProcessor(node);
     }
 
+    @Given("^The \"([^\"]*)\" left the network$")
+    public void the_left_the_network(String node) throws Throwable {
+        Ring ring = world.getRing();
+
+        DHashNode dHashNode = ring.getNode(node);
+
+        dHashNode.leave();
+    }
+
+    @Given("^The \"([^\"]*)\" is added to the network$")
+    public void the_is_added_to_the_network(String node) throws Throwable {
+        Ring ring = world.getRing();
+
+        ring.add(node, (DHashNode) storageNodeFactory.createNode(node));
+    }
+
     @When("^I create the Chord ring$")
     public void chord_ring_is_created() throws Throwable {
-        Ring.RingBuilder ringBuilder = Ring.builder();
+        Ring ring = new Ring();
 
         for (Node node : nodes) {
-            ringBuilder.nodeName(node.getName())
-                    .node(node.getName(), (DHashNode) storageNodeFactory.createNode(node.getName()));
+            ring.add(node.getName(), (DHashNode) storageNodeFactory.createNode(node.getName()));
         }
-
-        Ring ring = ringBuilder.build();
 
         for (Node node : nodes) {
             DHashNode dHashNode = ring.getNode(node.getName());
