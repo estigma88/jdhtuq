@@ -1,4 +1,4 @@
-
+@enable
 Feature: I put resources into the network
   Background: I create a stable ring
     Given I set the key length to 16
@@ -69,7 +69,7 @@ Feature: I put resources into the network
       | resource1.txt | 172.16.0.7,172.16.0.21 |
       | resource2.txt | 172.16.0.7 |
       | resource3.txt | 172.16.0.12,127.0.0.1 |
-      | resource4.txt | 172.16.0.20 |
+      | resource4.txt | 172.16.0.20,172.16.0.7 |
       | resource5.txt | 172.16.0.17,172.16.0.18 |
       | resource6.txt | 172.16.0.19,172.16.0.4 |
       | resource7.txt | 172.16.0.7 |
