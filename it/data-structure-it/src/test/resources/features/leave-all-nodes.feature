@@ -1,5 +1,5 @@
-@enable
-Feature: A node is add to the network
+
+Feature: Every node left the network one by one
   Background: I create a stable ring
     Given I set the key length to 16
     And I have the following node's names and hashings:
@@ -11,6 +11,7 @@ Feature: A node is add to the network
       | 172.16.0.7 | 31925 |
       | 172.16.0.8 | 1833 |
       | 172.16.0.9 | 5441 |
+      | 172.16.0.10 | 29236 |
       | 172.16.0.11 | 54023 |
       | 172.16.0.12 | 16020 |
       | 172.16.0.13 | 34177 |
@@ -40,38 +41,55 @@ Feature: A node is add to the network
     And I use the "127.0.0.1" as a gateway
     And I put resources into the network
 
-  Scenario: The node "172.16.0.10" is add to the network
-    Given The "172.16.0.10" is added to the network
+  Scenario: Every node left the network one by one
+    Given The "172.16.0.4" left the network
+    And I wait for stabilizing after 10 seconds
+    And The "172.16.0.5" left the network
+    And I wait for stabilizing after 10 seconds
+    And The "172.16.0.6" left the network
+    And I wait for stabilizing after 10 seconds
+    And The "172.16.0.7" left the network
+    And I wait for stabilizing after 10 seconds
+    And The "172.16.0.8" left the network
+    And I wait for stabilizing after 10 seconds
+    And The "172.16.0.9" left the network
+    And I wait for stabilizing after 10 seconds
+    And The "172.16.0.10" left the network
+    And I wait for stabilizing after 10 seconds
+    And The "172.16.0.11" left the network
+    And I wait for stabilizing after 10 seconds
+    And The "172.16.0.12" left the network
+    And I wait for stabilizing after 10 seconds
+    And The "172.16.0.13" left the network
+    And I wait for stabilizing after 10 seconds
+    And The "172.16.0.14" left the network
+    And I wait for stabilizing after 10 seconds
+    And The "172.16.0.15" left the network
+    And I wait for stabilizing after 10 seconds
+    And The "172.16.0.16" left the network
+    And I wait for stabilizing after 10 seconds
+    And The "172.16.0.17" left the network
+    And I wait for stabilizing after 10 seconds
+    And The "172.16.0.18" left the network
+    And I wait for stabilizing after 10 seconds
+    And The "172.16.0.19" left the network
+    And I wait for stabilizing after 10 seconds
+    And The "172.16.0.20" left the network
+    And I wait for stabilizing after 10 seconds
+    And The "172.16.0.21" left the network
+    And I wait for stabilizing after 10 seconds
+    And The "172.16.0.22" left the network
     When I wait for stabilizing after 10 seconds
     Then Chord ring is stable with the following successors:
-      | 127.0.0.1 | 172.16.0.16 |
-      | 172.16.0.4 | 172.16.0.12 |
-      | 172.16.0.5 | 172.16.0.15 |
-      | 172.16.0.6 | 172.16.0.17 |
-      | 172.16.0.7 | 172.16.0.21 |
-      | 172.16.0.8 | 172.16.0.9 |
-      | 172.16.0.9 | 172.16.0.19 |
-      | 172.16.0.10 | 172.16.0.7 |
-      | 172.16.0.11 | 172.16.0.14 |
-      | 172.16.0.12 | 127.0.0.1 |
-      | 172.16.0.13 | 172.16.0.6 |
-      | 172.16.0.14 | 172.16.0.5 |
-      | 172.16.0.15 | 172.16.0.22 |
-      | 172.16.0.16 | 172.16.0.20 |
-      | 172.16.0.17 | 172.16.0.18 |
-      | 172.16.0.18 | 172.16.0.11 |
-      | 172.16.0.19 | 172.16.0.4 |
-      | 172.16.0.20 | 172.16.0.10 |
-      | 172.16.0.21 | 172.16.0.13 |
-      | 172.16.0.22 | 172.16.0.8 |
+      | 127.0.0.1 | 127.0.0.1 |
     Then The resources are put in the following nodes:
-      | resource1.txt | 172.16.0.7,172.16.0.21 |
-      | resource2.txt | 172.16.0.7,172.16.0.21,172.16.0.10 |
-      | resource3.txt | 172.16.0.12,127.0.0.1 |
-      | resource4.txt | 172.16.0.7,172.16.0.20,172.16.0.10 |
-      | resource5.txt | 172.16.0.17,172.16.0.18 |
-      | resource6.txt | 172.16.0.19,172.16.0.4 |
-      | resource7.txt | 172.16.0.7,172.16.0.21,172.16.0.10 |
-      | resource8.txt | 172.16.0.17,172.16.0.18 |
-      | resource9.txt | 172.16.0.11,172.16.0.14 |
-      | resource10.txt | 172.16.0.7,172.16.0.21,172.16.0.10 |
+      | resource1.txt | 127.0.0.1 |
+      | resource2.txt | 127.0.0.1 |
+      | resource3.txt | 127.0.0.1 |
+      | resource4.txt | 127.0.0.1 |
+      | resource5.txt | 127.0.0.1 |
+      | resource6.txt | 127.0.0.1 |
+      | resource7.txt | 127.0.0.1 |
+      | resource8.txt | 127.0.0.1 |
+      | resource9.txt | 127.0.0.1 |
+      | resource10.txt | 127.0.0.1 |

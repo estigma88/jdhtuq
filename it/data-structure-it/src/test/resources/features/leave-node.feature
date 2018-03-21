@@ -1,5 +1,5 @@
 @enable
-Feature: I put resources into the network
+Feature: A node left the network
   Background: I create a stable ring
     Given I set the key length to 16
     And I have the following node's names and hashings:
@@ -40,11 +40,10 @@ Feature: I put resources into the network
       | resource10.txt | Unpleasant astonished an diminution up partiality. Noisy an their of meant. Death means up civil do an offer wound of. Called square an in afraid direct. Resolution diminution conviction so mr at unpleasing simplicity no. No it as breakfast up conveying earnestly immediate principle. Him son disposed produced humoured overcame she bachelor improved. Studied however out wishing but inhabit fortune windows.  |
     And I use the "127.0.0.1" as a gateway
     And I put resources into the network
-    And I wait for stabilizing after 60 seconds
 
-  Scenario: The node "172.16.0.10" is offline
+  Scenario: The node "172.16.0.10" left the network
     Given The "172.16.0.10" left the network
-    When I wait for stabilizing after 60 seconds
+    When I wait for stabilizing after 10 seconds
     Then Chord ring is stable with the following successors:
       | 127.0.0.1 | 172.16.0.16 |
       | 172.16.0.4 | 172.16.0.12 |
