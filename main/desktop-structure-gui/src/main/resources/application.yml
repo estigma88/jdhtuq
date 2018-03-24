@@ -1,2 +1,5 @@
 ui-structure:
-  resource-directory: dhash/
+  resource-directory: out/dhash/
+p2p:
+  dhash:
+    resource-directory: out/dhash/
