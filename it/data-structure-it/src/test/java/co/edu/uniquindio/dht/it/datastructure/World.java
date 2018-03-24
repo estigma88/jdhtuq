@@ -6,5 +6,6 @@ import lombok.Data;
 @Data
 public class World {
     private Ring ring;
+    private String nodeGateway;
 }
 

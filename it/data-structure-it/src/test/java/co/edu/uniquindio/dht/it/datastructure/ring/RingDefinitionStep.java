@@ -39,6 +39,11 @@ public class RingDefinitionStep extends CucumberRoot {
     private DHashProperties dHashProperties;
     private List<Node> nodes;
 
+    @Given("^I use the \\\"([^\\\"]*)\\\" as a gateway$")
+    public void i_use_the_node_as_a_gateway(String nodeGateway) throws Throwable {
+        world.setNodeGateway(nodeGateway);
+    }
+
     @Given("^I set the key length to (\\d+)$")
     public void key_length_is(int keyLength) throws Throwable {
         keyFactory.updateKeyLength(keyLength);

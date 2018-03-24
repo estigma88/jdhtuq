@@ -30,7 +30,6 @@ public class PutsDefinitionStep extends CucumberRoot {
     @Autowired
     private DHashProperties dHashProperties;
     private Map<String, Content> contents;
-    private String nodeGateway;
 
     @Given("^I have the resources names and values:$")
     public void i_have_the_resources_names_and_values(List<Content> contents) throws Throwable {
@@ -38,16 +37,11 @@ public class PutsDefinitionStep extends CucumberRoot {
                 .collect(Collectors.toMap(Content::getName, Function.identity()));
     }
 
-    @Given("^I use the \\\"([^\\\"]*)\\\" as a gateway$")
-    public void i_use_the_node_as_a_gateway(String nodeGateway) throws Throwable {
-        this.nodeGateway = nodeGateway;
-    }
-
     @When("^I put resources into the network$")
     public void i_put_resources_into_the_network() throws Throwable {
         Ring ring = world.getRing();
 
-        StorageNode storageNode = ring.getNode(nodeGateway);
+        StorageNode storageNode = ring.getNode(world.getNodeGateway());
 
         for (String contentName : contents.keySet()) {
             storageNode.put(new BytesResource(contentName, contents.get(contentName).getContent().getBytes()));
