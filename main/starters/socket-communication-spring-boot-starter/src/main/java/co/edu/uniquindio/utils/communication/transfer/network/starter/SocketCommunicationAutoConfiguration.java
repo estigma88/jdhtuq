@@ -3,7 +3,7 @@ package co.edu.uniquindio.utils.communication.transfer.network.starter;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerFactory;
 import co.edu.uniquindio.utils.communication.transfer.network.CommunicationManagerTCP;
 import co.edu.uniquindio.utils.communication.transfer.network.CommunicationManagerTCPFactory;
-import co.edu.uniquindio.utils.communication.transfer.network.MessageJsonSerialization;
+import co.edu.uniquindio.utils.communication.transfer.network.jackson.MessageJsonSerialization;
 import co.edu.uniquindio.utils.communication.transfer.network.MessageSerialization;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +18,12 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties(SocketCommunicationProperties.class)
 public class SocketCommunicationAutoConfiguration {
     @Autowired
-    private SocketCommunicationProperties dHashProperties;
+    private SocketCommunicationProperties socketCommunicationProperties;
 
     @Bean
     @ConditionalOnMissingBean
     public CommunicationManagerFactory communicationManagerFactory(MessageSerialization messageSerialization) {
-        return new CommunicationManagerTCPFactory(messageSerialization);
+        return new CommunicationManagerTCPFactory(messageSerialization, socketCommunicationProperties.getInstances());
     }
 
     @Bean

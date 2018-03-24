@@ -7,8 +7,8 @@ import org.springframework.context.annotation.PropertySource;
 
 import java.util.Map;
 
-@ConfigurationProperties(prefix = "communication")
+@ConfigurationProperties(prefix = "communication.socket")
 @Data
 public class SocketCommunicationProperties {
-    private Map<String, Map<String, String>> socket;
+    private Map<String, Map<String, String>> instances;
 }

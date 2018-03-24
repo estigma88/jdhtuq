@@ -1,6 +1,9 @@
-package co.edu.uniquindio.utils.communication.transfer.network;
+package co.edu.uniquindio.utils.communication.transfer.network.jackson;
 
+import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
+import co.edu.uniquindio.utils.communication.message.MessageType;
+import co.edu.uniquindio.utils.communication.transfer.network.MessageSerialization;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -11,6 +14,13 @@ public class MessageJsonSerialization implements MessageSerialization {
 
     public MessageJsonSerialization(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
+
+        this.objectMapper.addMixIn(Message.class, MessageMixIn.class)
+                .addMixIn(MessageType.class, MessageTypeMixIn.class)
+                .addMixIn(Address.class, AddressMixIn.class)
+                .addMixIn(Message.MessageBuilder.class, MessageBuilderMixIn.class)
+                .addMixIn(MessageType.MessageTypeBuilder.class, MessageTypeBuilderMixIn.class)
+                .addMixIn(Address.AddressBuilder.class, AddressBuilderMixIn.class);
     }
 
     @Override

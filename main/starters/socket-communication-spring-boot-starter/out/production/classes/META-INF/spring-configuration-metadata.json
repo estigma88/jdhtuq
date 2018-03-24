@@ -12,5 +12,11 @@
       "type": "co.edu.uniquindio.dhash.starter.DHashProperties"
     }
   ],
-  "properties": []
+  "properties": [
+    {
+      "sourceType": "co.edu.uniquindio.utils.communication.transfer.network.starter.SocketCommunicationProperties",
+      "name": "communication.socket.instances",
+      "type": "java.util.Map<java.lang.String,java.util.Map<java.lang.String,java.lang.String>>"
+    }
+  ]
 }
