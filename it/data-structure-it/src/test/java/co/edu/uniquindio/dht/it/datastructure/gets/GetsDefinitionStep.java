@@ -1,6 +1,8 @@
-package co.edu.uniquindio.dht.it.datastructure;
+package co.edu.uniquindio.dht.it.datastructure.gets;
 
 import co.edu.uniquindio.dhash.resource.BytesResource;
+import co.edu.uniquindio.dht.it.datastructure.CucumberRoot;
+import co.edu.uniquindio.dht.it.datastructure.World;
 import co.edu.uniquindio.dht.it.datastructure.put.Content;
 import co.edu.uniquindio.storage.StorageNode;
 import cucumber.api.java.en.Then;
