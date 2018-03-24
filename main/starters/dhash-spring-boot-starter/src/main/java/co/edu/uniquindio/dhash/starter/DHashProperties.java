@@ -9,6 +9,5 @@ import org.springframework.context.annotation.PropertySource;
 @Data
 public class DHashProperties {
     private int replicationAmount = 1;
-    private CommunicationType communicationType = CommunicationType.DATA_STRUCTURE;
     private String resourceDirectory = "dhash/";
 }

@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  co.edu.uniquindio.dhash.starter.DHashAutoConfiguration
+  co.edu.uniquindio.utils.communication.transfer.network.starter.SocketCommunicationAutoConfiguration

@@ -3,3 +3,4 @@ ui-network:
 p2p:
   dhash:
     resource-directory: out/dhash/
+communication
