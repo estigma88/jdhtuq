@@ -7,7 +7,7 @@
         <property name="serverVersion">1.13</property>
         <property name="serverUri">unix:///var/run/docker.sock</property>
         <property name="definitionFormat">COMPOSE</property>
-        <property name="dockerContainersFile">/home/daniel/Documents/Personal/OpenSource/jdhtuq/it/socket-it/src/test/resources/docker-compose.yml</property>
+        <property name="dockerContainersFile">/home/daniel/Documents/Personal/OpenSource/jdhtuq/it/socket-it/src/test/resources/docker/docker-compose.yml</property>
     </extension>
 
 </arquillian>

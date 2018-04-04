@@ -1,6 +1,7 @@
 package co.edu.uniquindio.dht.it.datastructure;
 
 import com.jayway.restassured.RestAssured;
+import cucumber.runtime.arquillian.CukeSpace;
 import org.arquillian.cube.HostIp;
 import org.arquillian.cube.HostPort;
 import org.jboss.arquillian.junit.Arquillian;
@@ -12,7 +13,7 @@ import java.net.URL;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(Arquillian.class)
+@RunWith(CukeSpace.class)
 public class PingPongTest {
     @HostIp
     private String ip;
