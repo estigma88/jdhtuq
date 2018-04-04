@@ -14,6 +14,11 @@ dependencies {
     compile project(':main:starters:dhash-spring-boot-starter')
     compile project(':main:starters:socket-communication-spring-boot-starter')
 
+
+    testCompile group: 'org.arquillian.cube', name: 'arquillian-cube-docker-starter', version: '1.15.3'
+    testCompile 'com.github.cukespace:cukespace-core:1.6.7'
+    testCompile group: 'org.jboss.arquillian.container', name: 'arquillian-container-test-spi', version: '1.4.0.Final'
+    testCompile group: 'com.jayway.restassured', name: 'rest-assured', version: '2.9.0'
     testCompile group: 'commons-io', name: 'commons-io', version: '2.6'
     testCompile 'org.projectlombok:lombok:1.16.20'
     testCompile group: 'info.cukes', name: 'cucumber-java', version: '1.2.5'
