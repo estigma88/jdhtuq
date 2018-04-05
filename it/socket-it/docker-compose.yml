@@ -1,0 +1,4 @@
+version: '2'
+services:
+  127.0.0.1:
+    build: .

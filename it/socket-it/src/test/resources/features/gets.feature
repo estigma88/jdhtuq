@@ -1,4 +1,4 @@
-@enable
+
 Feature: A node requested all the resources
   Background: I create a stable ring
     Given I set the key length to 16

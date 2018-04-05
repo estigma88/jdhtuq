@@ -5,3 +5,24 @@ p2p:
   chord:
     stable-ring-time: 2000
     stable-ring-thread-pool: 20
+communication:
+  socket:
+    instances:
+      dhash:
+        RESPONSE_TIME: 2000
+        BUFFER_SIZE_MULTICAST: 1024
+        IP_MULTICAST: 224.0.0.1
+        PORT_MULTICAST: 2000
+        PORT_TCP_RESOURCE: 2001
+        PORT_TCP: 2002
+        PORT_UDP: 2003
+        BUFFER_SIZE_UDP: 1024
+      node:
+        RESPONSE_TIME: 2000
+        BUFFER_SIZE_MULTICAST: 1024
+        IP_MULTICAST: 224.0.0.5
+        PORT_MULTICAST: 2005
+        PORT_TCP_RESOURCE: 2006
+        PORT_TCP: 2007
+        PORT_UDP: 2008
+        BUFFER_SIZE_UDP: 1024
