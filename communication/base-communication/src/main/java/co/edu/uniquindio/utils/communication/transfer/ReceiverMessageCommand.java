@@ -26,44 +26,53 @@ import co.edu.uniquindio.utils.communication.message.Message;
  * The {@code ReceiverMessageCommand} class, is a Command implementation, that is
  * used for receiving a message and notify to the observer the arrive the
  * message
- * 
+ *
  * @author Daniel Pelaez
  * @author Hector Hurtado
  * @author Daniel Lopez
  * @version 1.0, 17/06/2010
- * @since 1.0
- * 
  * @see ThreadCommand
+ * @since 1.0
  */
 public class ReceiverMessageCommand extends ThreadCommand {
-	/**
-	 * The message that has arrived
-	 */
-	private Message message;
+    /**
+     * The message that has arrived
+     */
+    private Message message;
 
-	/**
-	 * The observer that is notified for the arrival the message
-	 */
-	private Observable<Message> observable;
+    /**
+     * The observer that is notified for the arrival the message
+     */
+    private Observable<Message> observable;
 
-	/**
-	 * The constructor of the class. This creates a {@code
-	 * ReceiverMessageCommand} instance with the message that arrives and the
-	 * observer that has to be notified
-	 * 
-	 * @param message
-	 * @param observer
-	 */
-	public ReceiverMessageCommand(Message message,
-			Observable<Message> observable) {
-		this.message = message;
-		this.observable = observable;
-	}
+    private final CommunicationManagerWaitingResult communicationManager;
 
-	/**
-	 * Notifies to the observer the arrived message
-	 */
-	public void run() {
-		observable.notifyMessage(message);
-	}
+    /**
+     * The constructor of the class. This creates a {@code
+     * ReceiverMessageCommand} instance with the message that arrives and the
+     * observer that has to be notified
+     *
+     * @param message
+     * @param communicationManager
+     */
+    public ReceiverMessageCommand(Message message,
+                                  Observable<Message> observable, CommunicationManagerWaitingResult communicationManager) {
+        this.message = message;
+        this.observable = observable;
+        this.communicationManager = communicationManager;
+    }
+
+    /**
+     * Notifies to the observer the arrived message
+     */
+    public void run() {
+        Message response = null;
+        if (communicationManager.getMessageProcessor() != null) {
+            response = communicationManager.getMessageProcessor().process(message);
+        }
+        if (response != null) {
+            communicationManager.sendMessageUnicast(response);
+            observable.notifyMessage(message);
+        }
+    }
 }

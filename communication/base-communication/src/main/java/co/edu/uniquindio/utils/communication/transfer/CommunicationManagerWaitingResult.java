@@ -75,6 +75,7 @@ public abstract class CommunicationManagerWaitingResult implements
      * Returns manager
      */
     private ReturnsManager<Message> returnsManager;
+    protected MessageProcessor messageProcessor;
 
     /**
      * Builds an CommunicationManagerWaitingResult
@@ -477,11 +478,15 @@ public abstract class CommunicationManagerWaitingResult implements
 
     @Override
     public void addMessageProcessor(String name, MessageProcessor messageProcessor) {
-
+        this.messageProcessor = messageProcessor;
     }
 
     @Override
     public void removeMessageProcessor(String name) {
+        this.messageProcessor = null;
+    }
 
+    public MessageProcessor getMessageProcessor() {
+        return messageProcessor;
     }
 }

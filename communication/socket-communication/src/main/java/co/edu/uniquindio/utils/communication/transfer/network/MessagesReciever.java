@@ -20,10 +20,7 @@ package co.edu.uniquindio.utils.communication.transfer.network;
 
 import co.edu.uniquindio.utils.communication.Observable;
 import co.edu.uniquindio.utils.communication.message.Message;
-import co.edu.uniquindio.utils.communication.transfer.Communicator;
-import co.edu.uniquindio.utils.communication.transfer.ReceiverMessageCommand;
-import co.edu.uniquindio.utils.communication.transfer.Responder;
-import co.edu.uniquindio.utils.communication.transfer.Stoppable;
+import co.edu.uniquindio.utils.communication.transfer.*;
 
 /**
  * The <code>MessagesReciever</code> class is an
@@ -57,22 +54,23 @@ public class MessagesReciever extends Observable<Message> implements Stoppable {
 	 * Responder message manager
 	 */
 	private Responder responder;
+	private final CommunicationManagerWaitingResult communicationManager;
 
 	/**
 	 * Builds a MessagesReciever. Creates three
 	 * <code>RecieverThreadMessage</code> and starts
-	 * 
 	 * @param multicastManager
 	 *            Communicator for multicast
 	 * @param unicastManager
 	 *            Communicator for unicast
 	 * @param transferBytesManager
-	 *            Communicator for transfer bytes
+	 * @param communicationManager
 	 */
 	public MessagesReciever(Communicator multicastManager,
-			Communicator unicastManager, Communicator transferBytesManager,
-			Responder responder) {
+							Communicator unicastManager, Communicator transferBytesManager,
+							Responder responder, CommunicationManagerWaitingResult communicationManager) {
 		super();
+		this.communicationManager = communicationManager;
 		this.run = true;
 
 		if (unicastManager != null) {
@@ -111,7 +109,7 @@ public class MessagesReciever extends Observable<Message> implements Stoppable {
 	private void createRecieverThread(Message message) {
 
 		ReceiverMessageCommand receiverMessageCommand;
-		receiverMessageCommand = new ReceiverMessageCommand(message, this);
+		receiverMessageCommand = new ReceiverMessageCommand(message, this, communicationManager);
 
 		receiverMessageCommand.execute();
 	}

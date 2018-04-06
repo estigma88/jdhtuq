@@ -77,7 +77,7 @@ public abstract class CommunicationManagerNetworkLAN extends
     public void init() {
         super.init();
         this.messagesReciever = new MessagesReciever(multicastManager,
-                unicastManager, unicastBigManager, this);
+                unicastManager, unicastBigManager, this, this);
         this.observableCommunication = messagesReciever;
     }
 
@@ -164,5 +164,7 @@ public abstract class CommunicationManagerNetworkLAN extends
         messagesReciever.stop();
         multicastManager.stop();
     }
+
+
 
 }
