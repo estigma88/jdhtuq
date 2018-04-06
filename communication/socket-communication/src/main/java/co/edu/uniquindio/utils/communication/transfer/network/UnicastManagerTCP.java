@@ -59,7 +59,7 @@ public class UnicastManagerTCP implements Communicator {
     /**
      * Builds a UnicastManagerTCP
      *
-     * @param portTcp Port TCP number
+     * @param portTcp              Port TCP number
      * @param messageSerialization
      */
     public UnicastManagerTCP(int portTcp, MessageSerialization messageSerialization) {
@@ -80,14 +80,11 @@ public class UnicastManagerTCP implements Communicator {
      * co.edu.uniquindio.utils.communication.transfer.Communicator#reciever()
      */
     public Message reciever() {
-        Socket socket = null;
         String stringMessage;
         Message message = null;
         ObjectInputStream objectInputStream;
 
-        try {
-            socket = serverSocket.accept();
-
+        try (Socket socket = serverSocket.accept()) {
             objectInputStream = new ObjectInputStream(socket.getInputStream());
             stringMessage = (String) objectInputStream.readObject();
 
@@ -97,12 +94,6 @@ public class UnicastManagerTCP implements Communicator {
             logger.error("Error reading socket", e);
         } catch (ClassNotFoundException e) {
             logger.error("Error reading socket", e);
-        } finally {
-            try {
-                socket.close();
-            } catch (IOException e) {
-                logger.error("Error closed socket", e);
-            }
         }
 
         return message;
@@ -116,10 +107,7 @@ public class UnicastManagerTCP implements Communicator {
      * .uniquindio.utils.communication.message.Message)
      */
     public void send(Message message) {
-
-        Socket socket = null;
-        try {
-            socket = new Socket(message.getAddress().getDestination(), portTcp);
+        try(Socket socket = new Socket(message.getAddress().getDestination(), portTcp)) {
 
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(
                     socket.getOutputStream());
@@ -130,12 +118,6 @@ public class UnicastManagerTCP implements Communicator {
             logger.error("Error writting socket", e);
         } catch (IOException e) {
             logger.error("Error writting socket", e);
-        } finally {
-            try {
-                socket.close();
-            } catch (IOException e) {
-                logger.error("Error closed socket", e);
-            }
         }
 
     }

@@ -23,7 +23,7 @@ public class ITMain {
 
     @Bean
     public CommunicationManager communicationManagerIT(CommunicationManagerFactory communicationManagerFactory, MessageProcessor messageProcessorIT) {
-        CommunicationManager communicationManager = communicationManagerFactory.newCommunicationManager("socketit");
+        CommunicationManager communicationManager = communicationManagerFactory.newCommunicationManager("node");
         communicationManager.addMessageProcessor("node", messageProcessorIT);
         return communicationManager;
     }

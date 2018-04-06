@@ -6,23 +6,38 @@ import co.edu.uniquindio.storage.StorageNodeFactory;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerFactory;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
-import org.springframework.beans.factory.annotation.Value;
+import org.apache.log4j.Logger;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 @SpringBootApplication
 @Configuration
 public class NodeMain {
+    private static final Logger logger = Logger
+            .getLogger(NodeMain.class);
+
     public static void main(String[] args) {
         new SpringApplicationBuilder(NodeMain.class)
                 .headless(false).run(args);
     }
 
     @Bean
-    public StorageNode storageNode(StorageNodeFactory storageNodeFactory, @Value("it.socket.nodename") String nodeName) throws StorageException {
-        return storageNodeFactory.createNode(nodeName);
+    public StorageNode storageNode(StorageNodeFactory storageNodeFactory) throws StorageException {
+        String hostname = "Unknown";
+
+        try {
+            InetAddress addr = InetAddress.getLocalHost();
+            hostname = addr.getHostName();
+        } catch (UnknownHostException e) {
+            logger.error("Error getting hostname", e);
+        }
+
+        return storageNodeFactory.createNode(hostname);
     }
 
     @Bean
@@ -32,7 +47,7 @@ public class NodeMain {
 
     @Bean
     public CommunicationManager communicationManagerNode(CommunicationManagerFactory communicationManagerFactory, MessageProcessor messageProcessorSocketIT) {
-        CommunicationManager communicationManager = communicationManagerFactory.newCommunicationManager("socketit");
+        CommunicationManager communicationManager = communicationManagerFactory.newCommunicationManager("node");
         communicationManager.addMessageProcessor("node", messageProcessorSocketIT);
         return communicationManager;
     }

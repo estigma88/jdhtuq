@@ -33,139 +33,128 @@ import java.net.UnknownHostException;
  * The <code>UnicastBigManagerTCP</code> class is an
  * <code>Communicator</code>. Implemented the communication for network on TCP
  * protocol.
- * 
+ *
  * @author Daniel Pelaez
  * @version 1.0, 17/06/2010
  * @since 1.0
- * 
  */
 public class UnicastBigManagerTCP implements Communicator {
 
-	/**
-	 * Logger
-	 */
-	private static final Logger logger = Logger
-			.getLogger(UnicastBigManagerTCP.class);
-	/**
-	 * The server socket that will be waiting for connection.
-	 */
-	private ServerSocket serverSocket;
+    /**
+     * Logger
+     */
+    private static final Logger logger = Logger
+            .getLogger(UnicastBigManagerTCP.class);
+    /**
+     * The server socket that will be waiting for connection.
+     */
+    private ServerSocket serverSocket;
 
-	/**
-	 * The value of the port used to create the socket.
-	 */
-	private int portTcp;
+    /**
+     * The value of the port used to create the socket.
+     */
+    private int portTcp;
 
-	private final MessageSerialization messageSerialization;
+    private final MessageSerialization messageSerialization;
 
-	public UnicastBigManagerTCP(int portTcp, MessageSerialization messageSerialization) {
-		this.portTcp = portTcp;
-		this.messageSerialization = messageSerialization;
+    public UnicastBigManagerTCP(int portTcp, MessageSerialization messageSerialization) {
+        this.portTcp = portTcp;
+        this.messageSerialization = messageSerialization;
 
-		try {
-			this.serverSocket = new ServerSocket(portTcp);
-		} catch (IOException e) {
-			logger.error("The communication socket could not be created", e);
-		}
-	}
+        try {
+            this.serverSocket = new ServerSocket(portTcp);
+        } catch (IOException e) {
+            logger.error("The communication socket could not be created", e);
+        }
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * co.edu.uniquindio.utils.communication.transfer.Communicator#reciever()
-	 */
-	public Message reciever() {
-		Socket socket = null;
-		String stringMessage;
-		Message message = null;
-		ObjectInputStream objectInputStream;
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * co.edu.uniquindio.utils.communication.transfer.Communicator#reciever()
+     */
+    public Message reciever() {
+        String stringMessage;
+        Message message = null;
+        ObjectInputStream objectInputStream;
 
-		try {
-			socket = serverSocket.accept();
+        try (Socket socket = serverSocket.accept()) {
+            objectInputStream = new ObjectInputStream(socket.getInputStream());
+            stringMessage = (String) objectInputStream.readObject();
 
-			objectInputStream = new ObjectInputStream(socket.getInputStream());
-			stringMessage = (String) objectInputStream.readObject();
+            message = messageSerialization.decode(stringMessage);
 
-			message = messageSerialization.decode(stringMessage);
+        } catch (IOException e) {
+            logger.error("Error reading socket", e);
+        } catch (ClassNotFoundException e) {
+            logger.error("Error reading socket", e);
+        }
 
-		} catch (IOException e) {
-			logger.error("Error reading socket", e);
-		} catch (ClassNotFoundException e) {
-			logger.error("Error reading socket", e);
-		} finally {
-			try {
-				socket.close();
-			} catch (IOException e) {
-				logger.error("Error closed socket", e);
-			}
-		}
+        return message;
+    }
 
-		return message;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * co.edu.uniquindio.utils.communication.transfer.Communicator#send(co.edu
+     * .uniquindio.utils.communication.message.Message)
+     */
+    public void send(Message message) {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * co.edu.uniquindio.utils.communication.transfer.Communicator#send(co.edu
-	 * .uniquindio.utils.communication.message.Message)
-	 */
-	public void send(Message message) {
+        Socket socket = null;
+        try {
+            socket = new Socket(message.getAddress().getDestination(), portTcp);
 
-		Socket socket = null;
-		try {
-			socket = new Socket(message.getAddress().getDestination(), portTcp);
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(
+                    socket.getOutputStream());
+            objectOutputStream.writeObject(messageSerialization.encode(message));
+            objectOutputStream.flush();
 
-			ObjectOutputStream objectOutputStream = new ObjectOutputStream(
-					socket.getOutputStream());
-			objectOutputStream.writeObject(messageSerialization.encode(message));
-			objectOutputStream.flush();
+        } catch (UnknownHostException e) {
+            logger.error("Error sending message", e);
+        } catch (IOException e) {
+            logger.error("Error sending message", e);
+        } finally {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                logger.error("Error closed socket", e);
+            }
+        }
 
-		} catch (UnknownHostException e) {
-			logger.error("Error sending message", e);
-		} catch (IOException e) {
-			logger.error("Error sending message", e);
-		} finally {
-			try {
-				socket.close();
-			} catch (IOException e) {
-				logger.error("Error closed socket", e);
-			}
-		}
+    }
 
-	}
+    /**
+     * Gets port TCP
+     *
+     * @return Port TCP
+     */
+    public int getPortTcp() {
+        return portTcp;
+    }
 
-	/**
-	 * Gets port TCP
-	 * 
-	 * @return Port TCP
-	 */
-	public int getPortTcp() {
-		return portTcp;
-	}
+    /**
+     * Sets port TCP
+     *
+     * @param portTcp Port TCP
+     */
+    public void setPortTcp(int portTcp) {
+        this.portTcp = portTcp;
+    }
 
-	/**
-	 * Sets port TCP
-	 * 
-	 * @param portTcp
-	 *            Port TCP
-	 */
-	public void setPortTcp(int portTcp) {
-		this.portTcp = portTcp;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see co.edu.uniquindio.utils.communication.transfer.Stoppable#stop()
-	 */
-	public void stop() {
-		try {
-			serverSocket.close();
-		} catch (IOException e) {
-			logger.error("Error closed socked", e);
-		}
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see co.edu.uniquindio.utils.communication.transfer.Stoppable#stop()
+     */
+    public void stop() {
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            logger.error("Error closed socked", e);
+        }
+    }
 
 }
