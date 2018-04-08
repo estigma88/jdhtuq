@@ -4,7 +4,7 @@ Feature: Every node left the network one by one
     Given I set the key length to 16
     And I have the following node's names and hashings:
       | name | hashing |
-      | 127.0.0.1 | 18393 |
+      | 172.16.0.43 | 17266 |
       | 172.16.0.4 | 13193 |
       | 172.16.0.5 | 59488 |
       | 172.16.0.6 | 38116 |
@@ -38,7 +38,7 @@ Feature: Every node left the network one by one
       | resource8.txt | Far concluded not his something extremity. Want four we face an he gate. On he of played he ladies answer little though nature. Blessing oh do pleasure as so formerly. Took four spot soon led size you. Outlived it received he material. Him yourself joy moderate off repeated laughter outweigh screened.  |
       | resource9.txt | Scarcely on striking packages by so property in delicate. Up or well must less rent read walk so be. Easy sold at do hour sing spot. Any meant has cease too the decay. Since party burst am it match. By or blushes between besides offices noisier as. Sending do brought winding compass in. Paid day till shed only fact age its end.  |
       | resource10.txt | Unpleasant astonished an diminution up partiality. Noisy an their of meant. Death means up civil do an offer wound of. Called square an in afraid direct. Resolution diminution conviction so mr at unpleasing simplicity no. No it as breakfast up conveying earnestly immediate principle. Him son disposed produced humoured overcame she bachelor improved. Studied however out wishing but inhabit fortune windows.  |
-    And I use the "127.0.0.1" as a gateway
+    And I use the "172.16.0.43" as a gateway
     And I put resources into the network
 
   Scenario: Every node left the network one by one
@@ -81,15 +81,15 @@ Feature: Every node left the network one by one
     And The "172.16.0.22" left the network
     When I wait for stabilizing after 10 seconds
     Then Chord ring is stable with the following successors:
-      | 127.0.0.1 | 127.0.0.1 |
+      | 172.16.0.43 | 172.16.0.43 |
     Then The resources are put in the following nodes:
-      | resource1.txt | 127.0.0.1 |
-      | resource2.txt | 127.0.0.1 |
-      | resource3.txt | 127.0.0.1 |
-      | resource4.txt | 127.0.0.1 |
-      | resource5.txt | 127.0.0.1 |
-      | resource6.txt | 127.0.0.1 |
-      | resource7.txt | 127.0.0.1 |
-      | resource8.txt | 127.0.0.1 |
-      | resource9.txt | 127.0.0.1 |
-      | resource10.txt | 127.0.0.1 |
+      | resource1.txt | 172.16.0.43 |
+      | resource2.txt | 172.16.0.43 |
+      | resource3.txt | 172.16.0.43 |
+      | resource4.txt | 172.16.0.43 |
+      | resource5.txt | 172.16.0.43 |
+      | resource6.txt | 172.16.0.43 |
+      | resource7.txt | 172.16.0.43 |
+      | resource8.txt | 172.16.0.43 |
+      | resource9.txt | 172.16.0.43 |
+      | resource10.txt | 172.16.0.43 |

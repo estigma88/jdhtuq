@@ -4,7 +4,7 @@ Feature: I put resources into the network
     Given I set the key length to 16
     And I have the following node's names and hashings:
       | name | hashing |
-      | 127.0.0.1 | 18393 |
+      | 172.16.0.43 | 17266 |
       | 172.16.0.4 | 13193 |
       | 172.16.0.5 | 59488 |
       | 172.16.0.6 | 38116 |
@@ -40,12 +40,12 @@ Feature: I put resources into the network
       | resource8.txt | Far concluded not his something extremity. Want four we face an he gate. On he of played he ladies answer little though nature. Blessing oh do pleasure as so formerly. Took four spot soon led size you. Outlived it received he material. Him yourself joy moderate off repeated laughter outweigh screened.  |
       | resource9.txt | Scarcely on striking packages by so property in delicate. Up or well must less rent read walk so be. Easy sold at do hour sing spot. Any meant has cease too the decay. Since party burst am it match. By or blushes between besides offices noisier as. Sending do brought winding compass in. Paid day till shed only fact age its end.  |
       | resource10.txt | Unpleasant astonished an diminution up partiality. Noisy an their of meant. Death means up civil do an offer wound of. Called square an in afraid direct. Resolution diminution conviction so mr at unpleasing simplicity no. No it as breakfast up conveying earnestly immediate principle. Him son disposed produced humoured overcame she bachelor improved. Studied however out wishing but inhabit fortune windows.  |
-    Given I use the "127.0.0.1" as a gateway
+    Given I use the "172.16.0.43" as a gateway
     When I put resources into the network
     Then The resources are put in the following nodes:
       | resource1.txt | 172.16.0.7,172.16.0.21 |
       | resource2.txt | 172.16.0.10,172.16.0.7 |
-      | resource3.txt | 172.16.0.12,127.0.0.1 |
+      | resource3.txt | 172.16.0.12,172.16.0.43 |
       | resource4.txt | 172.16.0.20,172.16.0.10 |
       | resource5.txt | 172.16.0.17,172.16.0.18 |
       | resource6.txt | 172.16.0.19,172.16.0.4 |

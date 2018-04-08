@@ -4,7 +4,7 @@ Feature: A node requested all the resources
     Given I set the key length to 16
     And I have the following node's names and hashings:
       | name | hashing |
-      | 127.0.0.1 | 18393 |
+      | 172.16.0.43 | 17266 |
       | 172.16.0.4 | 13193 |
       | 172.16.0.5 | 59488 |
       | 172.16.0.6 | 38116 |
@@ -38,11 +38,11 @@ Feature: A node requested all the resources
       | resource8.txt | Far concluded not his something extremity. Want four we face an he gate. On he of played he ladies answer little though nature. Blessing oh do pleasure as so formerly. Took four spot soon led size you. Outlived it received he material. Him yourself joy moderate off repeated laughter outweigh screened.  |
       | resource9.txt | Scarcely on striking packages by so property in delicate. Up or well must less rent read walk so be. Easy sold at do hour sing spot. Any meant has cease too the decay. Since party burst am it match. By or blushes between besides offices noisier as. Sending do brought winding compass in. Paid day till shed only fact age its end.  |
       | resource10.txt | Unpleasant astonished an diminution up partiality. Noisy an their of meant. Death means up civil do an offer wound of. Called square an in afraid direct. Resolution diminution conviction so mr at unpleasing simplicity no. No it as breakfast up conveying earnestly immediate principle. Him son disposed produced humoured overcame she bachelor improved. Studied however out wishing but inhabit fortune windows.  |
-    And I use the "127.0.0.1" as a gateway
+    And I use the "172.16.0.43" as a gateway
     And I put resources into the network
 
-  Scenario: The node "127.0.0.1" requested all the resources
-    Given I use the "127.0.0.1" as a gateway
+  Scenario: The node "172.16.0.43" requested all the resources
+    Given I use the "172.16.0.43" as a gateway
     Then I lookup the following resources:
       | name | content |
       | resource1.txt | Inquietude simplicity terminated she compliment remarkably few her nay. The weeks are ham asked jokes. Neglected perceived shy nay concluded. Not mile draw plan snug next all. Houses latter an valley be indeed wished merely in my. Money doubt oh drawn every or an china. Visited out friends for expense message set eat.  |

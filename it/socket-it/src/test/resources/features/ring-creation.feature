@@ -4,7 +4,7 @@ Feature: I create a stable ring
     Given I set the key length to 16
     And I have the following node's names and hashings:
       | name | hashing |
-      | 127.0.0.1 | 18393 |
+      | 172.16.0.43 | 17266 |
       | 172.16.0.4 | 13193 |
       | 172.16.0.5 | 59488 |
       | 172.16.0.6 | 38116 |
@@ -27,7 +27,7 @@ Feature: I create a stable ring
     When I create the Chord ring
     And I wait for stabilizing after 60 seconds
     Then Chord ring is stable with the following successors:
-      | 127.0.0.1 | 172.16.0.16 |
+      | 172.16.0.43 | 172.16.0.16 |
       | 172.16.0.4 | 172.16.0.12 |
       | 172.16.0.5 | 172.16.0.15 |
       | 172.16.0.6 | 172.16.0.17 |
@@ -36,7 +36,7 @@ Feature: I create a stable ring
       | 172.16.0.9 | 172.16.0.19 |
       | 172.16.0.10 | 172.16.0.7 |
       | 172.16.0.11 | 172.16.0.14 |
-      | 172.16.0.12 | 127.0.0.1 |
+      | 172.16.0.12 | 172.16.0.43 |
       | 172.16.0.13 | 172.16.0.6 |
       | 172.16.0.14 | 172.16.0.5 |
       | 172.16.0.15 | 172.16.0.22 |
