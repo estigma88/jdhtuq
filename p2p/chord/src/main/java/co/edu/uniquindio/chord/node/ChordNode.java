@@ -151,7 +151,7 @@ public class ChordNode extends Observable implements Chord {
         Key next;
         Message lookupMessage;
 
-        if (id.isBetweenRightIncluded(key, successor)) {
+        if (successor != null && id.isBetweenRightIncluded(key, successor)) {
             return successor;
         } else {
             next = fingersTable.findClosestPresedingNode(id);

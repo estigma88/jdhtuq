@@ -32,7 +32,7 @@ public class NodeMain {
 
         try {
             InetAddress addr = InetAddress.getLocalHost();
-            hostname = addr.getHostName();
+            hostname = addr.getHostAddress();
         } catch (UnknownHostException e) {
             logger.error("Error getting hostname", e);
         }

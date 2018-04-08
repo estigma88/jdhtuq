@@ -94,6 +94,33 @@ public class ChordNodeTest {
     }
 
     @Test
+    public void lookUp_successorIsNull_successor() {
+        chordNode = new ChordNode(communicationManager, null, predecessor, fingersTable, successorList, key, sequenceGenerator, stableRing);
+
+        Key id = mock(Key.class);
+        Key next = mock(Key.class);
+        ChordKey lookUpKey = mock(ChordKey.class);
+
+        when(fingersTable.findClosestPresedingNode(id)).thenReturn(next);
+        when(communicationManager.sendMessageUnicast(any(),
+                eq(ChordKey.class), eq(Protocol.LookupResponseParams.NODE_FIND.name()))).thenReturn(lookUpKey);
+        when(id.getHashing()).thenReturn(new BigInteger("123565"));
+
+        Key result = chordNode.lookUp(id);
+
+        verify(communicationManager).sendMessageUnicast(messageCaptor.capture(),
+                eq(ChordKey.class), eq(Protocol.LookupResponseParams.NODE_FIND.name()));
+
+        assertThat(messageCaptor.getValue().getMessageType()).isEqualTo(Protocol.LOOKUP);
+        assertThat(messageCaptor.getValue().getAddress().getDestination()).isEqualTo(next.getValue());
+        assertThat(messageCaptor.getValue().getAddress().getSource()).isEqualTo(key.getValue());
+        assertThat(messageCaptor.getValue().getParam(Protocol.LookupParams.HASHING.name())).isEqualTo(id
+                .getHashing().toString());
+        assertThat(messageCaptor.getValue().getParam(Protocol.LookupParams.TYPE.name())).isEqualTo(LookupType.LOOKUP.name());
+        assertThat(lookUpKey).isEqualTo(result);
+    }
+
+    @Test
     public void createRing_create_initializeSuccessors() {
         chordNode.createRing();
 

@@ -1,4 +1,18 @@
 version: '2'
 services:
-  127.0.0.1:
+  172.16.0.4:
     build: .
+    networks:
+      chord:
+        ipv4_address: 172.16.0.4
+  172.16.0.5:
+    build: .
+    networks:
+      chord:
+        ipv4_address: 172.16.0.5
+networks:
+  chord:
+    ipam:
+      config:
+      -
+        subnet: 172.16.0.0/24
