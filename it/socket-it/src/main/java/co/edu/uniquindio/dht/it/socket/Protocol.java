@@ -89,4 +89,32 @@ public final class Protocol {
     public enum GetResponseDatas {
         RESOURCE
     }
+
+
+    /**
+     * GET SUCCESSOR BEGIN
+     */
+    public static final MessageType GET_SUCCESSOR = MessageType.builder()
+            .name("GET_SUCCESSOR")
+            .amountParams(GetParams.values().length)
+            .build();
+
+    public enum GetSuccessorParams {
+    }
+
+    /**
+     * GET END
+     */
+
+    /**
+     * GET_RESPONSE BEGIN
+     */
+    public static final MessageType GET_SUCCESSOR_RESPONSE = MessageType.builder()
+            .name("GET_SUCCESSOR_RESPONSE")
+            .amountParams(GetResponseParams.values().length)
+            .build();
+
+    public enum GetSuccessorResponseParams {
+        SUCCESSOR
+    }
 }

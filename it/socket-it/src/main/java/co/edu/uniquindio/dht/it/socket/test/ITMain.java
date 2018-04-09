@@ -1,8 +1,8 @@
 package co.edu.uniquindio.dht.it.socket.test;
 
-import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
-import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerFactory;
-import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
+import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
+import co.edu.uniquindio.utils.communication.message.SequenceGeneratorImpl;
+import co.edu.uniquindio.utils.communication.transfer.network.MessageSerialization;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
@@ -17,14 +17,7 @@ public class ITMain {
     }
 
     @Bean
-    public MessageProcessor messageProcessorIT() {
-        return new ITMessageProcessor();
-    }
-
-    @Bean
-    public CommunicationManager communicationManagerIT(CommunicationManagerFactory communicationManagerFactory, MessageProcessor messageProcessorIT) {
-        CommunicationManager communicationManager = communicationManagerFactory.newCommunicationManager("node");
-        communicationManager.addMessageProcessor("node", messageProcessorIT);
-        return communicationManager;
+    public SequenceGenerator itSequenceGenerator() {
+        return new SequenceGeneratorImpl();
     }
 }

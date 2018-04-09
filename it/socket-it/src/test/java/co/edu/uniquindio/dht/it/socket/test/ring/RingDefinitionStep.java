@@ -1,14 +1,19 @@
-package co.edu.uniquindio.dht.it.socket.ring;
+package co.edu.uniquindio.dht.it.socket.test.ring;
 
 import co.edu.uniquindio.chord.node.ChordNode;
+import co.edu.uniquindio.chord.starter.ChordProperties;
 import co.edu.uniquindio.dhash.node.DHashNode;
 import co.edu.uniquindio.dhash.starter.DHashProperties;
-import co.edu.uniquindio.dht.it.socket.CucumberRoot;
-import co.edu.uniquindio.dht.it.socket.World;
-import co.edu.uniquindio.overlay.KeyFactory;
+import co.edu.uniquindio.dht.it.socket.Protocol;
+import co.edu.uniquindio.dht.it.socket.test.CucumberRoot;
+import co.edu.uniquindio.dht.it.socket.test.MessageClient;
+import co.edu.uniquindio.dht.it.socket.test.SocketITProperties;
+import co.edu.uniquindio.dht.it.socket.test.World;
 import co.edu.uniquindio.storage.StorageException;
-import co.edu.uniquindio.storage.StorageNodeFactory;
-import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
+import co.edu.uniquindio.utils.communication.message.Address;
+import co.edu.uniquindio.utils.communication.message.Message;
+import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
+import co.edu.uniquindio.utils.communication.transfer.network.MessageSerialization;
 import cucumber.api.java.After;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -18,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 
@@ -28,15 +32,15 @@ public class RingDefinitionStep extends CucumberRoot {
     @Autowired
     private World world;
     @Autowired
-    private StorageNodeFactory storageNodeFactory;
-    @Autowired
-    private KeyFactory keyFactory;
-    @Autowired
-    private CommunicationManager communicationManagerChord;
-    @Autowired
-    private CommunicationManager communicationManagerDHash;
+    private MessageSerialization messageSerialization;
     @Autowired
     private DHashProperties dHashProperties;
+    @Autowired
+    private ChordProperties chordProperties;
+    @Autowired
+    private SocketITProperties socketITProperties;
+    @Autowired
+    private SequenceGenerator itSequenceGenerator;
     private List<Node> nodes;
 
     @Given("^I use the \\\"([^\\\"]*)\\\" as a gateway$")
@@ -46,7 +50,7 @@ public class RingDefinitionStep extends CucumberRoot {
 
     @Given("^I set the key length to (\\d+)$")
     public void key_length_is(int keyLength) throws Throwable {
-        keyFactory.updateKeyLength(keyLength);
+        assertThat(keyLength).isEqualTo(chordProperties.getKeyLength());
     }
 
     @Given("^I have the following node's names and hashings:$")
@@ -56,53 +60,30 @@ public class RingDefinitionStep extends CucumberRoot {
 
     @Given("^The \"([^\"]*)\" is offline$")
     public void the_is_offline(String node) throws Throwable {
-        Ring ring = world.getRing();
-
-        DHashNode dHashNode = ring.getNode(node);
-
-        ChordNode chordNode = (ChordNode) dHashNode.getOverlayNode();
-
-        chordNode.stopStabilizing();
-
-        communicationManagerChord.removeMessageProcessor(node);
-        communicationManagerDHash.removeMessageProcessor(node);
+        throw new NoSuchMethodException();
     }
 
     @Given("^The \"([^\"]*)\" left the network$")
     public void the_left_the_network(String node) throws Throwable {
-        Ring ring = world.getRing();
-
-        DHashNode dHashNode = ring.getNode(node);
-
-        dHashNode.leave();
+        throw new NoSuchMethodException();
     }
 
     @Given("^The \"([^\"]*)\" is added to the network$")
     public void the_is_added_to_the_network(String node) throws Throwable {
-        Ring ring = world.getRing();
 
-        ring.add(node, (DHashNode) storageNodeFactory.createNode(node));
     }
 
     @When("^I create the Chord ring$")
     public void chord_ring_is_created() throws Throwable {
         Ring ring = new Ring();
-
         for (Node node : nodes) {
-            ring.add(node.getName(), (DHashNode) storageNodeFactory.createNode(node.getName()));
-        }
+            MessageClient messageClient = new MessageClient(messageSerialization, socketITProperties.getPortMapping().get(node.getName()));
 
-        for (Node node : nodes) {
-            DHashNode dHashNode = ring.getNode(node.getName());
-
-            ChordNode chordNode = (ChordNode) dHashNode.getOverlayNode();
-
-            assertThat(chordNode.getKey()).isNotNull();
-            assertThat(chordNode.getKey().getValue()).isEqualTo(node.getName());
-            assertThat(chordNode.getKey().getHashing()).isEqualTo(new BigInteger(node.getHashing()));
+            ring.add(node.getName(), messageClient);
         }
 
         world.setRing(ring);
+
     }
 
     @When("^I wait for stabilizing after (\\d+) seconds$")
@@ -115,30 +96,30 @@ public class RingDefinitionStep extends CucumberRoot {
         Ring ring = world.getRing();
 
         for (String node : nodeSuccessors.keySet()) {
-            DHashNode dHashNode = ring.getNode(node);
+            MessageClient messageClient = new MessageClient(messageSerialization, socketITProperties.getPortMapping().get(node));
 
-            ChordNode chordNode = (ChordNode) dHashNode.getOverlayNode();
+            Message getSuccessor = Message.builder()
+                    .sequenceNumber(itSequenceGenerator.getSequenceNumber())
+                    .sendType(Message.SendType.REQUEST)
+                    .messageType(Protocol.GET_SUCCESSOR)
+                    .address(Address.builder()
+                            .source("localhost")
+                            .destination("localhost")
+                            .build())
+                    .build();
 
-            assertThat(chordNode.getSuccessor()).isNotNull();
-            assertThat(chordNode.getSuccessor().getValue()).isEqualTo(nodeSuccessors.get(node));
+            Message response = messageClient.send(getSuccessor);
+
+            String successor = response.getParam(Protocol.GetSuccessorResponseParams.SUCCESSOR.name());
+
+            assertThat(successor).isNotNull();
+            assertThat(successor).isEqualTo(nodeSuccessors.get(node));
         }
+
     }
 
     @After
     public void destroyRing() throws StorageException, IOException {
-        Ring ring = world.getRing();
-
-        for (String nodeName : ring.getNodeNames()) {
-            DHashNode dHashNode = ring.getNode(nodeName);
-
-            ChordNode chordNode = (ChordNode) dHashNode.getOverlayNode();
-
-            chordNode.stopStabilizing();
-
-            communicationManagerChord.removeMessageProcessor(nodeName);
-            communicationManagerDHash.removeMessageProcessor(nodeName);
-        }
-
         world.setRing(null);
 
         FileUtils.deleteDirectory(new File(dHashProperties.getResourceDirectory()));

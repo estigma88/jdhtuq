@@ -4,7 +4,8 @@ p2p:
     replication-amount: 1
   chord:
     stable-ring-time: 2000
-    stable-ring-thread-pool: 20
+    stable-ring-thread-pool: 1
+    key-length: 16
 communication:
   socket:
     instances:
@@ -16,13 +17,4 @@ communication:
         PORT_TCP_RESOURCE: 22012
         PORT_TCP: 22013
         PORT_UDP: 22014
-        BUFFER_SIZE_UDP: 1024
-      node:
-        RESPONSE_TIME: 2000
-        BUFFER_SIZE_MULTICAST: 1024
-        IP_MULTICAST: 224.0.0.5
-        PORT_MULTICAST: 22021
-        PORT_TCP_RESOURCE: 22022
-        PORT_TCP: 22023
-        PORT_UDP: 22024
         BUFFER_SIZE_UDP: 1024

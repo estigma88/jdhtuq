@@ -1,9 +1,11 @@
 package co.edu.uniquindio.dht.it.socket.node;
 
+import co.edu.uniquindio.chord.node.ChordNode;
+import co.edu.uniquindio.dhash.node.DHashNode;
 import co.edu.uniquindio.dhash.resource.BytesResource;
 import co.edu.uniquindio.dht.it.socket.Protocol;
 import co.edu.uniquindio.storage.StorageException;
-import co.edu.uniquindio.storage.StorageNode;
+import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
 import org.apache.log4j.Logger;
@@ -12,9 +14,9 @@ public class NodeMessageProcessor implements MessageProcessor {
     private static final Logger logger = Logger
             .getLogger(NodeMessageProcessor.class);
 
-    private final StorageNode storageNode;
+    private final DHashNode storageNode;
 
-    public NodeMessageProcessor(StorageNode storageNode) {
+    public NodeMessageProcessor(DHashNode storageNode) {
         this.storageNode = storageNode;
     }
 
@@ -25,11 +27,28 @@ public class NodeMessageProcessor implements MessageProcessor {
         if (request.getMessageType().equals(Protocol.GET)) {
             response = processGet(request);
         }
+        if (request.getMessageType().equals(Protocol.GET_SUCCESSOR)) {
+            response = processGetSuccessor(request);
+        }
         if (request.getMessageType().equals(Protocol.PUT)) {
             response = processPut(request);
         }
 
         return response;
+    }
+
+    private Message processGetSuccessor(Message request) {
+        ChordNode overlayNode = (ChordNode) storageNode.getOverlayNode();
+
+        return Message.builder()
+                .sendType(Message.SendType.RESPONSE)
+                .messageType(Protocol.GET_SUCCESSOR_RESPONSE)
+                .address(Address.builder()
+                        .source(request.getAddress().getDestination())
+                        .destination(request.getAddress().getSource())
+                        .build())
+                .param(Protocol.GetSuccessorResponseParams.SUCCESSOR.name(), overlayNode.getSuccessor().getValue())
+                .build();
     }
 
     private Message processPut(Message request) {
@@ -42,6 +61,10 @@ public class NodeMessageProcessor implements MessageProcessor {
             return Message.builder()
                     .sendType(Message.SendType.RESPONSE)
                     .messageType(Protocol.PUT_RESPONSE)
+                    .address(Address.builder()
+                            .source(request.getAddress().getDestination())
+                            .destination(request.getAddress().getSource())
+                            .build())
                     .param(Protocol.PutResponseParams.MESSAGE.name(), e.getMessage())
                     .build();
         }
@@ -49,6 +72,10 @@ public class NodeMessageProcessor implements MessageProcessor {
         return Message.builder()
                 .sendType(Message.SendType.RESPONSE)
                 .messageType(Protocol.PUT_RESPONSE)
+                .address(Address.builder()
+                        .source(request.getAddress().getDestination())
+                        .destination(request.getAddress().getSource())
+                        .build())
                 .param(Protocol.PutResponseParams.MESSAGE.name(), "OK")
                 .build();
     }
@@ -60,6 +87,10 @@ public class NodeMessageProcessor implements MessageProcessor {
             return Message.builder()
                     .sendType(Message.SendType.RESPONSE)
                     .messageType(Protocol.GET_RESPONSE)
+                    .address(Address.builder()
+                            .source(request.getAddress().getDestination())
+                            .destination(request.getAddress().getSource())
+                            .build())
                     .param(Protocol.GetResponseParams.MESSAGE.name(), "OK")
                     .data(Protocol.GetResponseDatas.RESOURCE.name(), resource.getBytes())
                     .build();
@@ -68,6 +99,10 @@ public class NodeMessageProcessor implements MessageProcessor {
             return Message.builder()
                     .sendType(Message.SendType.RESPONSE)
                     .messageType(Protocol.GET_RESPONSE)
+                    .address(Address.builder()
+                            .source(request.getAddress().getDestination())
+                            .destination(request.getAddress().getSource())
+                            .build())
                     .param(Protocol.GetResponseParams.MESSAGE.name(), e.getMessage())
                     .build();
         }

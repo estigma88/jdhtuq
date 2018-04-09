@@ -1,100 +1,185 @@
 version: '3'
 services:
+  172.16.0.43:
+    build: .
+    ports:
+      - 23001:23001
+    networks:
+      chord:
+        ipv4_address: 172.16.0.43
+    volumes:
+      - ./out/dhash:/out/dhash
   172.16.0.4:
     build: .
+    ports:
+      - 23002:23001
     networks:
       chord:
         ipv4_address: 172.16.0.4
+    volumes:
+      - ./out/dhash:/out/dhash
   172.16.0.5:
     build: .
+    ports:
+      - 23003:23001
     networks:
       chord:
         ipv4_address: 172.16.0.5
+    volumes:
+      - ./out/dhash:/out/dhash
   172.16.0.6:
     build: .
+    ports:
+      - 23004:23001
     networks:
       chord:
         ipv4_address: 172.16.0.6
+    volumes:
+      - ./out/dhash:/out/dhash
   172.16.0.7:
     build: .
+    ports:
+      - 23005:23001
     networks:
       chord:
         ipv4_address: 172.16.0.7
+    volumes:
+      - ./out/dhash:/out/dhash
   172.16.0.8:
     build: .
+    ports:
+      - 23006:23001
     networks:
       chord:
         ipv4_address: 172.16.0.8
+    volumes:
+      - ./out/dhash:/out/dhash
   172.16.0.9:
     build: .
+    ports:
+      - 23007:23001
     networks:
       chord:
         ipv4_address: 172.16.0.9
+    volumes:
+      - ./out/dhash:/out/dhash
   172.16.0.10:
     build: .
+    ports:
+      - 23008:23001
     networks:
       chord:
         ipv4_address: 172.16.0.10
+    volumes:
+      - ./out/dhash:/out/dhash
   172.16.0.11:
     build: .
+    ports:
+      - 23009:23001
     networks:
       chord:
         ipv4_address: 172.16.0.11
+    volumes:
+      - ./out/dhash:/out/dhash
   172.16.0.12:
     build: .
+    ports:
+      - 23010:23001
     networks:
       chord:
         ipv4_address: 172.16.0.12
+    volumes:
+      - ./out/dhash:/out/dhash
   172.16.0.13:
     build: .
+    ports:
+      - 23011:23001
     networks:
       chord:
         ipv4_address: 172.16.0.13
+    volumes:
+      - ./out/dhash:/out/dhash
   172.16.0.14:
     build: .
+    ports:
+      - 23012:23001
     networks:
       chord:
         ipv4_address: 172.16.0.14
+    volumes:
+      - ./out/dhash:/out/dhash
   172.16.0.15:
     build: .
+    ports:
+      - 23013:23001
     networks:
       chord:
         ipv4_address: 172.16.0.15
+    volumes:
+      - ./out/dhash:/out/dhash
   172.16.0.16:
     build: .
+    ports:
+      - 23014:23001
     networks:
       chord:
         ipv4_address: 172.16.0.16
+    volumes:
+      - ./out/dhash:/out/dhash
   172.16.0.17:
     build: .
+    ports:
+      - 23015:23001
     networks:
       chord:
         ipv4_address: 172.16.0.17
+    volumes:
+      - ./out/dhash:/out/dhash
   172.16.0.18:
     build: .
+    ports:
+      - 23016:23001
     networks:
       chord:
         ipv4_address: 172.16.0.18
+    volumes:
+      - ./out/dhash:/out/dhash
   172.16.0.19:
     build: .
+    ports:
+      - 23017:23001
     networks:
       chord:
         ipv4_address: 172.16.0.19
+    volumes:
+      - ./out/dhash:/out/dhash
   172.16.0.20:
     build: .
+    ports:
+      - 23018:23001
     networks:
       chord:
         ipv4_address: 172.16.0.20
+    volumes:
+      - ./out/dhash:/out/dhash
   172.16.0.21:
     build: .
+    ports:
+      - 23019:23001
     networks:
       chord:
         ipv4_address: 172.16.0.21
+    volumes:
+      - ./out/dhash:/out/dhash
   172.16.0.22:
     build: .
+    ports:
+      - 23020:23001
     networks:
       chord:
         ipv4_address: 172.16.0.22
+    volumes:
+      - ./out/dhash:/out/dhash
 networks:
   chord:
     ipam:
