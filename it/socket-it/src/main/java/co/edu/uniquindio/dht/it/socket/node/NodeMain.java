@@ -1,5 +1,6 @@
 package co.edu.uniquindio.dht.it.socket.node;
 
+import co.edu.uniquindio.dhash.node.DHashNode;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.StorageNode;
 import co.edu.uniquindio.storage.StorageNodeFactory;
@@ -47,7 +48,7 @@ public class NodeMain {
 
     @Bean
     public MessageProcessor messageProcessorSocketIT(StorageNode storageNode) {
-        return new NodeMessageProcessor(storageNode);
+        return new NodeMessageProcessor((DHashNode) storageNode);
     }
 
     @Bean

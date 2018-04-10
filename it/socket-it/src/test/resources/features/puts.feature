@@ -1,4 +1,4 @@
-
+@enable
 Feature: I put resources into the network
   Background: I create a stable ring
     Given I set the key length to 16
@@ -25,7 +25,7 @@ Feature: I put resources into the network
       | 172.16.0.21 | 32272 |
       | 172.16.0.22 | 64158 |
     And I create the Chord ring
-    And I wait for stabilizing after 1 seconds
+    And I wait for stabilizing after 60 seconds
 
   Scenario: I put resources into the network
     Given I have the resources names and values:

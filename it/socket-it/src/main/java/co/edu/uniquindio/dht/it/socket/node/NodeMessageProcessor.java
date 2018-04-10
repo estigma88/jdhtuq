@@ -55,7 +55,29 @@ public class NodeMessageProcessor implements MessageProcessor {
         BytesResource resource = new BytesResource(request.getParam(Protocol.PutParams.RESOURCE_NAME.name()), request.getData(Protocol.PutDatas.RESOURCE.name()));
 
         try {
-            storageNode.put(resource);
+            boolean success = storageNode.put(resource);
+
+            if (success){
+                return Message.builder()
+                        .sendType(Message.SendType.RESPONSE)
+                        .messageType(Protocol.PUT_RESPONSE)
+                        .address(Address.builder()
+                                .source(request.getAddress().getDestination())
+                                .destination(request.getAddress().getSource())
+                                .build())
+                        .param(Protocol.PutResponseParams.MESSAGE.name(), "OK")
+                        .build();
+            }else{
+                return Message.builder()
+                        .sendType(Message.SendType.RESPONSE)
+                        .messageType(Protocol.PUT_RESPONSE)
+                        .address(Address.builder()
+                                .source(request.getAddress().getDestination())
+                                .destination(request.getAddress().getSource())
+                                .build())
+                        .param(Protocol.PutResponseParams.MESSAGE.name(), "Put unsuccessful")
+                        .build();
+            }
         } catch (StorageException e) {
             logger.error("Problem doing put", e);
             return Message.builder()
@@ -68,16 +90,6 @@ public class NodeMessageProcessor implements MessageProcessor {
                     .param(Protocol.PutResponseParams.MESSAGE.name(), e.getMessage())
                     .build();
         }
-
-        return Message.builder()
-                .sendType(Message.SendType.RESPONSE)
-                .messageType(Protocol.PUT_RESPONSE)
-                .address(Address.builder()
-                        .source(request.getAddress().getDestination())
-                        .destination(request.getAddress().getSource())
-                        .build())
-                .param(Protocol.PutResponseParams.MESSAGE.name(), "OK")
-                .build();
     }
 
     private Message processGet(Message request) {

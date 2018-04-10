@@ -4,7 +4,9 @@ import co.edu.uniquindio.dhash.starter.DHashProperties;
 import co.edu.uniquindio.dht.it.socket.Protocol;
 import co.edu.uniquindio.dht.it.socket.test.CucumberRoot;
 import co.edu.uniquindio.dht.it.socket.test.MessageClient;
+import co.edu.uniquindio.dht.it.socket.test.SocketITProperties;
 import co.edu.uniquindio.dht.it.socket.test.World;
+import co.edu.uniquindio.dht.it.socket.test.ring.Ring;
 import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
@@ -31,7 +33,7 @@ public class PutsDefinitionStep extends CucumberRoot {
     @Autowired
     private DHashProperties dHashProperties;
     @Autowired
-    private MessageClient messageClient;
+    private SocketITProperties socketITProperties;
     @Autowired
     private SequenceGenerator itSequenceGenerator;
     private Map<String, Content> contents;
@@ -44,6 +46,10 @@ public class PutsDefinitionStep extends CucumberRoot {
 
     @When("^I put resources into the network$")
     public void i_put_resources_into_the_network() throws Throwable {
+        Ring ring = world.getRing();
+
+        MessageClient messageClient = ring.getNode(world.getNodeGateway());
+
         for (String contentName : contents.keySet()) {
             Message put = Message.builder()
                     .sequenceNumber(itSequenceGenerator.getSequenceNumber())
@@ -71,7 +77,7 @@ public class PutsDefinitionStep extends CucumberRoot {
             String[] nodes = nodesByResource.get(contentName).split(",");
 
             for (String node : nodes) {
-                Path resourcePath = Paths.get(dHashProperties.getResourceDirectory() + node + "/" + contentName);
+                Path resourcePath = Paths.get(socketITProperties.getDhash().getResourceDirectory() + node + "/" + contentName);
 
                 File resource = resourcePath.toFile();
 

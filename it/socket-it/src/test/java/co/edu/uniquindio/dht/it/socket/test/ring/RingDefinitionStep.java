@@ -77,7 +77,7 @@ public class RingDefinitionStep extends CucumberRoot {
     public void chord_ring_is_created() throws Throwable {
         Ring ring = new Ring();
         for (Node node : nodes) {
-            MessageClient messageClient = new MessageClient(messageSerialization, socketITProperties.getPortMapping().get(node.getName()));
+            MessageClient messageClient = new MessageClient(messageSerialization, socketITProperties.getPortBy(node.getName()));
 
             ring.add(node.getName(), messageClient);
         }
@@ -96,7 +96,7 @@ public class RingDefinitionStep extends CucumberRoot {
         Ring ring = world.getRing();
 
         for (String node : nodeSuccessors.keySet()) {
-            MessageClient messageClient = new MessageClient(messageSerialization, socketITProperties.getPortMapping().get(node));
+            MessageClient messageClient = ring.getNode(node);
 
             Message getSuccessor = Message.builder()
                     .sequenceNumber(itSequenceGenerator.getSequenceNumber())
@@ -122,6 +122,6 @@ public class RingDefinitionStep extends CucumberRoot {
     public void destroyRing() throws StorageException, IOException {
         world.setRing(null);
 
-        FileUtils.deleteDirectory(new File(dHashProperties.getResourceDirectory()));
+        FileUtils.deleteDirectory(new File(socketITProperties.getDhash().getResourceDirectory()));
     }
 }
