@@ -117,4 +117,31 @@ public final class Protocol {
     public enum GetSuccessorResponseParams {
         SUCCESSOR
     }
+
+    /**
+     * LEAVE BEGIN
+     */
+    public static final MessageType LEAVE = MessageType.builder()
+            .name("LEAVE")
+            .amountParams(GetParams.values().length)
+            .build();
+
+    public enum LeaveParams {
+    }
+
+    /**
+     * GET END
+     */
+
+    /**
+     * LEAVE_RESPONSE BEGIN
+     */
+    public static final MessageType LEAVE_RESPONSE = MessageType.builder()
+            .name("LEAVE_RESPONSE")
+            .amountParams(GetResponseParams.values().length)
+            .build();
+
+    public enum LeaveResponseParams {
+        MESSAGE
+    }
 }

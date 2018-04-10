@@ -33,8 +33,38 @@ public class NodeMessageProcessor implements MessageProcessor {
         if (request.getMessageType().equals(Protocol.PUT)) {
             response = processPut(request);
         }
+        if (request.getMessageType().equals(Protocol.LEAVE)) {
+            response = processLeave(request);
+        }
 
         return response;
+    }
+
+    private Message processLeave(Message request) {
+        try {
+            storageNode.leave();
+
+            return Message.builder()
+                    .sendType(Message.SendType.RESPONSE)
+                    .messageType(Protocol.LEAVE_RESPONSE)
+                    .address(Address.builder()
+                            .source(request.getAddress().getDestination())
+                            .destination(request.getAddress().getSource())
+                            .build())
+                    .param(Protocol.LeaveResponseParams.MESSAGE.name(), "OK")
+                    .build();
+        } catch (StorageException e) {
+            logger.error("Problem doing put", e);
+            return Message.builder()
+                    .sendType(Message.SendType.RESPONSE)
+                    .messageType(Protocol.LEAVE_RESPONSE)
+                    .address(Address.builder()
+                            .source(request.getAddress().getDestination())
+                            .destination(request.getAddress().getSource())
+                            .build())
+                    .param(Protocol.LeaveResponseParams.MESSAGE.name(), e.getMessage())
+                    .build();
+        }
     }
 
     private Message processGetSuccessor(Message request) {

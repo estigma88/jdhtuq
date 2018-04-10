@@ -65,7 +65,24 @@ public class RingDefinitionStep extends CucumberRoot {
 
     @Given("^The \"([^\"]*)\" left the network$")
     public void the_left_the_network(String node) throws Throwable {
-        throw new NoSuchMethodException();
+        Ring ring = world.getRing();
+
+        MessageClient messageClient = ring.getNode(node);
+
+        Message leave = Message.builder()
+                .sequenceNumber(itSequenceGenerator.getSequenceNumber())
+                .sendType(Message.SendType.REQUEST)
+                .messageType(Protocol.LEAVE)
+                .address(Address.builder()
+                        .source("localhost")
+                        .destination("localhost")
+                        .build())
+                .build();
+
+        Message response = messageClient.send(leave);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getParam(Protocol.PutResponseParams.MESSAGE.name())).isEqualTo("OK");
     }
 
     @Given("^The \"([^\"]*)\" is added to the network$")
