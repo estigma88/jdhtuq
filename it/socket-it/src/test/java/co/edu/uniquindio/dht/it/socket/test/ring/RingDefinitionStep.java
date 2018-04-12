@@ -1,8 +1,6 @@
 package co.edu.uniquindio.dht.it.socket.test.ring;
 
-import co.edu.uniquindio.chord.node.ChordNode;
 import co.edu.uniquindio.chord.starter.ChordProperties;
-import co.edu.uniquindio.dhash.node.DHashNode;
 import co.edu.uniquindio.dhash.starter.DHashProperties;
 import co.edu.uniquindio.dht.it.socket.Protocol;
 import co.edu.uniquindio.dht.it.socket.test.CucumberRoot;
@@ -60,9 +58,10 @@ public class RingDefinitionStep extends CucumberRoot {
 
     @Given("^The \"([^\"]*)\" is offline$")
     public void the_is_offline(String node) throws Throwable {
-        //TODO Kill the container node
-        //docker-compose up
-        //docker-compose kill node
+        Process killNode = new ProcessBuilder("docker-compose", "kill", node).inheritIO().start();
+
+        killNode.waitFor();
+
         node.length();
     }
 
@@ -88,12 +87,19 @@ public class RingDefinitionStep extends CucumberRoot {
         assertThat(response.getParam(Protocol.PutResponseParams.MESSAGE.name())).isEqualTo("OK");
     }
 
+    @Given("^The \"([^\"]*)\" is not started$")
+    public void the_is_stopped(String node) throws Throwable {
+        Process startNode = new ProcessBuilder("docker-compose", "stop", node).inheritIO().start();
+
+        startNode.waitFor();
+    }
+
     @Given("^The \"([^\"]*)\" is added to the network$")
     public void the_is_added_to_the_network(String node) throws Throwable {
-        //TODO Add docker container node
-        //docker-compose up
-        //docker-compose stop node
-        //docker-compose start node
+        Process startNode = new ProcessBuilder("docker-compose", "start", node).inheritIO().start();
+
+        startNode.waitFor();
+
         addNode(world.getRing(), node);
     }
 
@@ -106,6 +112,7 @@ public class RingDefinitionStep extends CucumberRoot {
 
         world.setRing(ring);
 
+        new ProcessBuilder("docker-compose", "up").inheritIO().start();
     }
 
     private void addNode(Ring ring, String node) {
@@ -147,8 +154,12 @@ public class RingDefinitionStep extends CucumberRoot {
     }
 
     @After
-    public void destroyRing() throws StorageException, IOException {
+    public void destroyRing() throws StorageException, IOException, InterruptedException {
         world.setRing(null);
+
+        Process destroyRing = new ProcessBuilder("docker-compose", "down").inheritIO().start();
+
+        destroyRing.waitFor();
 
         FileUtils.deleteDirectory(new File(socketITProperties.getDhash().getResourceDirectory()));
     }
