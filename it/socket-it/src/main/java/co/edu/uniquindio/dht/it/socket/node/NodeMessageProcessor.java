@@ -1,5 +1,6 @@
 package co.edu.uniquindio.dht.it.socket.node;
 
+import co.edu.uniquindio.chord.ChordKey;
 import co.edu.uniquindio.chord.node.ChordNode;
 import co.edu.uniquindio.dhash.node.DHashNode;
 import co.edu.uniquindio.dhash.resource.BytesResource;
@@ -9,6 +10,10 @@ import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
 import org.apache.log4j.Logger;
+
+import javax.swing.text.html.Option;
+import java.math.BigInteger;
+import java.util.Optional;
 
 public class NodeMessageProcessor implements MessageProcessor {
     private static final Logger logger = Logger
@@ -69,6 +74,8 @@ public class NodeMessageProcessor implements MessageProcessor {
 
     private Message processGetSuccessor(Message request) {
         ChordNode overlayNode = (ChordNode) storageNode.getOverlayNode();
+
+        logger.info("Querying current successor: " + Optional.ofNullable(overlayNode.getSuccessor()).orElse(new ChordKey(BigInteger.ZERO)).getValue());
 
         return Message.builder()
                 .sendType(Message.SendType.RESPONSE)

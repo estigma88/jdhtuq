@@ -60,7 +60,8 @@ public class RingDefinitionStep extends CucumberRoot {
 
     @Given("^The \"([^\"]*)\" is offline$")
     public void the_is_offline(String node) throws Throwable {
-        throw new NoSuchMethodException();
+        //TODO Kill the container node
+        node.length();
     }
 
     @Given("^The \"([^\"]*)\" left the network$")
