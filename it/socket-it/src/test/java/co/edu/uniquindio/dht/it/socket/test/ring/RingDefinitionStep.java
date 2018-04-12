@@ -61,6 +61,8 @@ public class RingDefinitionStep extends CucumberRoot {
     @Given("^The \"([^\"]*)\" is offline$")
     public void the_is_offline(String node) throws Throwable {
         //TODO Kill the container node
+        //docker-compose up
+        //docker-compose kill node
         node.length();
     }
 
@@ -88,20 +90,28 @@ public class RingDefinitionStep extends CucumberRoot {
 
     @Given("^The \"([^\"]*)\" is added to the network$")
     public void the_is_added_to_the_network(String node) throws Throwable {
-
+        //TODO Add docker container node
+        //docker-compose up
+        //docker-compose stop node
+        //docker-compose start node
+        addNode(world.getRing(), node);
     }
 
     @When("^I create the Chord ring$")
     public void chord_ring_is_created() throws Throwable {
         Ring ring = new Ring();
         for (Node node : nodes) {
-            MessageClient messageClient = new MessageClient(messageSerialization, socketITProperties.getPortBy(node.getName()));
-
-            ring.add(node.getName(), messageClient);
+            addNode(ring, node.getName());
         }
 
         world.setRing(ring);
 
+    }
+
+    private void addNode(Ring ring, String node) {
+        MessageClient messageClient = new MessageClient(messageSerialization, socketITProperties.getPortBy(node));
+
+        ring.add(node, messageClient);
     }
 
     @When("^I wait for stabilizing after (\\d+) seconds$")
