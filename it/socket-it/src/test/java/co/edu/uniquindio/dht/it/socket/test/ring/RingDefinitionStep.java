@@ -89,9 +89,9 @@ public class RingDefinitionStep extends CucumberRoot {
 
     @Given("^The \"([^\"]*)\" is not started$")
     public void the_is_stopped(String node) throws Throwable {
-        Process startNode = new ProcessBuilder("docker-compose", "stop", node).inheritIO().start();
+        Process stop = new ProcessBuilder("docker-compose", "stop", node).inheritIO().start();
 
-        startNode.waitFor();
+        stop.waitFor();
     }
 
     @Given("^The \"([^\"]*)\" is added to the network$")

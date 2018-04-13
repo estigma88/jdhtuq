@@ -1,4 +1,4 @@
-
+@enable
 Feature: A node is add to the network
   Background: I create a stable ring
     Given I set the key length to 16
@@ -24,7 +24,7 @@ Feature: A node is add to the network
       | 172.16.0.21 | 32272 |
       | 172.16.0.22 | 64158 |
     And I create the Chord ring
-    And I wait for stabilizing after 5 seconds
+    And I wait for stabilizing after 15 seconds
     And The "172.16.0.10" is not started
     And I wait for stabilizing after 60 seconds
     And I have the resources names and values:
