@@ -39,26 +39,26 @@ public interface StorageNode {
      * @return The {@link Resource}
      * @throws StorageException throw when occur an error.
      */
-    public Resource get(String id) throws StorageException;
+    Resource get(String id) throws StorageException;
 
     /**
      * Puts the specified resource into the network.
      *
      * @param resource The resource that will be put.
+     * @return False if the resource already exists, true if the put was successful
      * @throws StorageException throw when occur an error.
-     * @return  False if the resource already exists, true if the put was successful
      */
-    public boolean put(Resource resource) throws StorageException;
+    boolean put(Resource resource) throws StorageException;
 
     /**
      * Allows the node to leave in a regular mode.
      *
      * @throws StorageException throw when occur an error.
      */
-    public void leave() throws StorageException;
+    void leave() throws StorageException;
 
     /**
      * Gets the name of the storage node.
      */
-    public String getName();
+    String getName();
 }

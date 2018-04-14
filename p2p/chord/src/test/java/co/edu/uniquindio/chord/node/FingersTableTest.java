@@ -1,5 +1,6 @@
 package co.edu.uniquindio.chord.node;
 
+import co.edu.uniquindio.chord.ChordKey;
 import co.edu.uniquindio.overlay.Key;
 import co.edu.uniquindio.overlay.KeyFactory;
 import org.junit.Before;
@@ -15,17 +16,17 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FingersTableTest {
-    private Key[] fingersTableArray;
+    private ChordKey[] fingersTableArray;
     @Mock
-    private Key finger1;
+    private ChordKey finger1;
     @Mock
-    private Key finger2;
+    private ChordKey finger2;
     @Mock
-    private Key finger3;
+    private ChordKey finger3;
     @Mock
-    private Key key;
+    private ChordKey key;
     @Mock
-    private Key successor;
+    private ChordKey successor;
     @Mock
     private KeyFactory keyFactory;
     @Mock
@@ -36,44 +37,44 @@ public class FingersTableTest {
     public void before() {
         when(chordNode.getKey()).thenReturn(key);
 
-        fingersTableArray = new Key[]{finger1, finger2, finger3};
+        fingersTableArray = new ChordKey[]{finger1, finger2, finger3};
         fingersTable = spy(new FingersTable(fingersTableArray, chordNode, 0, 3, keyFactory));
     }
 
     @Test
     public void findClosestPresedingNode_notFound_returnNodeKey() {
-        Key search = mock(Key.class);
+        ChordKey search = mock(ChordKey.class);
 
-        Key result = fingersTable.findClosestPresedingNode(search);
+        ChordKey result = fingersTable.findClosestPresedingNode(search);
 
         assertThat(result).isEqualTo(key);
     }
 
     @Test
     public void findClosestPresedingNode_notFoundNullFingers_returnNodeKey() {
-        fingersTable = spy(new FingersTable(new Key[]{null, null, null}, chordNode, 0, 3, keyFactory));
+        fingersTable = spy(new FingersTable(new ChordKey[]{null, null, null}, chordNode, 0, 3, keyFactory));
 
-        Key search = mock(Key.class);
+        ChordKey search = mock(ChordKey.class);
 
-        Key result = fingersTable.findClosestPresedingNode(search);
+        ChordKey result = fingersTable.findClosestPresedingNode(search);
 
         assertThat(result).isEqualTo(key);
     }
 
     @Test
     public void findClosestPresedingNode_found_returnFingerKey() {
-        Key search = mock(Key.class);
+        ChordKey search = mock(ChordKey.class);
 
         when(finger2.isBetween(key, search)).thenReturn(true);
 
-        Key result = fingersTable.findClosestPresedingNode(search);
+        ChordKey result = fingersTable.findClosestPresedingNode(search);
 
         assertThat(result).isEqualTo(finger2);
     }
 
     @Test
     public void fixFingers_successorNotFound_setNodeSuccessor() {
-        Key next = mock(Key.class);
+        ChordKey next = mock(ChordKey.class);
 
         doReturn(next).when(fingersTable).createNext(key);
 
@@ -87,8 +88,8 @@ public class FingersTableTest {
 
     @Test
     public void fixFingers_successorFound_setKeyFound() {
-        Key next = mock(Key.class);
-        Key found = mock(Key.class);
+        ChordKey next = mock(ChordKey.class);
+        ChordKey found = mock(ChordKey.class);
 
         doReturn(next).when(fingersTable).createNext(key);
 
@@ -103,7 +104,7 @@ public class FingersTableTest {
     public void fixFingers_turnFingers_setNodeSuccessor() {
         fingersTable = spy(new FingersTable(fingersTableArray, chordNode, 3, 3, keyFactory));
 
-        Key next = mock(Key.class);
+        ChordKey next = mock(ChordKey.class);
 
         doReturn(next).when(fingersTable).createNext(key);
 
@@ -117,7 +118,7 @@ public class FingersTableTest {
 
     @Test
     public void setSuccessor_set_newFirstFinger() {
-        Key newSuccessor = mock(Key.class);
+        ChordKey newSuccessor = mock(ChordKey.class);
 
         fingersTable.setSuccessor(newSuccessor);
 
@@ -126,14 +127,14 @@ public class FingersTableTest {
 
     @Test
     public void createNext_next0_newKey() {
-        Key key = mock(Key.class);
-        Key newKey = mock(Key.class);
+        ChordKey key = mock(ChordKey.class);
+        ChordKey newKey = mock(ChordKey.class);
 
         when(key.getHashing()).thenReturn(new BigInteger("10"));
         when(newKey.getHashing()).thenReturn(new BigInteger("3"));
         when(keyFactory.newKey(new BigInteger("3"))).thenReturn(newKey);
 
-        Key next = fingersTable.createNext(key);
+        ChordKey next = fingersTable.createNext(key);
 
         assertThat(next.getHashing()).isEqualTo(new BigInteger("3"));
     }
@@ -142,14 +143,14 @@ public class FingersTableTest {
     public void createNext_next2_newKey() {
         fingersTable = spy(new FingersTable(fingersTableArray, chordNode, 2, 3, keyFactory));
 
-        Key key = mock(Key.class);
-        Key newKey = mock(Key.class);
+        ChordKey key = mock(ChordKey.class);
+        ChordKey newKey = mock(ChordKey.class);
 
         when(key.getHashing()).thenReturn(new BigInteger("10"));
         when(newKey.getHashing()).thenReturn(new BigInteger("6"));
         when(keyFactory.newKey(new BigInteger("6"))).thenReturn(newKey);
 
-        Key next = fingersTable.createNext(key);
+        ChordKey next = fingersTable.createNext(key);
 
         assertThat(next.getHashing()).isEqualTo(new BigInteger("6"));
     }

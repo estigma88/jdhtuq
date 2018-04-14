@@ -18,39 +18,32 @@
 
 package co.edu.uniquindio.overlay;
 
-import java.net.InetAddress;
-
 /**
  * The <code>OverlayNodeFactory</code> abstract class defined methods for to
  * create Overlay nodes. The class is a single instance.
- * 
+ *
  * @author Daniel Pelaez
  * @author Hector Hurtado
  * @author Daniel Lopez
  * @version 1.0, 17/06/2010
  * @since 1.0
- * 
  */
 public interface OverlayNodeFactory {
-	/**
-	 * Creates a node with a specified name
-	 * 
-	 * @param name
-	 *            of node
-	 * @return node
-	 * @throws OverlayException
-	 *             throw when occur an error
-	 */
-	OverlayNode createNode(String name) throws OverlayException;
+    /**
+     * Creates a node with a specified name
+     *
+     * @param name of node
+     * @return node
+     * @throws OverlayException throw when occur an error
+     */
+    OverlayNode createNode(String name) throws OverlayException;
 
-	/**
-	 * Destroy node by name
-	 * 
-	 * @param overlayNode
-	 *            Node
-	 * @throws OverlayException
-	 *             throw when occur an error
-	 */
-	void destroyNode(OverlayNode overlayNode) throws OverlayException;
+    /**
+     * Destroy node by name
+     *
+     * @param overlayNode Node
+     * @throws OverlayException throw when occur an error
+     */
+    void destroyNode(OverlayNode overlayNode) throws OverlayException;
 
 }

@@ -81,7 +81,6 @@ public class ChordKey implements Key {
      * @return Returns true if the key is between the keys that are received as
      * parameter
      */
-    @Override
     public boolean isBetweenRightIncluded(Key key1, Key key2) {
         if (key1.getHashing().compareTo(key2.getHashing()) == -1) {
             if (hashing.compareTo(key1.getHashing()) == 1
@@ -120,7 +119,6 @@ public class ChordKey implements Key {
      * @return Returns true if the key is between the keys that are received as
      * parameter
      */
-    @Override
     public boolean isBetween(Key key1, Key key2) {
         if (key1.getHashing().compareTo(key2.getHashing()) == -1) {
             if (hashing.compareTo(key1.getHashing()) == 1

@@ -2,7 +2,7 @@ package co.edu.uniquindio.dhash.starter;
 
 import co.edu.uniquindio.dhash.node.DHashNodeFactory;
 import co.edu.uniquindio.dhash.resource.checksum.BytesChecksumCalculator;
-import co.edu.uniquindio.dhash.resource.checksum.ChecksumeCalculator;
+import co.edu.uniquindio.dhash.resource.checksum.ChecksumCalculator;
 import co.edu.uniquindio.dhash.resource.manager.FileResourceManagerFactory;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManagerFactory;
 import co.edu.uniquindio.dhash.resource.serialization.ObjectSerializationHandler;
@@ -30,7 +30,7 @@ public class DHashAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public StorageNodeFactory storageNodeFactory(OverlayNodeFactory overlayNodeFactory, KeyFactory keyFactory, CommunicationManager communicationManagerDHash, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, ResourceManagerFactory resourceManagerFactory, SequenceGenerator dhashSequenceGenerator) {
+    public StorageNodeFactory storageNodeFactory(OverlayNodeFactory overlayNodeFactory, KeyFactory keyFactory, CommunicationManager communicationManagerDHash, SerializationHandler serializationHandler, ChecksumCalculator checksumeCalculator, ResourceManagerFactory resourceManagerFactory, SequenceGenerator dhashSequenceGenerator) {
         return new DHashNodeFactory(communicationManagerDHash, overlayNodeFactory, serializationHandler, checksumeCalculator, resourceManagerFactory, dHashProperties.getReplicationAmount(), keyFactory, dhashSequenceGenerator);
     }
 
@@ -45,7 +45,7 @@ public class DHashAutoConfiguration {
     }
 
     @Bean
-    public ChecksumeCalculator checksumeCalculator() {
+    public ChecksumCalculator checksumeCalculator() {
         return new BytesChecksumCalculator();
     }
 

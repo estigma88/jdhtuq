@@ -32,17 +32,6 @@ import java.math.BigInteger;
  */
 public interface Key {
     /**
-     * This method is used for compare if the key is between two specific keys
-     * right included. This comparison is made in a circular way.
-     *
-     * @param key1 . The first key of the comparison
-     * @param key2 . The second key of the comparison
-     * @return Returns true if the key is between the keys that are received as
-     * parameter
-     */
-    boolean isBetweenRightIncluded(Key key1, Key key2);
-
-    /**
      * This method is used for compare if the key is between two specific keys.
      * This comparison is made in a circular way
      *

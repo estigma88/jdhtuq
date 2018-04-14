@@ -29,15 +29,15 @@ public class ChordNodeTest {
     @Mock
     private CommunicationManager communicationManager;
     @Mock
-    private Key successor;
+    private ChordKey successor;
     @Mock
-    private Key predecessor;
+    private ChordKey predecessor;
     @Mock
     private FingersTable fingersTable;
     @Mock
     private SuccessorList successorList;
     @Mock
-    private Key key;
+    private ChordKey key;
     @Mock
     private Observable<Object> observable;
     @Captor
@@ -58,7 +58,7 @@ public class ChordNodeTest {
 
     @Test
     public void lookUp_isBetweenRightIncluded_successor() {
-        Key id = mock(Key.class);
+        ChordKey id = mock(ChordKey.class);
 
         when(id.isBetweenRightIncluded(key, successor)).thenReturn(true);
 
@@ -69,8 +69,8 @@ public class ChordNodeTest {
 
     @Test
     public void lookUp_isNotBetweenRightIncluded_successor() {
-        Key id = mock(Key.class);
-        Key next = mock(Key.class);
+        ChordKey id = mock(ChordKey.class);
+        ChordKey next = mock(ChordKey.class);
         ChordKey lookUpKey = mock(ChordKey.class);
 
         when(id.isBetweenRightIncluded(key, successor)).thenReturn(false);
@@ -97,8 +97,8 @@ public class ChordNodeTest {
     public void lookUp_successorIsNull_successor() {
         chordNode = new ChordNode(communicationManager, null, predecessor, fingersTable, successorList, key, sequenceGenerator, stableRing);
 
-        Key id = mock(Key.class);
-        Key next = mock(Key.class);
+        ChordKey id = mock(ChordKey.class);
+        ChordKey next = mock(ChordKey.class);
         ChordKey lookUpKey = mock(ChordKey.class);
 
         when(fingersTable.findClosestPresedingNode(id)).thenReturn(next);
@@ -159,7 +159,7 @@ public class ChordNodeTest {
 
     @Test
     public void notify_predecessorNotNullAndIsNotBetween_notNotify() {
-        Key node = mock(Key.class);
+        ChordKey node = mock(ChordKey.class);
 
         when(node.isBetween(predecessor, key)).thenReturn(false);
 
@@ -170,7 +170,7 @@ public class ChordNodeTest {
 
     @Test
     public void notify_predecessorIsNullAndNodeEqualKey_predecessorNull() {
-        Key node = key;
+        ChordKey node = key;
 
         chordNode = new ChordNode(communicationManager, successor, null, fingersTable, successorList, key, sequenceGenerator, stableRing);
 
@@ -181,7 +181,7 @@ public class ChordNodeTest {
 
     @Test
     public void notify_predecessorIsNullIsBetweenAndNodeEqualKey_predecessorNull() {
-        Key node = key;
+        ChordKey node = key;
 
         when(node.isBetween(predecessor, key)).thenReturn(true);
 
@@ -192,7 +192,7 @@ public class ChordNodeTest {
 
     @Test
     public void notify_predecessorIsNullAndNodeNotEqualKey_predecessorNull() {
-        Key node = mock(Key.class);
+        ChordKey node = mock(ChordKey.class);
 
         Message message = Message.builder()
                 .messageType(Protocol.RE_ASSIGN)
@@ -212,7 +212,7 @@ public class ChordNodeTest {
 
     @Test
     public void notify_predecessorIsNotNullAndNodeNotEqualKey_predecessorNull() {
-        Key node = mock(Key.class);
+        ChordKey node = mock(ChordKey.class);
 
         Message message = Message.builder()
                 .messageType(Protocol.RE_ASSIGN)
@@ -420,10 +420,10 @@ public class ChordNodeTest {
 
     @Test
     public void stabilize_pingSuccessorNull_setNextSuccessor() {
-        Key successorNew = mock(Key.class);
+        ChordKey successorNew = mock(ChordKey.class);
 
         when(successorList.getNextSuccessorAvailable()).thenReturn(successorNew);
-        when(communicationManager.sendMessageUnicast(anyObject(),
+        when(communicationManager.sendMessageUnicast(any(),
                 eq(Boolean.class))).thenReturn(null);
 
         chordNode.stabilize();
@@ -436,7 +436,7 @@ public class ChordNodeTest {
 
     @Test
     public void stabilize_pingSuccessorNull_bootUp() {
-        Key successorNew = null;
+        ChordKey successorNew = null;
         FingersTable fingersTable = mock(FingersTable.class);
 
         when(successorList.getNextSuccessorAvailable()).thenReturn(successorNew);
@@ -451,7 +451,7 @@ public class ChordNodeTest {
 
     @Test
     public void setSuccessor_set_newSuccessor() {
-        Key successorNew = mock(Key.class);
+        ChordKey successorNew = mock(ChordKey.class);
 
         chordNode.setSuccessor(successorNew);
 
@@ -461,7 +461,7 @@ public class ChordNodeTest {
 
     @Test
     public void setPredecessor_predecessorNotEqualKey_setNewPredecessor() {
-        Key predecessorNew = mock(Key.class);
+        ChordKey predecessorNew = mock(ChordKey.class);
 
         chordNode.setPredecessor(predecessorNew);
 
@@ -470,7 +470,7 @@ public class ChordNodeTest {
 
     @Test
     public void setPredecessor_predecessorEqualKey_setNull() {
-        Key predecessorNew = mock(Key.class);
+        ChordKey predecessorNew = mock(ChordKey.class);
 
         chordNode = new ChordNode(communicationManager, successor, predecessor, fingersTable, successorList, predecessorNew, sequenceGenerator, stableRing);
 
@@ -483,7 +483,7 @@ public class ChordNodeTest {
     public void leave_successorEqualsKey_onlyUnlinkNode() throws OverlayException {
         chordNode = spy(new ChordNode(communicationManager, key, predecessor, fingersTable, successorList, key, sequenceGenerator, stableRing));
 
-        Key[] keys = {mock(Key.class), mock(Key.class)};
+        ChordKey[] keys = {mock(ChordKey.class), mock(ChordKey.class)};
 
         when(key.getValue()).thenReturn("hashKey");
         when(successorList.getKeyList()).thenReturn(keys);
@@ -499,7 +499,7 @@ public class ChordNodeTest {
     public void leave_successorNotEqualsKeyAndPredecessorNull_notifyAndUnlinkNode() throws OverlayException {
         chordNode = spy(new ChordNode(communicationManager, successor, null, fingersTable, successorList, key, sequenceGenerator, stableRing));
 
-        Key[] keys = {mock(Key.class), mock(Key.class)};
+        ChordKey[] keys = {mock(ChordKey.class), mock(ChordKey.class)};
 
         when(key.getValue()).thenReturn("hashKey");
         when(successorList.getKeyList()).thenReturn(keys);
@@ -514,14 +514,14 @@ public class ChordNodeTest {
 
     @Test
     public void leave_successorNotEqualsKey_notifyAndUnlinkNode() throws OverlayException {
-        Key[] keys = {mock(Key.class), mock(Key.class)};
+        ChordKey[] keys = {mock(ChordKey.class), mock(ChordKey.class)};
 
         when(successorList.getKeyList()).thenReturn(keys);
         when(predecessor.getValue()).thenReturn("predecessor");
         when(successor.getValue()).thenReturn("successor");
         when(key.getValue()).thenReturn("key");
 
-        Key[] keysResult = chordNode.leave();
+        ChordKey[] keysResult = chordNode.leave();
 
         verify(stableRing).cancel(true);
 

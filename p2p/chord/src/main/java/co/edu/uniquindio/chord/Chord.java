@@ -43,12 +43,12 @@ public interface Chord extends OverlayNode {
 	 *            The key to find
 	 * @return A {@link Key} that is the successor for the id.
 	 */
-	public Key lookUp(Key id);
+	Key lookUp(Key id);
 
 	/**
 	 * Gets the {@link Key} of the chord node.
 	 * 
 	 * @return The {@link Key} of the chord node.
 	 */
-	public Key getKey();
+	Key getKey();
 }

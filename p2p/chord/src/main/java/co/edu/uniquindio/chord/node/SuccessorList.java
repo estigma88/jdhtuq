@@ -18,6 +18,7 @@
 
 package co.edu.uniquindio.chord.node;
 
+import co.edu.uniquindio.chord.ChordKey;
 import co.edu.uniquindio.chord.protocol.Protocol;
 import co.edu.uniquindio.overlay.KeyFactory;
 import co.edu.uniquindio.utils.communication.message.Address;
@@ -60,7 +61,7 @@ public class SuccessorList {
     /**
      * The array that contains the successors.
      */
-    private Key[] keyList;
+    private ChordKey[] keyList;
 
     /**
      * The value of successor list size.
@@ -77,13 +78,13 @@ public class SuccessorList {
     SuccessorList(ChordNode chordNode, CommunicationManager communicationManager, int successorListAmount, KeyFactory keyFactory, SequenceGenerator sequenceGenerator) {
         this.size = successorListAmount;
         this.sequenceGenerator = sequenceGenerator;
-        this.keyList = new Key[size];
+        this.keyList = new ChordKey[size];
         this.chordNode = chordNode;
         this.communicationManager = communicationManager;
         this.keyFactory = keyFactory;
     }
 
-    SuccessorList(CommunicationManager communicationManager, Key[] keyList, int size, ChordNode chordNode, SequenceGenerator sequenceGenerator, KeyFactory keyFactory) {
+    SuccessorList(CommunicationManager communicationManager, ChordKey[] keyList, int size, ChordNode chordNode, SequenceGenerator sequenceGenerator, KeyFactory keyFactory) {
         this.communicationManager = communicationManager;
         this.keyList = keyList;
         this.size = size;
@@ -99,7 +100,7 @@ public class SuccessorList {
      */
     public void fixSuccessors() {
         String successorList;
-        Key successor = keyList[0];
+        ChordKey successor = keyList[0];
         Message getSuccessorListMesssage;
 
         getSuccessorListMesssage = Message.builder()
@@ -112,9 +113,6 @@ public class SuccessorList {
                         .build())
                 .build();
 
-        /*getSuccessorListMesssage = new MessageXML(Protocol.GET_SUCCESSOR_LIST,
-                successor.getValue(), chordNode.getKey().getValue());*/
-
         successorList = communicationManager.sendMessageUnicast(
                 getSuccessorListMesssage, String.class);
 
@@ -124,7 +122,7 @@ public class SuccessorList {
         String[] successors = successorList.split(SEPARATOR);
 
         for (int i = 1; i < Math.min(size, successors.length); i++) {
-            keyList[i] = keyFactory.newKey(successors[i - 1]);
+            keyList[i] = (ChordKey) keyFactory.newKey(successors[i - 1]);
         }
 
         logger.debug("Node: " + chordNode.getKey().getValue()
@@ -145,7 +143,7 @@ public class SuccessorList {
      *
      * @param successor The successor key that will be set.
      */
-    public void setSuccessor(Key successor) {
+    public void setSuccessor(ChordKey successor) {
         keyList[0] = successor;
 
         logger.debug("Node: " + chordNode.getKey().getValue()
@@ -158,7 +156,7 @@ public class SuccessorList {
      *
      * @return A {@link Key} of the first successor that is available.
      */
-    public Key getNextSuccessorAvailable() {
+    public ChordKey getNextSuccessorAvailable() {
         Boolean success;
         Message pingMessage;
 
@@ -173,9 +171,6 @@ public class SuccessorList {
                             .source(chordNode.getKey().getValue())
                             .build())
                     .build();
-
-            /*pingMessage = new MessageXML(Protocol.PING, keyList[i].getValue(),
-                    chordNode.getKey().getValue());*/
 
             success = communicationManager.sendMessageUnicast(pingMessage,
                     Boolean.class);
@@ -193,7 +188,7 @@ public class SuccessorList {
      *
      * @return An array of {@link Key} with the successors of the node.
      */
-    public Key[] getKeyList() {
+    public ChordKey[] getKeyList() {
         return keyList;
     }
 

@@ -3,8 +3,6 @@ package co.edu.uniquindio.utils.communication.transfer;
 import co.edu.uniquindio.utils.communication.Observer;
 import co.edu.uniquindio.utils.communication.message.Message;
 
-import java.util.Map;
-
 /**
  * The {@code CommunicationManager} interface is used to send messages
  * regardless of the implementation of the way in which they are sent.
@@ -25,7 +23,7 @@ public interface CommunicationManager {
      * @param typeReturn The type of the response
      * @return An object <T> of the specified type.
      */
-    public <T> T sendMessageUnicast(Message message, Class<T> typeReturn);
+    <T> T sendMessageUnicast(Message message, Class<T> typeReturn);
 
     /**
      * Creates and sends a message specifying its type, the type of the response
@@ -36,8 +34,8 @@ public interface CommunicationManager {
      * @param paramNameResult Param name of result
      * @return An object <T> of the specified type.
      */
-    public <T> T sendMessageUnicast(Message message, Class<T> typeReturn,
-                                    String paramNameResult);
+    <T> T sendMessageUnicast(Message message, Class<T> typeReturn,
+                             String paramNameResult);
 
     /**
      * Sends a message specifying its type, the type of the response and the
@@ -45,7 +43,7 @@ public interface CommunicationManager {
      *
      * @param message Messages to send
      */
-    public void sendMessageUnicast(Message message);
+    void sendMessageUnicast(Message message);
 
     /**
      * Creates and sends a multicast message specifying its type, the type of
@@ -57,7 +55,7 @@ public interface CommunicationManager {
      * @param typeReturn Type return
      * @return Response
      */
-    public <T> T sendMessageMultiCast(Message message, Class<T> typeReturn);
+    <T> T sendMessageMultiCast(Message message, Class<T> typeReturn);
 
     /**
      * Creates and sends a multicast message specifying its type, the type of
@@ -70,8 +68,8 @@ public interface CommunicationManager {
      * @param paramNameResult Param name of result
      * @return Response
      */
-    public <T> T sendMessageMultiCast(Message message, Class<T> typeReturn,
-                                      String paramNameResult);
+    <T> T sendMessageMultiCast(Message message, Class<T> typeReturn,
+                               String paramNameResult);
 
     /**
      * Sends a multicast message specifying its type, the type of the response
@@ -80,56 +78,51 @@ public interface CommunicationManager {
      *
      * @param message Messages to send
      */
-    public void sendMessageMultiCast(Message message);
+    void sendMessageMultiCast(Message message);
 
     /**
      * Stop all process
      */
-    public void stopAll();
+    void stopAll();
 
     /**
      * Adds observer to communication
      *
      * @param observer Observer to add
      */
-    public void addObserver(Observer<Message> observer);
+    void addObserver(Observer<Message> observer);
 
     /**
      * Remove observer to communication
      *
      * @param observer Observer to remove
      */
-    public void removeObserver(Observer<Message> observer);
+    void removeObserver(Observer<Message> observer);
 
     /**
      * Remove observer by name
      *
      * @param name Observer name
      */
-    public void removeObserver(String name);
+    void removeObserver(String name);
 
+    /**
+     * Add a message processor to handle any kind of message
+     *
+     * @param name             of the message processor
+     * @param messageProcessor message processor
+     */
+    void addMessageProcessor(String name, MessageProcessor messageProcessor);
 
-    public void addMessageProcessor(String name, MessageProcessor messageProcessor);
-
-    public void removeMessageProcessor(String name);
+    /**
+     * Remove a message processor
+     *
+     * @param name of the message processor
+     */
+    void removeMessageProcessor(String name);
 
     /**
      * Initialize communication manager.
      */
-    public void init();
-
-    /**
-     * Gets properties of communication
-     *
-     * @return CommunicationProperties
-     */
-    public Map<String, String> getCommunicationProperties();
-
-    /**
-     * Sets properties for communication
-     *
-     * @param communicationProperties Properties
-     */
-    public void setCommunicationProperties(
-            Map<String, String> communicationProperties);
+    void init();
 }

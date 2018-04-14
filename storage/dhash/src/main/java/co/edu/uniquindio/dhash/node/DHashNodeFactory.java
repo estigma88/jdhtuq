@@ -18,7 +18,7 @@
 
 package co.edu.uniquindio.dhash.node;
 
-import co.edu.uniquindio.dhash.resource.checksum.ChecksumeCalculator;
+import co.edu.uniquindio.dhash.resource.checksum.ChecksumCalculator;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManagerFactory;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
@@ -56,12 +56,12 @@ public class DHashNodeFactory implements StorageNodeFactory {
     private final CommunicationManager communicationManager;
     private final OverlayNodeFactory overlayNodeFactory;
     private final SerializationHandler serializationHandler;
-    private final ChecksumeCalculator checksumeCalculator;
+    private final ChecksumCalculator checksumeCalculator;
     private final ResourceManagerFactory resourceManagerFactory;
     private final KeyFactory keyFactory;
     private final SequenceGenerator sequenceGenerator;
 
-    public DHashNodeFactory(CommunicationManager communicationManager, OverlayNodeFactory overlayNodeFactory, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, ResourceManagerFactory resourceManagerFactory, int replicationFactor, KeyFactory keyFactory, SequenceGenerator sequenceGenerator) {
+    public DHashNodeFactory(CommunicationManager communicationManager, OverlayNodeFactory overlayNodeFactory, SerializationHandler serializationHandler, ChecksumCalculator checksumeCalculator, ResourceManagerFactory resourceManagerFactory, int replicationFactor, KeyFactory keyFactory, SequenceGenerator sequenceGenerator) {
         this.communicationManager = communicationManager;
         this.overlayNodeFactory = overlayNodeFactory;
         this.serializationHandler = serializationHandler;

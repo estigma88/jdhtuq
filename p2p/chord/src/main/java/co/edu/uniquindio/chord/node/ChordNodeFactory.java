@@ -20,6 +20,7 @@
 package co.edu.uniquindio.chord.node;
 
 import co.edu.uniquindio.chord.Chord;
+import co.edu.uniquindio.chord.ChordKey;
 import co.edu.uniquindio.overlay.*;
 import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
@@ -85,7 +86,7 @@ public class ChordNodeFactory implements OverlayNodeFactory {
      * co.edu.uniquindio.overlay.OverlayNodeFactory#createNode(java.lang.String)
      */
     public Chord createNode(String name) throws ChordNodeFactoryException {
-        Key key = getKey(name);
+        ChordKey key = getKey(name);
         ChordNode chordNode = getNodeChord(key);
 
         logger.info("Created node with name '" + chordNode.getKey().getValue()
@@ -108,8 +109,8 @@ public class ChordNodeFactory implements OverlayNodeFactory {
     }
 
 
-    Key getKey(String name) {
-        return keyFactory.newKey(name);
+    ChordKey getKey(String name) {
+        return (ChordKey) keyFactory.newKey(name);
     }
 
     StableRing getStableRing(ChordNode nodeChord) {
@@ -126,7 +127,7 @@ public class ChordNodeFactory implements OverlayNodeFactory {
         return new NodeEnvironment(communicationManager, nodeChord, keyFactory, sequenceGenerator);
     }
 
-    ChordNode getNodeChord(Key key) {
+    ChordNode getNodeChord(ChordKey key) {
         return new ChordNode(key, communicationManager, successorListAmount, bootStrap, keyFactory, sequenceGenerator);
     }
 

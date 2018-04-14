@@ -71,12 +71,12 @@ public class ChordNode extends Observable implements Chord {
     /**
      * The next node on the identifier circle
      */
-    private Key successor;
+    private ChordKey successor;
 
     /**
      * The previous node on the identifier circle
      */
-    private Key predecessor;
+    private ChordKey predecessor;
 
     /**
      * Routing table
@@ -91,17 +91,16 @@ public class ChordNode extends Observable implements Chord {
     /**
      * Identifier of the node
      */
-    private Key key;
+    private ChordKey key;
 
     private BootStrap bootStrap;
     private KeyFactory keyFactory;
     private final SequenceGenerator sequenceGenerator;
     private ScheduledFuture<?> stableRing;
 
-    ChordNode(Key key, CommunicationManager communicationManager, int successorListAmount, BootStrap bootStrap, KeyFactory keyFactory, SequenceGenerator sequenceGenerator) {
+    ChordNode(ChordKey key, CommunicationManager communicationManager, int successorListAmount, BootStrap bootStrap, KeyFactory keyFactory, SequenceGenerator sequenceGenerator) {
         this.keyFactory = keyFactory;
         this.sequenceGenerator = sequenceGenerator;
-        this.stableRing = stableRing;
         this.fingersTable = newFingersTable();
         this.successorList = new SuccessorList(this, communicationManager, successorListAmount, keyFactory, sequenceGenerator);
         this.key = key;
@@ -111,7 +110,7 @@ public class ChordNode extends Observable implements Chord {
         logger.info("New ChordNode created = " + key);
     }
 
-    ChordNode(CommunicationManager communicationManager, Key successor, Key predecessor, FingersTable fingersTable, SuccessorList successorList, Key key, SequenceGenerator sequenceGenerator, ScheduledFuture<?> stableRing) {
+    ChordNode(CommunicationManager communicationManager, ChordKey successor, ChordKey predecessor, FingersTable fingersTable, SuccessorList successorList, ChordKey key, SequenceGenerator sequenceGenerator, ScheduledFuture<?> stableRing) {
         this.communicationManager = communicationManager;
         this.successor = successor;
         this.predecessor = predecessor;
@@ -129,7 +128,7 @@ public class ChordNode extends Observable implements Chord {
      * @return The key which is responsible for the given <code>id</code>.
      */
     public Key lookUp(Key id) {
-        return findSuccessor(id, LookupType.LOOKUP);
+        return findSuccessor((ChordKey) id, LookupType.LOOKUP);
     }
 
     /**
@@ -146,7 +145,7 @@ public class ChordNode extends Observable implements Chord {
      * @param id Identifier searched.
      * @return successor of the given <code>id</code>.
      */
-    public Key findSuccessor(Key id, LookupType typeLookUp) {
+    public ChordKey findSuccessor(ChordKey id, LookupType typeLookUp) {
 
         Key next;
         Message lookupMessage;
@@ -167,13 +166,6 @@ public class ChordNode extends Observable implements Chord {
                     .param(Protocol.LookupParams.HASHING.name(), id.getHashing().toString())
                     .param(Protocol.LookupParams.TYPE.name(), typeLookUp.name())
                     .build();
-
-            /*lookupMessage = new MessageXML(Protocol.LOOKUP, next.getValue(),
-                    key.getValue());
-            lookupMessage.addParam(Protocol.LookupParams.HASHING.name(), id
-                    .getHashing().toString());
-            lookupMessage.addParam(Protocol.LookupParams.TYPE.name(),
-                    typeLookUp.name());*/
 
             return communicationManager.sendMessageUnicast(lookupMessage,
                     ChordKey.class, LookupResponseParams.NODE_FIND.name());
@@ -216,13 +208,6 @@ public class ChordNode extends Observable implements Chord {
                 .param(Protocol.LookupParams.TYPE.name(), LookupType.JOIN.name())
                 .build();
 
-        /*lookupMessage = new MessageXML(Protocol.LOOKUP, node.getValue(), key
-                .getValue());
-        lookupMessage.addParam(Protocol.LookupParams.HASHING.name(), key
-                .getHashing().toString());
-        lookupMessage.addParam(Protocol.LookupParams.TYPE.name(),
-                LookupType.JOIN.name());*/
-
         successor = communicationManager.sendMessageUnicast(lookupMessage,
                 ChordKey.class, LookupResponseParams.NODE_FIND.name());
 
@@ -235,7 +220,7 @@ public class ChordNode extends Observable implements Chord {
      *
      * @param node Identifier of potential predecessor.
      */
-    public void notify(Key node) {
+    public void notify(ChordKey node) {
         if (predecessor == null || node.isBetween(predecessor, key)) {
             /*
              * Have to validate if the given key is equal of node's key, then
@@ -288,9 +273,6 @@ public class ChordNode extends Observable implements Chord {
                         .build())
                 .build();
 
-        /*pingMessage = new MessageXML(Protocol.PING, predecessor.getValue(), key
-                .getValue());*/
-
         Boolean success = communicationManager.sendMessageUnicast(pingMessage,
                 Boolean.class);
 
@@ -311,7 +293,7 @@ public class ChordNode extends Observable implements Chord {
      * successor does this only if it knows of no closer predecessor than n.
      */
     public void stabilize() {
-        Key x;
+        ChordKey x;
         Boolean success;
         Message pingMessage;
         Message getPredecessorMessage;
@@ -327,15 +309,12 @@ public class ChordNode extends Observable implements Chord {
                         .build())
                 .build();
 
-        /*pingMessage = new MessageXML(Protocol.PING, successor.getValue(), key
-                .getValue());*/
-
         success = communicationManager.sendMessageUnicast(pingMessage,
                 Boolean.class);
 
         if (success == null) {
             /* When node's successor fails, then node must find a new successor */
-            Key successorNew = successorList.getNextSuccessorAvailable();
+            ChordKey successorNew = successorList.getNextSuccessorAvailable();
 
             logger.error("Node: " + key.getValue() + ", successor failed");
 
@@ -372,9 +351,6 @@ public class ChordNode extends Observable implements Chord {
                             .build())
                     .build();
 
-            /*getPredecessorMessage = new MessageXML(Protocol.GET_PREDECESSOR,
-                    successor.getValue(), key.getValue());*/
-
             x = communicationManager.sendMessageUnicast(getPredecessorMessage,
                     ChordKey.class);
 
@@ -404,9 +380,6 @@ public class ChordNode extends Observable implements Chord {
                             .build())
                     .build();
 
-            /*notifyMessage = new MessageXML(Protocol.NOTIFY, successor
-                    .getValue(), key.getValue());*/
-
             communicationManager.sendMessageUnicast(notifyMessage);
         }
     }
@@ -433,7 +406,7 @@ public class ChordNode extends Observable implements Chord {
      *
      * @return {@link Key}
      */
-    public Key getKey() {
+    public ChordKey getKey() {
         return key;
     }
 
@@ -442,7 +415,7 @@ public class ChordNode extends Observable implements Chord {
      *
      * @return {@link Key}
      */
-    public Key getSuccessor() {
+    public ChordKey getSuccessor() {
         return successor;
     }
 
@@ -451,7 +424,7 @@ public class ChordNode extends Observable implements Chord {
      *
      * @param successor
      */
-    public void setSuccessor(Key successor) {
+    public void setSuccessor(ChordKey successor) {
         this.successor = successor;
         this.fingersTable.setSuccessor(successor);
         this.successorList.setSuccessor(successor);
@@ -462,7 +435,7 @@ public class ChordNode extends Observable implements Chord {
      *
      * @param predecessor
      */
-    public void setPredecessor(Key predecessor) {
+    public void setPredecessor(ChordKey predecessor) {
         /*
          * Have to validate if the given key is equal of node's key, then the
          * node must not have a predecessor
@@ -479,7 +452,7 @@ public class ChordNode extends Observable implements Chord {
      *
      * @return {@link Key} the key of the predecessor
      */
-    public Key getPredecessor() {
+    public ChordKey getPredecessor() {
         return predecessor;
     }
 
@@ -526,25 +499,7 @@ public class ChordNode extends Observable implements Chord {
      * @return ChordKey[] An array with node's successors
      */
     @Override
-    public Key[] leave() {
-
-        /*Message leaveMessage;
-
-        leaveMessage = Message.builder()
-                .sequenceNumber(sequenceGenerator.getSequenceNumber())
-                .sendType(Message.SendType.REQUEST)
-                .messageType(Protocol.LEAVE)
-                .address(Address.builder()
-                        .destination(key.getValue())
-                        .source(key.getValue())
-                        .build())
-                .build();*/
-
-        /*leaveMessage = new MessageXML(Protocol.LEAVE, key.getValue(), key
-                .getValue());*/
-
-        //communicationManager.sendMessageUnicast(leaveMessage);
-
+    public ChordKey[] leave() {
         Message setSuccessorMessage;
         Message setPredecessorMessage;
 
@@ -563,12 +518,6 @@ public class ChordNode extends Observable implements Chord {
                     .param(Protocol.SetSuccessorParams.SUCCESSOR.name(), successor.getValue())
                     .build();
 
-            /*setSuccessorMessage = new MessageXML(Protocol.SET_SUCCESSOR,
-                    chordNode.getPredecessor().getValue(), chordNode.getKey()
-                    .getValue());
-            setSuccessorMessage.addParam(SetSuccessorParams.SUCCESSOR.name(),
-                    chordNode.getSuccessor().getValue());*/
-
             communicationManager.sendMessageUnicast(setSuccessorMessage);
 
             setPredecessorMessage = Message.builder()
@@ -581,12 +530,6 @@ public class ChordNode extends Observable implements Chord {
                             .build())
                     .param(Protocol.SetPredecessorParams.PREDECESSOR.name(), predecessor.toString())
                     .build();
-
-            /*setPredecessorMessage = new MessageXML(Protocol.SET_PREDECESSOR,
-                    chordNode.getSuccessor().getValue(), chordNode.getKey()
-                    .getValue());
-            setPredecessorMessage.addParam(SetPredecessorParams.PREDECESSOR
-                    .name(), chordNode.getPredecessor().toString());*/
 
             communicationManager.sendMessageUnicast(setPredecessorMessage);
         }
@@ -601,7 +544,7 @@ public class ChordNode extends Observable implements Chord {
      *
      * @return ChordKey[] An array with node's successors
      */
-    public Key[] getNeighborsList() {
+    public ChordKey[] getNeighborsList() {
         return successorList.getKeyList();
     }
 

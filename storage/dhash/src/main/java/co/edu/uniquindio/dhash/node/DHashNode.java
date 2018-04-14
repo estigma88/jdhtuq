@@ -26,7 +26,7 @@ package co.edu.uniquindio.dhash.node;
 import co.edu.uniquindio.dhash.protocol.Protocol;
 import co.edu.uniquindio.dhash.protocol.Protocol.*;
 import co.edu.uniquindio.dhash.resource.ResourceNotFoundException;
-import co.edu.uniquindio.dhash.resource.checksum.ChecksumeCalculator;
+import co.edu.uniquindio.dhash.resource.checksum.ChecksumCalculator;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
 import co.edu.uniquindio.overlay.Key;
@@ -63,18 +63,18 @@ public class DHashNode implements StorageNode {
     private final int replicationFactor;
     private final String name;
     private final SerializationHandler serializationHandler;
-    private final ChecksumeCalculator checksumeCalculator;
+    private final ChecksumCalculator checksumCalculator;
     private final ResourceManager resourceManager;
     private final KeyFactory keyFactory;
     private final SequenceGenerator sequenceGenerator;
 
-    public DHashNode(OverlayNode overlayNode, int replicationFactor, String name, CommunicationManager communicationManager, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, ResourceManager resourceManager, KeyFactory keyFactory, SequenceGenerator sequenceGenerator) {
+    public DHashNode(OverlayNode overlayNode, int replicationFactor, String name, CommunicationManager communicationManager, SerializationHandler serializationHandler, ChecksumCalculator checksumCalculator, ResourceManager resourceManager, KeyFactory keyFactory, SequenceGenerator sequenceGenerator) {
         this.overlayNode = overlayNode;
         this.replicationFactor = replicationFactor;
         this.name = name;
         this.communicationManager = communicationManager;
         this.serializationHandler = serializationHandler;
-        this.checksumeCalculator = checksumeCalculator;
+        this.checksumCalculator = checksumCalculator;
         this.resourceManager = resourceManager;
         this.keyFactory = keyFactory;
         this.sequenceGenerator = sequenceGenerator;
@@ -110,9 +110,6 @@ public class DHashNode implements StorageNode {
                 .param(GetParams.RESOURCE_KEY.name(), id)
                 .build();
 
-        //getMessage = new MessageXML(Protocol.GET, lookupKey.getValue(), name);
-        //getMessage.addParam(GetParams.RESOURCE_KEY.name(), id);
-
         Boolean hasResource = communicationManager.sendMessageUnicast(getMessage,
                 Boolean.class);
 
@@ -128,11 +125,6 @@ public class DHashNode implements StorageNode {
                             .build())
                     .param(ResourceTransferParams.RESOURCE_KEY.name(), id)
                     .build();
-
-            /*resourceTransferMessage = new MessageXML(
-                    Protocol.RESOURCE_TRANSFER, lookupKey.getValue(), name);
-            resourceTransferMessage.addParam(
-                    ResourceTransferParams.RESOURCE_KEY.name(), id);*/
 
             Message resource = communicationManager
                     .sendMessageUnicast(resourceTransferMessage, Message.class);
@@ -223,16 +215,9 @@ public class DHashNode implements StorageNode {
                         .destination(lookupKey.getValue())
                         .source(name)
                         .build())
-                .param(ResourceCompareParams.CHECK_SUM.name(), checksumeCalculator.calculate(resource))
+                .param(ResourceCompareParams.CHECK_SUM.name(), checksumCalculator.calculate(resource))
                 .param(ResourceCompareParams.RESOURCE_KEY.name(), resource.getId())
                 .build();
-
-        /*resourceCompareMessage = new MessageXML(Protocol.RESOURCE_COMPARE,
-                lookupKey.getValue(), name);
-        resourceCompareMessage.addParam(ResourceCompareParams.CHECK_SUM.name(),
-                checksumeCalculator.calculate(resource));
-        resourceCompareMessage.addParam(ResourceCompareParams.RESOURCE_KEY
-                .name(), resource.getId());*/
 
         Boolean existResource = communicationManager.sendMessageUnicast(
                 resourceCompareMessage, Boolean.class);
@@ -253,13 +238,6 @@ public class DHashNode implements StorageNode {
                 .param(PutParams.REPLICATE.name(), String.valueOf(replicate))
                 .data(PutDatas.RESOURCE.name(), serializationHandler.encode(resource))
                 .build();
-
-        /*putMessage = new BigMessageXML(Protocol.PUT, lookupKey.getValue(), name);
-        putMessage.addParam(PutParams.RESOURCE_KEY.name(), resource.getId());
-        putMessage.addParam(PutParams.REPLICATE.name(), String
-                .valueOf(replicate));
-        putMessage
-                .addData(PutDatas.RESOURCE.name(), serializationHandler.encode(resource));*/
 
         communicationManager.sendMessageUnicast(putMessage);
 

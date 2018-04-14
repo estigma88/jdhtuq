@@ -1,11 +1,8 @@
 package co.edu.uniquindio.chord.node;
 
-import co.edu.uniquindio.chord.hashing.HashingGenerator;
+import co.edu.uniquindio.chord.ChordKey;
 import co.edu.uniquindio.chord.protocol.Protocol;
-import co.edu.uniquindio.overlay.Key;
 import co.edu.uniquindio.overlay.KeyFactory;
-import co.edu.uniquindio.overlay.OverlayException;
-import co.edu.uniquindio.overlay.OverlayNodeFactory;
 import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
@@ -13,8 +10,6 @@ import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -27,11 +22,11 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class NodeEnvironmentTest {
     @Mock
-    private Key found;
+    private ChordKey found;
     @Mock
-    private Key key;
+    private ChordKey key;
     @Mock
-    private Key successor;
+    private ChordKey successor;
     @Mock
     private Message message;
     @Mock
@@ -42,16 +37,8 @@ public class NodeEnvironmentTest {
     private ScheduledFuture stableRing;
 
     private NodeEnvironment nodeEnvironment;
-    @Captor
-    private ArgumentCaptor<Message> messageCaptor;
-    @Captor
-    private ArgumentCaptor<Key> keyCaptor;
     @Mock
-    private HashingGenerator hashingGenerator;
-    @Mock
-    private Key predecesor;
-    @Mock
-    private OverlayNodeFactory overlayNodeFactory;
+    private ChordKey predecessor;
     @Mock
     private SuccessorList successorList;
     @Mock
@@ -186,7 +173,7 @@ public class NodeEnvironmentTest {
     public void process_GET_PREDECESSORMessageAndPredecesorNotNull_sendPredecesor() {
         when(message.getAddress()).thenReturn(Address.builder().source("source").build());
         when(message.getMessageType()).thenReturn(Protocol.GET_PREDECESSOR);
-        when(chordNode.getPredecessor()).thenReturn(predecesor);
+        when(chordNode.getPredecessor()).thenReturn(predecessor);
 
         Message response = nodeEnvironment.process(message);
 
@@ -194,7 +181,7 @@ public class NodeEnvironmentTest {
         assertThat(response.getMessageType()).isEqualTo(Protocol.GET_PREDECESSOR_RESPONSE);
         assertThat(response.getAddress().getDestination()).isEqualTo("source");
         assertThat(response.getAddress().getSource()).isEqualTo("key");
-        assertThat(response.getParam(Protocol.GetPredecessorResponseParams.PREDECESSOR.name())).isEqualTo("predecesor");
+        assertThat(response.getParam(Protocol.GetPredecessorResponseParams.PREDECESSOR.name())).isEqualTo("predecessor");
     }
 
     @Test
@@ -224,12 +211,12 @@ public class NodeEnvironmentTest {
     @Test
     public void process_SET_PREDECESSORMessage_changePredecesor() {
         when(message.getMessageType()).thenReturn(Protocol.SET_PREDECESSOR);
-        when(message.getParam(Protocol.SetPredecessorParams.PREDECESSOR.name())).thenReturn("predecesor");
-        when(keyFactory.newKey("predecesor")).thenReturn(predecesor);
+        when(message.getParam(Protocol.SetPredecessorParams.PREDECESSOR.name())).thenReturn("predecessor");
+        when(keyFactory.newKey("predecessor")).thenReturn(predecessor);
 
         nodeEnvironment.process(message);
 
-        verify(chordNode).setPredecessor(predecesor);
+        verify(chordNode).setPredecessor(predecessor);
     }
 
     @Test

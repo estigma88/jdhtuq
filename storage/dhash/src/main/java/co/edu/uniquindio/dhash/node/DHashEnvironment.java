@@ -20,7 +20,7 @@ package co.edu.uniquindio.dhash.node;
 
 import co.edu.uniquindio.dhash.protocol.Protocol;
 import co.edu.uniquindio.dhash.protocol.Protocol.*;
-import co.edu.uniquindio.dhash.resource.checksum.ChecksumeCalculator;
+import co.edu.uniquindio.dhash.resource.checksum.ChecksumCalculator;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
 import co.edu.uniquindio.overlay.OverlayException;
@@ -51,10 +51,10 @@ public class DHashEnvironment implements MessageProcessor {
     private final CommunicationManager communicationManager;
     private final DHashNode dHashNode;
     private final SerializationHandler serializationHandler;
-    private final ChecksumeCalculator checksumeCalculator;
+    private final ChecksumCalculator checksumeCalculator;
     private final ResourceManager resourceManager;
 
-    DHashEnvironment(CommunicationManager communicationManager, DHashNode dHashNode, SerializationHandler serializationHandler, ChecksumeCalculator checksumeCalculator, ResourceManager resourceManager) {
+    DHashEnvironment(CommunicationManager communicationManager, DHashNode dHashNode, SerializationHandler serializationHandler, ChecksumCalculator checksumeCalculator, ResourceManager resourceManager) {
         this.communicationManager = communicationManager;
         this.dHashNode = dHashNode;
         this.serializationHandler = serializationHandler;
@@ -113,11 +113,6 @@ public class DHashEnvironment implements MessageProcessor {
                         .source(dHashNode.getName())
                         .build());
 
-        /*resourceTransferResponseMessage = new BigMessageXML(message
-                .getSequenceNumber(), SendType.RESPONSE,
-                Protocol.RESOURCE_TRANSFER_RESPONSE,
-                message.getMessageSource(), dHashNode.getName());*/
-
         if (resourceManager.hasResource(
                 message.getParam(ResourceTransferParams.RESOURCE_KEY.name()))) {
 
@@ -135,8 +130,6 @@ public class DHashEnvironment implements MessageProcessor {
                     ResourceTransferResponseData.RESOURCE.name(), new byte[0]);
 
         }
-
-        //communicationManager.sendBigMessage(resourceTransferResponseMessage.build());
 
         return resourceTransferResponseMessage.build();
     }
@@ -174,16 +167,6 @@ public class DHashEnvironment implements MessageProcessor {
                 .param(ResourceCompareResponseParams.EXIST_RESOURCE.name(), String.valueOf(isChecksumEquals))
                 .build();
 
-        /*resourceCompareResponseMessage = new MessageXML(message
-                .getSequenceNumber(), SendType.RESPONSE,
-                Protocol.RESOURCE_COMPARE_RESPONSE, message.getMessageSource(),
-                dHashNode.getName());
-        resourceCompareResponseMessage.addParam(
-                ResourceCompareResponseParams.EXIST_RESOURCE.name(), String
-                        .valueOf(isChecksumEquals));*/
-
-        //communicationManager.sendMessageUnicast(resourceCompareResponseMessage);
-
         return resourceCompareResponseMessage;
     }
 
@@ -203,11 +186,6 @@ public class DHashEnvironment implements MessageProcessor {
                         .source(dHashNode.getName())
                         .build());
 
-        /*Message getResponseMessage = new MessageXML(
-                message.getSequenceNumber(), SendType.RESPONSE,
-                Protocol.GET_RESPONSE, message.getMessageSource(), dHashNode
-                .getName());*/
-
         if (resourceManager.hasResource(
                 message.getParam(GetParams.RESOURCE_KEY.name()))) {
 
@@ -220,8 +198,6 @@ public class DHashEnvironment implements MessageProcessor {
                     String.valueOf(false));
 
         }
-
-        //communicationManager.sendMessageUnicast(getResponseMessage.build());
 
         logger.debug("Node " + dHashNode.getName() + ", confirmation for ");
         logger.debug("Response message: [" + getResponseMessage.toString()
@@ -236,11 +212,6 @@ public class DHashEnvironment implements MessageProcessor {
      * @param message Message PUT
      */
     private Message processPut(Message message) {
-
-        /*if (message instanceof BigMessage) {
-
-            BigMessage bigMessage = (BigMessage) message;*/
-
         try {
             Resource resource = serializationHandler.decode(
                     message.getData(PutDatas.RESOURCE.name()));
@@ -256,15 +227,7 @@ public class DHashEnvironment implements MessageProcessor {
         }catch (OverlayException e) {
             logger.error("Error replicating data", e);
         }
-        //}
 
         return null;
     }
-
-    /**
-     * Gets dhash node name
-     */
-    /*public String getName() {
-        return dHashNode.getName();
-    }*/
 }

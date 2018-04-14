@@ -1,7 +1,7 @@
 package co.edu.uniquindio.dhash.node;
 
 import co.edu.uniquindio.dhash.protocol.Protocol;
-import co.edu.uniquindio.dhash.resource.checksum.ChecksumeCalculator;
+import co.edu.uniquindio.dhash.resource.checksum.ChecksumCalculator;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
 import co.edu.uniquindio.overlay.OverlayException;
@@ -31,7 +31,7 @@ public class DHashEnvironmentTest {
     @Mock
     private SerializationHandler serializationHandler;
     @Mock
-    private ChecksumeCalculator checksumeCalculator;
+    private ChecksumCalculator checksumeCalculator;
     @Mock
     private ResourceManager resourceManager;
     @Mock

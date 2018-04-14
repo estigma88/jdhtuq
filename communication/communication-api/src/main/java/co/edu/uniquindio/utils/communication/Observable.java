@@ -50,7 +50,7 @@ public class Observable<E> {
 	/**
 	 * Add an observer to the list of observers
 	 * 
-	 * @param s
+	 * @param observer
 	 *            . The observer that will observes the observable
 	 */
 	public void addObserver(Observer<E> observer) {
@@ -60,7 +60,7 @@ public class Observable<E> {
 	/**
 	 * Remove an observer of the list of observers
 	 * 
-	 * @param s
+	 * @param observer
 	 *            . The observer that will be removed
 	 */
 	public void removeObserver(Observer<E> observer) {
@@ -70,7 +70,7 @@ public class Observable<E> {
 	/**
 	 * Remove an observer of the list of observers
 	 * 
-	 * @param s
+	 * @param name
 	 *            . The name of observer that will be removed
 	 */
 	public void removeObserver(String name) {

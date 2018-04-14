@@ -33,12 +33,12 @@ public interface Observer<E extends Object> {
 	/**
 	 * Define the method update of the the observer pattern
 	 */
-	public <T extends E> void update(T t);
+	<T extends E> void update(T t);
 
 	/**
 	 * Gets the name of Observer
 	 * 
 	 * @return Observer name
 	 */
-	public String getName();
+	String getName();
 }

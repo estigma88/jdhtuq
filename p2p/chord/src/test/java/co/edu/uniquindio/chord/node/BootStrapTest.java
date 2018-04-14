@@ -27,9 +27,9 @@ public class BootStrapTest {
     @Mock
     private ChordNode nodeChord;
     @Mock
-    private Key successor;
+    private ChordKey successor;
     @Mock
-    private Key key;
+    private ChordKey key;
     @Mock
     private ChordKey foundNode;
     @Mock
@@ -43,7 +43,7 @@ public class BootStrapTest {
 
     @Test
     public void boot_notOtherNodeFound_createRing() {
-        when(fingersTable.getFingersTable()).thenReturn(new Key[1]);
+        when(fingersTable.getFingersTable()).thenReturn(new ChordKey[1]);
         when(nodeChord.getFingersTable()).thenReturn(fingersTable);
         when(nodeChord.getSuccessor()).thenReturn(successor);
         when(nodeChord.getKey()).thenReturn(key);
@@ -63,7 +63,7 @@ public class BootStrapTest {
 
     @Test
     public void boot_otherNodeFound_join() {
-        when(fingersTable.getFingersTable()).thenReturn(new Key[1]);
+        when(fingersTable.getFingersTable()).thenReturn(new ChordKey[1]);
         when(nodeChord.getFingersTable()).thenReturn(fingersTable);
         when(nodeChord.getSuccessor()).thenReturn(successor);
         when(nodeChord.getKey()).thenReturn(key);

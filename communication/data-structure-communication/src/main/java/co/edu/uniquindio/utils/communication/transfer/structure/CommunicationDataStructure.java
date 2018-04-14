@@ -19,7 +19,6 @@
 package co.edu.uniquindio.utils.communication.transfer.structure;
 
 import co.edu.uniquindio.utils.communication.Observable;
-import co.edu.uniquindio.utils.communication.Observer;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
@@ -154,16 +153,6 @@ public class CommunicationDataStructure extends Observable<Message> implements C
 
     @Override
     public void init() {
-
-    }
-
-    @Override
-    public Map<String, String> getCommunicationProperties() {
-        return null;
-    }
-
-    @Override
-    public void setCommunicationProperties(Map<String, String> communicationProperties) {
 
     }
 

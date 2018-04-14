@@ -22,7 +22,7 @@ import java.util.Observable;
 
 /**
  * The {@code OverlayNode} interface defines the basic methods for routing
- * 
+ *
  * @author Daniel Pelaez
  * @author Hector Hurtado
  * @author Daniel Lopez
@@ -30,40 +30,39 @@ import java.util.Observable;
  * @since 1.0
  */
 public interface OverlayNode {
-	/**
-	 * Finds the node on the overlay that is the responsible of the given key.
-	 * 
-	 * @param id
-	 *            The key to find
-	 * @return A {@link Key} that is the responsible for the id.
-	 */
-	public Key lookUp(Key id);
+    /**
+     * Finds the node on the overlay that is the responsible of the given key.
+     *
+     * @param id The key to find
+     * @return A {@link Key} that is the responsible for the id.
+     */
+    Key lookUp(Key id);
 
-	/**
-	 * Gets the {@link Key} of the Overlay node.
-	 * 
-	 * @return The {@link Key} of the Overlay node.
-	 */
-	public Key getKey();
+    /**
+     * Gets the {@link Key} of the Overlay node.
+     *
+     * @return The {@link Key} of the Overlay node.
+     */
+    Key getKey();
 
-	/**
-	 * Takes the node out of the network.
-	 * 
-	 * @return Key[] An array with node's neighbors.
-	 */
-	public Key[] leave() throws OverlayException;
+    /**
+     * Takes the node out of the network.
+     *
+     * @return Key[] An array with node's neighbors.
+     */
+    Key[] leave() throws OverlayException;
 
-	/**
-	 * Gets the observable object responsible for notifying information.
-	 * 
-	 * @return An {@link Observable} object.
-	 */
-	public Observable getObservable();
+    /**
+     * Gets the observable object responsible for notifying information.
+     *
+     * @return An {@link Observable} object.
+     */
+    Observable getObservable();
 
-	/**
-	 * Gets the list of node's neighbors.
-	 * 
-	 * @return Key[] An array with node's neighbors.
-	 */
-	public Key[] getNeighborsList() throws OverlayException;
+    /**
+     * Gets the list of node's neighbors.
+     *
+     * @return Key[] An array with node's neighbors.
+     */
+    Key[] getNeighborsList() throws OverlayException;
 }

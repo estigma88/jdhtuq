@@ -1,5 +1,6 @@
 package co.edu.uniquindio.chord.node;
 
+import co.edu.uniquindio.chord.ChordKey;
 import co.edu.uniquindio.chord.hashing.HashingGenerator;
 import co.edu.uniquindio.chord.protocol.Protocol;
 import co.edu.uniquindio.overlay.KeyFactory;
@@ -30,13 +31,13 @@ public class SuccessorListTest {
     @Mock
     private CommunicationManager communicationManager;
     @Mock
-    private Key key1;
+    private ChordKey key1;
     @Mock
-    private Key key2;
+    private ChordKey key2;
     @Mock
-    private Key key3;
+    private ChordKey key3;
     @Mock
-    private Key key;
+    private ChordKey key;
     private int size = 3;
     @Mock
     private ChordNode chordNode;
@@ -50,7 +51,7 @@ public class SuccessorListTest {
 
     @Before
     public void before() {
-        successorList = new SuccessorList(communicationManager, new Key[]{key1, key2, key3}, size, chordNode, sequenceGenerator, keyFactory);
+        successorList = new SuccessorList(communicationManager, new ChordKey[]{key1, key2, key3}, size, chordNode, sequenceGenerator, keyFactory);
     }
 
     @Test
@@ -73,8 +74,8 @@ public class SuccessorListTest {
 
     @Test
     public void fixSuccessors_successorListFromSuccessorAndGreaterThan3_doNothing() {
-        Key newKey1 = mock(Key.class);
-        Key newKey2 = mock(Key.class);
+        ChordKey newKey1 = mock(ChordKey.class);
+        ChordKey newKey2 = mock(ChordKey.class);
 
         when(key.getValue()).thenReturn("key");
         when(key1.getValue()).thenReturn("successor");
@@ -100,8 +101,8 @@ public class SuccessorListTest {
 
     @Test
     public void fixSuccessors_successorListFromSuccessorAndLowerThan3_doNothing() {
-        Key newKey1 = mock(Key.class);
-        Key newKey2 = mock(Key.class);
+        ChordKey newKey1 = mock(ChordKey.class);
+        ChordKey newKey2 = mock(ChordKey.class);
 
         when(key1.getValue()).thenReturn("successor");
         when(key.getValue()).thenReturn("key");

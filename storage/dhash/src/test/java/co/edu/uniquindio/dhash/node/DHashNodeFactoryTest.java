@@ -1,6 +1,6 @@
 package co.edu.uniquindio.dhash.node;
 
-import co.edu.uniquindio.dhash.resource.checksum.ChecksumeCalculator;
+import co.edu.uniquindio.dhash.resource.checksum.ChecksumCalculator;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManagerFactory;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
@@ -29,7 +29,7 @@ public class DHashNodeFactoryTest {
     @Mock
     private SerializationHandler serializationHandler;
     @Mock
-    private ChecksumeCalculator checksumeCalculator;
+    private ChecksumCalculator checksumeCalculator;
     @Mock
     private ResourceManagerFactory resourceManagerFactory;
     @Mock

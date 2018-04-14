@@ -23,6 +23,14 @@
 
 package co.edu.uniquindio.utils.communication.message;
 
+/**
+ * Sequence generator
+ */
 public interface SequenceGenerator {
+    /**
+     * Get the next sequence value
+     *
+     * @return next sequence value
+     */
     long getSequenceNumber();
 }

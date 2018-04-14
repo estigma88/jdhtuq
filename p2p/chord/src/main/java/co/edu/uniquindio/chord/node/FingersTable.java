@@ -22,6 +22,7 @@ package co.edu.uniquindio.chord.node;
 import java.math.BigInteger;
 import java.util.Arrays;
 
+import co.edu.uniquindio.chord.ChordKey;
 import co.edu.uniquindio.overlay.Key;
 import co.edu.uniquindio.overlay.KeyFactory;
 import org.apache.log4j.Logger;
@@ -55,7 +56,7 @@ public class FingersTable {
 	/**
 	 * List of {@link Key} that represents the fingers table.
 	 */
-	private Key[] fingersTable;
+	private ChordKey[] fingersTable;
 
 	/**
 	 * References the chord node that has this FingersTable.
@@ -84,11 +85,11 @@ public class FingersTable {
 		this.size = keyFactory.getKeyLength();
 		this.chordNode = nodeChord;
 		this.next = 0;
-		this.fingersTable = new Key[size];
+		this.fingersTable = new ChordKey[size];
 		this.keyFactory = keyFactory;
 	}
 
-	FingersTable(Key[] fingersTable, ChordNode chordNode, int next, int size, KeyFactory keyFactory) {
+	FingersTable(ChordKey[] fingersTable, ChordNode chordNode, int next, int size, KeyFactory keyFactory) {
 		this.fingersTable = fingersTable;
 		this.chordNode = chordNode;
 		this.next = next;
@@ -103,7 +104,7 @@ public class FingersTable {
 	 *            The key that will be tested.
 	 * @return {@link Key} The key that is closest and before the given key.
 	 */
-	public Key findClosestPresedingNode(Key key) {
+	public ChordKey findClosestPresedingNode(ChordKey key) {
 		for (int i = size - 1; i >= 0; i--) {
 			if (fingersTable[i] != null) {
 				if (fingersTable[i].isBetween(chordNode.getKey(), key)) {
@@ -146,7 +147,7 @@ public class FingersTable {
 	 * @param successor
 	 *            The key to be set as successor.
 	 */
-	public void setSuccessor(Key successor) {
+	public void setSuccessor(ChordKey successor) {
 		fingersTable[0] = successor;
 	}
 
@@ -161,7 +162,7 @@ public class FingersTable {
 	 *            Node's key
 	 * @return {@link Key} The key to be test in the fingers table.
 	 */
-	Key createNext(Key key) {
+	ChordKey createNext(ChordKey key) {
 		Key nextKey;
 		BigInteger nextValue;
 		BigInteger twoPow;
@@ -180,7 +181,7 @@ public class FingersTable {
 
 		nextKey = keyFactory.newKey(nextValue);
 
-		return nextKey;
+		return (ChordKey) nextKey;
 	}
 
 	/**
@@ -206,7 +207,7 @@ public class FingersTable {
 	 * 
 	 * @return ChordKey[]
 	 */
-	public Key[] getFingersTable() {
+	public ChordKey[] getFingersTable() {
 		return fingersTable;
 	}
 

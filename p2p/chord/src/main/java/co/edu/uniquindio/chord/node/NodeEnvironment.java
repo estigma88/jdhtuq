@@ -18,6 +18,7 @@
 
 package co.edu.uniquindio.chord.node;
 
+import co.edu.uniquindio.chord.ChordKey;
 import co.edu.uniquindio.chord.protocol.Protocol;
 import co.edu.uniquindio.chord.protocol.Protocol.*;
 import co.edu.uniquindio.overlay.Key;
@@ -116,9 +117,6 @@ class NodeEnvironment implements MessageProcessor {
         if (message.getMessageType().equals(Protocol.BOOTSTRAP)) {
             response = processBootStrap(message);
         }
-        /*if (message.getMessageType().equals(Protocol.LEAVE)) {
-            response = processLeave(message);
-        }*/
         if (message.getMessageType().equals(Protocol.SET_PREDECESSOR)) {
             response = processSetPredecessor(message);
         }
@@ -155,15 +153,6 @@ class NodeEnvironment implements MessageProcessor {
                 .param(GetSuccessorListResponseParams.SUCCESSOR_LIST.name(), successorList)
                 .build();
 
-        /*getSuccesorListResponseMessage = new MessageXML(message
-                .getSequenceNumber(), SendType.RESPONSE,
-                Protocol.GET_SUCCESSOR_LIST_RESPONSE, message
-                .getMessageSource(), chordNode.getKey().getValue());
-        getSuccesorListResponseMessage.addParam(
-                GetSuccessorListResponseParams.SUCCESSOR_LIST.name(),
-                successorList);*/
-
-        //communicationManager.sendMessageUnicast(getSuccesorListResponseMessage);
         return getSuccesorListResponseMessage;
     }
 
@@ -173,9 +162,9 @@ class NodeEnvironment implements MessageProcessor {
      * @param message Message SET_SUCCESSOR
      */
     private Message processSetSuccessor(Message message) {
-        Key nodeSucessor;
+        ChordKey nodeSucessor;
 
-        nodeSucessor = keyFactory.newKey(message.getParam(SetSuccessorParams.SUCCESSOR
+        nodeSucessor = (ChordKey) keyFactory.newKey(message.getParam(SetSuccessorParams.SUCCESSOR
                 .name()));
 
         chordNode.setSuccessor(nodeSucessor);
@@ -189,9 +178,9 @@ class NodeEnvironment implements MessageProcessor {
      * @param message Message SET_PREDECESSOR
      */
     private Message processSetPredecessor(Message message) {
-        Key nodePredecessor;
+        ChordKey nodePredecessor;
 
-        nodePredecessor = keyFactory.newKey(message
+        nodePredecessor = (ChordKey) keyFactory.newKey(message
                 .getParam(SetPredecessorParams.PREDECESSOR.name()));
 
         chordNode.setPredecessor(nodePredecessor);
@@ -209,9 +198,6 @@ class NodeEnvironment implements MessageProcessor {
         Message setSuccessorMessage;
         Message setPredecessorMessage;
 
-        /* Ends all stable threads */
-        //stableRing.cancel(true);
-
         process = false;
 
         if (!chordNode.getSuccessor().equals(chordNode.getKey())) {
@@ -227,12 +213,6 @@ class NodeEnvironment implements MessageProcessor {
                     .param(SetSuccessorParams.SUCCESSOR.name(), chordNode.getSuccessor().getValue())
                     .build();
 
-            /*setSuccessorMessage = new MessageXML(Protocol.SET_SUCCESSOR,
-                    chordNode.getPredecessor().getValue(), chordNode.getKey()
-                    .getValue());
-            setSuccessorMessage.addParam(SetSuccessorParams.SUCCESSOR.name(),
-                    chordNode.getSuccessor().getValue());*/
-
             communicationManager.sendMessageUnicast(setSuccessorMessage);
 
             setPredecessorMessage = Message.builder()
@@ -245,12 +225,6 @@ class NodeEnvironment implements MessageProcessor {
                             .build())
                     .param(SetPredecessorParams.PREDECESSOR.name(), chordNode.getPredecessor().toString())
                     .build();
-
-            /*setPredecessorMessage = new MessageXML(Protocol.SET_PREDECESSOR,
-                    chordNode.getSuccessor().getValue(), chordNode.getKey()
-                    .getValue());
-            setPredecessorMessage.addParam(SetPredecessorParams.PREDECESSOR
-                    .name(), chordNode.getPredecessor().toString());*/
 
             communicationManager.sendMessageUnicast(setPredecessorMessage);
         }
@@ -284,13 +258,6 @@ class NodeEnvironment implements MessageProcessor {
                 .param(BootStrapResponseParams.NODE_FIND.name(), chordNode.getKey().toString())
                 .build();
 
-        /*bootstrapResponseMessage = new MessageXML(message.getSequenceNumber(),
-                SendType.RESPONSE, Protocol.BOOTSTRAP_RESPONSE, message
-                .getMessageSource(), chordNode.getKey().getValue());
-        bootstrapResponseMessage.addParam(BootStrapResponseParams.NODE_FIND
-                .name(), chordNode.getKey().toString());*/
-
-        //communicationManager.sendMessageUnicast(bootstrapResponseMessage);
         return bootstrapResponseMessage;
     }
 
@@ -312,28 +279,12 @@ class NodeEnvironment implements MessageProcessor {
                         .source(chordNode.getKey().getValue())
                         .build());
 
-        /*getPredecessorResponseMessage = new MessageXML(message
-                .getSequenceNumber(), SendType.RESPONSE,
-                Protocol.GET_PREDECESSOR_RESPONSE, message.getMessageSource(),
-                chordNode.getKey().getValue());*/
-
         if (chordNode.getPredecessor() == null) {
             getPredecessorResponseMessage.param(GetPredecessorResponseParams.PREDECESSOR.name(), null);
-
-            /*getPredecessorResponseMessage.addParam(
-                    GetPredecessorResponseParams.PREDECESSOR.name(), null);*/
-
         } else {
             getPredecessorResponseMessage.param(GetPredecessorResponseParams.PREDECESSOR.name(), chordNode
                     .getPredecessor().toString());
-
-            /*getPredecessorResponseMessage.addParam(
-                    GetPredecessorResponseParams.PREDECESSOR.name(), chordNode
-                            .getPredecessor().toString());*/
-
         }
-
-        //communicationManager.sendMessageUnicast(getPredecessorResponseMessage.build());
 
         return getPredecessorResponseMessage.build();
     }
@@ -345,9 +296,9 @@ class NodeEnvironment implements MessageProcessor {
      */
     private Message processNotify(Message message) {
         if (!message.isMessageFromMySelf()) {
-            Key node;
+            ChordKey node;
 
-            node = keyFactory.newKey(message.getAddress().getSource());
+            node = (ChordKey) keyFactory.newKey(message.getAddress().getSource());
 
             chordNode.notify(node);
         }
@@ -374,13 +325,6 @@ class NodeEnvironment implements MessageProcessor {
                 .param(PingResponseParams.PING.name(), Boolean.TRUE.toString())
                 .build();
 
-        /*pingMessage = new MessageXML(message.getSequenceNumber(),
-                SendType.RESPONSE, Protocol.PING_RESPONSE, message
-                .getMessageSource(), chordNode.getKey().getValue());
-        pingMessage.addParam(PingResponseParams.PING.name(), Boolean.TRUE
-                .toString());*/
-
-        //communicationManager.sendMessageUnicast(pingMessage);
         return pingMessage;
     }
 
@@ -403,26 +347,17 @@ class NodeEnvironment implements MessageProcessor {
                         .build())
                 .param(LookupResponseParams.TYPE.name(), message.getParam(LookupParams.TYPE.name()));
 
-        /*lookupResponseMessage = new MessageXML(message.getSequenceNumber(),
-                SendType.RESPONSE, Protocol.LOOKUP_RESPONSE, message
-                .getMessageSource(), chordNode.getKey().getValue());
-        lookupResponseMessage.addParam(LookupResponseParams.TYPE.name(),
-                message.getParam(LookupParams.TYPE.name()));*/
-
         /* Discards the message that comes from the same node */
         if (message.isMessageFromMySelf()) {
             lookupResponseMessage.param(LookupResponseParams.NODE_FIND
                     .name(), chordNode.getKey().toString());
 
-            /*lookupResponseMessage.addParam(LookupResponseParams.NODE_FIND
-                    .name(), chordNode.getKey().toString());*/
-
         } else {
 
-            Key response;
-            Key id;
+            ChordKey response;
+            ChordKey id;
 
-            id = keyFactory.newKey(new BigInteger(message.getParam(LookupParams.HASHING
+            id = (ChordKey) keyFactory.newKey(new BigInteger(message.getParam(LookupParams.HASHING
                     .name())));
 
             response = chordNode.findSuccessor(id, LookupType.valueOf(message
@@ -431,22 +366,13 @@ class NodeEnvironment implements MessageProcessor {
             if (response == null) {
                 lookupResponseMessage.param(LookupResponseParams.NODE_FIND
                         .name(), chordNode.getKey().toString());
-
-                /*lookupResponseMessage.addParam(LookupResponseParams.NODE_FIND
-                        .name(), chordNode.getKey().toString());*/
-
             } else {
                 lookupResponseMessage.param(LookupResponseParams.NODE_FIND
                         .name(), response.toString());
-
-                /*lookupResponseMessage.addParam(LookupResponseParams.NODE_FIND
-                        .name(), response.toString());*/
-
             }
 
         }
 
-        //communicationManager.sendMessageUnicast(lookupResponseMessage.build());
         return lookupResponseMessage.build();
     }
 
