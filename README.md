@@ -1,4 +1,4 @@
-#jDHTUQ for peer-to-peer DHT networking
+# jDHTUQ for peer-to-peer DHT networking
 jDHTUQ is a peer-to-peer DHT system based on Chord algorithm, but built to generalize the implementation of peer-to-peer DHT systems. It have two fundamental services, put and get of a resource.
 
 **jDHTUQ is using:**
@@ -10,11 +10,11 @@ jDHTUQ is a peer-to-peer DHT system based on Chord algorithm, but built to gener
 - Peer to peer communication simulation using a data structure
 - Peer to peer network communication using sockets
 
-##Download last versions
+## Download last versions
 Peer to peer simulation
 Socket communication
 
-##How to use
+## How to use
 - Clone the repository
 - Execute the following command in the root folder
 	- For peer to peer simulation: 
@@ -22,10 +22,10 @@ Socket communication
 	- For peer to peer network with sockets: 
 	gradlew :main:desktop-network-gui:bootRun
 
-##More info
+## More info
 [More info](Home) 
 	
-##Licence
+## Licence
 DHTUQ is a peer-to-peer DHT system based on Chord algorithm, but built to generalize the implementation of peer-to-peer DHT systems.
 
 Copyright (C) 2010  Daniel Pelaez.
