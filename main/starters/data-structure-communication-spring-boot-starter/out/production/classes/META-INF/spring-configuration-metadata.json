@@ -1,0 +1,11 @@
+{
+  "hints": [],
+  "groups": [
+    {
+      "sourceType": "co.edu.uniquindio.utils.communication.transfer.structure.starter.DataStructureCommunicationProperties",
+      "name": "communication.data-structure",
+      "type": "co.edu.uniquindio.utils.communication.transfer.structure.starter.DataStructureCommunicationProperties"
+    }
+  ],
+  "properties": []
+}

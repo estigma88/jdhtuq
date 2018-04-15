@@ -1,0 +1,4 @@
+p2p:
+  dhash:
+    replication_amount: 1
+    communication_type: DATA_STRUCTURE

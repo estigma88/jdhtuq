@@ -1,0 +1,33 @@
+buildscript {
+	ext {
+		springBootVersion = '1.5.10.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+	}
+}
+
+apply plugin: 'java'
+
+version = '2.0.0'
+
+group = 'co.edu.uniquindio.chord'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+
+repositories {
+	mavenCentral()
+}
+
+
+dependencies {
+	compile project(':p2p:chord')
+	compile project(':communication:socket-communication')
+	compile project(':communication:data-structure-communication')
+
+	compileOnly 'org.projectlombok:lombok:1.16.20'
+	compileOnly "org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}"
+	compile("org.springframework.boot:spring-boot-starter:${springBootVersion}")
+}
+
+compileJava.dependsOn(processResources)

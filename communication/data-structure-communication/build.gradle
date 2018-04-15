@@ -1,0 +1,13 @@
+apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+}
+
+version = '2.0.0'
+
+dependencies {
+    compile project(':communication:communication-api')
+
+    compile group: 'log4j', name: 'log4j', version: '1.2.16'
+}
