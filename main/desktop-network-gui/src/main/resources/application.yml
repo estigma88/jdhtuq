@@ -1,8 +1,8 @@
 ui-network:
-  resource-directory: out/dhash/
+  resource-directory: build/dhash/
 p2p:
   dhash:
-    resource-directory: out/dhash/
+    resource-directory: build/dhash/
 communication:
   socket:
     instances:

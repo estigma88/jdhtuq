@@ -1,11 +1,14 @@
+plugins {
+    id 'org.springframework.boot' version '2.0.1.RELEASE'
+}
+
 apply plugin: 'java'
-apply plugin: 'application'
 
 repositories {
     mavenCentral()
 }
 
-version = '1.5.0'
+version = '2.0.0'
 
 dependencies {
     compile("org.springframework.boot:spring-boot-starter:1.5.10.RELEASE")
@@ -13,12 +16,4 @@ dependencies {
     compile project(':main:starters:chord-spring-boot-starter')
     compile project(':main:starters:dhash-spring-boot-starter')
     compile project(':main:starters:data-structure-communication-spring-boot-starter')
-}
-
-mainClassName = "co.edu.uniquindio.dht.Main"
-
-distributions {
-    main {
-        baseName = 'jDHTUQ'
-    }
 }

@@ -9,6 +9,7 @@ buildscript {
 
 apply plugin: 'java'
 
+version = '2.0.0'
 group = 'co.edu.uniquindio.dhash'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = 1.8

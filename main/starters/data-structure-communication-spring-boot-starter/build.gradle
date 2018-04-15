@@ -8,6 +8,7 @@ buildscript {
 }
 
 apply plugin: 'java'
+version = '2.0.0'
 
 group = 'co.edu.uniquindio.utils.communication.transfer.network'
 version = '0.0.1-SNAPSHOT'
