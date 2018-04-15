@@ -21,6 +21,9 @@ Socket communication
 	gradlew :main:desktop-structure-gui:bootRun
 	- For peer to peer network with sockets: 
 	gradlew :main:desktop-network-gui:bootRun
+
+##More info
+[More info](Home) 
 	
 ##Licence
 DHTUQ is a peer-to-peer DHT system based on Chord algorithm, but built to generalize the implementation of peer-to-peer DHT systems.
