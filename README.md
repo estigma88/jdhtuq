@@ -22,7 +22,7 @@ jDHTUQ is a peer-to-peer DHT system based on Chord algorithm, but built to gener
 	gradlew :main:desktop-network-gui:bootRun
 
 ## More info
-[More info](Home) 
+[More Info](https://github.com/estigma88/jdhtuq/wiki) 
 	
 ## Licence
 DHTUQ is a peer-to-peer DHT system based on Chord algorithm, but built to generalize the implementation of peer-to-peer DHT systems.
