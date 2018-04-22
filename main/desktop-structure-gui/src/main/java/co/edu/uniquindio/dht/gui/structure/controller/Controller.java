@@ -21,8 +21,10 @@ import co.edu.uniquindio.utils.communication.Observer;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 
+import java.awt.*;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 
 //TODO Documentar
 public class Controller implements Observer<Message> {
@@ -113,7 +115,7 @@ public class Controller implements Observer<Message> {
         try {
             StorageNode dHash;
             if (name.equals("")) {
-                while (nodeNames.contains(String.valueOf(indexName))){
+                while (nodeNames.contains(String.valueOf(indexName))) {
                     indexName++;
                 }
 
@@ -121,9 +123,9 @@ public class Controller implements Observer<Message> {
 
                 nodeNames.add(String.valueOf(indexName));
             } else {
-                if (nodeNames.contains(name)){
-                    throw new IllegalArgumentException("Node with name "+name+" is already created");
-                }else{
+                if (nodeNames.contains(name)) {
+                    throw new IllegalArgumentException("Node with name " + name + " is already created");
+                } else {
                     dHash = storageNodeFactory.createNode(name);
                     nodeNames.add(name);
                 }
@@ -274,14 +276,17 @@ public class Controller implements Observer<Message> {
         if (message != null && message.getMessageType().equals(Protocol.LOOKUP_RESPONSE)) {
             if (message.getParam(LookupParams.TYPE.name()).equals(
                     LookupType.LOOKUP.name())) {
+                EventQueue.invokeLater(new Runnable() {
+                    public void run() {
+                        String from = getNumOfNode(message.getAddress().getSource());
+                        String to = getNumOfNode(message.getAddress().getDestination());
+                        String successor = getNumOfNode(ChordKey.valueOf(message
+                                .getParam(LookupResponseParams.NODE_FIND.name())).getValue());
 
-                String from = getNumOfNode(message.getAddress().getSource());
-                String to = getNumOfNode(message.getAddress().getDestination());
-                String successor = getNumOfNode(ChordKey.valueOf(message
-                        .getParam(LookupResponseParams.NODE_FIND.name())).getValue());
-
-                panelGraph.addEdge(from, to, successor);
-                fixEdges(panelGraph.getEdges());
+                        panelGraph.addEdge(from, to, successor);
+                        fixEdges(panelGraph.getEdges());
+                    }
+                });
             }
         }
     }
