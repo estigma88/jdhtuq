@@ -155,11 +155,12 @@ public class PanelGraph extends JPanel implements MouseListener {
 			angle += dr;
 		}
 
-		repaint();
+		//repaint();
 	}
 	//TODO Documentar
-	public void paintComponent(Graphics g) {
-		
+	public void paint(Graphics g) {
+        super.paint(g);
+
 		Graphics2D g2d = (Graphics2D) g;
 		
 		Dimension d = getSize();
@@ -200,7 +201,7 @@ public class PanelGraph extends JPanel implements MouseListener {
 				paintEdge((Graphics2D)offgraphics, edges.get(i), actionColor);
 			}
 
-			makeComunicationEdge();
+			//makeComunicationEdge();
 
 			if (comunicationEdge != null)
 				paintEdge((Graphics2D)offgraphics, comunicationEdge, comunicationColor);
@@ -217,7 +218,7 @@ public class PanelGraph extends JPanel implements MouseListener {
 		g.drawImage(offscreen, 0, 0, null);
 	}
 	//TODO Documentar
-	private void makeComunicationEdge() {
+	public void makeComunicationEdge() {
 		if (edges.size() >= 2 && comunicationEdge == null) {
 			Edge ed = edges.get(edges.size() - 2);
 
@@ -416,7 +417,7 @@ public class PanelGraph extends JPanel implements MouseListener {
 	//TODO Documentar
 	public void setEdges(ArrayList<Edge> edges) {
 		this.edges = edges;
-		repaint();
+		//repaint();
 	}
 	//TODO Documentar
 	public ArrayList<Edge> getEdges() {

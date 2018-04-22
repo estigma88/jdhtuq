@@ -276,8 +276,8 @@ public class Controller implements Observer<Message> {
         if (message != null && message.getMessageType().equals(Protocol.LOOKUP_RESPONSE)) {
             if (message.getParam(LookupParams.TYPE.name()).equals(
                     LookupType.LOOKUP.name())) {
-                EventQueue.invokeLater(new Runnable() {
-                    public void run() {
+                /*EventQueue.invokeLater(new Runnable() {
+                    public void run() {*/
                         String from = getNumOfNode(message.getAddress().getSource());
                         String to = getNumOfNode(message.getAddress().getDestination());
                         String successor = getNumOfNode(ChordKey.valueOf(message
@@ -285,10 +285,15 @@ public class Controller implements Observer<Message> {
 
                         panelGraph.addEdge(from, to, successor);
                         fixEdges(panelGraph.getEdges());
-                    }
-                });
+                   /* }
+                });*/
             }
         }
+    }
+
+    public void refreshPanelGraph(){
+        panelGraph.makeComunicationEdge();
+        panelGraph.repaint();
     }
 
     // TODO Documentar

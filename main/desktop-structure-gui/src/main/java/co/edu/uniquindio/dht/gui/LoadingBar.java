@@ -63,12 +63,12 @@ public class LoadingBar extends JDialog {
 	}
 	//TODO Documentar
 	public void setValue(final int value, final String message) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
+		/*EventQueue.invokeLater(new Runnable() {
+			public void run() {*/
 				loadBar.setValue(value);
 				labelTitle.setText(message);
-			}
-		});
+			/*}
+		});*/
 	}
 	//TODO Documentar
 	public void begin() {

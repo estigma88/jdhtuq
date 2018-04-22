@@ -129,6 +129,8 @@ public class PanelDhashStructure extends PanelDhash implements PropertyChangeLis
         if ("state" == propertyChangeEvent.getPropertyName() && SwingWorker.StateValue.DONE == propertyChangeEvent.getNewValue()) {
             LoadingBar loadingBar = LoadingBar.getInstance(frame);
             loadingBar.end();
+
+            controller.refreshPanelGraph();
         }
     }
 }
