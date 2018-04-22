@@ -75,7 +75,7 @@ public class PanelDhashStructure extends PanelDhash implements PropertyChangeLis
             } else {
                 if (e.getSource() == buttonOpen) {
 
-                    File file = new File("dhash/" + getDHashNode().getName());
+                    File file = new File(resourceDirectory + getDHashNode().getName());
 
                     Desktop desktop = null;
                     // Before more Desktop API is used, first check

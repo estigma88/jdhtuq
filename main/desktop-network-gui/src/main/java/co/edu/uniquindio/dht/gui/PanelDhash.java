@@ -1,6 +1,8 @@
 package co.edu.uniquindio.dht.gui;
 
 import co.edu.uniquindio.dhash.resource.BytesResource;
+import co.edu.uniquindio.dht.gui.network.task.storageservice.GetTask;
+import co.edu.uniquindio.dht.gui.network.task.storageservice.PutTask;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.StorageNode;
 import org.apache.commons.io.IOUtils;
@@ -9,13 +11,15 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 //TODO Documentar
 @SuppressWarnings("serial")
-public class PanelDhash extends JPanel implements ActionListener {
+public class PanelDhash extends JPanel implements ActionListener, PropertyChangeListener {
     // TODO Documentar
     protected JFileChooser fileChooser;
     // TODO Documentar
@@ -78,6 +82,7 @@ public class PanelDhash extends JPanel implements ActionListener {
 
         if (mode)
             buttonExit.addActionListener(this);
+
     }
 
     // TODO Documentar
@@ -88,87 +93,43 @@ public class PanelDhash extends JPanel implements ActionListener {
             int returnVal = fileChooser.showOpenDialog(this);
 
             if (returnVal == JFileChooser.APPROVE_OPTION) {
-                Thread thread = new Thread(new Runnable() {
-                    public void run() {
+                LoadingBar loadingBar = LoadingBar.getInstance(frame);
 
-                        LoadingBar loadingBar = LoadingBar.getInstance(frame);
+                loadingBar.setConfiguration(true, 100);
+                loadingBar.setValue(1, "Doing Put...");
+                loadingBar.begin();
 
-                        loadingBar.setConfiguration(true, 100);
-                        loadingBar.setValue(1, "Doing Put...");
-                        loadingBar.begin();
+                File file = fileChooser.getSelectedFile();
 
-                        File fichero = fileChooser.getSelectedFile();
-                        try {
-                            BytesResource fileResource = new BytesResource(fichero.getName(), IOUtils.toByteArray(new FileInputStream(fichero)));
-                            getDHashNode().put(fileResource);
-                        } catch (StorageException e1) {
-                            loadingBar.end();
-                            JOptionPane.showMessageDialog(frame, e1
-                                    .getMessage());
-                        } catch (FileNotFoundException e1) {
-                            loadingBar.end();
-                            JOptionPane.showMessageDialog(frame, e1
-                                    .getMessage());
-                        } catch (IOException e1) {
-                            loadingBar.end();
-                            JOptionPane.showMessageDialog(frame, e1
-                                    .getMessage());
-                        }
-
-                        loadingBar.end();
-                    }
-                });
-                thread.start();
+                PutTask putTask = new PutTask(frame, getDHashNode(), file);
+                putTask.addPropertyChangeListener(this);
+                putTask.execute();
             }
 
         } else {
             if (e.getSource() == buttonGet) {
-                final String a = JOptionPane
+                final String resourceId = JOptionPane
                         .showInputDialog(
                                 null,
                                 "Please write the name of the file that you wish retrieve",
-                                "Insert a file name",
+                                "Insert a name file",
                                 JOptionPane.INFORMATION_MESSAGE);
 
-                if (a == null)
+                if (resourceId == null)
                     return;
 
-                Thread thread = new Thread(new Runnable() {
-                    public void run() {
+                LoadingBar loadingBar = LoadingBar.getInstance(frame);
 
-                        LoadingBar loadingBar = LoadingBar.getInstance(frame);
+                loadingBar.setConfiguration(true, 100);
+                loadingBar.setValue(1, "Doing Get...");
+                loadingBar.begin();
 
-                        loadingBar.setConfiguration(true, 100);
-                        loadingBar.setValue(1, "Doing Get...");
-                        loadingBar.begin();
-                        try {
-                            BytesResource resource = (BytesResource) getDHashNode().get(a);
-
-                            Files.createDirectories(Paths.get(resourceDirectory + getDHashNode().getName() + "/gets/"));
-                            Files.copy(new ByteArrayInputStream(resource.getBytes()), Paths.get(resourceDirectory + getDHashNode().getName() + "/gets/" + resource.getId()));
-
-                        } catch (StorageException e1) {
-                            loadingBar.end();
-                            JOptionPane.showMessageDialog(frame, e1
-                                            .getMessage()
-                                            + "\nPlease try again later", "ERROR",
-                                    JOptionPane.INFORMATION_MESSAGE);
-                        } catch (IOException e1) {
-                            loadingBar.end();
-                            JOptionPane.showMessageDialog(frame, e1
-                                            .getMessage()
-                                            + "\nPlease try again later", "ERROR",
-                                    JOptionPane.INFORMATION_MESSAGE);
-                        }
-
-                        loadingBar.end();
-
-                    }
-                });
-                thread.start();
+                GetTask getTask = new GetTask(frame, getDHashNode(), resourceId, resourceDirectory);
+                getTask.addPropertyChangeListener(this);
+                getTask.execute();
             } else {
                 if (e.getSource() == buttonOpen) {
-                    File file = new File("dhash/"
+                    File file = new File(resourceDirectory
                             + getDHashNode().getName());
 
                     Desktop desktop = null;
@@ -227,6 +188,7 @@ public class PanelDhash extends JPanel implements ActionListener {
     // TODO Documentar
     public void setDHashNode(StorageNode dHashNode) {
         this.dHashNode = dHashNode;
+        enableOpenFolder();
     }
 
     // TODO Documentar
@@ -245,9 +207,19 @@ public class PanelDhash extends JPanel implements ActionListener {
     }
 
     public void enableOpenFolder() {
-        File file = new File("dhash/"
+        File file = new File(resourceDirectory
                 + getDHashNode().getName());
 
         buttonOpen.setEnabled(file.exists());
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
+        if ("state" == propertyChangeEvent.getPropertyName() && SwingWorker.StateValue.DONE == propertyChangeEvent.getNewValue()) {
+            LoadingBar loadingBar = LoadingBar.getInstance(frame);
+            loadingBar.end();
+
+            enableOpenFolder();
+        }
     }
 }
