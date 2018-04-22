@@ -1,0 +1,18 @@
+apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+}
+
+version = '1.0.0'
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-web:1.5.10.RELEASE")
+
+    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.4'
+
+    compile project(':communication:communication-api')
+
+    compile group: 'log4j', name: 'log4j', version: '1.2.16'
+}
