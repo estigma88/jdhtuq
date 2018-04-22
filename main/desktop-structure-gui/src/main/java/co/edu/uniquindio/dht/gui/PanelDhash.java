@@ -245,7 +245,7 @@ public class PanelDhash extends JPanel implements ActionListener {
     }
 
     public void enableOpenFolder() {
-        File file = new File("dhash/"
+        File file = new File(resourceDirectory
                 + getDHashNode().getName());
 
         buttonOpen.setEnabled(file.exists());

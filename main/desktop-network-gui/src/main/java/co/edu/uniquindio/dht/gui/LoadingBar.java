@@ -1,6 +1,6 @@
 package co.edu.uniquindio.dht.gui;
 
-import java.awt.Color;
+import java.awt.*;
 
 import javax.swing.BorderFactory;
 import javax.swing.JDialog;
@@ -63,16 +63,16 @@ public class LoadingBar extends JDialog {
 	}
 	//TODO Documentar
 	public void setValue(final int value, final String message) {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
+		/*SwingUtilities.invokeLater(new Runnable() {
+			public void run() {*/
 				loadBar.setValue(value);
 				labelTitle.setText(message);
-			}
-		});
+			/*}
+		});*/
 	}
 	//TODO Documentar
 	public void begin() {
-		SwingUtilities.invokeLater(new Runnable() {
+		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				setVisible(true);
 			}
@@ -81,7 +81,7 @@ public class LoadingBar extends JDialog {
 	//TODO Documentar
 	public void end() {
 		setValue(max, "final");
-		SwingUtilities.invokeLater(new Runnable() {
+		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				setVisible(false);
 			}
