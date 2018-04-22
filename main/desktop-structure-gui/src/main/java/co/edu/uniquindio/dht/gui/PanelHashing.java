@@ -79,8 +79,11 @@ public class PanelHashing extends JPanel implements ActionListener,
         int stringLength = i.toString().length();
 
 
-        spinnerNumberModel = new SpinnerNumberModel(stringLength / 9, 1,
-                stringLength, 1);
+        spinnerNumberModel = new SpinnerNumberModel();
+        spinnerNumberModel.setValue(stringLength);
+        spinnerNumberModel.setMaximum(stringLength);
+        spinnerNumberModel.setMinimum(1);
+        spinnerNumberModel.setStepSize(1);
         spinner = new JSpinner(spinnerNumberModel);
 
         StringBuilder format = new StringBuilder();

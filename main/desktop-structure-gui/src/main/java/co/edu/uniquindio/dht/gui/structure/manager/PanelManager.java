@@ -1,334 +1,325 @@
 package co.edu.uniquindio.dht.gui.structure.manager;
 
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
+import co.edu.uniquindio.dht.gui.LoadingBar;
+import co.edu.uniquindio.dht.gui.structure.StructureWindow;
+import co.edu.uniquindio.dht.gui.structure.controller.Controller;
+import co.edu.uniquindio.dht.gui.structure.task.controller.DeleteNodeTask;
+import co.edu.uniquindio.dht.gui.structure.task.controller.NewNodeTask;
+import co.edu.uniquindio.dht.gui.structure.task.controller.NewNodesFromFileTask;
+import co.edu.uniquindio.dht.gui.structure.task.controller.NewNodesTask;
+import co.edu.uniquindio.dht.gui.structure.utils.DHDChord;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.List;
 
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
-
-import co.edu.uniquindio.dht.gui.LoadingBar;
-import co.edu.uniquindio.dht.gui.structure.StructureWindow;
-import co.edu.uniquindio.dht.gui.structure.controller.Controller;
-import co.edu.uniquindio.dht.gui.structure.utils.DHDChord;
 //TODO Documentar
 @SuppressWarnings("serial")
 public class PanelManager extends JPanel implements ActionListener,
-		MouseListener {
-	//TODO Documentar
-	private JPanel panelCraete;
-	//TODO Documentar
-	private JButton buttonCreateNode;
-	//TODO Documentar
-	private JButton buttonCreateNnodes;
-	//TODO Documentar
-	private JButton buttonCreateNodeFromFile;
-	//TODO Documentar
-	private JButton buttonDeleteNode;
-	//TODO Documentar
-	private DefaultTableModel defaultTableModel;
-	//TODO Documentar
-	private JTable tableNodes;
-	//TODO Documentar
-	private JScrollPane scrollTableNodes;
-	//TODO Documentar
-	private Controller controller;
-	//TODO Documentar
-	private JPanel panelLayout;
-	//TODO Documentar
-	private JPanel panelN;
-	//TODO Documentar
-	private JFileChooser chooser;
-	//TODO Documentar
-	private JFrame frame;
-	//TODO Documentar
-	public PanelManager(JFrame frame) {
-		setLayout(new BorderLayout());
+        MouseListener, PropertyChangeListener {
+    //TODO Documentar
+    private JPanel panelCraete;
+    //TODO Documentar
+    private JButton buttonCreateNode;
+    //TODO Documentar
+    private JButton buttonCreateNnodes;
+    //TODO Documentar
+    private JButton buttonCreateNodeFromFile;
+    //TODO Documentar
+    private JButton buttonDeleteNode;
+    //TODO Documentar
+    private DefaultTableModel defaultTableModel;
+    //TODO Documentar
+    private JTable tableNodes;
+    //TODO Documentar
+    private JScrollPane scrollTableNodes;
+    //TODO Documentar
+    private Controller controller;
+    //TODO Documentar
+    private JPanel panelLayout;
+    //TODO Documentar
+    private JPanel panelN;
+    //TODO Documentar
+    private JFileChooser chooser;
+    //TODO Documentar
+    private JFrame frame;
 
-		this.frame = frame;
+    //TODO Documentar
+    public PanelManager(JFrame frame) {
+        setLayout(new BorderLayout());
 
-		chooser = new JFileChooser();
-		chooser.setApproveButtonText("Select");
-		chooser.setDialogTitle("Select");
+        this.frame = frame;
 
-		// Panel Center
-		defaultTableModel = new DefaultTableModel();
-		defaultTableModel.addColumn("Node");
+        chooser = new JFileChooser();
+        chooser.setApproveButtonText("Select");
+        chooser.setDialogTitle("Select");
 
-		tableNodes = new JTable(defaultTableModel);
+        // Panel Center
+        defaultTableModel = new DefaultTableModel();
+        defaultTableModel.addColumn("Node");
 
-		scrollTableNodes = new JScrollPane();
-		scrollTableNodes.setViewportView(tableNodes);
+        tableNodes = new JTable(defaultTableModel);
 
-		add(scrollTableNodes, BorderLayout.CENTER);
+        scrollTableNodes = new JScrollPane();
+        scrollTableNodes.setViewportView(tableNodes);
 
-		// Panel Center
+        add(scrollTableNodes, BorderLayout.CENTER);
 
-		// Panel Create
+        // Panel Center
 
-		panelLayout = new JPanel(new GridLayout(2, 1));
+        // Panel Create
 
-		buttonCreateNnodes = new JButton("Create N Nodes");
-		buttonCreateNnodes.setToolTipText("Creates a number N of nodes");
+        panelLayout = new JPanel(new GridLayout(2, 1));
 
-		buttonCreateNodeFromFile = new JButton("Create F Nodes");
-		buttonCreateNodeFromFile.setToolTipText("Creates Nodes from a file");
+        buttonCreateNnodes = new JButton("Create N Nodes");
+        buttonCreateNnodes.setToolTipText("Creates a number N of nodes");
 
-		buttonCreateNode = new JButton("Create Node");
-		buttonCreateNode.setToolTipText("Creates a Node with a specific name");
+        buttonCreateNodeFromFile = new JButton("Create F Nodes");
+        buttonCreateNodeFromFile.setToolTipText("Creates Nodes from a file");
 
-		buttonDeleteNode = new JButton("Delete Node");
-		buttonDeleteNode.setToolTipText("Deletes the selected node");
-		buttonDeleteNode.setEnabled(false);
+        buttonCreateNode = new JButton("Create Node");
+        buttonCreateNode.setToolTipText("Creates a Node with a specific name");
 
-		panelN = new JPanel(new FlowLayout());
-		panelN.add(buttonDeleteNode);
-		panelN.add(buttonCreateNodeFromFile);
+        buttonDeleteNode = new JButton("Delete Node");
+        buttonDeleteNode.setToolTipText("Deletes the selected node");
+        buttonDeleteNode.setEnabled(false);
 
-		panelCraete = new JPanel(new FlowLayout());
-		panelCraete.add(buttonCreateNode);
-		panelCraete.add(buttonCreateNnodes);
+        panelN = new JPanel(new FlowLayout());
+        panelN.add(buttonDeleteNode);
+        panelN.add(buttonCreateNodeFromFile);
 
-		panelLayout.add(panelCraete);
-		panelLayout.add(panelN);
+        panelCraete = new JPanel(new FlowLayout());
+        panelCraete.add(buttonCreateNode);
+        panelCraete.add(buttonCreateNnodes);
 
-		add(panelLayout, BorderLayout.SOUTH);
-		// Panel Create
+        panelLayout.add(panelCraete);
+        panelLayout.add(panelN);
 
-		tableNodes.addMouseListener(this);
-		buttonCreateNode.addActionListener(this);
-		buttonDeleteNode.addActionListener(this);
-		buttonCreateNnodes.addActionListener(this);
-		buttonCreateNodeFromFile.addActionListener(this);
-	}
-	//TODO Documentar
-	public void setController(Controller controller) {
-		this.controller = controller;
-	}
-	//TODO Documentar
-	public Controller getController() {
-		return controller;
-	}
-	//TODO Documentar
-	public void addNode(List<DHDChord> dhdChordList) {
-		defaultTableModel = new DefaultTableModel();
-		defaultTableModel.addColumn("id");
-		defaultTableModel.addColumn("Node");
+        add(panelLayout, BorderLayout.SOUTH);
+        // Panel Create
 
-		tableNodes = new JTable(defaultTableModel);
+        tableNodes.addMouseListener(this);
+        buttonCreateNode.addActionListener(this);
+        buttonDeleteNode.addActionListener(this);
+        buttonCreateNnodes.addActionListener(this);
+        buttonCreateNodeFromFile.addActionListener(this);
+    }
 
-		TableColumn tc = tableNodes.getColumn(defaultTableModel
-				.getColumnName(0));
-		tc.setPreferredWidth(10);
+    //TODO Documentar
+    public void setController(Controller controller) {
+        this.controller = controller;
+    }
 
-		for (int i = 0; i < dhdChordList.size(); i++) {
-			defaultTableModel.addRow(new Object[] {
-					dhdChordList.get(i).getNumberNode(),
-					dhdChordList.get(i).getDHashNode().getName() });
-		}
+    //TODO Documentar
+    public Controller getController() {
+        return controller;
+    }
 
-		tableNodes.addMouseListener(this);
+    //TODO Documentar
+    public void addNode(List<DHDChord> dhdChordList) {
+        defaultTableModel = new DefaultTableModel();
+        defaultTableModel.addColumn("id");
+        defaultTableModel.addColumn("Node");
 
-		scrollTableNodes.setViewportView(tableNodes);
+        tableNodes = new JTable(defaultTableModel);
 
-		buttonDeleteNode.setEnabled(true);
-	}
-	//TODO Documentar
-	public void setSelectedNode(String selectedNode) {
-		for (int i = 0; i < defaultTableModel.getRowCount(); i++) {
-			if (defaultTableModel.getValueAt(i, 1).equals(selectedNode))
-				tableNodes.setRowSelectionInterval(i, i);
-		}
-	}
-	//TODO Documentar
-	public void setEnabled(boolean value) {
-		buttonDeleteNode.setEnabled(value);
-	}
-	//TODO Documentar
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == buttonCreateNode) {
-			final String name = JOptionPane.showInputDialog(null,
-					"Please give a name for the Node", "Insert a name",
-					JOptionPane.INFORMATION_MESSAGE);
+        TableColumn tc = tableNodes.getColumn(defaultTableModel
+                .getColumnName(0));
+        tc.setPreferredWidth(10);
 
-			if (name == null)
-				return;
+        for (int i = 0; i < dhdChordList.size(); i++) {
+            defaultTableModel.addRow(new Object[]{
+                    dhdChordList.get(i).getNumberNode(),
+                    dhdChordList.get(i).getDHashNode().getName()});
+        }
 
-			Thread thread = new Thread(new Runnable() {
-				public void run() {
+        tableNodes.addMouseListener(this);
 
-					LoadingBar loadingBar = LoadingBar.getInstance(frame);
+        scrollTableNodes.setViewportView(tableNodes);
 
-					loadingBar.setConfiguration(true, 100);
-					loadingBar.setValue(1, "Creating node...");
-					loadingBar.begin();
+        buttonDeleteNode.setEnabled(true);
+    }
 
-					controller.createNode(name);
+    //TODO Documentar
+    public void setSelectedNode(String selectedNode) {
+        for (int i = 0; i < defaultTableModel.getRowCount(); i++) {
+            if (defaultTableModel.getValueAt(i, 1).equals(selectedNode))
+                tableNodes.setRowSelectionInterval(i, i);
+        }
+    }
 
-					loadingBar.end();
-					
-					validateCreated();
-				}
-			});
-			thread.start();
-		} else {
-			if (e.getSource() == buttonDeleteNode) {
-				int selectedRow = tableNodes.getSelectedRow();
+    //TODO Documentar
+    public void setEnabled(boolean value) {
+        buttonDeleteNode.setEnabled(value);
+    }
 
-				if (selectedRow == -1)
-					return;
+    //TODO Documentar
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == buttonCreateNode) {
+            final String name = JOptionPane.showInputDialog(null,
+                    "Please give a name for the Node", "Insert a name",
+                    JOptionPane.INFORMATION_MESSAGE);
 
-				final String node = defaultTableModel
-						.getValueAt(selectedRow, 1)
-						+ "";
+            if (name == null)
+                return;
 
-				defaultTableModel.removeRow(selectedRow);
+            LoadingBar loadingBar = LoadingBar.getInstance(frame);
 
-				Thread thread = new Thread(new Runnable() {
-					public void run() {
+            loadingBar.setConfiguration(true, 100);
+            loadingBar.setValue(1, "Creating node...");
+            loadingBar.begin();
 
-						LoadingBar loadingBar = LoadingBar.getInstance(frame);
+            NewNodeTask newNodeTask = new NewNodeTask(frame, controller, name);
+            newNodeTask.addPropertyChangeListener(this);
+            newNodeTask.execute();
+        } else {
+            if (e.getSource() == buttonDeleteNode) {
+                int selectedRow = tableNodes.getSelectedRow();
 
-						loadingBar.setConfiguration(true, 100);
-						loadingBar.setValue(1, "Deleting node...");
-						loadingBar.begin();
+                if (selectedRow == -1)
+                    return;
 
-						controller.deleteNode(node);
+                final String node = defaultTableModel
+                        .getValueAt(selectedRow, 1)
+                        + "";
 
-						loadingBar.end();
-						
-						validateCreated();
-					}
-				});
-				thread.start();
-				if (defaultTableModel.getRowCount() == 0)
-					buttonDeleteNode.setEnabled(false);
-			} else {
-				if (e.getSource() == buttonCreateNnodes) {
-					final int numberOfNodes;
+                defaultTableModel.removeRow(selectedRow);
 
-					try {
-						numberOfNodes = Integer.parseInt(JOptionPane
-								.showInputDialog(null,
-										"Please give a number of nodes",
-										"Insert a number of nodes",
-										JOptionPane.INFORMATION_MESSAGE));
-					} catch (NumberFormatException e2) {
-						JOptionPane.showMessageDialog(frame,
-								"The number you entered is not valid", "ERROR",
-								JOptionPane.INFORMATION_MESSAGE);
-						return;
-					}
+                LoadingBar loadingBar = LoadingBar.getInstance(frame);
 
-					if (numberOfNodes > 0) {
-						Thread thread = new Thread(new Runnable() {
-							public void run() {
+                loadingBar.setConfiguration(true, 100);
+                loadingBar.setValue(1, "Deleting node...");
+                loadingBar.begin();
 
-								LoadingBar loadingBar = LoadingBar
-										.getInstance(frame);
+                DeleteNodeTask deleteNodeTask = new DeleteNodeTask(frame, controller, node);
+                deleteNodeTask.addPropertyChangeListener(this);
+                deleteNodeTask.execute();
 
-								loadingBar.setConfiguration(true, 100);
-								loadingBar.setValue(1, "Creating "
-										+ numberOfNodes + " nodes...");
-								loadingBar.begin();
+            } else {
+                if (e.getSource() == buttonCreateNnodes) {
+                    final int numberOfNodes;
 
-								controller.createNnodes(numberOfNodes);
+                    try {
+                        numberOfNodes = Integer.parseInt(JOptionPane
+                                .showInputDialog(null,
+                                        "Please give a number of nodes",
+                                        "Insert a number of nodes",
+                                        JOptionPane.INFORMATION_MESSAGE));
+                    } catch (NumberFormatException e2) {
+                        JOptionPane.showMessageDialog(frame,
+                                "The number you entered is not valid", "ERROR",
+                                JOptionPane.INFORMATION_MESSAGE);
+                        return;
+                    }
 
-								loadingBar.end();
-								
-								validateCreated();
-							}
-						});
-						thread.start();
-					}
+                    if (numberOfNodes > 0) {
+                        LoadingBar loadingBar = LoadingBar
+                                .getInstance(frame);
 
-				} else {
-					if (e.getSource() == buttonCreateNodeFromFile) {
-						int returnVal = chooser.showOpenDialog(controller
-								.getStructureWindow());
-						final File path;
+                        loadingBar.setConfiguration(true, 100);
+                        loadingBar.setValue(1, "Creating "
+                                + numberOfNodes + " nodes...");
+                        loadingBar.begin();
 
-						if (returnVal == JFileChooser.APPROVE_OPTION) {
-							path = chooser.getSelectedFile();
+                        NewNodesTask newNodesTask = new NewNodesTask(frame, controller, numberOfNodes);
+                        newNodesTask.addPropertyChangeListener(this);
+                        newNodesTask.execute();
+                    }
 
-							Thread thread = new Thread(new Runnable() {
-								public void run() {
+                } else {
+                    if (e.getSource() == buttonCreateNodeFromFile) {
+                        int returnVal = chooser.showOpenDialog(controller
+                                .getStructureWindow());
+                        final File path;
 
-									LoadingBar loadingBar = LoadingBar
-											.getInstance(frame);
+                        if (returnVal == JFileChooser.APPROVE_OPTION) {
+                            path = chooser.getSelectedFile();
 
-									loadingBar.setConfiguration(true, 100);
-									loadingBar.setValue(1,
-											"Creating nodes from file " + path);
-									loadingBar.begin();
+                            LoadingBar loadingBar = LoadingBar
+                                    .getInstance(frame);
 
-									controller.createNodesFromPath(path);
+                            loadingBar.setConfiguration(true, 100);
+                            loadingBar.setValue(1,
+                                    "Creating nodes from file " + path);
+                            loadingBar.begin();
 
-									loadingBar.end();
-									
-									validateCreated();
-								}
-							});
-							thread.start();
-						}
-					}
-				}
-			}
-		}
-		if (controller.getDhdChordList().size()==0) {
-			((StructureWindow)frame).getSpinnerLengthKey().setEnabled(true);
-		}else{
-			((StructureWindow)frame).getSpinnerLengthKey().setEnabled(false);
-		}
-	}
-	private void validateCreated() {
-		if (controller.getDhdChordList().size()==0) {
-			((StructureWindow)frame).getSpinnerLengthKey().setEnabled(true);
-		}else{
-			((StructureWindow)frame).getSpinnerLengthKey().setEnabled(false);
-		}
-	}
-	//TODO Documentar
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		String selectedNode = ""
-				+ tableNodes.getValueAt(tableNodes.getSelectedRow(), 1);
+                            NewNodesFromFileTask newNodesFromFileTask = new NewNodesFromFileTask(frame, controller, path);
+                            newNodesFromFileTask.addPropertyChangeListener(this);
+                            newNodesFromFileTask.execute();
+                        }
+                    }
+                }
+            }
+        }
+        if (controller.getDhdChordList().size() == 0) {
+            ((StructureWindow) frame).getSpinnerLengthKey().setEnabled(true);
+        } else {
+            ((StructureWindow) frame).getSpinnerLengthKey().setEnabled(false);
+        }
+    }
 
-		controller.changeToNode(selectedNode);
-	}
-	//TODO Documentar
-	@Override
-	public void mouseEntered(MouseEvent e) {
+    private void validateCreated() {
+        if (controller.getDhdChordList().size() == 0) {
+            ((StructureWindow) frame).getSpinnerLengthKey().setEnabled(true);
+        } else {
+            ((StructureWindow) frame).getSpinnerLengthKey().setEnabled(false);
+        }
+    }
 
-	}
-	//TODO Documentar
-	@Override
-	public void mouseExited(MouseEvent e) {
+    //TODO Documentar
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        String selectedNode = ""
+                + tableNodes.getValueAt(tableNodes.getSelectedRow(), 1);
 
-	}
-	//TODO Documentar
-	@Override
-	public void mousePressed(MouseEvent e) {
+        controller.changeToNode(selectedNode);
+    }
 
-	}
-	//TODO Documentar
-	@Override
-	public void mouseReleased(MouseEvent e) {
+    //TODO Documentar
+    @Override
+    public void mouseEntered(MouseEvent e) {
 
-	}
+    }
+
+    //TODO Documentar
+    @Override
+    public void mouseExited(MouseEvent e) {
+
+    }
+
+    //TODO Documentar
+    @Override
+    public void mousePressed(MouseEvent e) {
+
+    }
+
+    //TODO Documentar
+    @Override
+    public void mouseReleased(MouseEvent e) {
+
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
+        if ("state" == propertyChangeEvent.getPropertyName() && SwingWorker.StateValue.DONE == propertyChangeEvent.getNewValue()) {
+            LoadingBar loadingBar = LoadingBar.getInstance(frame);
+            loadingBar.end();
+
+            validateCreated();
+
+            if (defaultTableModel.getRowCount() == 0)
+                buttonDeleteNode.setEnabled(false);
+        }
+    }
 }

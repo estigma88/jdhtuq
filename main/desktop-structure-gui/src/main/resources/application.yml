@@ -3,3 +3,5 @@ ui-structure:
 p2p:
   dhash:
     resource-directory: build/dhash/
+  chord:
+    key-length: 10

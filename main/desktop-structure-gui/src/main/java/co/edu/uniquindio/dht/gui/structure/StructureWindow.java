@@ -1,25 +1,6 @@
 package co.edu.uniquindio.dht.gui.structure;
 
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.math.BigInteger;
-import java.text.DecimalFormat;
-
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.JSplitPane;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
 import co.edu.uniquindio.chord.hashing.HashingGenerator;
 import co.edu.uniquindio.dht.gui.PanelHashing;
 import co.edu.uniquindio.dht.gui.structure.controller.Controller;
@@ -27,239 +8,235 @@ import co.edu.uniquindio.dht.gui.structure.graph.PanelGraph;
 import co.edu.uniquindio.dht.gui.structure.manager.PanelDhashStructure;
 import co.edu.uniquindio.dht.gui.structure.manager.PanelManager;
 import co.edu.uniquindio.dht.gui.structure.utils.DHDChord;
-import co.edu.uniquindio.overlay.Key;
 import co.edu.uniquindio.overlay.KeyFactory;
+
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.math.BigInteger;
+import java.text.DecimalFormat;
 
 //TODO Documentar
 @SuppressWarnings("serial")
 public class StructureWindow extends JFrame implements ActionListener,
-		ChangeListener {
-	//TODO Documentar
-	private PanelGraph panelGraph;
-	//TODO Documentar
-	private PanelDhashStructure panelDhashStructure;
-	//TODO Documentar
-	private PanelManager panelManager;
-	//TODO Documentar
-	private PanelHashing panelHashing;
-	//TODO Documentar
-	private Controller controller;
-	//TODO Documentar
-	private JSplitPane panelMain;
-	//TODO Documentar
-	private JSplitPane panelSplit;
-	//TODO Documentar
-	private JPanel panelLeft;
-	//TODO Documentar
-	private JPanel panelSouth;
-	//TODO Documentar
-	private JButton buttonClear;
-	//TODO Documentar
-	private JLabel labelHashing;
-	//TODO Documentar
-	private JLabel labelValue;
-	//TODO Documentar
-	private JLabel labelId;
-	//TODO Documentar
-	private JLabel labelLengthKey;
-	//TODO Documentar
-	private JSpinner spinnerShowKey;
-	//TODO Documentar
-	private SpinnerNumberModel spinnerNumberShowKeyModel;
-	//TODO Documentar
-	private JSpinner spinnerLengthKey;
-	//TODO Documentar
-	private SpinnerNumberModel spinnerNumberLengthKeyModel;
-	//TODO Documentar
-	private DecimalFormat decimalFormat;
-	//TODO Documentar
-	private BigInteger actualHashing;
-	//TODO Documentar
-	private int stringLength;
-	private HashingGenerator hashingGenerator;
-	private KeyFactory keyFactory;
-	//TODO Documentar
-	public StructureWindow(HashingGenerator hashingGenerator, KeyFactory keyFactory, String resourceDirectory) {
-		this("Structure Window", hashingGenerator, keyFactory, resourceDirectory);
-	}
-	//TODO Documentar
-	public StructureWindow(String title, HashingGenerator hashingGenerator, KeyFactory keyFactory, String resourceDirectory) {
-		this.hashingGenerator = hashingGenerator;
-		this.keyFactory = keyFactory;
+        ChangeListener {
+    private final JLabel labelMaxAmountNodes;
+    //TODO Documentar
+    private PanelGraph panelGraph;
+    //TODO Documentar
+    private PanelDhashStructure panelDhashStructure;
+    //TODO Documentar
+    private PanelManager panelManager;
+    //TODO Documentar
+    private PanelHashing panelHashing;
+    //TODO Documentar
+    private Controller controller;
+    //TODO Documentar
+    private JSplitPane panelMain;
+    //TODO Documentar
+    private JSplitPane panelSplit;
+    //TODO Documentar
+    private JPanel panelLeft;
+    //TODO Documentar
+    private JPanel panelSouth;
+    //TODO Documentar
+    private JButton buttonClear;
+    //TODO Documentar
+    private JLabel labelHashing;
+    //TODO Documentar
+    private JLabel labelValue;
+    //TODO Documentar
+    private JLabel labelId;
+    //TODO Documentar
+    private JLabel labelLengthKey;
+    //TODO Documentar
+    private JSpinner spinnerLengthKey;
+    //TODO Documentar
+    private SpinnerNumberModel spinnerNumberLengthKeyModel;
+    //TODO Documentar
+    private DecimalFormat decimalFormat;
+    //TODO Documentar
+    private BigInteger actualHashing;
+    //TODO Documentar
+    private int stringLength;
+    private HashingGenerator hashingGenerator;
+    private KeyFactory keyFactory;
 
-		setTitle(title);
-		setSize(900, 600);
-		setLocationRelativeTo(getParent());
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		setLayout(new BorderLayout());
+    //TODO Documentar
+    public StructureWindow(HashingGenerator hashingGenerator, KeyFactory keyFactory, String resourceDirectory) {
+        this("Structure Window", hashingGenerator, keyFactory, resourceDirectory);
+    }
 
-		panelManager = new PanelManager(this);
+    //TODO Documentar
+    public StructureWindow(String title, HashingGenerator hashingGenerator, KeyFactory keyFactory, String resourceDirectory) {
+        this.hashingGenerator = hashingGenerator;
+        this.keyFactory = keyFactory;
 
-		panelDhashStructure = new PanelDhashStructure(this, resourceDirectory);
-		panelDhashStructure.setEnabled(false);
+        setTitle(title);
+        setSize(900, 600);
+        setLocationRelativeTo(getParent());
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+        setExtendedState(getExtendedState() | JFrame.MAXIMIZED_BOTH);
 
-		panelGraph = new PanelGraph();
+        panelManager = new PanelManager(this);
 
-		panelSouth = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 5));
+        panelDhashStructure = new PanelDhashStructure(this, resourceDirectory);
+        panelDhashStructure.setEnabled(false);
 
-		buttonClear = new JButton("Clean");
+        panelGraph = new PanelGraph();
 
-		Font font = new Font("Verdana", Font.BOLD, 11);
+        panelSouth = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 5));
 
-		labelHashing = new JLabel();
-		labelHashing.setFont(font);
-		labelHashing.setForeground(new Color(78, 138, 78));
+        buttonClear = new JButton("Clean");
 
-		labelValue = new JLabel();
-		labelValue.setFont(font);
-		labelValue.setForeground(Color.black);
-		
-		labelLengthKey = new JLabel("Length ChordKey");
-		labelLengthKey.setFont(font);
-		labelLengthKey.setForeground(Color.black);
+        Font font = new Font("Verdana", Font.BOLD, 11);
 
-		labelId = new JLabel();
-		labelId.setFont(font);
-		labelId.setForeground(Color.black);
+        labelHashing = new JLabel();
+        labelHashing.setFont(font);
+        labelHashing.setForeground(new Color(78, 138, 78));
 
-		int keyLength = keyFactory.getKeyLength();
+        labelValue = new JLabel();
+        labelValue.setFont(font);
+        labelValue.setForeground(Color.black);
 
-		BigInteger i = new BigInteger("2");
-		i = i.pow(keyLength);
+        labelLengthKey = new JLabel("Length ChordKey");
+        labelLengthKey.setFont(font);
+        labelLengthKey.setForeground(Color.black);
 
-		stringLength = i.toString().length();
+        labelId = new JLabel();
+        labelId.setFont(font);
+        labelId.setForeground(Color.black);
 
-		
-		spinnerNumberShowKeyModel = new SpinnerNumberModel(stringLength / 9, 1,
-				stringLength, 1);
-		spinnerShowKey = new JSpinner(spinnerNumberShowKeyModel);
-		
+        int keyLength = keyFactory.getKeyLength();
 
-		spinnerNumberLengthKeyModel = new SpinnerNumberModel(160, 2,
-				160, 1);
-		spinnerLengthKey = new JSpinner(spinnerNumberLengthKeyModel);
+        BigInteger i = new BigInteger("2");
+        i = i.pow(keyLength);
 
-		
-		StringBuilder format = new StringBuilder();
+        stringLength = i.toString().length();
 
-		for (int j = 0; j < stringLength; j++) {
-			format.append("0");
-		}
+        spinnerNumberLengthKeyModel = new SpinnerNumberModel(keyLength, 2,
+                160, 1);
+        spinnerLengthKey = new JSpinner(spinnerNumberLengthKeyModel);
 
-		decimalFormat = new DecimalFormat(format.toString());
+        labelMaxAmountNodes = new JLabel("Max Nodes: " + i);
+        labelMaxAmountNodes.setFont(font);
+        labelMaxAmountNodes.setForeground(Color.black);
 
-		panelSouth.add(buttonClear);
-		panelSouth.add(labelId);
-		panelSouth.add(labelValue);
-		panelSouth.add(labelHashing);
-		panelSouth.add(spinnerShowKey);
-		panelSouth.add(labelLengthKey);
-		panelSouth.add(spinnerLengthKey);
+        StringBuilder format = new StringBuilder();
 
-		panelLeft = new JPanel(new BorderLayout());
-		panelLeft.add(panelGraph, BorderLayout.CENTER);
-		panelLeft.add(panelDhashStructure, BorderLayout.NORTH);
+        for (int j = 0; j < stringLength; j++) {
+            format.append("0");
+        }
 
-		panelMain = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-		panelMain.setLeftComponent(panelLeft);
-		panelMain.setRightComponent(panelManager);
-		panelMain.setDividerSize(2);
-		panelMain.setDividerLocation(650);
-		panelMain.setResizeWeight(1.0);
+        decimalFormat = new DecimalFormat(format.toString());
 
-		panelHashing = new PanelHashing(this, keyFactory);
+        panelSouth.add(buttonClear);
+        panelSouth.add(labelId);
+        panelSouth.add(labelValue);
+        panelSouth.add(labelHashing);
+        panelSouth.add(labelLengthKey);
+        panelSouth.add(spinnerLengthKey);
+        panelSouth.add(labelMaxAmountNodes);
 
-		panelSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-		panelSplit.setDividerLocation(880);
-		panelSplit.setOneTouchExpandable(true);
-		panelSplit.setResizeWeight(1.0);
-		panelSplit.setDividerSize(10);
-		panelSplit.setLeftComponent(panelMain);
-		panelSplit.setRightComponent(panelHashing);
+        panelLeft = new JPanel(new BorderLayout());
+        panelLeft.add(panelGraph, BorderLayout.CENTER);
+        panelLeft.add(panelDhashStructure, BorderLayout.NORTH);
 
-		add(panelSplit, BorderLayout.CENTER);
-		add(panelSouth, BorderLayout.SOUTH);
+        panelMain = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        panelMain.setLeftComponent(panelLeft);
+        panelMain.setRightComponent(panelManager);
+        panelMain.setDividerSize(2);
+        panelMain.setDividerLocation(650);
+        panelMain.setResizeWeight(1.0);
 
-		buttonClear.addActionListener(this);
-		spinnerShowKey.addChangeListener(this);
-		spinnerLengthKey.addChangeListener(this);
-	}
-	//TODO Documentar
-	public void setController(Controller controller) {
-		this.controller = controller;
-		panelManager.setController(controller);
-		panelGraph.setController(controller);
-		panelDhashStructure.setController(controller);
-		panelDhashStructure.setStructureWindow(this);
-		this.controller.setPanelDhash(panelDhashStructure);
-		this.controller.setPanelManager(panelManager);
-		this.controller.setPanelLienzo(panelGraph);
-	}
-	//TODO Documentar
-	public Controller getController() {
-		return controller;
-	}
-	//TODO Documentar
-	public void setSelectedNode(DHDChord dhdChord) {
-		actualHashing = hashingGenerator.generateHashing(dhdChord.getDHashNode().getName(),keyFactory.getKeyLength());
+        panelHashing = new PanelHashing(this, keyFactory);
 
-		labelId.setText("Id=" + dhdChord.getNumberNode());
-		labelValue.setText("Value=" + dhdChord.getDHashNode().getName());
-		labelHashing.setText("Hashing="
-				+ decimalFormat.format(actualHashing).substring(0,
-						spinnerNumberShowKeyModel.getNumber().intValue()));
-	}
-	//TODO Documentar
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		controller.clearGraph();
-	}
-	//TODO Documentar
-	public void clean() {
-		labelId.setText("");
-		labelValue.setText("");
-		labelHashing.setText("");
-	}
-	//TODO Documentar
-	@Override
-	public void stateChanged(ChangeEvent e) {
-		if (e.getSource()==spinnerShowKey) {
-			if (actualHashing != null)
-				labelHashing.setText("Hashing="
-						+ decimalFormat.format(actualHashing).substring(0,
-								spinnerNumberShowKeyModel.getNumber().intValue()));
-		}
-		if (e.getSource()==spinnerLengthKey) {
-			keyFactory.updateKeyLength(spinnerNumberLengthKeyModel.getNumber().intValue());
-			
-			int keyLength = keyFactory.getKeyLength();
+        panelSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        panelSplit.setOneTouchExpandable(true);
+        panelSplit.setResizeWeight(1.0);
+        panelSplit.setDividerSize(10);
+        panelSplit.setLeftComponent(panelMain);
+        panelSplit.setRightComponent(panelHashing);
 
-			BigInteger i = new BigInteger("2");
-			i = i.pow(keyLength);
+        add(panelSplit, BorderLayout.CENTER);
+        add(panelSouth, BorderLayout.SOUTH);
 
-			stringLength = i.toString().length();
-			
-			spinnerShowKey.removeChangeListener(this);
-			spinnerNumberShowKeyModel.setValue(stringLength);
-			spinnerNumberShowKeyModel.setMaximum(stringLength);
-			spinnerNumberShowKeyModel.setMinimum(1);
-			spinnerNumberShowKeyModel.setStepSize(1);
-			spinnerShowKey.addChangeListener(this);
-			
-			StringBuilder format = new StringBuilder();
+        buttonClear.addActionListener(this);
+        spinnerLengthKey.addChangeListener(this);
+    }
 
-			for (int j = 0; j < stringLength; j++) {
-				format.append("0");
-			}
+    //TODO Documentar
+    public void setController(Controller controller) {
+        this.controller = controller;
+        panelManager.setController(controller);
+        panelGraph.setController(controller);
+        panelDhashStructure.setController(controller);
+        panelDhashStructure.setStructureWindow(this);
+        this.controller.setPanelDhash(panelDhashStructure);
+        this.controller.setPanelManager(panelManager);
+        this.controller.setPanelLienzo(panelGraph);
+    }
 
-			decimalFormat.applyPattern(format.toString());
-			
-			panelHashing.resetSpinner(keyLength);
-		}
-		
-	}
-	public JSpinner getSpinnerLengthKey() {
-		return spinnerLengthKey;
-	}
-	
+    //TODO Documentar
+    public Controller getController() {
+        return controller;
+    }
+
+    //TODO Documentar
+    public void setSelectedNode(DHDChord dhdChord) {
+        actualHashing = hashingGenerator.generateHashing(dhdChord.getDHashNode().getName(), keyFactory.getKeyLength());
+
+        labelId.setText("Id=" + dhdChord.getNumberNode());
+        labelValue.setText("Value=" + dhdChord.getDHashNode().getName());
+        labelHashing.setText("Hashing=" + actualHashing);
+    }
+
+    //TODO Documentar
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        controller.clearGraph();
+    }
+
+    //TODO Documentar
+    public void clean() {
+        labelId.setText("");
+        labelValue.setText("");
+        labelHashing.setText("");
+    }
+
+    //TODO Documentar
+    @Override
+    public void stateChanged(ChangeEvent e) {
+        if (e.getSource() == spinnerLengthKey) {
+            keyFactory.updateKeyLength(spinnerNumberLengthKeyModel.getNumber().intValue());
+
+            int keyLength = keyFactory.getKeyLength();
+
+            BigInteger i = new BigInteger("2");
+            i = i.pow(keyLength);
+
+            labelMaxAmountNodes.setText("Max Nodes: " + i);
+            stringLength = i.toString().length();
+
+            StringBuilder format = new StringBuilder();
+
+            for (int j = 0; j < stringLength; j++) {
+                format.append("0");
+            }
+
+            decimalFormat.applyPattern(format.toString());
+
+            panelHashing.resetSpinner(keyLength);
+        }
+
+    }
+
+    public JSpinner getSpinnerLengthKey() {
+        return spinnerLengthKey;
+    }
+
 }

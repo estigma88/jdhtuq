@@ -13,6 +13,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 
+import javax.swing.*;
 import java.awt.*;
 
 @SpringBootApplication
@@ -21,7 +22,7 @@ public class Main {
         ConfigurableApplicationContext applicationContext = new SpringApplicationBuilder(Main.class)
                 .headless(false).run(args);
 
-        EventQueue.invokeLater(() -> {
+        SwingUtilities.invokeLater(() -> {
             StructureWindow window = applicationContext.getBean(StructureWindow.class);
 
             window.setVisible(true);
