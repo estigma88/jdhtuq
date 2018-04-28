@@ -5,6 +5,7 @@ import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerFactory;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
+import org.springframework.integration.dsl.context.IntegrationFlowContext;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
@@ -12,19 +13,23 @@ import java.util.Map;
 import java.util.Optional;
 
 public class RestfulWebCommunicationManagerFactory implements CommunicationManagerFactory {
-    private final Map<String, RestfulWebCommunicationClient> communicationManagerMap;
+    private final Map<String, RestfulWebCommunicationManager> communicationManagerMap;
     private final RestTemplate restTemplate;
     private final String baseURL;
     private final String requestPath;
     private final int port;
     private final Observable<Message> observable;
+    private final Map<String, Map<String, String>> paramsByCommunication;
+    private final IntegrationFlowContext flowContext;
 
-    public RestfulWebCommunicationManagerFactory(RestTemplate restTemplate, String baseURL, String requestPath, int port, Observable<Message> observable) {
+    public RestfulWebCommunicationManagerFactory(RestTemplate restTemplate, String baseURL, String requestPath, int port, Observable<Message> observable, Map<String, Map<String, String>> paramsByCommunication, IntegrationFlowContext flowContext) {
         this.restTemplate = restTemplate;
         this.baseURL = baseURL;
         this.requestPath = requestPath;
         this.port = port;
         this.observable = observable;
+        this.paramsByCommunication = paramsByCommunication;
+        this.flowContext = flowContext;
 
         /*ObjectMapper objectMapper = new ObjectMapper();
 
@@ -41,7 +46,9 @@ public class RestfulWebCommunicationManagerFactory implements CommunicationManag
 
     @Override
     public CommunicationManager newCommunicationManager(String name) {
-        RestfulWebCommunicationClient restfulWebCommunicationClient = new RestfulWebCommunicationClient(name, restTemplate, baseURL, requestPath, port, observable);
+        RestfulWebCommunicationManager restfulWebCommunicationClient = new RestfulWebCommunicationManager(name, restTemplate, baseURL, requestPath, port, observable, paramsByCommunication.get(name), flowContext);
+
+        restfulWebCommunicationClient.init();
 
         communicationManagerMap.put(name, restfulWebCommunicationClient);
 
@@ -50,7 +57,7 @@ public class RestfulWebCommunicationManagerFactory implements CommunicationManag
 
     MessageProcessor getMessageProcessor(String communicationName) {
         return Optional.ofNullable(communicationManagerMap.get(communicationName))
-                .map(RestfulWebCommunicationClient::getMessageProcessor)
+                .map(RestfulWebCommunicationManager::getMessageProcessor)
                 .orElse(r -> Message.builder().build());
     }
 }

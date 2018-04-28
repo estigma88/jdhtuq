@@ -6,28 +6,52 @@ import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.integration.dsl.IntegrationFlows;
+import org.springframework.integration.dsl.StandardIntegrationFlow;
+import org.springframework.integration.dsl.context.IntegrationFlowContext;
+import org.springframework.integration.ip.dsl.Udp;
 import org.springframework.web.client.RestTemplate;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.Set;
 
-public class RestfulWebCommunicationClient implements CommunicationManager {
+public class RestfulWebCommunicationManager implements CommunicationManager {
+    private static final String IP_MULTICAST_PROPERTY = "ip-multicast";
+    private static final String PORT_MULTICAST_PROPERTY = "port-multicast";
+    private static final String UDP_CHANNEL_SUFIX = "UDP";
     private final String name;
     private final RestTemplate restTemplate;
     private final String baseURL;
     private final String requestPath;
     private final int port;
     private final Observable<Message> observable;
+    private final Map<String, String> parameters;
+    private final IntegrationFlowContext flowContext;
     private MessageProcessor messageProcessor;
 
-    public RestfulWebCommunicationClient(String name, RestTemplate restTemplate, String baseURL, String requestPath, int port, Observable<Message> observable) {
+    public RestfulWebCommunicationManager(String name, RestTemplate restTemplate, String baseURL, String requestPath, int port, Observable<Message> observable, Map<String, String> parameters, IntegrationFlowContext flowContext) {
         this.name = name;
         this.restTemplate = restTemplate;
         this.baseURL = baseURL;
         this.requestPath = requestPath;
         this.port = port;
         this.observable = observable;
+        this.parameters = parameters;
+        this.flowContext = flowContext;
+    }
+
+    @Override
+    public void init() {
+        String ipMulticast = parameters.get(IP_MULTICAST_PROPERTY);
+        int portMulticast = Integer.parseInt(parameters.get(PORT_MULTICAST_PROPERTY));
+
+        StandardIntegrationFlow udpInbound = IntegrationFlows.from(messageProcessor, "process")
+                .handle(Udp.inboundMulticastAdapter(portMulticast, ipMulticast))
+                .get();
+
+        flowContext.registration(udpInbound).register();
     }
 
     @Override
@@ -96,11 +120,6 @@ public class RestfulWebCommunicationClient implements CommunicationManager {
     @Override
     public void removeMessageProcessor(String name) {
         this.messageProcessor = null;
-    }
-
-    @Override
-    public void init() {
-
     }
 
     private <T> T processResponse(Message message, Class<T> type,
