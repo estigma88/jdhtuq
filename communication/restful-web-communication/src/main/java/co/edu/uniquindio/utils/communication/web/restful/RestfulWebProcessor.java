@@ -3,7 +3,7 @@ package co.edu.uniquindio.utils.communication.web.restful;
 import co.edu.uniquindio.utils.communication.message.Message;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
+//@RestController
 public class RestfulWebProcessor {
     private final RestfulWebCommunicationManagerFactory restfulWebCommunicationManagerFactory;
 
@@ -12,7 +12,7 @@ public class RestfulWebProcessor {
     }
 
     //communication/{communicationName}/messages/
-    @RequestMapping(method = RequestMethod.POST, path = "${communication.web.restful.request-path}")
+    //@RequestMapping(method = RequestMethod.POST, path = "${communication.web.restful.request-path}")
     public Message process(@PathVariable String communicationName, @RequestBody Message request) {
         return restfulWebCommunicationManagerFactory.getMessageProcessor(communicationName).process(request);
     }

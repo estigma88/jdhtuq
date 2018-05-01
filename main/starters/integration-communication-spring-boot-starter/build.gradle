@@ -1,6 +1,6 @@
 buildscript {
 	ext {
-		springBootVersion = '1.5.10.RELEASE'
+		springBootVersion = '2.0.1.RELEASE'
 	}
 	repositories {
 		mavenCentral()
@@ -26,6 +26,5 @@ dependencies {
 	compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.4'
 
 	compileOnly 'org.projectlombok:lombok:1.16.20'
-	compileOnly "org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}"
 	compile("org.springframework.boot:spring-boot-starter:${springBootVersion}")
 }

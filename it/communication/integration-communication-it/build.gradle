@@ -12,10 +12,11 @@ repositories {
 version = '2.0.0'
 
 dependencies {
-    compile("org.springframework.boot:spring-boot-web-starter:1.5.10.RELEASE")
+    compile("org.springframework.boot:spring-boot-starter-web:2.0.1.RELEASE")
 
     compile project(':main:starters:integration-communication-spring-boot-starter')
-    testCompile("org.springframework.boot:spring-boot-starter-test:1.5.10.RELEASE")
+
+    testCompile("org.springframework.boot:spring-boot-starter-test:2.0.1.RELEASE")
     testCompile 'org.assertj:assertj-core:3.9.0'
 
 }

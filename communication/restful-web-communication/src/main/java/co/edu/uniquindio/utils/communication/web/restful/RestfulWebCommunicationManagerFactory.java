@@ -21,8 +21,9 @@ public class RestfulWebCommunicationManagerFactory implements CommunicationManag
     private final Observable<Message> observable;
     private final Map<String, Map<String, String>> paramsByCommunication;
     private final IntegrationFlowContext flowContext;
+    private final MessageProcessorWrapper messageProcessorWrapper;
 
-    public RestfulWebCommunicationManagerFactory(RestTemplate restTemplate, String baseURL, String requestPath, int port, Observable<Message> observable, Map<String, Map<String, String>> paramsByCommunication, IntegrationFlowContext flowContext) {
+    public RestfulWebCommunicationManagerFactory(RestTemplate restTemplate, String baseURL, String requestPath, int port, Observable<Message> observable, Map<String, Map<String, String>> paramsByCommunication, IntegrationFlowContext flowContext, MessageProcessorWrapper messageProcessorWrapper) {
         this.restTemplate = restTemplate;
         this.baseURL = baseURL;
         this.requestPath = requestPath;
@@ -30,6 +31,7 @@ public class RestfulWebCommunicationManagerFactory implements CommunicationManag
         this.observable = observable;
         this.paramsByCommunication = paramsByCommunication;
         this.flowContext = flowContext;
+        this.messageProcessorWrapper = messageProcessorWrapper;
 
         /*ObjectMapper objectMapper = new ObjectMapper();
 
@@ -46,7 +48,7 @@ public class RestfulWebCommunicationManagerFactory implements CommunicationManag
 
     @Override
     public CommunicationManager newCommunicationManager(String name) {
-        RestfulWebCommunicationManager restfulWebCommunicationClient = new RestfulWebCommunicationManager(name, restTemplate, baseURL, requestPath, port, observable, paramsByCommunication.get(name), flowContext);
+        RestfulWebCommunicationManager restfulWebCommunicationClient = new RestfulWebCommunicationManager(name, restTemplate, baseURL, requestPath, port, observable, paramsByCommunication.get(name), flowContext, messageProcessorWrapper);
 
         restfulWebCommunicationClient.init();
 

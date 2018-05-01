@@ -1,4 +1,4 @@
-package co.edu.uniquindio.utils.communication.transfer.network.starter;
+package co.edu.uniquindio.utils.communication.transfer.integration.starter;
 
 import lombok.Data;
 import lombok.Getter;
@@ -12,6 +12,6 @@ import java.util.Map;
 @Data
 public class IntegrationCommunicationProperties {
     private String baseURL;
-    private String requestPath = "{communicationName}/messages/";
+    private String requestPath = "messages/";
     private Map<String, Map<String, String>> instances = new HashMap<>();
 }

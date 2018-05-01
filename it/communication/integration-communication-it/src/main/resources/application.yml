@@ -1,7 +1,8 @@
-p2p:
-  dhash:
-    resource-directory: out/dhash/
-    replication-amount: 1
-  chord:
-    stable-ring-time: 2000
-    stable-ring-thread-pool: 20
+server:
+  port: 8080
+communication:
+  integration:
+    instances:
+      chord:
+        ip-multicast: 224.0.0.1
+        port-multicast: 2000
