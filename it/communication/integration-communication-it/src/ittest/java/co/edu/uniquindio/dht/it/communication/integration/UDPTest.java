@@ -1,8 +1,9 @@
 package co.edu.uniquindio.dht.it.communication.integration;
 
+import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
+import co.edu.uniquindio.utils.communication.message.MessageType;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
-import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerFactory;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,6 +23,7 @@ import java.net.MulticastSocket;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
@@ -37,7 +39,7 @@ public class UDPTest {
     public void before() {
         MockitoAnnotations.initMocks(this);
 
-        //this.communicationManager.addMessageProcessor("chord", messageProcessor);
+        this.communicationManager.addMessageProcessor("chord", messageProcessor);
     }
 
     //@Test
@@ -57,14 +59,42 @@ public class UDPTest {
 
     @Test
     public void sendRestfulMessage() throws IOException {
-        Message message = Message.builder().sendType(Message.SendType.REQUEST).build();
+        Message request = Message.builder()
+                .sendType(Message.SendType.REQUEST)
+                .sequenceNumber(1)
+                .address(Address.builder()
+                        .destination("destination")
+                        .source("source")
+                        .build())
+                .messageType(MessageType.builder()
+                        .name("testRequest")
+                        .amountParams(1)
+                        .build())
+                .param("param1", "paramValue1")
+                .build();
+        Message expectedResponse = Message.builder()
+                .sendType(Message.SendType.RESPONSE)
+                .sequenceNumber(1)
+                .address(Address.builder()
+                        .destination("source")
+                        .source("destination")
+                        .build())
+                .messageType(MessageType.builder()
+                        .name("testResponse")
+                        .amountParams(1)
+                        .build())
+                .param("param1", "paramValue1")
+                .build();
 
-        ResponseEntity<Message> response = restTemplate.postForEntity("http://localhost:8080/chord/messages/", message, Message.class);
+        when(messageProcessor.process(request)).thenReturn(expectedResponse);
+
+        ResponseEntity<Message> response = restTemplate.postForEntity("http://localhost:8080/chord/messages/", request, Message.class);
 
         Message messageResponse = response.getBody();
 
-        //verify(messageProcessor).process(message);
+        verify(messageProcessor).process(request);
 
         assertThat(messageResponse).isNotNull();
+        assertThat(messageResponse).isEqualTo(expectedResponse);
     }
 }
