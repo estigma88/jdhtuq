@@ -11,7 +11,7 @@ public class MessageProcessorWrapper implements MessageProcessor{
         if(messageProcessor != null){
             return messageProcessor.process(request);
         }
-        return null;
+        return Message.builder().build();
     }
 
     public void updateMessageProcessor(MessageProcessor messageProcessor){

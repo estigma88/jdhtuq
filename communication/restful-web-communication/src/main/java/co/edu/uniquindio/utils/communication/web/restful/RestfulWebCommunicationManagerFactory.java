@@ -4,13 +4,11 @@ import co.edu.uniquindio.utils.communication.Observable;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerFactory;
-import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
 import org.springframework.integration.dsl.context.IntegrationFlowContext;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 public class RestfulWebCommunicationManagerFactory implements CommunicationManagerFactory {
     private final Map<String, RestfulWebCommunicationManager> communicationManagerMap;
@@ -55,11 +53,5 @@ public class RestfulWebCommunicationManagerFactory implements CommunicationManag
         communicationManagerMap.put(name, restfulWebCommunicationClient);
 
         return restfulWebCommunicationClient;
-    }
-
-    MessageProcessor getMessageProcessor(String communicationName) {
-        return Optional.ofNullable(communicationManagerMap.get(communicationName))
-                .map(RestfulWebCommunicationManager::getMessageProcessor)
-                .orElse(r -> Message.builder().build());
     }
 }

@@ -2,17 +2,22 @@ package co.edu.uniquindio.utils.communication.web.restful;
 
 import co.edu.uniquindio.utils.communication.Observable;
 import co.edu.uniquindio.utils.communication.Observer;
+import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
+import co.edu.uniquindio.utils.communication.message.MessageType;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
+import co.edu.uniquindio.utils.communication.web.restful.jackson.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.dsl.StandardIntegrationFlow;
+import org.springframework.integration.dsl.Transformers;
 import org.springframework.integration.dsl.context.IntegrationFlowContext;
 import org.springframework.integration.http.dsl.Http;
 import org.springframework.integration.ip.udp.MulticastReceivingChannelAdapter;
+import org.springframework.integration.support.json.Jackson2JsonObjectMapper;
 import org.springframework.web.client.RestTemplate;
 
 import java.lang.reflect.Constructor;
@@ -55,16 +60,26 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
                 .channel("udpMulticast-" + name)
                 .get();
 
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        objectMapper.addMixIn(Message.class, MessageMixIn.class)
+                .addMixIn(MessageType.class, MessageTypeMixIn.class)
+                .addMixIn(Address.class, AddressMixIn.class)
+                .addMixIn(Message.MessageBuilder.class, MessageBuilderMixIn.class)
+                .addMixIn(MessageType.MessageTypeBuilder.class, MessageTypeBuilderMixIn.class)
+                .addMixIn(Address.AddressBuilder.class, AddressBuilderMixIn.class);
+
         StandardIntegrationFlow restfulInbound = IntegrationFlows.from(
                 Http.inboundGateway(name + "/" + requestPath)
                         .requestMapping(m -> m.methods(HttpMethod.POST, HttpMethod.GET)
                                 .consumes("application/json")
                                 .produces("application/json"))
-                        .requestPayloadType(String.class)
-                        .messageConverters(new MappingJackson2HttpMessageConverter())
-                )
-                .handle(messageProcessorWrapper, "process")
+                        .replyChannel("httpResponse-" + name))
                 .channel("httpRequest-" + name)
+                .transform(Transformers.fromJson(Message.class, new Jackson2JsonObjectMapper(objectMapper)))
+                .handle(messageProcessorWrapper, "process")
+                .transform(Transformers.toJson(new Jackson2JsonObjectMapper(objectMapper)))
+                .channel("httpResponse-" + name)
                 .get();
 
         flowContext.registration(udpInbound).register();
@@ -209,9 +224,5 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
         }
 
         return typeInstance;
-    }
-
-    MessageProcessor getMessageProcessor() {
-        return messageProcessorWrapper;
     }
 }

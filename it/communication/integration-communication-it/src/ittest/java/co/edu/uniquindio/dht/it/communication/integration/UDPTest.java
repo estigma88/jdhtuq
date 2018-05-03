@@ -3,9 +3,12 @@ package co.edu.uniquindio.dht.it.communication.integration;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerFactory;
+import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
@@ -18,17 +21,23 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class UDPTest {
     @Autowired
-    private CommunicationManagerFactory communicationManagerFactory;
-    @Autowired
     private RestTemplate restTemplate;
+    @Autowired
+    private CommunicationManager communicationManager;
+    @Mock
+    private MessageProcessor messageProcessor;
 
     @Before
     public void before() {
+        MockitoAnnotations.initMocks(this);
+
+        //this.communicationManager.addMessageProcessor("chord", messageProcessor);
     }
 
     //@Test
@@ -53,6 +62,8 @@ public class UDPTest {
         ResponseEntity<Message> response = restTemplate.postForEntity("http://localhost:8080/chord/messages/", message, Message.class);
 
         Message messageResponse = response.getBody();
+
+        //verify(messageProcessor).process(message);
 
         assertThat(messageResponse).isNotNull();
     }

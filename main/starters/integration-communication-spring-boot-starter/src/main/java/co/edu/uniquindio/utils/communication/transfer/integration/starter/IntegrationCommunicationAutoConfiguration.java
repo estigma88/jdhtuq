@@ -15,6 +15,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.integration.dsl.context.IntegrationFlowContext;
 import org.springframework.web.client.RestTemplate;
@@ -41,8 +43,41 @@ public class IntegrationCommunicationAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public RestTemplate restTemplate() {
+    public RestTemplate restTemplate(Jackson2ObjectMapperBuilder builder) {
         RestTemplate restTemplate = new RestTemplate();
+
+        builder.mixIn(Message.class, MessageMixIn.class)
+                .mixIn(MessageType.class, MessageTypeMixIn.class)
+                .mixIn(Address.class, AddressMixIn.class)
+                .mixIn(Message.MessageBuilder.class, MessageBuilderMixIn.class)
+                .mixIn(MessageType.MessageTypeBuilder.class, MessageTypeBuilderMixIn.class)
+                .mixIn(Address.AddressBuilder.class, AddressBuilderMixIn.class);
+
+        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter(builder.build());
+
+        restTemplate.getMessageConverters().add(0, converter);
+
+        return restTemplate;
+    }
+
+    @Bean
+    @Primary
+    public Jackson2ObjectMapperBuilder jackson2ObjectMapperBuilder(){
+        Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder();
+
+        builder.mixIn(Message.class, MessageMixIn.class)
+                .mixIn(MessageType.class, MessageTypeMixIn.class)
+                .mixIn(Address.class, AddressMixIn.class)
+                .mixIn(Message.MessageBuilder.class, MessageBuilderMixIn.class)
+                .mixIn(MessageType.MessageTypeBuilder.class, MessageTypeBuilderMixIn.class)
+                .mixIn(Address.AddressBuilder.class, AddressBuilderMixIn.class);
+
+        return builder;
+    }
+
+    @Bean
+    @Primary
+    public ObjectMapper objectMapper(){
         ObjectMapper objectMapper = new ObjectMapper();
 
         objectMapper.addMixIn(Message.class, MessageMixIn.class)
@@ -52,12 +87,7 @@ public class IntegrationCommunicationAutoConfiguration {
                 .addMixIn(MessageType.MessageTypeBuilder.class, MessageTypeBuilderMixIn.class)
                 .addMixIn(Address.AddressBuilder.class, AddressBuilderMixIn.class);
 
-        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-        converter.setObjectMapper(objectMapper);
-
-        restTemplate.getMessageConverters().add(0, converter);
-
-        return restTemplate;
+        return objectMapper;
     }
 
     @Bean
