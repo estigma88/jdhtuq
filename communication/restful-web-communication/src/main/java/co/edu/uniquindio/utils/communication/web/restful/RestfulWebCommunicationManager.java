@@ -14,6 +14,7 @@ import org.springframework.integration.dsl.context.IntegrationFlowContext;
 import org.springframework.integration.http.dsl.Http;
 import org.springframework.integration.ip.dsl.Udp;
 import org.springframework.integration.support.json.Jackson2JsonObjectMapper;
+import org.springframework.messaging.support.GenericMessage;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -41,6 +42,7 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
     private final IntegrationFlowContext flowContext;
     private final MessageProcessorWrapper messageProcessorWrapper;
     private boolean multicastServerActive;
+    private StandardIntegrationFlow udpOutbound;
 
     RestfulWebCommunicationManager(String name, RestTemplate restTemplate, Jackson2JsonObjectMapper jackson2JsonObjectMapper, String baseURL, String requestPath, int port, Observable<Message> observable, Map<String, String> parameters, IntegrationFlowContext flowContext, MessageProcessorWrapper messageProcessorWrapper) {
         this.name = name;
@@ -66,7 +68,7 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
             int portMulticast = Integer.parseInt(parameters.get(PORT_MULTICAST_PROPERTY));
 
             StandardIntegrationFlow udpInbound = IntegrationFlows.from(Udp.inboundMulticastAdapter(portMulticast, ipMulticast))
-                    .channel("udpMulticast-" + name)
+                    .channel("udpInbound-" + name)
                     .transform(Transformers.fromJson(Message.class, jackson2JsonObjectMapper))
                     .handle(messageProcessorWrapper, "process")
                     .channel((message, timeout) -> {
@@ -75,9 +77,16 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
                     })
                     .get();
 
+            udpOutbound = IntegrationFlows.from("udpOutbound-" + name)
+                    .transform(Transformers.toJson(jackson2JsonObjectMapper))
+                    .handle(Udp.outboundMulticastAdapter(ipMulticast, portMulticast))
+                    .get();
+
             flowContext.registration(udpInbound).register();
+            flowContext.registration(udpOutbound).register();
 
             udpInbound.start();
+            udpOutbound.start();
         }
 
         StandardIntegrationFlow restfulInbound = IntegrationFlows.from(
@@ -129,23 +138,7 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
     @Override
     public <T> T sendMessageMultiCast(Message message, Class<T> typeReturn, String paramNameResult) {
         if (multicastServerActive) {
-            String ipMulticast = parameters.get(IP_MULTICAST_PROPERTY);
-            int portMulticast = Integer.parseInt(parameters.get(PORT_MULTICAST_PROPERTY));
-
-            try {
-                MulticastSocket multicastSocket = new MulticastSocket(portMulticast);
-
-                multicastSocket.joinGroup(InetAddress.getByName(ipMulticast));
-
-                String stringMessage = jackson2JsonObjectMapper.getObjectMapper().writeValueAsString(message);
-
-                DatagramPacket datagramPacket = new DatagramPacket(stringMessage.getBytes(), stringMessage.length(),
-                        InetAddress.getByName(ipMulticast), portMulticast);
-
-                multicastSocket.send(datagramPacket);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            udpOutbound.getInputChannel().send(new GenericMessage<>(message));
 
             return null;
         } else {

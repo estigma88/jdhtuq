@@ -31,8 +31,6 @@ import static org.mockito.Mockito.when;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class UDPTest {
     @Autowired
-    private ObjectMapper customObjectMapper;
-    @Autowired
     private CommunicationManager communicationManager;
     @Mock
     private MessageProcessor messageProcessor;
@@ -64,7 +62,7 @@ public class UDPTest {
                 .sendType(Message.SendType.RESPONSE)
                 .sequenceNumber(1)
                 .address(Address.builder()
-                        .destination("source")
+                        .destination("localhost")
                         .source("destination")
                         .build())
                 .messageType(MessageType.builder()
