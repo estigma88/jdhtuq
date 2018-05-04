@@ -2,13 +2,9 @@ package co.edu.uniquindio.utils.communication.web.restful;
 
 import co.edu.uniquindio.utils.communication.Observable;
 import co.edu.uniquindio.utils.communication.Observer;
-import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
-import co.edu.uniquindio.utils.communication.message.MessageType;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
-import co.edu.uniquindio.utils.communication.web.restful.jackson.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.integration.dsl.IntegrationFlows;
@@ -16,20 +12,27 @@ import org.springframework.integration.dsl.StandardIntegrationFlow;
 import org.springframework.integration.dsl.Transformers;
 import org.springframework.integration.dsl.context.IntegrationFlowContext;
 import org.springframework.integration.http.dsl.Http;
-import org.springframework.integration.ip.udp.MulticastReceivingChannelAdapter;
+import org.springframework.integration.ip.dsl.Udp;
 import org.springframework.integration.support.json.Jackson2JsonObjectMapper;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public class RestfulWebCommunicationManager implements CommunicationManager {
+    private static final String MULTICAST_SERVER_ACTIVE_PROPERTY = "multicast-server-active";
     private static final String IP_MULTICAST_PROPERTY = "ip-multicast";
     private static final String PORT_MULTICAST_PROPERTY = "port-multicast";
     private final String name;
     private final RestTemplate restTemplate;
+    private final Jackson2JsonObjectMapper jackson2JsonObjectMapper;
     private final String baseURL;
     private final String requestPath;
     private final int port;
@@ -37,10 +40,12 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
     private final Map<String, String> parameters;
     private final IntegrationFlowContext flowContext;
     private final MessageProcessorWrapper messageProcessorWrapper;
+    private boolean multicastServerActive;
 
-    RestfulWebCommunicationManager(String name, RestTemplate restTemplate, String baseURL, String requestPath, int port, Observable<Message> observable, Map<String, String> parameters, IntegrationFlowContext flowContext, MessageProcessorWrapper messageProcessorWrapper) {
+    RestfulWebCommunicationManager(String name, RestTemplate restTemplate, Jackson2JsonObjectMapper jackson2JsonObjectMapper, String baseURL, String requestPath, int port, Observable<Message> observable, Map<String, String> parameters, IntegrationFlowContext flowContext, MessageProcessorWrapper messageProcessorWrapper) {
         this.name = name;
         this.restTemplate = restTemplate;
+        this.jackson2JsonObjectMapper = jackson2JsonObjectMapper;
         this.baseURL = baseURL;
         this.requestPath = requestPath;
         this.port = port;
@@ -52,40 +57,44 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
 
     @Override
     public void init() {
-        String ipMulticast = parameters.get(IP_MULTICAST_PROPERTY);
-        int portMulticast = Integer.parseInt(parameters.get(PORT_MULTICAST_PROPERTY));
+        this.multicastServerActive = Optional.ofNullable(parameters.get(MULTICAST_SERVER_ACTIVE_PROPERTY))
+                .map(Boolean::valueOf)
+                .orElse(false);
 
-        StandardIntegrationFlow udpInbound = IntegrationFlows.from(new MulticastReceivingChannelAdapter(ipMulticast, portMulticast))
-                .handle(messageProcessorWrapper, "process")
-                .channel("udpMulticast-" + name)
-                .get();
+        if (this.multicastServerActive) {
+            String ipMulticast = parameters.get(IP_MULTICAST_PROPERTY);
+            int portMulticast = Integer.parseInt(parameters.get(PORT_MULTICAST_PROPERTY));
 
-        ObjectMapper objectMapper = new ObjectMapper();
+            StandardIntegrationFlow udpInbound = IntegrationFlows.from(Udp.inboundMulticastAdapter(portMulticast, ipMulticast))
+                    .channel("udpMulticast-" + name)
+                    .transform(Transformers.fromJson(Message.class, jackson2JsonObjectMapper))
+                    .handle(messageProcessorWrapper, "process")
+                    .channel((message, timeout) -> {
+                        sendMessageUnicast((Message) message.getPayload());
+                        return true;
+                    })
+                    .get();
 
-        objectMapper.addMixIn(Message.class, MessageMixIn.class)
-                .addMixIn(MessageType.class, MessageTypeMixIn.class)
-                .addMixIn(Address.class, AddressMixIn.class)
-                .addMixIn(Message.MessageBuilder.class, MessageBuilderMixIn.class)
-                .addMixIn(MessageType.MessageTypeBuilder.class, MessageTypeBuilderMixIn.class)
-                .addMixIn(Address.AddressBuilder.class, AddressBuilderMixIn.class);
+            flowContext.registration(udpInbound).register();
+
+            udpInbound.start();
+        }
 
         StandardIntegrationFlow restfulInbound = IntegrationFlows.from(
-                Http.inboundGateway(name + "/" + requestPath)
+                Http.inboundGateway(name + requestPath)
                         .requestMapping(m -> m.methods(HttpMethod.POST, HttpMethod.GET)
                                 .consumes("application/json")
                                 .produces("application/json"))
                         .replyChannel("httpResponse-" + name))
                 .channel("httpRequest-" + name)
-                .transform(Transformers.fromJson(Message.class, new Jackson2JsonObjectMapper(objectMapper)))
+                .transform(Transformers.fromJson(Message.class, jackson2JsonObjectMapper))
                 .handle(messageProcessorWrapper, "process")
-                .transform(Transformers.toJson(new Jackson2JsonObjectMapper(objectMapper)))
+                .transform(Transformers.toJson(jackson2JsonObjectMapper))
                 .channel("httpResponse-" + name)
                 .get();
 
-        flowContext.registration(udpInbound).register();
         flowContext.registration(restfulInbound).register();
 
-        udpInbound.start();
         restfulInbound.start();
     }
 
@@ -98,7 +107,7 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
     public <T> T sendMessageUnicast(Message message, Class<T> typeReturn, String paramNameResult) {
         observable.notifyMessage(message);
 
-        ResponseEntity<Message> response = restTemplate.postForEntity(baseURL + requestPath, message, Message.class, message.getAddress().getDestination(), port, name);
+        ResponseEntity<Message> response = restTemplate.postForEntity(baseURL + name + requestPath, message, Message.class, message.getAddress().getDestination(), port);
 
         Message responseMessage = response.getBody();
 
@@ -114,17 +123,39 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
 
     @Override
     public <T> T sendMessageMultiCast(Message message, Class<T> typeReturn) {
-        return null;
+        return sendMessageMultiCast(message, typeReturn, null);
     }
 
     @Override
     public <T> T sendMessageMultiCast(Message message, Class<T> typeReturn, String paramNameResult) {
-        return null;
+        if (multicastServerActive) {
+            String ipMulticast = parameters.get(IP_MULTICAST_PROPERTY);
+            int portMulticast = Integer.parseInt(parameters.get(PORT_MULTICAST_PROPERTY));
+
+            try {
+                MulticastSocket multicastSocket = new MulticastSocket(portMulticast);
+
+                multicastSocket.joinGroup(InetAddress.getByName(ipMulticast));
+
+                String stringMessage = jackson2JsonObjectMapper.getObjectMapper().writeValueAsString(message);
+
+                DatagramPacket datagramPacket = new DatagramPacket(stringMessage.getBytes(), stringMessage.length(),
+                        InetAddress.getByName(ipMulticast), portMulticast);
+
+                multicastSocket.send(datagramPacket);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        } else {
+            throw new IllegalStateException("Multicast server is not active or you must call 'init'");
+        }
     }
 
     @Override
     public void sendMessageMultiCast(Message message) {
-
+        sendMessageMultiCast(message, Message.class);
     }
 
     @Override

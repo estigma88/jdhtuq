@@ -5,6 +5,7 @@ import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerFactory;
 import org.springframework.integration.dsl.context.IntegrationFlowContext;
+import org.springframework.integration.support.json.Jackson2JsonObjectMapper;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
@@ -13,6 +14,7 @@ import java.util.Map;
 public class RestfulWebCommunicationManagerFactory implements CommunicationManagerFactory {
     private final Map<String, RestfulWebCommunicationManager> communicationManagerMap;
     private final RestTemplate restTemplate;
+    private final Jackson2JsonObjectMapper jackson2JsonObjectMapper;
     private final String baseURL;
     private final String requestPath;
     private final int port;
@@ -21,8 +23,9 @@ public class RestfulWebCommunicationManagerFactory implements CommunicationManag
     private final IntegrationFlowContext flowContext;
     private final MessageProcessorWrapper messageProcessorWrapper;
 
-    public RestfulWebCommunicationManagerFactory(RestTemplate restTemplate, String baseURL, String requestPath, int port, Observable<Message> observable, Map<String, Map<String, String>> paramsByCommunication, IntegrationFlowContext flowContext, MessageProcessorWrapper messageProcessorWrapper) {
+    public RestfulWebCommunicationManagerFactory(RestTemplate restTemplate, Jackson2JsonObjectMapper jackson2JsonObjectMapper, String baseURL, String requestPath, int port, Observable<Message> observable, Map<String, Map<String, String>> paramsByCommunication, IntegrationFlowContext flowContext, MessageProcessorWrapper messageProcessorWrapper) {
         this.restTemplate = restTemplate;
+        this.jackson2JsonObjectMapper = jackson2JsonObjectMapper;
         this.baseURL = baseURL;
         this.requestPath = requestPath;
         this.port = port;
@@ -31,22 +34,13 @@ public class RestfulWebCommunicationManagerFactory implements CommunicationManag
         this.flowContext = flowContext;
         this.messageProcessorWrapper = messageProcessorWrapper;
 
-        /*ObjectMapper objectMapper = new ObjectMapper();
-
-        objectMapper.addMixIn(Message.class, MessageMixIn.class)
-                .addMixIn(MessageType.class, MessageTypeMixIn.class)
-                .addMixIn(Address.class, AddressMixIn.class)
-                .addMixIn(Message.MessageBuilder.class, MessageBuilderMixIn.class)
-                .addMixIn(MessageType.MessageTypeBuilder.class, MessageTypeBuilderMixIn.class)
-                .addMixIn(Address.AddressBuilder.class, AddressBuilderMixIn.class);*/
-
         communicationManagerMap = new HashMap<>();
     }
 
 
     @Override
     public CommunicationManager newCommunicationManager(String name) {
-        RestfulWebCommunicationManager restfulWebCommunicationClient = new RestfulWebCommunicationManager(name, restTemplate, baseURL, requestPath, port, observable, paramsByCommunication.get(name), flowContext, messageProcessorWrapper);
+        RestfulWebCommunicationManager restfulWebCommunicationClient = new RestfulWebCommunicationManager(name, restTemplate, jackson2JsonObjectMapper, baseURL, requestPath, port, observable, paramsByCommunication.get(name), flowContext, messageProcessorWrapper);
 
         restfulWebCommunicationClient.init();
 

@@ -5,7 +5,9 @@ import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.MessageType;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -29,7 +31,7 @@ import static org.mockito.Mockito.when;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class UDPTest {
     @Autowired
-    private RestTemplate restTemplate;
+    private ObjectMapper customObjectMapper;
     @Autowired
     private CommunicationManager communicationManager;
     @Mock
@@ -42,23 +44,8 @@ public class UDPTest {
         this.communicationManager.addMessageProcessor("chord", messageProcessor);
     }
 
-    //@Test
-    public void sendMulticastMessage() throws IOException {
-        MulticastSocket multicastSocket = new MulticastSocket(2000);
-
-        multicastSocket.joinGroup(InetAddress.getByName("224.0.0.1"));
-
-        DatagramPacket datagramPacket;
-        String string = "message";
-
-        datagramPacket = new DatagramPacket(string.getBytes(), string.length(),
-                InetAddress.getByName("224.0.0.1"), 2000);
-
-        multicastSocket.send(datagramPacket);
-    }
-
     @Test
-    public void sendRestfulMessage() throws IOException {
+    public void sendMulticastMessage() throws IOException, InterruptedException {
         Message request = Message.builder()
                 .sendType(Message.SendType.REQUEST)
                 .sequenceNumber(1)
@@ -72,6 +59,7 @@ public class UDPTest {
                         .build())
                 .param("param1", "paramValue1")
                 .build();
+
         Message expectedResponse = Message.builder()
                 .sendType(Message.SendType.RESPONSE)
                 .sequenceNumber(1)
@@ -83,18 +71,56 @@ public class UDPTest {
                         .name("testResponse")
                         .amountParams(1)
                         .build())
-                .param("param1", "paramValue1")
+                .param("param2", "paramValue2")
                 .build();
 
         when(messageProcessor.process(request)).thenReturn(expectedResponse);
 
-        ResponseEntity<Message> response = restTemplate.postForEntity("http://localhost:8080/chord/messages/", request, Message.class);
+        communicationManager.sendMessageMultiCast(request, String.class, "param2");
 
-        Message messageResponse = response.getBody();
+        Thread.sleep(5000);
 
         verify(messageProcessor).process(request);
 
-        assertThat(messageResponse).isNotNull();
-        assertThat(messageResponse).isEqualTo(expectedResponse);
+    }
+
+    @Test
+    public void sendRestfulMessage() throws IOException {
+        Message request = Message.builder()
+                .sendType(Message.SendType.REQUEST)
+                .sequenceNumber(1)
+                .address(Address.builder()
+                        .destination("localhost")
+                        .source("source")
+                        .build())
+                .messageType(MessageType.builder()
+                        .name("testRequest")
+                        .amountParams(1)
+                        .build())
+                .param("param1", "paramValue1")
+                .build();
+
+        Message expectedResponse = Message.builder()
+                .sendType(Message.SendType.RESPONSE)
+                .sequenceNumber(1)
+                .address(Address.builder()
+                        .destination("source")
+                        .source("destination")
+                        .build())
+                .messageType(MessageType.builder()
+                        .name("testResponse")
+                        .amountParams(1)
+                        .build())
+                .param("param2", "paramValue2")
+                .build();
+
+        when(messageProcessor.process(request)).thenReturn(expectedResponse);
+
+        String param2 = communicationManager.sendMessageUnicast(request, String.class, "param2");
+
+        verify(messageProcessor).process(request);
+
+        assertThat(param2).isNotNull();
+        assertThat(param2).isEqualTo("paramValue2");
     }
 }

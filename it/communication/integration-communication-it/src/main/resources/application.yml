@@ -4,5 +4,6 @@ communication:
   integration:
     instances:
       chord:
+        multicast-server-active: true
         ip-multicast: 224.0.0.1
         port-multicast: 2000

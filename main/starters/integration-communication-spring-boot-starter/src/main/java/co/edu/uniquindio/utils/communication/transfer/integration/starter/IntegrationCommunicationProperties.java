@@ -11,7 +11,7 @@ import java.util.Map;
 @ConfigurationProperties(prefix = "communication.integration")
 @Data
 public class IntegrationCommunicationProperties {
-    private String baseURL;
-    private String requestPath = "messages/";
+    private String baseURL= "http://{host}:{port}/";
+    private String requestPath = "/messages/";
     private Map<String, Map<String, String>> instances = new HashMap<>();
 }
