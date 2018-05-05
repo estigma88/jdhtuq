@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -36,8 +37,9 @@ public class IntegrationCommunicationAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public CommunicationManagerFactory communicationManagerFactory(RestTemplate restTemplate, Jackson2JsonObjectMapper jackson2JsonObjectMapper, MessageProcessorWrapper messageProcessorWrapper) {
-        return new RestfulWebCommunicationManagerFactory(restTemplate, jackson2JsonObjectMapper, integrationCommunicationProperties.getBaseURL(), integrationCommunicationProperties.getRequestPath(), webPort, new Observable<>(), integrationCommunicationProperties.getInstances(), flowContext, messageProcessorWrapper);
+    public CommunicationManagerFactory communicationManagerFactory(RestTemplate restTemplate, Jackson2JsonObjectMapper jackson2JsonObjectMapper, MessageProcessorWrapper messageProcessorWrapper
+            , ApplicationContext applicationContext) {
+        return new RestfulWebCommunicationManagerFactory(restTemplate, jackson2JsonObjectMapper, integrationCommunicationProperties.getBaseURL(), integrationCommunicationProperties.getRequestPath(), webPort, new Observable<>(), integrationCommunicationProperties.getInstances(), flowContext, messageProcessorWrapper, applicationContext);
     }
 
     @Bean

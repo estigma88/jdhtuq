@@ -5,7 +5,6 @@ import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.MessageType;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -14,14 +13,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -43,7 +37,7 @@ public class UDPTest {
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void sendMulticastMessage() throws IOException, InterruptedException {
         Message request = Message.builder()
                 .sendType(Message.SendType.REQUEST)
