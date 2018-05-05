@@ -7,6 +7,7 @@ import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.integration.core.MessagingTemplate;
 import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.dsl.StandardIntegrationFlow;
 import org.springframework.integration.dsl.Transformers;
@@ -17,12 +18,8 @@ import org.springframework.integration.support.json.Jackson2JsonObjectMapper;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -42,7 +39,7 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
     private final IntegrationFlowContext flowContext;
     private final MessageProcessorWrapper messageProcessorWrapper;
     private boolean multicastServerActive;
-    private StandardIntegrationFlow udpOutbound;
+    private MessagingTemplate messagingTemplateUdp;
 
     RestfulWebCommunicationManager(String name, RestTemplate restTemplate, Jackson2JsonObjectMapper jackson2JsonObjectMapper, String baseURL, String requestPath, int port, Observable<Message> observable, Map<String, String> parameters, IntegrationFlowContext flowContext, MessageProcessorWrapper messageProcessorWrapper) {
         this.name = name;
@@ -77,16 +74,19 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
                     })
                     .get();
 
-            udpOutbound = IntegrationFlows.from("udpOutbound-" + name)
+            StandardIntegrationFlow udpOutbound = IntegrationFlows.from("udpOutbound-" + name)
                     .transform(Transformers.toJson(jackson2JsonObjectMapper))
                     .handle(Udp.outboundMulticastAdapter(ipMulticast, portMulticast))
                     .get();
 
-            flowContext.registration(udpInbound).register();
-            flowContext.registration(udpOutbound).register();
+            flowContext.registration(udpInbound).id("udpInboundFlow-" + name).register();
+            flowContext.registration(udpOutbound).id("udpOutboundFlow-" + name).register();
 
             udpInbound.start();
             udpOutbound.start();
+
+            messagingTemplateUdp = flowContext.messagingTemplateFor("udpOutboundFlow-" + name);
+
         }
 
         StandardIntegrationFlow restfulInbound = IntegrationFlows.from(
@@ -101,6 +101,14 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
                 .transform(Transformers.toJson(jackson2JsonObjectMapper))
                 .channel("httpResponse-" + name)
                 .get();
+
+        /*StandardIntegrationFlow restfulOutbound = IntegrationFlows.from("httpOutbound-" + name)
+                .transform(Transformers.toJson(jackson2JsonObjectMapper))
+                .handle(Http.outboundGateway(name + requestPath)
+                        .httpMethod(HttpMethod.POST)
+                        .uriVariable("host", "payload.getAddress().getDestination()")
+                        .uriVariable("port", message -> port))
+                .get();*/
 
         flowContext.registration(restfulInbound).register();
 
@@ -138,7 +146,7 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
     @Override
     public <T> T sendMessageMultiCast(Message message, Class<T> typeReturn, String paramNameResult) {
         if (multicastServerActive) {
-            udpOutbound.getInputChannel().send(new GenericMessage<>(message));
+            messagingTemplateUdp.send(new GenericMessage<>(message));
 
             return null;
         } else {
