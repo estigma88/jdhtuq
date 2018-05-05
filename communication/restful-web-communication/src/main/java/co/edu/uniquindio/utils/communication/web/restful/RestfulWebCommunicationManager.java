@@ -6,7 +6,7 @@ import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.integration.core.MessagingTemplate;
 import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.dsl.StandardIntegrationFlow;
@@ -15,11 +15,14 @@ import org.springframework.integration.dsl.context.IntegrationFlowContext;
 import org.springframework.integration.http.dsl.Http;
 import org.springframework.integration.ip.dsl.Udp;
 import org.springframework.integration.support.json.Jackson2JsonObjectMapper;
+import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.support.GenericMessage;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.web.client.RestTemplate;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -102,15 +105,17 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
                 .channel("httpResponse-" + name)
                 .get();
 
-        /*StandardIntegrationFlow restfulOutbound = IntegrationFlows.from("httpOutbound-" + name)
-                .transform(Transformers.toJson(jackson2JsonObjectMapper))
-                .handle(Http.outboundGateway(name + requestPath)
+        StandardIntegrationFlow restfulOutbound = IntegrationFlows.from("httpOutbound-" + name)
+                .handle(Http.outboundGateway(baseURL + name + requestPath)
                         .httpMethod(HttpMethod.POST)
+                        .expectedResponseType(Message.class)
+                        .messageConverters(new MappingJackson2HttpMessageConverter(jackson2JsonObjectMapper.getObjectMapper()))
                         .uriVariable("host", "payload.getAddress().getDestination()")
                         .uriVariable("port", message -> port))
-                .get();*/
+                .get();
 
-        flowContext.registration(restfulInbound).register();
+        flowContext.registration(restfulInbound).id("httpInboundFlow-" + name).register();
+        flowContext.registration(restfulOutbound).id("httpOutboundFlow-" + name).register();
 
         restfulInbound.start();
     }
@@ -124,9 +129,17 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
     public <T> T sendMessageUnicast(Message message, Class<T> typeReturn, String paramNameResult) {
         observable.notifyMessage(message);
 
-        ResponseEntity<Message> response = restTemplate.postForEntity(baseURL + name + requestPath, message, Message.class, message.getAddress().getDestination(), port);
+        MessagingTemplate messagingTemplate = flowContext.messagingTemplateFor("httpOutboundFlow-" + name);
 
-        Message responseMessage = response.getBody();
+        Map<String, Object> headersMap = new HashMap<>();
+        headersMap.put(MessageHeaders.CONTENT_TYPE, "application/json");
+
+        MessageHeaders headers = new MessageHeaders(headersMap);
+
+        org.springframework.messaging.Message<Message> requestMessage = MessageBuilder.createMessage(message, headers);
+        org.springframework.messaging.Message<?> response = messagingTemplate.sendAndReceive(requestMessage);
+
+        Message responseMessage = (Message) response.getPayload();
 
         observable.notifyMessage(responseMessage);
 
