@@ -36,8 +36,7 @@ public class UDPTest {
         this.communicationManager.addMessageProcessor("chord", messageProcessor);
     }
 
-    @Test
-    @Ignore
+    //@Test
     public void sendMulticastMessage() throws IOException, InterruptedException {
         Message request = Message.builder()
                 .sendType(Message.SendType.REQUEST)
@@ -78,7 +77,6 @@ public class UDPTest {
     }
 
     @Test
-    //@Ignore
     public void sendRestfulMessage() throws IOException {
         Message request = Message.builder()
                 .sendType(Message.SendType.REQUEST)

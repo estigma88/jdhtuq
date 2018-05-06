@@ -68,33 +68,38 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
                 .map(Boolean::valueOf)
                 .orElse(false);
 
-        Map<String, Object> headersMap = new HashMap<>();
-        headersMap.put(MessageHeaders.CONTENT_TYPE, "application/json");
 
         if (this.multicastServerActive) {
             String ipMulticast = parameters.get(IP_MULTICAST_PROPERTY);
             int portMulticast = Integer.parseInt(parameters.get(PORT_MULTICAST_PROPERTY));
 
-            headersMap.put(MessageHeaders.CONTENT_TYPE, "application/json");
-            headersMap.put(MessageHeaders.REPLY_CHANNEL, "httpOutbound-" + name);
+            Map<String, Object> headersMapMultIn = new HashMap<>();
+            headersMapMultIn.put("receiveTimeout", 5000);
+            headersMapMultIn.put(MessageHeaders.CONTENT_TYPE, "application/json");
+            headersMapMultIn.put(MessageHeaders.REPLY_CHANNEL, "httpOutbound-" + name);
 
             StandardIntegrationFlow udpInbound = IntegrationFlows.from(
                     Udp.inboundMulticastAdapter(portMulticast, ipMulticast)
-                    //.outputChannel("httpOutbound-" + name)
+                    //.outputChannel("xxxx-" + name)
             )
-                    .channel("udpInbound-" + name)
+                    //.channel("udpInbound-" + name)
                     .transform(Transformers.fromJson(Message.class, jackson2JsonObjectMapper))
                     .handle(messageProcessorWrapper, "process")
-                    .enrichHeaders(headersMap)
+                    .enrichHeaders(headersMapMultIn)
                     //.log()
-                    //.channel("httpOutbound-" + name)
-                    .channel((message, timeout) -> {
+                    .channel("xxxx-" + name)
+                    /*.channel((message, timeout) -> {
                         sendMessageUnicast((Message) message.getPayload());
                         return true;
-                    })
+                    })*/
                     .get();
 
+            Map<String, Object> headersMapMultOut = new HashMap<>();
+            headersMapMultOut.put("receiveTimeout", 5000);
+            headersMapMultOut.put(MessageHeaders.CONTENT_TYPE, "application/json");
+
             StandardIntegrationFlow udpOutbound = IntegrationFlows.from(Service.class)
+                    .enrichHeaders(headersMapMultOut)
                     .transform(Transformers.toJson(jackson2JsonObjectMapper))
                     .handle(Udp.outboundMulticastAdapter(ipMulticast, portMulticast))
 
@@ -117,7 +122,7 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
                                 .produces("application/json"))
                         //.replyChannel("httpResponse-" + name)
         )
-                .channel("httpRequest-" + name)
+                //.channel("httpRequest-" + name)
                 .transform(Transformers.fromJson(Message.class, jackson2JsonObjectMapper))
                 .log()
                 .handle(messageProcessorWrapper, "process")
@@ -125,9 +130,13 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
                 //.channel("httpResponse-" + name)
                 .get();
 
+        Map<String, Object> headersMapHttp = new HashMap<>();
+        headersMapHttp.put("receiveTimeout", 5000);
+        headersMapHttp.put(MessageHeaders.CONTENT_TYPE, "application/json");
+
         StandardIntegrationFlow restfulOutbound = IntegrationFlows.from(Service.class)
                 .log()
-                .enrichHeaders(headersMap)
+                .enrichHeaders(headersMapHttp)
                 .handle(Http.outboundGateway(baseURL + name + requestPath)
                         .httpMethod(HttpMethod.POST)
                         .expectedResponseType(Message.class)
