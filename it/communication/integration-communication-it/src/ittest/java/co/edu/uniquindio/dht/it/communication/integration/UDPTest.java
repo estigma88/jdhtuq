@@ -68,11 +68,12 @@ public class UDPTest {
 
         when(messageProcessor.process(request)).thenReturn(expectedResponse);
 
-        communicationManager.sendMessageMultiCast(request, String.class, "param2");
+        String param2 = communicationManager.sendMessageMultiCast(request, String.class, "param2");
 
         Thread.sleep(5000);
 
         verify(messageProcessor).process(request);
+        assertThat(param2).isNotNull();
 
     }
 

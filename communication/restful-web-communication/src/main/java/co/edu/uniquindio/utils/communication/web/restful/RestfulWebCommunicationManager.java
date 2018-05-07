@@ -9,15 +9,21 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.integration.channel.QueueChannel;
+import org.springframework.integration.channel.RendezvousChannel;
+import org.springframework.integration.core.GenericSelector;
 import org.springframework.integration.core.MessagingTemplate;
-import org.springframework.integration.dsl.IntegrationFlows;
-import org.springframework.integration.dsl.StandardIntegrationFlow;
-import org.springframework.integration.dsl.Transformers;
+import org.springframework.integration.dsl.*;
+import org.springframework.integration.dsl.channel.MessageChannels;
 import org.springframework.integration.dsl.context.IntegrationFlowContext;
 import org.springframework.integration.http.dsl.Http;
 import org.springframework.integration.ip.dsl.Udp;
+import org.springframework.integration.ip.udp.MulticastReceivingChannelAdapter;
+import org.springframework.integration.ip.udp.MulticastSendingMessageHandler;
 import org.springframework.integration.support.json.Jackson2JsonObjectMapper;
+import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHeaders;
+import org.springframework.messaging.PollableChannel;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.web.client.RestTemplate;
 
@@ -64,56 +70,7 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
 
     @Override
     public void init() {
-        this.multicastServerActive = Optional.ofNullable(parameters.get(MULTICAST_SERVER_ACTIVE_PROPERTY))
-                .map(Boolean::valueOf)
-                .orElse(false);
 
-
-        if (this.multicastServerActive) {
-            String ipMulticast = parameters.get(IP_MULTICAST_PROPERTY);
-            int portMulticast = Integer.parseInt(parameters.get(PORT_MULTICAST_PROPERTY));
-
-            Map<String, Object> headersMapMultIn = new HashMap<>();
-            headersMapMultIn.put("receiveTimeout", 5000);
-            headersMapMultIn.put(MessageHeaders.CONTENT_TYPE, "application/json");
-            headersMapMultIn.put(MessageHeaders.REPLY_CHANNEL, "httpOutbound-" + name);
-
-            StandardIntegrationFlow udpInbound = IntegrationFlows.from(
-                    Udp.inboundMulticastAdapter(portMulticast, ipMulticast)
-                    //.outputChannel("xxxx-" + name)
-            )
-                    //.channel("udpInbound-" + name)
-                    .transform(Transformers.fromJson(Message.class, jackson2JsonObjectMapper))
-                    .handle(messageProcessorWrapper, "process")
-                    .enrichHeaders(headersMapMultIn)
-                    //.log()
-                    .channel("xxxx-" + name)
-                    /*.channel((message, timeout) -> {
-                        sendMessageUnicast((Message) message.getPayload());
-                        return true;
-                    })*/
-                    .get();
-
-            Map<String, Object> headersMapMultOut = new HashMap<>();
-            headersMapMultOut.put("receiveTimeout", 5000);
-            headersMapMultOut.put(MessageHeaders.CONTENT_TYPE, "application/json");
-
-            StandardIntegrationFlow udpOutbound = IntegrationFlows.from(Service.class)
-                    .enrichHeaders(headersMapMultOut)
-                    .transform(Transformers.toJson(jackson2JsonObjectMapper))
-                    .handle(Udp.outboundMulticastAdapter(ipMulticast, portMulticast))
-
-                    .get();
-
-            flowContext.registration(udpInbound).id("udpInboundFlow-" + name).register();
-            flowContext.registration(udpOutbound).id("udpOutboundFlow-" + name).register();
-
-            udpInbound.start();
-            udpOutbound.start();
-
-            messagingTemplateUdp = flowContext.messagingTemplateFor("udpOutboundFlow-" + name);
-
-        }
 
         StandardIntegrationFlow restfulInbound = IntegrationFlows.from(
                 Http.inboundGateway(name + requestPath)
@@ -122,20 +79,30 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
                                 .produces("application/json"))
                         //.replyChannel("httpResponse-" + name)
         )
-                //.channel("httpRequest-" + name)
+                .channel("httpRequest-" + name)
                 .transform(Transformers.fromJson(Message.class, jackson2JsonObjectMapper))
-                .log()
+                .log("3333333")
+                /*.filter(new GenericSelector<Message>() {
+                    @Override
+                    public boolean accept(Message source) {
+                        return source.getSendType().equals(Message.SendType.RESPONSE);
+                    }
+                })*/
                 .handle(messageProcessorWrapper, "process")
+                .log("4444444")
                 .transform(Transformers.toJson(jackson2JsonObjectMapper))
+                //.log("5555555")
                 //.channel("httpResponse-" + name)
                 .get();
 
         Map<String, Object> headersMapHttp = new HashMap<>();
         headersMapHttp.put("receiveTimeout", 5000);
         headersMapHttp.put(MessageHeaders.CONTENT_TYPE, "application/json");
+        //headersMapHttp.put(MessageHeaders.REPLY_CHANNEL, null);
 
         StandardIntegrationFlow restfulOutbound = IntegrationFlows.from(Service.class)
-                .log()
+                .channel("xxxxxxxx")
+                .log("222222")
                 .enrichHeaders(headersMapHttp)
                 .handle(Http.outboundGateway(baseURL + name + requestPath)
                         .httpMethod(HttpMethod.POST)
@@ -149,7 +116,69 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
         flowContext.registration(restfulOutbound).id("httpOutboundFlow-" + name).register();
 
         restfulInbound.start();
+        restfulOutbound.start();
 
+        this.multicastServerActive = Optional.ofNullable(parameters.get(MULTICAST_SERVER_ACTIVE_PROPERTY))
+                .map(Boolean::valueOf)
+                .orElse(false);
+
+
+        if (this.multicastServerActive) {
+            String ipMulticast = parameters.get(IP_MULTICAST_PROPERTY);
+            int portMulticast = Integer.parseInt(parameters.get(PORT_MULTICAST_PROPERTY));
+
+            Map<String, Object> headersMapMultIn = new HashMap<>();
+            headersMapMultIn.put("receiveTimeout", 5000);
+            headersMapMultIn.put(MessageHeaders.CONTENT_TYPE, "application/json");
+            //headersMapMultIn.put(MessageHeaders.REPLY_CHANNEL, "xxxxxxxx");
+
+            StandardIntegrationFlow udpInbound = IntegrationFlows.from(
+                    //new MulticastReceivingChannelAdapter(ipMulticast, portMulticast)
+                    Udp.inboundMulticastAdapter(portMulticast, ipMulticast)
+                            //.outputChannel((MessageChannel) applicationContext.getBean("xxxxxxxx"))
+                    //.outputChannel("updOutMul")
+            )
+                    .enrichHeaders(headersMapMultIn)
+                    //.channel("udpInbound-" + name)
+                    .transform(Transformers.fromJson(Message.class, jackson2JsonObjectMapper))
+                    .log("111111")
+                    .handle(messageProcessorWrapper, "process")
+                    .log("gggggg")
+                    .channel("xxxxxxxx")
+                    .log("pppppp")
+                    /*.channel((message, timeout) -> {
+                        //sendMessageUnicast((Message) message.getPayload());
+                        return true;
+                    })*/
+                    //.channel("xxxxxxxx")
+                    //.transform(Transformers.toJson(jackson2JsonObjectMapper))
+                    .get();
+
+            Map<String, Object> headersMapMultOut = new HashMap<>();
+            headersMapMultOut.put("receiveTimeout", 5000);
+            headersMapMultOut.put(MessageHeaders.CONTENT_TYPE, "application/json");
+            //headersMapMultOut.put(MessageHeaders.REPLY_CHANNEL, null);
+
+            StandardIntegrationFlow udpOutbound = IntegrationFlows.from(Service.class)
+                    .log("0000000")
+                    .enrichHeaders(headersMapMultOut)
+                    .transform(Transformers.toJson(jackson2JsonObjectMapper))
+                    //.handle(Udp.outboundMulticastAdapter(ipMulticast, portMulticast))
+                    //.handle(new MulticastSendingMessageHandler(ipMulticast, portMulticast))
+                    .handle(new UdpOutboundGateway(ipMulticast, portMulticast))
+                    .log("zzzzzz")
+                    .get();
+
+
+            flowContext.registration(udpInbound).id("udpInboundFlow-" + name).register();
+            flowContext.registration(udpOutbound).id("udpOutboundFlow-" + name).register();
+
+            udpInbound.start();
+            udpOutbound.start();
+
+            messagingTemplateUdp = flowContext.messagingTemplateFor("udpOutboundFlow-" + name);
+
+        }
 
         udpService = (Service) applicationContext.getBean("udpOutboundFlow-chord.gateway");
         httpService = (Service) applicationContext.getBean("httpOutboundFlow-chord.gateway");
@@ -201,18 +230,19 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
     @Override
     public <T> T sendMessageMultiCast(Message message, Class<T> typeReturn, String paramNameResult) {
         if (multicastServerActive) {
-            /*org.springframework.messaging.Message<Message> requestMessage = MessageBuilder.withPayload(message)
+            org.springframework.messaging.Message<Message> requestMessage = MessageBuilder.withPayload(message)
                     .setHeader(MessageHeaders.CONTENT_TYPE, "application/json")
-                    .setHeader(MessageHeaders.REPLY_CHANNEL, "httpRequest-" + name)
-                    .setHeader("receiveTimeout", 5000)
+                    //.setHeader(MessageHeaders.REPLY_CHANNEL, "httpRequest-" + name)
+                    //.setHeader("receiveTimeout", 5000)
                     .build();
-            org.springframework.messaging.Message<?> response = messagingTemplateUdp.sendAndReceive(requestMessage);
+            /*org.springframework.messaging.Message<?> response = messagingTemplateUdp.sendAndReceive(requestMessage);
 
             Message responseMessage = (Message) response.getPayload();*/
 
             //messagingTemplateUdp.send(requestMessage);
 
             Message responseMessage = udpService.send(message);
+
 
             return null;
         } else {
