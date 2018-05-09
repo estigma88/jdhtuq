@@ -35,48 +35,7 @@ public class UDPTest {
 
         this.communicationManager.addMessageProcessor("chord", messageProcessor);
     }
-
-    //@Test
-    public void sendMulticastMessage() throws IOException, InterruptedException {
-        Message request = Message.builder()
-                .sendType(Message.SendType.REQUEST)
-                .sequenceNumber(1)
-                .address(Address.builder()
-                        .destination("destination")
-                        .source("source")
-                        .build())
-                .messageType(MessageType.builder()
-                        .name("testRequest")
-                        .amountParams(1)
-                        .build())
-                .param("param1", "paramValue1")
-                .build();
-
-        Message expectedResponse = Message.builder()
-                .sendType(Message.SendType.RESPONSE)
-                .sequenceNumber(1)
-                .address(Address.builder()
-                        .destination("localhost")
-                        .source("destination")
-                        .build())
-                .messageType(MessageType.builder()
-                        .name("testResponse")
-                        .amountParams(1)
-                        .build())
-                .param("param2", "paramValue2")
-                .build();
-
-        when(messageProcessor.process(request)).thenReturn(expectedResponse);
-
-        String param2 = communicationManager.sendMessageMultiCast(request, String.class, "param2");
-
-        Thread.sleep(5000);
-
-        verify(messageProcessor).process(request);
-        assertThat(param2).isNotNull();
-
-    }
-
+    //TODO only works executing one by one
     @Test
     public void sendRestfulMessage() throws IOException {
         Message request = Message.builder()
@@ -116,4 +75,47 @@ public class UDPTest {
         assertThat(param2).isNotNull();
         assertThat(param2).isEqualTo("paramValue2");
     }
+    @Test
+    public void sendMulticastMessage() throws IOException, InterruptedException {
+        Message request = Message.builder()
+                .sendType(Message.SendType.REQUEST)
+                .sequenceNumber(1)
+                .address(Address.builder()
+                        .destination("destination")
+                        .source("source")
+                        .build())
+                .messageType(MessageType.builder()
+                        .name("testRequest")
+                        .amountParams(1)
+                        .build())
+                .param("param1", "paramValue1")
+                .build();
+
+        Message expectedResponse = Message.builder()
+                .sendType(Message.SendType.RESPONSE)
+                .sequenceNumber(1)
+                .address(Address.builder()
+                        .destination("localhost")
+                        .source("destination")
+                        .build())
+                .messageType(MessageType.builder()
+                        .name("testResponse")
+                        .amountParams(1)
+                        .build())
+                .param("param2", "paramValue2")
+                .build();
+
+        when(messageProcessor.process(request)).thenReturn(expectedResponse);
+
+        String param2 = communicationManager.sendMessageMultiCast(request, String.class, "param2");
+
+        Thread.sleep(5000);
+
+        verify(messageProcessor).process(request);
+        assertThat(param2).isNotNull();
+        assertThat(param2).isEqualTo("paramValue2");
+
+    }
+
+
 }

@@ -7,23 +7,18 @@ import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.integration.channel.QueueChannel;
 import org.springframework.integration.channel.RendezvousChannel;
-import org.springframework.integration.core.GenericSelector;
 import org.springframework.integration.core.MessagingTemplate;
-import org.springframework.integration.dsl.*;
+import org.springframework.integration.dsl.IntegrationFlows;
+import org.springframework.integration.dsl.StandardIntegrationFlow;
+import org.springframework.integration.dsl.Transformers;
 import org.springframework.integration.dsl.channel.MessageChannels;
 import org.springframework.integration.dsl.context.IntegrationFlowContext;
 import org.springframework.integration.http.dsl.Http;
 import org.springframework.integration.ip.dsl.Udp;
-import org.springframework.integration.ip.udp.MulticastReceivingChannelAdapter;
-import org.springframework.integration.ip.udp.MulticastSendingMessageHandler;
 import org.springframework.integration.support.json.Jackson2JsonObjectMapper;
-import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHeaders;
-import org.springframework.messaging.PollableChannel;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.web.client.RestTemplate;
 
@@ -71,15 +66,16 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
     @Override
     public void init() {
 
+        RendezvousChannel channel = MessageChannels.rendezvous("messageid").get();
 
         StandardIntegrationFlow restfulInbound = IntegrationFlows.from(
                 Http.inboundGateway(name + requestPath)
                         .requestMapping(m -> m.methods(HttpMethod.POST, HttpMethod.GET)
                                 .consumes("application/json")
                                 .produces("application/json"))
-                        //.replyChannel("httpResponse-" + name)
+                //.replyChannel("httpResponse-" + name)
         )
-                .channel("httpRequest-" + name)
+                //.channel("httpRequest-" + name)
                 .transform(Transformers.fromJson(Message.class, jackson2JsonObjectMapper))
                 .log("3333333")
                 /*.filter(new GenericSelector<Message>() {
@@ -88,9 +84,19 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
                         return source.getSendType().equals(Message.SendType.RESPONSE);
                     }
                 })*/
-                .handle(messageProcessorWrapper, "process")
-                .log("4444444")
-                .transform(Transformers.toJson(jackson2JsonObjectMapper))
+                .route("payload.getSendType().name()", r -> r
+                        .subFlowMapping("REQUEST", s -> s
+                                .handle(messageProcessorWrapper, "process")
+                                //.log("4444444")
+                                .transform(Transformers.toJson(jackson2JsonObjectMapper))
+                                //.channel("httpResponse-" + name)
+                        )
+                        .subFlowMapping("RESPONSE", s -> s
+                                .channel(channel)))
+                //.channel(channel)//TODO Dynamic channel????
+                //.handle(messageProcessorWrapper, "process")
+                //.log("4444444")
+                //.transform(Transformers.toJson(jackson2JsonObjectMapper))
                 //.log("5555555")
                 //.channel("httpResponse-" + name)
                 .get();
@@ -135,7 +141,7 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
             StandardIntegrationFlow udpInbound = IntegrationFlows.from(
                     //new MulticastReceivingChannelAdapter(ipMulticast, portMulticast)
                     Udp.inboundMulticastAdapter(portMulticast, ipMulticast)
-                            //.outputChannel((MessageChannel) applicationContext.getBean("xxxxxxxx"))
+                    //.outputChannel((MessageChannel) applicationContext.getBean("xxxxxxxx"))
                     //.outputChannel("updOutMul")
             )
                     .enrichHeaders(headersMapMultIn)
@@ -165,7 +171,7 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
                     .transform(Transformers.toJson(jackson2JsonObjectMapper))
                     //.handle(Udp.outboundMulticastAdapter(ipMulticast, portMulticast))
                     //.handle(new MulticastSendingMessageHandler(ipMulticast, portMulticast))
-                    .handle(new UdpOutboundGateway(ipMulticast, portMulticast))
+                    .handle(new UdpOutboundGateway(ipMulticast, portMulticast, channel))
                     .log("zzzzzz")
                     .get();
 
@@ -244,7 +250,7 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
             Message responseMessage = udpService.send(message);
 
 
-            return null;
+            return processResponse(responseMessage, typeReturn, paramNameResult);
         } else {
             throw new IllegalStateException("Multicast server is not active or you must call 'init'");
         }
@@ -353,4 +359,10 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
 
         return typeInstance;
     }
+
+    /*@Bean
+    public IntegrationFlow routeFlow() {
+        return f -> f.<Integer, Boolean>route(p -> p % 2 == 0, m -> m.channelMapping("true", "evenChannel").subFlowMapping("false", sf -> sf.<Integer>handle((p, h) -> p * 3))).transform(Object::toString).channel(c -> c.queue("oddChannel"));
+    }*/
+
 }
