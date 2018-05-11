@@ -2,6 +2,7 @@ package co.edu.uniquindio.utils.communication.web.restful;
 
 import org.springframework.context.Lifecycle;
 import org.springframework.integration.channel.RendezvousChannel;
+import org.springframework.integration.dsl.channel.MessageChannels;
 import org.springframework.integration.handler.AbstractReplyProducingMessageHandler;
 import org.springframework.integration.ip.udp.MulticastSendingMessageHandler;
 import org.springframework.messaging.Message;
@@ -18,12 +19,18 @@ public class UdpOutboundGateway extends AbstractReplyProducingMessageHandler imp
     }
     @Override
     protected Object handleRequestMessage(Message<?> requestMessage) {
+        //RendezvousChannel channel = MessageChannels.rendezvous().get();
+
+        //Message<?> requestMessage1 = MessageBuilder.fromMessage(requestMessage).setHeader("mmmmmmmm", "oooooooo").build();
+
         this.target.handleMessage(requestMessage);
 
-        Message<?> response = this.channel.receive();
+        //Message<?> response = channel.receive();
+
+        //Message<?> response1 = MessageBuilder.fromMessage(response).setHeader("replyChannel", requestMessage.getHeaders().get("replyChannel")).build();
 
         //return MessageBuilder.withPayload(co.edu.uniquindio.utils.communication.message.Message.builder().sequenceNumber(1111111).build()).build();
-        return response;
+        return requestMessage;
     }
 
     @Override

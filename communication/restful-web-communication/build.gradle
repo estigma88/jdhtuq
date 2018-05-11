@@ -12,5 +12,7 @@ dependencies {
 
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.4'
 
+    compileOnly 'org.projectlombok:lombok:1.16.20'
+
     compile project(':communication:communication-api')
 }

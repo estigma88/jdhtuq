@@ -10,6 +10,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.integration.channel.RendezvousChannel;
 import org.springframework.integration.core.MessagingTemplate;
+import org.springframework.integration.dsl.HeaderEnricherSpec;
 import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.dsl.StandardIntegrationFlow;
 import org.springframework.integration.dsl.Transformers;
@@ -73,6 +74,7 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
                         .requestMapping(m -> m.methods(HttpMethod.POST, HttpMethod.GET)
                                 .consumes("application/json")
                                 .produces("application/json"))
+                        .mappedRequestHeaders("replyChannelId", "errorChannelId")
                 //.replyChannel("httpResponse-" + name)
         )
                 //.channel("httpRequest-" + name)
@@ -92,7 +94,9 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
                                 //.channel("httpResponse-" + name)
                         )
                         .subFlowMapping("RESPONSE", s -> s
-                                .channel(channel)))
+                                .enrichHeaders(h -> h.headerExpression("replyChannel", "headers.get('replychannelid')", true)
+                                        .headerExpression("errorChannel", "headers.get('errorchannelid')", true))
+                        ))
                 //.channel(channel)//TODO Dynamic channel????
                 //.handle(messageProcessorWrapper, "process")
                 //.log("4444444")
@@ -112,6 +116,7 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
                 .enrichHeaders(headersMapHttp)
                 .handle(Http.outboundGateway(baseURL + name + requestPath)
                         .httpMethod(HttpMethod.POST)
+                        .mappedRequestHeaders("replyChannelId", "errorChannelId")
                         .expectedResponseType(Message.class)
                         .messageConverters(new MappingJackson2HttpMessageConverter(jackson2JsonObjectMapper.getObjectMapper()))
                         .uriVariable("host", "payload.getAddress().getDestination()")
@@ -146,7 +151,12 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
             )
                     .enrichHeaders(headersMapMultIn)
                     //.channel("udpInbound-" + name)
-                    .transform(Transformers.fromJson(Message.class, jackson2JsonObjectMapper))
+                    .transform(Transformers.fromJson(ExtendedMessage.class, jackson2JsonObjectMapper))
+                    .log("111111")
+                    .enrichHeaders(h -> h.headerExpression("replyChannelId", "payload.replyChannelId")
+                            .headerExpression("errorChannelId", "payload.errorChannelId"))
+                    .log("111111")
+                    .transform(ExtendedMessage::getData)
                     .log("111111")
                     .handle(messageProcessorWrapper, "process")
                     .log("gggggg")
@@ -168,11 +178,13 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
             StandardIntegrationFlow udpOutbound = IntegrationFlows.from(Service.class)
                     .log("0000000")
                     .enrichHeaders(headersMapMultOut)
+                    .enrichHeaders(HeaderEnricherSpec::headerChannelsToString)
+                    .transform(new Trans())
                     .transform(Transformers.toJson(jackson2JsonObjectMapper))
-                    //.handle(Udp.outboundMulticastAdapter(ipMulticast, portMulticast))
+                    .handle(Udp.outboundMulticastAdapter(ipMulticast, portMulticast))
                     //.handle(new MulticastSendingMessageHandler(ipMulticast, portMulticast))
-                    .handle(new UdpOutboundGateway(ipMulticast, portMulticast, channel))
-                    .log("zzzzzz")
+                    //.handle(new UdpOutboundGateway(ipMulticast, portMulticast, channel))
+                    //.log("zzzzzz")
                     .get();
 
 

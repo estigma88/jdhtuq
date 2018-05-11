@@ -5,6 +5,7 @@ import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.MessageType;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerFactory;
+import co.edu.uniquindio.utils.communication.web.restful.ExtendedMessage;
 import co.edu.uniquindio.utils.communication.web.restful.MessageProcessorWrapper;
 import co.edu.uniquindio.utils.communication.web.restful.RestfulWebCommunicationManagerFactory;
 import co.edu.uniquindio.utils.communication.web.restful.jackson.*;
@@ -63,9 +64,11 @@ public class IntegrationCommunicationAutoConfiguration {
     public ObjectMapper customObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
 
-        objectMapper.addMixIn(Message.class, MessageMixIn.class)
+        objectMapper.addMixIn(ExtendedMessage.class, ExtendedMessageMixIn.class)
+                .addMixIn(ExtendedMessage.ExtendedMessageBuilder.class, ExtendedMessageBuilderMixIn.class)
                 .addMixIn(MessageType.class, MessageTypeMixIn.class)
                 .addMixIn(Address.class, AddressMixIn.class)
+                .addMixIn(Message.class, MessageMixIn.class)
                 .addMixIn(Message.MessageBuilder.class, MessageBuilderMixIn.class)
                 .addMixIn(MessageType.MessageTypeBuilder.class, MessageTypeBuilderMixIn.class)
                 .addMixIn(Address.AddressBuilder.class, AddressBuilderMixIn.class);

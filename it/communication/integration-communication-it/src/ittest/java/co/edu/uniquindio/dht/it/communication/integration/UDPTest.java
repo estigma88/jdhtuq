@@ -37,7 +37,7 @@ public class UDPTest {
     }
     //TODO only works executing one by one
     @Test
-    public void sendRestfulMessage() throws IOException {
+    public void sendRestfulMessage1() throws IOException {
         Message request = Message.builder()
                 .sendType(Message.SendType.REQUEST)
                 .sequenceNumber(1)
@@ -76,7 +76,7 @@ public class UDPTest {
         assertThat(param2).isEqualTo("paramValue2");
     }
     @Test
-    public void sendMulticastMessage() throws IOException, InterruptedException {
+    public void sendRestfulMessage() throws IOException, InterruptedException {
         Message request = Message.builder()
                 .sendType(Message.SendType.REQUEST)
                 .sequenceNumber(1)
