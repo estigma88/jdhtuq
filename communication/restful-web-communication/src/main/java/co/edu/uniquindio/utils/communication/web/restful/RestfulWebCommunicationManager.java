@@ -161,7 +161,7 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
                     //new MulticastReceivingChannelAdapter(ipMulticast, portMulticast)
                     Udp.inboundMulticastAdapter(portMulticast, ipMulticast)
                             //.outputChannel((MessageChannel) applicationContext.getBean("xxxxxxxx"))
-                            .outputChannel(messageChannel)
+                            //.outputChannel(messageChannel)
             )
                     //.channel(messageChannel)
                     .enrichHeaders(headersMapMultIn)
