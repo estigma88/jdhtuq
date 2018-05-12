@@ -9,6 +9,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.integration.channel.DirectChannel;
+import org.springframework.integration.channel.NullChannel;
 import org.springframework.integration.channel.RendezvousChannel;
 import org.springframework.integration.core.MessagingTemplate;
 import org.springframework.integration.dsl.HeaderEnricherSpec;
@@ -20,6 +21,7 @@ import org.springframework.integration.dsl.context.IntegrationFlowContext;
 import org.springframework.integration.http.dsl.Http;
 import org.springframework.integration.ip.dsl.Udp;
 import org.springframework.integration.support.json.Jackson2JsonObjectMapper;
+import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.web.client.RestTemplate;
@@ -92,8 +94,8 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
                 .route("payload.getSendType().name()", r -> r
                         .subFlowMapping("REQUEST", s -> s
                                         .handle(messageProcessorWrapper, "process")
-                                        //.log("4444444")
-                                        //.transform(Transformers.toJson(jackson2JsonObjectMapper))
+                                //.log("4444444")
+                                //.transform(Transformers.toJson(jackson2JsonObjectMapper))
                                 //.channel("httpResponse-" + name)
                         )
                         .subFlowMapping("RESPONSE", s -> s
@@ -154,14 +156,15 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
             headersMapMultIn.put(MessageHeaders.CONTENT_TYPE, "application/json");
             //headersMapMultIn.put(MessageHeaders.REPLY_CHANNEL, "xxxxxxxx");
 
+            MessageChannel messageChannel = new DirectChannel();
             StandardIntegrationFlow udpInbound = IntegrationFlows.from(
                     //new MulticastReceivingChannelAdapter(ipMulticast, portMulticast)
                     Udp.inboundMulticastAdapter(portMulticast, ipMulticast)
-                    //.outputChannel((MessageChannel) applicationContext.getBean("xxxxxxxx"))
-                    //.outputChannel("updOutMul")
+                            //.outputChannel((MessageChannel) applicationContext.getBean("xxxxxxxx"))
+                            .outputChannel(messageChannel)
             )
+                    //.channel(messageChannel)
                     .enrichHeaders(headersMapMultIn)
-                    //.channel("udpInbound-" + name)
                     .transform(Transformers.fromJson(ExtendedMessage.class, jackson2JsonObjectMapper))
                     .log("111111")
                     .enrichHeaders(h -> h.headerExpression("replyChannelId", "payload.replyChannelId")
@@ -171,13 +174,11 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
                     .log("111111")
                     .handle(messageProcessorWrapper, "process")
                     .log("gggggg")
-                    .publishSubscribeChannel(p -> p.subscribe(s -> s.channel("xxxxxxxx")))
+                    .publishSubscribeChannel(p -> p.subscribe(s -> s.log("nnnnnnnnnn").enrichHeaders(h -> h.header("replyChannel", new NullChannel(), true)
+                            .header("errorChannel", new NullChannel(), true)).channel("xxxxxxxx")))
                     //.channel("xxxxxxxx")
                     //.log("pppppp")
-                    /*.channel((message, timeout) -> {
-                        //sendMessageUnicast((Message) message.getPayload());
-                        return true;
-                    })*/
+                    //.channel(messageChannel)
                     //.channel("xxxxxxxx")
                     //.transform(Transformers.toJson(jackson2JsonObjectMapper))
                     .get();
