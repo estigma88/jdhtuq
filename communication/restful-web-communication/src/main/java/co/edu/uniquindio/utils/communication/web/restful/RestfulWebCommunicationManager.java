@@ -76,10 +76,12 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
                                 .consumes("application/json")
                                 .produces("application/json"))
                         .mappedRequestHeaders("replyChannelId", "errorChannelId")
+                        .requestPayloadType(Message.class)
+                        .messageConverters(new MappingJackson2HttpMessageConverter(jackson2JsonObjectMapper.getObjectMapper()))
                 //.replyChannel("httpResponse-" + name)
         )
                 //.channel("httpRequest-" + name)
-                .transform(Transformers.fromJson(Message.class, jackson2JsonObjectMapper))
+                //.transform(Transformers.fromJson(Message.class, jackson2JsonObjectMapper))
                 .log("3333333")
                 /*.filter(new GenericSelector<Message>() {
                     @Override
@@ -91,7 +93,7 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
                         .subFlowMapping("REQUEST", s -> s
                                         .handle(messageProcessorWrapper, "process")
                                         //.log("4444444")
-                                        .transform(Transformers.toJson(jackson2JsonObjectMapper))
+                                        //.transform(Transformers.toJson(jackson2JsonObjectMapper))
                                 //.channel("httpResponse-" + name)
                         )
                         .subFlowMapping("RESPONSE", s -> s
@@ -169,8 +171,9 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
                     .log("111111")
                     .handle(messageProcessorWrapper, "process")
                     .log("gggggg")
-                    .channel("xxxxxxxx")
-                    .log("pppppp")
+                    .publishSubscribeChannel(p -> p.subscribe(s -> s.channel("xxxxxxxx")))
+                    //.channel("xxxxxxxx")
+                    //.log("pppppp")
                     /*.channel((message, timeout) -> {
                         //sendMessageUnicast((Message) message.getPayload());
                         return true;
