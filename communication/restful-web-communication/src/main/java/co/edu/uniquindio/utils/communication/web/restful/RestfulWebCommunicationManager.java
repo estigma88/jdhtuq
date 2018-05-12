@@ -8,6 +8,7 @@ import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.channel.RendezvousChannel;
 import org.springframework.integration.core.MessagingTemplate;
 import org.springframework.integration.dsl.HeaderEnricherSpec;
@@ -88,14 +89,22 @@ public class RestfulWebCommunicationManager implements CommunicationManager {
                 })*/
                 .route("payload.getSendType().name()", r -> r
                         .subFlowMapping("REQUEST", s -> s
-                                .handle(messageProcessorWrapper, "process")
-                                //.log("4444444")
-                                .transform(Transformers.toJson(jackson2JsonObjectMapper))
+                                        .handle(messageProcessorWrapper, "process")
+                                        //.log("4444444")
+                                        .transform(Transformers.toJson(jackson2JsonObjectMapper))
                                 //.channel("httpResponse-" + name)
                         )
                         .subFlowMapping("RESPONSE", s -> s
-                                .enrichHeaders(h -> h.headerExpression("replyChannel", "headers.get('replychannelid')", true)
-                                        .headerExpression("errorChannel", "headers.get('errorchannelid')", true))
+                                .publishSubscribeChannel(p -> p.subscribe(sub -> sub
+                                        .log("sbridge2")
+                                        .bridge())
+                                )
+                                .publishSubscribeChannel(p -> p.subscribe(sub -> sub
+                                        .enrichHeaders(h -> h.headerExpression("replyChannel", "headers.get('replychannelid')", true)
+                                                .headerExpression("errorChannel", "headers.get('errorchannelid')", true))
+                                        .log("sbridge1")
+                                        .bridge())
+                                )
                         ))
                 //.channel(channel)//TODO Dynamic channel????
                 //.handle(messageProcessorWrapper, "process")
