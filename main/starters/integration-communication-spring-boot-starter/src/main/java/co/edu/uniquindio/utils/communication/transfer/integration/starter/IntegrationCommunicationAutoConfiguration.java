@@ -1,14 +1,16 @@
 package co.edu.uniquindio.utils.communication.transfer.integration.starter;
 
 import co.edu.uniquindio.utils.communication.Observable;
+import co.edu.uniquindio.utils.communication.integration.IntegrationCommunicationManagerFactory;
+import co.edu.uniquindio.utils.communication.integration.MessageProcessorWrapper;
+import co.edu.uniquindio.utils.communication.integration.MessageResponseProcessor;
+import co.edu.uniquindio.utils.communication.integration.jackson.*;
+import co.edu.uniquindio.utils.communication.integration.sender.ExtendedMessage;
+import co.edu.uniquindio.utils.communication.integration.sender.ExtendedMessageTransformer;
 import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.MessageType;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerFactory;
-import co.edu.uniquindio.utils.communication.web.restful.ExtendedMessage;
-import co.edu.uniquindio.utils.communication.web.restful.MessageProcessorWrapper;
-import co.edu.uniquindio.utils.communication.web.restful.RestfulWebCommunicationManagerFactory;
-import co.edu.uniquindio.utils.communication.web.restful.jackson.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -23,7 +25,7 @@ import org.springframework.integration.support.json.Jackson2JsonObjectMapper;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
-@ConditionalOnClass({RestfulWebCommunicationManagerFactory.class})
+@ConditionalOnClass({IntegrationCommunicationManagerFactory.class})
 @EnableConfigurationProperties(IntegrationCommunicationProperties.class)
 public class IntegrationCommunicationAutoConfiguration {
     private final IntegrationCommunicationProperties integrationCommunicationProperties;
@@ -38,9 +40,8 @@ public class IntegrationCommunicationAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public CommunicationManagerFactory communicationManagerFactory(RestTemplate restTemplate, Jackson2JsonObjectMapper jackson2JsonObjectMapper, MessageProcessorWrapper messageProcessorWrapper
-            , ApplicationContext applicationContext) {
-        return new RestfulWebCommunicationManagerFactory(restTemplate, jackson2JsonObjectMapper, integrationCommunicationProperties.getBaseURL(), integrationCommunicationProperties.getRequestPath(), webPort, new Observable<>(), integrationCommunicationProperties.getInstances(), flowContext, messageProcessorWrapper, applicationContext);
+    public CommunicationManagerFactory communicationManagerFactory(RestTemplate restTemplate, Jackson2JsonObjectMapper jackson2JsonObjectMapper, MessageProcessorWrapper messageProcessorWrapper, ApplicationContext applicationContext, ExtendedMessageTransformer extendedMessageTransformer, MessageResponseProcessor messageResponseProcessor) {
+        return new IntegrationCommunicationManagerFactory(jackson2JsonObjectMapper, webPort, new Observable<>(), integrationCommunicationProperties.getInstances(), flowContext, messageProcessorWrapper, applicationContext, messageResponseProcessor, extendedMessageTransformer);
     }
 
     @Bean
@@ -80,6 +81,20 @@ public class IntegrationCommunicationAutoConfiguration {
     @ConditionalOnMissingBean
     public MessageProcessorWrapper messageProcessorWrapper() {
         return new MessageProcessorWrapper();
+    }
+
+
+    @Bean
+    @ConditionalOnMissingBean
+    public MessageResponseProcessor messageResponseProcessor() {
+        return new MessageResponseProcessor();
+    }
+
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ExtendedMessageTransformer extendedMessageTransformer() {
+        return new ExtendedMessageTransformer();
     }
 
 }

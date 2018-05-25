@@ -1,4 +1,4 @@
-package co.edu.uniquindio.utils.communication.web.restful.jackson;
+package co.edu.uniquindio.utils.communication.integration.jackson;
 
 import co.edu.uniquindio.utils.communication.message.MessageType;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

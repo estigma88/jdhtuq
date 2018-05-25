@@ -81,7 +81,7 @@ public class UDPTest {
                 .sendType(Message.SendType.REQUEST)
                 .sequenceNumber(1)
                 .address(Address.builder()
-                        .destination("destination")
+                        .destination("localhost")
                         .source("source")
                         .build())
                 .messageType(MessageType.builder()

@@ -1,4 +1,4 @@
-package co.edu.uniquindio.utils.communication.web.restful;
+package co.edu.uniquindio.utils.communication.integration;
 
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
