@@ -1,0 +1,39 @@
+p2p:
+  dhash:
+    resource-directory: /build/dhash/
+    replication-amount: 1
+  chord:
+    stable-ring-time: 2000
+    stable-ring-thread-pool: 1
+    key-length: 16
+communication:
+  integration:
+    instances:
+      chord:
+        multicast-server-active: true
+        ip-multicast: 224.0.0.1
+        port-multicast: 2000
+socket-it:
+  dhash:
+    resource-directory: build/dhash/
+  port-mapping:
+    172-16-0-43: 23001
+    172-16-0-4: 23002
+    172-16-0-5: 23003
+    172-16-0-6: 23004
+    172-16-0-7: 23005
+    172-16-0-8: 23006
+    172-16-0-9: 23007
+    172-16-0-10: 23008
+    172-16-0-11: 23009
+    172-16-0-12: 23010
+    172-16-0-13: 23011
+    172-16-0-14: 23012
+    172-16-0-15: 23013
+    172-16-0-16: 23014
+    172-16-0-17: 23015
+    172-16-0-18: 23016
+    172-16-0-19: 23017
+    172-16-0-20: 23018
+    172-16-0-21: 23019
+    172-16-0-22: 23020

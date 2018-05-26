@@ -1,0 +1,94 @@
+package co.edu.uniquindio.dht.it.integration.test.put;
+
+import co.edu.uniquindio.dhash.starter.DHashProperties;
+import co.edu.uniquindio.dht.it.integration.Protocol;
+import co.edu.uniquindio.dht.it.integration.test.CucumberRoot;
+import co.edu.uniquindio.dht.it.integration.test.IntegrationITProperties;
+import co.edu.uniquindio.dht.it.integration.test.MessageClient;
+import co.edu.uniquindio.dht.it.integration.test.World;
+import co.edu.uniquindio.dht.it.integration.test.ring.Ring;
+import co.edu.uniquindio.utils.communication.message.Address;
+import co.edu.uniquindio.utils.communication.message.Message;
+import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
+import cucumber.api.java.en.Given;
+import cucumber.api.java.en.Then;
+import cucumber.api.java.en.When;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class PutsDefinitionStep extends CucumberRoot {
+    @Autowired
+    private World world;
+    @Autowired
+    private DHashProperties dHashProperties;
+    @Autowired
+    private IntegrationITProperties integrationITProperties;
+    @Autowired
+    private SequenceGenerator itSequenceGenerator;
+    private Map<String, Content> contents;
+
+    @Given("^I have the resources names and values:$")
+    public void i_have_the_resources_names_and_values(List<Content> contents) throws Throwable {
+        this.contents = contents.stream()
+                .collect(Collectors.toMap(Content::getName, Function.identity()));
+    }
+
+    @When("^I put resources into the network$")
+    public void i_put_resources_into_the_network() throws Throwable {
+        Ring ring = world.getRing();
+
+        MessageClient messageClient = ring.getNode(world.getNodeGateway());
+
+        for (String contentName : contents.keySet()) {
+            Message put = Message.builder()
+                    .sequenceNumber(itSequenceGenerator.getSequenceNumber())
+                    .sendType(Message.SendType.REQUEST)
+                    .messageType(Protocol.PUT)
+                    .address(Address.builder()
+                            .source("localhost")
+                            .destination("localhost")
+                            .build())
+                    .param(Protocol.PutParams.RESOURCE_NAME.name(), contentName)
+                    .data(Protocol.PutDatas.RESOURCE.name(), contents.get(contentName).getContent().getBytes())
+                    .build();
+
+            Message response = messageClient.send(put);
+
+            assertThat(response).isNotNull();
+            assertThat(response.getParam(Protocol.PutResponseParams.MESSAGE.name())).isEqualTo("OK");
+        }
+
+    }
+
+    @Then("^The resources are put in the following nodes:$")
+    public void the_resources_are_put_in_the_following_nodes(Map<String, String> nodesByResource) throws Throwable {
+        for (String contentName : nodesByResource.keySet()) {
+            String[] nodes = nodesByResource.get(contentName).split(",");
+
+            for (String node : nodes) {
+                Path resourcePath = Paths.get(integrationITProperties.getDhash().getResourceDirectory() + node + "/" + contentName);
+
+                File resource = resourcePath.toFile();
+
+                assertThat(resource.exists()).isTrue();
+
+                ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+                Files.copy(resourcePath, os);
+
+                assertThat(contents.get(contentName).getContent()).isEqualTo(os.toString());
+            }
+        }
+    }
+}
