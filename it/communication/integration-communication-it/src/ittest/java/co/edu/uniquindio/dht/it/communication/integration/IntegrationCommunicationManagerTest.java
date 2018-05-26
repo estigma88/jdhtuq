@@ -6,7 +6,6 @@ import co.edu.uniquindio.utils.communication.message.MessageType;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -23,7 +22,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-public class UDPTest {
+public class IntegrationCommunicationManagerTest {
     @Autowired
     private CommunicationManager communicationManager;
     @Mock
@@ -35,9 +34,9 @@ public class UDPTest {
 
         this.communicationManager.addMessageProcessor("chord", messageProcessor);
     }
-    //TODO only works executing one by one
+
     @Test
-    public void sendRestfulMessage1() throws IOException {
+    public void sendHttpMessage() {
         Message request = Message.builder()
                 .sendType(Message.SendType.REQUEST)
                 .sequenceNumber(1)
@@ -75,8 +74,9 @@ public class UDPTest {
         assertThat(param2).isNotNull();
         assertThat(param2).isEqualTo("paramValue2");
     }
+
     @Test
-    public void sendRestfulMessage() throws IOException, InterruptedException {
+    public void sendUDPMulticastMessage() throws IOException, InterruptedException {
         Message request = Message.builder()
                 .sendType(Message.SendType.REQUEST)
                 .sequenceNumber(1)
@@ -109,13 +109,8 @@ public class UDPTest {
 
         String param2 = communicationManager.sendMessageMultiCast(request, String.class, "param2");
 
-        Thread.sleep(5000);
-
         verify(messageProcessor).process(request);
         assertThat(param2).isNotNull();
         assertThat(param2).isEqualTo("paramValue2");
-
     }
-
-
 }

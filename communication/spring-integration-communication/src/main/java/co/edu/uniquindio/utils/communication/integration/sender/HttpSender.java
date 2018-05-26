@@ -74,7 +74,7 @@ public class HttpSender implements MessageSender {
 
     @Override
     public boolean isRunning() {
-        return httpInbound != null  & httpInbound.isRunning()& httpOutbound != null & httpOutbound.isRunning();
+        return httpInbound != null & httpInbound.isRunning() & httpOutbound != null & httpOutbound.isRunning();
     }
 
     private StandardIntegrationFlow getHttpOutboundFlow() {
@@ -89,7 +89,7 @@ public class HttpSender implements MessageSender {
                         .mappedRequestHeaders(REPLY_ORIGINAL_CHANNEL_ID_HEADER, ERROR_ORIGINAL_CHANNEL_ID_HEADER)
                         .expectedResponseType(Message.class)
                         .messageConverters(mappingJackson2HttpMessageConverter)
-                        .uriVariable("host", "payload.getAddress().getDestination()")
+                        .uriVariable("host", message -> ((Message) message.getPayload()).getAddress().getDestination())
                         .uriVariable("port", message -> serverPort))
                 .get();
     }
@@ -107,7 +107,7 @@ public class HttpSender implements MessageSender {
                         .messageConverters(mappingJackson2HttpMessageConverter))
                 .route("payload.getSendType().name()", r -> r
                         .subFlowMapping("REQUEST", s -> s
-                                        .handle(messageProcessor, "process")
+                                .handle(messageProcessor, "process")
                         )
                         .subFlowMapping("RESPONSE", s -> s
                                 //Publish the Message to two subscribers

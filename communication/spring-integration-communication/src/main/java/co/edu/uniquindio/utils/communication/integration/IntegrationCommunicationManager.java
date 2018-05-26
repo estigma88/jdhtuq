@@ -12,7 +12,7 @@ public class IntegrationCommunicationManager implements CommunicationManager {
     private final MessageProcessorWrapper messageProcessorWrapper;
     private final MessageSender directSender;
     private final MessageSender multicastSender;
-    private final MessageResponseProcessor returnProcessor;
+    private final MessageResponseProcessor messageResponseProcessor;
     private final boolean multicastSenderActive;
 
     IntegrationCommunicationManager(Observable<Message> observable, MessageProcessorWrapper messageProcessorWrapper, MessageSender directSender, MessageSender multicastSender, MessageResponseProcessor messageResponseProcessor, boolean multicastSenderActive) {
@@ -20,7 +20,7 @@ public class IntegrationCommunicationManager implements CommunicationManager {
         this.messageProcessorWrapper = messageProcessorWrapper;
         this.directSender = directSender;
         this.multicastSender = multicastSender;
-        this.returnProcessor = messageResponseProcessor;
+        this.messageResponseProcessor = messageResponseProcessor;
         this.multicastSenderActive = multicastSenderActive;
     }
 
@@ -44,7 +44,7 @@ public class IntegrationCommunicationManager implements CommunicationManager {
 
         Message responseMessage = directSender.send(message);
 
-        return returnProcessor.process(responseMessage, typeReturn, paramNameResult);
+        return messageResponseProcessor.process(responseMessage, typeReturn, paramNameResult);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class IntegrationCommunicationManager implements CommunicationManager {
         if (multicastSenderActive) {
             Message responseMessage = multicastSender.send(message);
 
-            return returnProcessor.process(responseMessage, typeReturn, paramNameResult);
+            return messageResponseProcessor.process(responseMessage, typeReturn, paramNameResult);
         } else {
             throw new IllegalStateException("Multicast server is not active or you must call 'init'");
         }

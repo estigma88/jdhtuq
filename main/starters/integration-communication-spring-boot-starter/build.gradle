@@ -20,7 +20,7 @@ repositories {
 
 
 dependencies {
-	compile project(':communication:restful-web-communication')
+	compile project(':communication:spring-integration-communication')
 
 	// https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
 	compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.4'
