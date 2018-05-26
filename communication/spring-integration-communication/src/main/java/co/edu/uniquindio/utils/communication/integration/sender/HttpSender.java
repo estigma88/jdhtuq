@@ -53,13 +53,13 @@ public class HttpSender implements MessageSender {
 
         httpOutbound = getHttpOutboundFlow();
 
-        flowContext.registration(httpInbound).id("httpInboundFlow").register();
-        flowContext.registration(httpOutbound).id("httpOutboundFlow").register();
+        flowContext.registration(httpInbound).id("httpInboundFlow-" + id).register();
+        flowContext.registration(httpOutbound).id("httpOutboundFlow-" + id).register();
 
         httpInbound.start();
         httpOutbound.start();
 
-        messageSenderGateway = (MessageSender) applicationContext.getBean("httpOutboundFlow.gateway");
+        messageSenderGateway = (MessageSender) applicationContext.getBean("httpOutboundFlow-" + id + ".gateway");
     }
 
     @Override

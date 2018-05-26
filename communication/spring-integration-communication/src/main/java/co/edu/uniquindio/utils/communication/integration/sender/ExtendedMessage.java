@@ -16,6 +16,7 @@
 
 package co.edu.uniquindio.utils.communication.integration.sender;
 
+import co.edu.uniquindio.utils.communication.message.Message;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
@@ -29,5 +30,5 @@ import lombok.Data;
 public class ExtendedMessage {
     private final String replyOriginChannelId;
     private final String errorOriginChannelId;
-    private final String data;
+    private final Message data;
 }

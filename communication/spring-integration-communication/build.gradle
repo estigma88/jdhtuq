@@ -7,6 +7,7 @@ repositories {
 version = '1.0.0'
 
 dependencies {
+    compile("org.springframework.boot:spring-boot-starter-web:2.0.1.RELEASE")
     compile group: 'org.springframework.integration', name: 'spring-integration-ip', version: '5.0.4.RELEASE'
     compile group: 'org.springframework.integration', name: 'spring-integration-http', version: '5.0.4.RELEASE'
 

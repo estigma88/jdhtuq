@@ -14,8 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.io.IOException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -75,8 +73,8 @@ public class IntegrationCommunicationManagerTest {
         assertThat(param2).isEqualTo("paramValue2");
     }
 
-    @Test
-    public void sendUDPMulticastMessage() throws IOException, InterruptedException {
+    @Test(timeout = 5000)
+    public void sendUDPMulticastMessage() {
         Message request = Message.builder()
                 .sendType(Message.SendType.REQUEST)
                 .sequenceNumber(1)

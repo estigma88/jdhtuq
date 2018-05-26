@@ -30,7 +30,7 @@ public class ExtendedMessageTransformer implements Transformer {
         return MessageBuilder
                 .withPayload(new ExtendedMessage((String) message.getHeaders().get(MessageHeaders.REPLY_CHANNEL),
                         (String) message.getHeaders().get(MessageHeaders.ERROR_CHANNEL),
-                        (String) message.getPayload()))
+                        (co.edu.uniquindio.utils.communication.message.Message) message.getPayload()))
                 .copyHeaders(message.getHeaders())
                 .build();
     }

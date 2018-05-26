@@ -22,8 +22,6 @@ repositories {
 version = '2.0.0'
 
 dependencies {
-    compile("org.springframework.boot:spring-boot-starter-web:1.5.10.RELEASE")
-
     compile project(':main:starters:chord-spring-boot-starter')
     compile project(':main:starters:dhash-spring-boot-starter')
     compile project(':main:starters:integration-communication-spring-boot-starter')

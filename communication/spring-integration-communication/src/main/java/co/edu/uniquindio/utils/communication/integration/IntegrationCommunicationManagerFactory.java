@@ -63,7 +63,7 @@ public class IntegrationCommunicationManagerFactory implements CommunicationMana
                 .map(Integer::parseInt)
                 .orElse(0);
 
-        return new UDPMulticastSender(name, flowContext, applicationContext, messageProcessorWrapper, extendedMessageTransformer, group, groupPort);
+        return new UDPMulticastSender(name, flowContext, applicationContext, messageProcessorWrapper, extendedMessageTransformer, jackson2JsonObjectMapper, group, groupPort);
     }
 
     private MessageSender getDirectSender(String name) {

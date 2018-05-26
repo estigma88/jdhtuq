@@ -10,6 +10,7 @@ import org.springframework.integration.dsl.StandardIntegrationFlow;
 import org.springframework.integration.dsl.Transformers;
 import org.springframework.integration.dsl.context.IntegrationFlowContext;
 import org.springframework.integration.ip.dsl.Udp;
+import org.springframework.integration.support.json.Jackson2JsonObjectMapper;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.util.MimeTypeUtils;
 
@@ -21,18 +22,20 @@ public class UDPMulticastSender implements MessageSender {
     private final ApplicationContext applicationContext;
     private final MessageProcessor messageProcessor;
     private final ExtendedMessageTransformer extendedMessageTransformer;
+    private final Jackson2JsonObjectMapper jackson2JsonObjectMapper;
     private final String group;
     private final Integer port;
     private StandardIntegrationFlow udpInbound;
     private StandardIntegrationFlow udpOutbound;
     private MessageSender messageSenderGateway;
 
-    public UDPMulticastSender(String id, IntegrationFlowContext flowContext, ApplicationContext applicationContext, MessageProcessor messageProcessor, ExtendedMessageTransformer extendedMessageTransformer, String group, Integer port) {
+    public UDPMulticastSender(String id, IntegrationFlowContext flowContext, ApplicationContext applicationContext, MessageProcessor messageProcessor, ExtendedMessageTransformer extendedMessageTransformer, Jackson2JsonObjectMapper jackson2JsonObjectMapper, String group, Integer port) {
         this.id = id;
         this.flowContext = flowContext;
         this.applicationContext = applicationContext;
         this.messageProcessor = messageProcessor;
         this.extendedMessageTransformer = extendedMessageTransformer;
+        this.jackson2JsonObjectMapper = jackson2JsonObjectMapper;
         this.group = group;
         this.port = port;
     }
@@ -53,13 +56,13 @@ public class UDPMulticastSender implements MessageSender {
 
         udpOutbound = getUDPOutboundFlow();
 
-        flowContext.registration(udpInbound).id("udpInboundFlow").register();
-        flowContext.registration(udpOutbound).id("udpOutboundFlow").register();
+        flowContext.registration(udpInbound).id("udpInboundFlow-" + id).register();
+        flowContext.registration(udpOutbound).id("udpOutboundFlow-" + id).register();
 
         udpInbound.start();
         udpOutbound.start();
 
-        messageSenderGateway = (MessageSender) applicationContext.getBean("httpOutboundFlow.gateway");
+        messageSenderGateway = (MessageSender) applicationContext.getBean("udpOutboundFlow-" + id + ".gateway");
     }
 
     @Override
@@ -87,7 +90,7 @@ public class UDPMulticastSender implements MessageSender {
                 //Transform the message adding the replayChannel and errorChannel IDs as a part of the payload
                 //To retrieve later after the response arrives
                 .transform(extendedMessageTransformer)
-                .transform(Transformers.toJson())
+                .transform(Transformers.toJson(jackson2JsonObjectMapper))
                 .handle(Udp.outboundMulticastAdapter(group, port))
                 .get();
     }
@@ -97,7 +100,7 @@ public class UDPMulticastSender implements MessageSender {
         return IntegrationFlows.from(Udp.inboundMulticastAdapter(port, group))
                 .enrichHeaders(m -> m
                         .header(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON_VALUE))
-                .transform(Transformers.fromJson(ExtendedMessage.class))
+                .transform(Transformers.fromJson(ExtendedMessage.class, jackson2JsonObjectMapper))
                 //Add new headers to the Message named replyOriginChannelId and errorOriginChannelId from the payload we receive
                 .enrichHeaders(h -> h
                         .headerFunction(REPLY_ORIGINAL_CHANNEL_ID_HEADER, m -> ((ExtendedMessage) m.getPayload()).getReplyOriginChannelId())

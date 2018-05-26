@@ -6,6 +6,7 @@ import co.edu.uniquindio.storage.StorageNode;
 import co.edu.uniquindio.storage.StorageNodeFactory;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
 import org.apache.log4j.Logger;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
@@ -21,8 +22,7 @@ public class NodeMain {
             .getLogger(NodeMain.class);
 
     public static void main(String[] args) {
-        new SpringApplicationBuilder(NodeMain.class)
-                .headless(false).run(args);
+        SpringApplication.run(NodeMain.class, args);
     }
 
     @Bean
