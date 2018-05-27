@@ -6,6 +6,8 @@ server:
   port: 8080
 communication:
   integration:
+    default-request-timeout: 3000
+    default-replay-timeout: 3000
     instances:
       chord:
         multicast-server-active: true
