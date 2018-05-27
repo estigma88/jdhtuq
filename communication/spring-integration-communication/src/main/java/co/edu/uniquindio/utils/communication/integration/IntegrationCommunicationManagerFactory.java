@@ -8,6 +8,7 @@ import co.edu.uniquindio.utils.communication.integration.sender.UDPMulticastSend
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerFactory;
+import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.integration.dsl.context.IntegrationFlowContext;
@@ -22,18 +23,16 @@ public class IntegrationCommunicationManagerFactory implements CommunicationMana
     private final Observable<Message> observable;
     private final Map<String, Map<String, String>> paramsByCommunication;
     private final IntegrationFlowContext flowContext;
-    private final MessageProcessorWrapper messageProcessorWrapper;
     private final ApplicationContext applicationContext;
     private final MessageResponseProcessor messageResponseProcessor;
     private final ExtendedMessageTransformer extendedMessageTransformer;
 
-    public IntegrationCommunicationManagerFactory(Jackson2JsonObjectMapper jackson2JsonObjectMapper, int port, Observable<Message> observable, Map<String, Map<String, String>> paramsByCommunication, IntegrationFlowContext flowContext, MessageProcessorWrapper messageProcessorWrapper, ApplicationContext applicationContext, MessageResponseProcessor messageResponseProcessor, ExtendedMessageTransformer extendedMessageTransformer) {
+    public IntegrationCommunicationManagerFactory(Jackson2JsonObjectMapper jackson2JsonObjectMapper, int port, Observable<Message> observable, Map<String, Map<String, String>> paramsByCommunication, IntegrationFlowContext flowContext, ApplicationContext applicationContext, MessageResponseProcessor messageResponseProcessor, ExtendedMessageTransformer extendedMessageTransformer) {
         this.jackson2JsonObjectMapper = jackson2JsonObjectMapper;
         this.port = port;
         this.observable = observable;
         this.paramsByCommunication = paramsByCommunication;
         this.flowContext = flowContext;
-        this.messageProcessorWrapper = messageProcessorWrapper;
         this.applicationContext = applicationContext;
         this.messageResponseProcessor = messageResponseProcessor;
         this.extendedMessageTransformer = extendedMessageTransformer;
@@ -47,14 +46,20 @@ public class IntegrationCommunicationManagerFactory implements CommunicationMana
                 .map(Boolean::valueOf)
                 .orElse(false);
 
-        IntegrationCommunicationManager restfulWebCommunicationClient = new IntegrationCommunicationManager(observable, messageProcessorWrapper, getDirectSender(name), getMulticastSender(name), messageResponseProcessor, multicastActive);
+        MessageProcessorWrapper messageProcessorWrapper = newMessageProcessorWrapper();
+
+        IntegrationCommunicationManager restfulWebCommunicationClient = new IntegrationCommunicationManager(observable, messageProcessorWrapper, getDirectSender(name, messageProcessorWrapper), getMulticastSender(name, messageProcessorWrapper), messageResponseProcessor, multicastActive);
 
         restfulWebCommunicationClient.init();
 
         return restfulWebCommunicationClient;
     }
 
-    private MessageSender getMulticastSender(String name) {
+    private MessageProcessorWrapper newMessageProcessorWrapper(){
+        return new MessageProcessorWrapper();
+    }
+
+    private MessageSender getMulticastSender(String name, MessageProcessorWrapper messageProcessorWrapper) {
         String group = Optional.ofNullable(paramsByCommunication.get(name))
                 .map(p -> p.get("ip-multicast"))
                 .orElse("");
@@ -66,7 +71,7 @@ public class IntegrationCommunicationManagerFactory implements CommunicationMana
         return new UDPMulticastSender(name, flowContext, applicationContext, messageProcessorWrapper, extendedMessageTransformer, jackson2JsonObjectMapper, group, groupPort);
     }
 
-    private MessageSender getDirectSender(String name) {
+    private MessageSender getDirectSender(String name, MessageProcessorWrapper messageProcessorWrapper) {
         return new HttpSender(name, port, flowContext, applicationContext, messageProcessorWrapper, new MappingJackson2HttpMessageConverter(jackson2JsonObjectMapper.getObjectMapper()));
     }
 }

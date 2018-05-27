@@ -40,8 +40,8 @@ public class IntegrationCommunicationAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public CommunicationManagerFactory communicationManagerFactory(RestTemplate restTemplate, Jackson2JsonObjectMapper jackson2JsonObjectMapper, MessageProcessorWrapper messageProcessorWrapper, ApplicationContext applicationContext, ExtendedMessageTransformer extendedMessageTransformer, MessageResponseProcessor messageResponseProcessor) {
-        return new IntegrationCommunicationManagerFactory(jackson2JsonObjectMapper, webPort, new Observable<>(), integrationCommunicationProperties.getInstances(), flowContext, messageProcessorWrapper, applicationContext, messageResponseProcessor, extendedMessageTransformer);
+    public CommunicationManagerFactory communicationManagerFactory(RestTemplate restTemplate, Jackson2JsonObjectMapper jackson2JsonObjectMapper, ApplicationContext applicationContext, ExtendedMessageTransformer extendedMessageTransformer, MessageResponseProcessor messageResponseProcessor) {
+        return new IntegrationCommunicationManagerFactory(jackson2JsonObjectMapper, webPort, new Observable<>(), integrationCommunicationProperties.getInstances(), flowContext, applicationContext, messageResponseProcessor, extendedMessageTransformer);
     }
 
     @Bean
@@ -76,13 +76,6 @@ public class IntegrationCommunicationAutoConfiguration {
 
         return objectMapper;
     }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public MessageProcessorWrapper messageProcessorWrapper() {
-        return new MessageProcessorWrapper();
-    }
-
 
     @Bean
     @ConditionalOnMissingBean

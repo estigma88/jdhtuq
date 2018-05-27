@@ -14,6 +14,8 @@ import org.springframework.integration.support.json.Jackson2JsonObjectMapper;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.util.MimeTypeUtils;
 
+import java.util.Objects;
+
 import static co.edu.uniquindio.utils.communication.integration.sender.HttpSender.*;
 
 public class UDPMulticastSender implements MessageSender {
@@ -108,6 +110,7 @@ public class UDPMulticastSender implements MessageSender {
                 //Get the read data we want to handle
                 .transform(ExtendedMessage::getData)
                 .handle(messageProcessor, "process")
+                .filter(Objects::isNull)
                 //Publish a Message response using the httpOutbound channel
                 .publishSubscribeChannel(p -> p
                         .subscribe(s -> s
