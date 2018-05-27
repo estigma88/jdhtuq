@@ -73,6 +73,31 @@ public class IntegrationCommunicationManagerTest {
         assertThat(param2).isEqualTo("paramValue2");
     }
 
+    @Test
+    public void sendHttpMessageNullResponse() {
+        Message request = Message.builder()
+                .sendType(Message.SendType.REQUEST)
+                .sequenceNumber(1)
+                .address(Address.builder()
+                        .destination("localhost")
+                        .source("source")
+                        .build())
+                .messageType(MessageType.builder()
+                        .name("testRequest")
+                        .amountParams(1)
+                        .build())
+                .param("param1", "paramValue1")
+                .build();
+
+        when(messageProcessor.process(request)).thenReturn(null);
+
+        String param2 = communicationManager.sendMessageUnicast(request, String.class, "param2");
+
+        verify(messageProcessor).process(request);
+
+        assertThat(param2).isNull();
+    }
+
     @Test(timeout = 5000)
     public void sendUDPMulticastMessage() {
         Message request = Message.builder()
