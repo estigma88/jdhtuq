@@ -138,6 +138,30 @@ public class IntegrationCommunicationManagerTest {
     }
 
     @Test(timeout = 5000)
+    public void sendUDPMulticastMessageNull() {
+        Message request = Message.builder()
+                .sendType(Message.SendType.REQUEST)
+                .sequenceNumber(1)
+                .address(Address.builder()
+                        .destination("localhost")
+                        .source("source")
+                        .build())
+                .messageType(MessageType.builder()
+                        .name("testRequest")
+                        .amountParams(1)
+                        .build())
+                .param("param1", "paramValue1")
+                .build();
+
+        when(messageProcessor.process(request)).thenReturn(null);
+
+        String param2 = communicationManager.sendMessageMultiCast(request, String.class, "param2");
+
+        verify(messageProcessor).process(request);
+        assertThat(param2).isNull();
+    }
+
+    @Test(timeout = 5000)
     public void sendUDPMulticastMessageTimeout() {
         Message request = Message.builder()
                 .sendType(Message.SendType.REQUEST)

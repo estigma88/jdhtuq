@@ -6,17 +6,19 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Set;
 
+import static co.edu.uniquindio.utils.communication.integration.MessageProcessorWrapper.EMPTY_MESSAGE_TYPE;
+
 public class MessageResponseProcessor {
     public <T> T process(Message message, Class<T> type,
                          String paramNameResult) {
-        T typeInstance = null;
+        T typeInstance;
 
-        if (message == null) {
+        if (message == null || message.getMessageType().equals(EMPTY_MESSAGE_TYPE)) {
             return null;
         }
 
         if (type.equals(Message.class)) {
-            return (T) message;
+            return type.cast(message);
         }
 
         if (type.isInterface() || type.isAnnotation() || type.isArray()) {
@@ -57,7 +59,7 @@ public class MessageResponseProcessor {
             Method valueOf = type
                     .getMethod("valueOf", String.class);
 
-            typeInstance = (T) valueOf.invoke(null, paramValue);
+            typeInstance = type.cast(valueOf.invoke(null, paramValue));
         } catch (Exception e) {
             try {
 
