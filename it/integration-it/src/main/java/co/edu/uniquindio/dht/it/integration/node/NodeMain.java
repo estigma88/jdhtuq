@@ -31,10 +31,7 @@ public class NodeMain {
         NodeMessageProcessor nodeMessageProcessor = (NodeMessageProcessor) event.getApplicationContext().getBean("messageProcessorIntegrationIT");
         StorageNodeFactory storageNodeFactory = event.getApplicationContext().getBean(StorageNodeFactory.class);
 
-        InetAddress addr = InetAddress.getLocalHost();
-        String hostname = addr.getHostAddress();
-
-        StorageNode storageNode = storageNodeFactory.createNode(hostname);
+        StorageNode storageNode = storageNodeFactory.createNode(InetAddress.getLocalHost().getHostAddress());
 
         nodeMessageProcessor.setStorageNode((DHashNode) storageNode);
     }
