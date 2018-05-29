@@ -8,9 +8,10 @@ import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
 import org.apache.log4j.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.event.EventListener;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -25,29 +26,21 @@ public class NodeMain {
         SpringApplication.run(NodeMain.class, args);
     }
 
-    @Bean
-    public StorageNode storageNode(StorageNodeFactory storageNodeFactory) throws StorageException {
-        String hostname = "Unknown";
+    @EventListener(ApplicationReadyEvent.class)
+    public void initStorageNode(ApplicationReadyEvent event) throws StorageException, UnknownHostException {
+        NodeMessageProcessor nodeMessageProcessor = (NodeMessageProcessor) event.getApplicationContext().getBean("messageProcessorIntegrationIT");
+        StorageNodeFactory storageNodeFactory = event.getApplicationContext().getBean(StorageNodeFactory.class);
 
-        try {
-            InetAddress addr = InetAddress.getLocalHost();
-            hostname = addr.getHostAddress();
-        } catch (UnknownHostException e) {
-            logger.error("Error getting hostname", e);
-        }
+        InetAddress addr = InetAddress.getLocalHost();
+        String hostname = addr.getHostAddress();
 
-        return storageNodeFactory.createNode(hostname);
+        StorageNode storageNode = storageNodeFactory.createNode(hostname);
+
+        nodeMessageProcessor.setStorageNode((DHashNode) storageNode);
     }
 
     @Bean
-    public MessageProcessor messageProcessorIntegrationIT(StorageNode storageNode) {
-        return new NodeMessageProcessor((DHashNode) storageNode);
-    }
-
-    @Bean
-    public MessageServer messageServer(MessageProcessor messageProcessorIntegrationIT) {
-        MessageServer messageServer = new MessageServer(messageProcessorIntegrationIT);
-
-        return messageServer;
+    public MessageProcessor messageProcessorIntegrationIT() {
+        return new NodeMessageProcessor();
     }
 }

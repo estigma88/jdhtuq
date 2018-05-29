@@ -18,10 +18,9 @@ public class NodeMessageProcessor implements MessageProcessor {
     private static final Logger logger = Logger
             .getLogger(NodeMessageProcessor.class);
 
-    private final DHashNode storageNode;
+    private DHashNode storageNode;
 
-    public NodeMessageProcessor(DHashNode storageNode) {
-        this.storageNode = storageNode;
+    public NodeMessageProcessor() {
     }
 
     @Override
@@ -42,6 +41,10 @@ public class NodeMessageProcessor implements MessageProcessor {
         }
 
         return response;
+    }
+
+    public void setStorageNode(DHashNode storageNode) {
+        this.storageNode = storageNode;
     }
 
     private Message processLeave(Message request) {
@@ -154,5 +157,7 @@ public class NodeMessageProcessor implements MessageProcessor {
                     .param(Protocol.GetResponseParams.MESSAGE.name(), e.getMessage())
                     .build();
         }
+
+
     }
 }

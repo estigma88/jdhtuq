@@ -2,7 +2,6 @@ package co.edu.uniquindio.utils.communication.transfer.integration.starter;
 
 import co.edu.uniquindio.utils.communication.Observable;
 import co.edu.uniquindio.utils.communication.integration.IntegrationCommunicationManagerFactory;
-import co.edu.uniquindio.utils.communication.integration.MessageProcessorWrapper;
 import co.edu.uniquindio.utils.communication.integration.MessageResponseProcessor;
 import co.edu.uniquindio.utils.communication.integration.jackson.*;
 import co.edu.uniquindio.utils.communication.integration.sender.ExtendedMessage;
@@ -40,7 +39,7 @@ public class IntegrationCommunicationAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public CommunicationManagerFactory communicationManagerFactory(RestTemplate restTemplate, Jackson2JsonObjectMapper jackson2JsonObjectMapper, ApplicationContext applicationContext, ExtendedMessageTransformer extendedMessageTransformer, MessageResponseProcessor messageResponseProcessor) {
+    public CommunicationManagerFactory communicationManagerFactory(Jackson2JsonObjectMapper jackson2JsonObjectMapper, ApplicationContext applicationContext, ExtendedMessageTransformer extendedMessageTransformer, MessageResponseProcessor messageResponseProcessor) {
         return new IntegrationCommunicationManagerFactory(jackson2JsonObjectMapper, webPort, new Observable<>(), integrationCommunicationProperties.getInstances(), flowContext, applicationContext, messageResponseProcessor, extendedMessageTransformer);
     }
 
