@@ -31,10 +31,6 @@ public class RingDefinitionStep extends CucumberRoot {
     @Autowired
     private World world;
     @Autowired
-    private MessageSerialization messageSerialization;
-    @Autowired
-    private DHashProperties dHashProperties;
-    @Autowired
     private ChordProperties chordProperties;
     @Autowired
     private IntegrationITProperties integrationITProperties;

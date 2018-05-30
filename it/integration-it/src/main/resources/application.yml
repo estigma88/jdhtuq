@@ -10,7 +10,7 @@ p2p:
 communication:
   integration:
     default-request-timeout: 3000
-    default-replay-timeout: 3000
+    default-replay-timeout: 5000
     instances:
       chord:
         multicast-server-active: true

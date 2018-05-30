@@ -31,7 +31,7 @@ dependencies {
     testCompile group: 'info.cukes', name: 'cucumber-java', version: '1.2.5'
     testCompile group: 'info.cukes', name: 'cucumber-junit', version: '1.2.5'
     testCompile group: 'info.cukes', name: 'cucumber-spring', version: '1.2.5'
-    testCompile("org.springframework.boot:spring-boot-starter-test:1.5.10.RELEASE")
+    testCompile("org.springframework.boot:spring-boot-starter-test:2.0.1.RELEASE")
     testCompile 'org.assertj:assertj-core:3.9.0'
 
 }
@@ -40,10 +40,10 @@ testSets {
     ittest
 }
 
-mainClassName = "co.edu.uniquindio.dht.it.socket.node.NodeMain"
+mainClassName = "co.edu.uniquindio.dht.it.integration.node.NodeMain"
 
 jar {
     manifest {
-        attributes 'Main-Class': 'co.edu.uniquindio.dht.it.socket.node.NodeMain'
+        attributes 'Main-Class': 'co.edu.uniquindio.dht.it.integration.node.NodeMain'
     }
 }
