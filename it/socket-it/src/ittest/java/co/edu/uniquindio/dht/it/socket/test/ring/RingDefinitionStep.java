@@ -58,11 +58,7 @@ public class RingDefinitionStep extends CucumberRoot {
 
     @Given("^The \"([^\"]*)\" is offline$")
     public void the_is_offline(String node) throws Throwable {
-        Process killNode = new ProcessBuilder("docker-compose", "kill", node).inheritIO().start();
-
-        killNode.waitFor();
-
-        node.length();
+        new ProcessBuilder("docker-compose", "kill", node).inheritIO().start().waitFor();
     }
 
     @Given("^The \"([^\"]*)\" left the network$")
@@ -89,22 +85,20 @@ public class RingDefinitionStep extends CucumberRoot {
 
     @Given("^The \"([^\"]*)\" is not started$")
     public void the_is_stopped(String node) throws Throwable {
-        Process stop = new ProcessBuilder("docker-compose", "stop", node).inheritIO().start();
-
-        stop.waitFor();
+        new ProcessBuilder("docker-compose", "stop", node).inheritIO().start().waitFor();
     }
 
     @Given("^The \"([^\"]*)\" is added to the network$")
     public void the_is_added_to_the_network(String node) throws Throwable {
-        Process startNode = new ProcessBuilder("docker-compose", "start", node).inheritIO().start();
-
-        startNode.waitFor();
+        new ProcessBuilder("docker-compose", "start", node).inheritIO().start().waitFor();
 
         addNode(world.getRing(), node);
     }
 
     @When("^I create the Chord ring$")
     public void chord_ring_is_created() throws Throwable {
+        destroyRing();
+
         Ring ring = new Ring();
         for (Node node : nodes) {
             addNode(ring, node.getName());
@@ -112,6 +106,7 @@ public class RingDefinitionStep extends CucumberRoot {
 
         world.setRing(ring);
 
+        new ProcessBuilder("docker-compose", "build").inheritIO().start().waitFor();
         new ProcessBuilder("docker-compose", "up").inheritIO().start();
     }
 
@@ -157,9 +152,7 @@ public class RingDefinitionStep extends CucumberRoot {
     public void destroyRing() throws StorageException, IOException, InterruptedException {
         world.setRing(null);
 
-        Process destroyRing = new ProcessBuilder("docker-compose", "down").inheritIO().start();
-
-        destroyRing.waitFor();
+        new ProcessBuilder("docker-compose", "down", "--rmi", "all").inheritIO().start().waitFor();
 
         FileUtils.deleteDirectory(new File(socketITProperties.getDhash().getResourceDirectory()));
     }
