@@ -25,7 +25,28 @@ Feature: A node is offline
       | 172.16.0.21 | 32272 |
       | 172.16.0.22 | 64158 |
     And I create the Chord ring
-    And I wait for stabilizing after 60 seconds
+    And I wait for stabilizing after 120 seconds
+    And Chord ring is stable with the following successors:
+      | 172.16.0.43 | 172.16.0.16 |
+      | 172.16.0.4 | 172.16.0.12 |
+      | 172.16.0.5 | 172.16.0.15 |
+      | 172.16.0.6 | 172.16.0.17 |
+      | 172.16.0.7 | 172.16.0.21 |
+      | 172.16.0.8 | 172.16.0.9 |
+      | 172.16.0.9 | 172.16.0.19 |
+      | 172.16.0.10 | 172.16.0.7 |
+      | 172.16.0.11 | 172.16.0.14 |
+      | 172.16.0.12 | 172.16.0.43 |
+      | 172.16.0.13 | 172.16.0.6 |
+      | 172.16.0.14 | 172.16.0.5 |
+      | 172.16.0.15 | 172.16.0.22 |
+      | 172.16.0.16 | 172.16.0.20 |
+      | 172.16.0.17 | 172.16.0.18 |
+      | 172.16.0.18 | 172.16.0.11 |
+      | 172.16.0.19 | 172.16.0.4 |
+      | 172.16.0.20 | 172.16.0.10 |
+      | 172.16.0.21 | 172.16.0.13 |
+      | 172.16.0.22 | 172.16.0.8 |
     And I have the resources names and values:
       | name | content |
       | resource1.txt | Inquietude simplicity terminated she compliment remarkably few her nay. The weeks are ham asked jokes. Neglected perceived shy nay concluded. Not mile draw plan snug next all. Houses latter an valley be indeed wished merely in my. Money doubt oh drawn every or an china. Visited out friends for expense message set eat.  |

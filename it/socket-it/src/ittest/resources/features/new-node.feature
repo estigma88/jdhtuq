@@ -26,7 +26,7 @@ Feature: A node is add to the network
     And I create the Chord ring
     And I wait for stabilizing after 15 seconds
     And The "172.16.0.10" is not started
-    And I wait for stabilizing after 60 seconds
+    And I wait for stabilizing after 120 seconds
     And I have the resources names and values:
       | name | content |
       | resource1.txt | Inquietude simplicity terminated she compliment remarkably few her nay. The weeks are ham asked jokes. Neglected perceived shy nay concluded. Not mile draw plan snug next all. Houses latter an valley be indeed wished merely in my. Money doubt oh drawn every or an china. Visited out friends for expense message set eat.  |
