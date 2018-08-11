@@ -42,6 +42,11 @@ testSets {
     ittest
 }
 
+ittest {
+    println 'cucumber.options:' + System.getProperty("cucumber.options")
+    systemProperty "cucumber.options", System.getProperty("cucumber.options")
+}
+
 mainClassName = "co.edu.uniquindio.dht.it.socket.node.NodeMain"
 
 jar {
