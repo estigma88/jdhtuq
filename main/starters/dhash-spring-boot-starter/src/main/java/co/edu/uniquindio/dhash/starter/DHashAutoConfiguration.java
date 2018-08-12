@@ -55,6 +55,7 @@ public class DHashAutoConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public ResourceManagerFactory persistenceHandlerFactory() {
         return new FileResourceManagerFactory(dHashProperties.getResourceDirectory());
     }
