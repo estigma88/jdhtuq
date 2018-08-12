@@ -1,6 +1,6 @@
 /*
- *  LookupService project defined all services an lookup algorithm
- *  Copyright (C) 2010  Daniel Pelaez, Daniel Lopez, Hector Hurtado
+ *  Chord project implement of lookup algorithm Chord
+ *  Copyright (C) 2010 - 2018  Daniel Pelaez
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as
@@ -14,6 +14,7 @@
  *
  *  You should have received a copy of the GNU Affero General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 package co.edu.uniquindio.chord;
