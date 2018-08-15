@@ -8,7 +8,7 @@ version = '2.0.0'
 
 dependencies {
     compile project(':communication:communication-api')
-    compile project(':p2p:lookup-service')
+    compile group: 'com.github.estigma88', name: 'jdhtuq-lookup-service', version: '2.0.0'
 
     compileOnly 'org.projectlombok:lombok:1.16.20'
 
