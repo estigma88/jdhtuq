@@ -1,10 +1,80 @@
-apply plugin: 'java'
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'signing'
+}
 
 repositories {
     mavenCentral()
 }
 
+group = 'com.github.estigma88'
 version = '2.0.0'
 
 dependencies {
 }
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    classifier = 'sources'
+}
+
+task javadocJar(type: Jar) {
+    from javadoc
+    classifier = 'javadoc'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'jdhtuq-lookup-service'
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            pom {
+                name = 'Lookup Service'
+                description = 'Defines the api to create a p2p lookup service'
+                url = 'https://github.com/estigma88/jdhtuq'
+                licenses {
+                    license {
+                        name = 'GNU GENERAL PUBLIC LICENSE'
+                        url = 'http://www.gnu.org/licenses/'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'estigma88'
+                        name = 'Daniel Andres Pelaez Lopez'
+                        email = 'estigma88@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/estigma88/jdhtuq.git'
+                    developerConnection = 'scm:git:ssh://github.com/estigma88/jdhtuq.git'
+                    url = 'https://github.com/estigma88/jdhtuq'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+            credentials {
+                username sonatypeUsername
+                password sonatypePassword
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
+}
+
+
+javadoc {
+    if(JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html4', true)
+    }
+}
+

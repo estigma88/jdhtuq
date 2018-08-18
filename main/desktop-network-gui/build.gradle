@@ -13,7 +13,7 @@ version = '2.0.1'
 dependencies {
     compile("org.springframework.boot:spring-boot-starter:1.5.10.RELEASE")
 
-    compile project(':main:starters:chord-spring-boot-starter')
-    compile project(':main:starters:dhash-spring-boot-starter')
-    compile project(':main:starters:socket-communication-spring-boot-starter')
+    compile group: 'com.github.estigma88', name: 'jdhtuq-chord-spring-boot-starter', version: '2.0.0'
+    compile group: 'com.github.estigma88', name: 'jdhtuq-dhash-spring-boot-starter', version: '2.0.0'
+    compile group: 'com.github.estigma88', name: 'jdhtuq-socket-communication-spring-boot-starter', version: '2.0.0'
 }

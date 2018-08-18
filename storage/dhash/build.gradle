@@ -1,23 +1,94 @@
-apply plugin: 'java'
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'signing'
+}
 
 repositories {
     mavenCentral()
 }
 
+group = 'com.github.estigma88'
 version = '2.0.0'
 
 dependencies {
-    compile project(':communication:communication-api')
-    compile project(':storage:storage-service')
-    compile project(':p2p:lookup-service')
+    compile group: 'com.github.estigma88', name: 'jdhtuq-communication-api', version: '2.0.0'
+    compile group: 'com.github.estigma88', name: 'jdhtuq-lookup-service', version: '2.0.0'
+    compile group: 'com.github.estigma88', name: 'jdhtuq-storage-service', version: '2.0.0'
 
     // https://mvnrepository.com/artifact/commons-io/commons-io
     compile group: 'commons-io', name: 'commons-io', version: '2.6'
 
 
     testCompile group: 'junit', name: 'junit', version: '4.4'
-    compile 'org.mockito:mockito-core:2.8.9'
+    testCompile 'org.mockito:mockito-core:2.8.9'
     testCompile 'org.assertj:assertj-core:3.9.0'
     testCompile "org.powermock:powermock-module-junit4:1.7.1"
     testCompile "org.powermock:powermock-api-mockito2:1.7.1"
 }
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    classifier = 'sources'
+}
+
+task javadocJar(type: Jar) {
+    from javadoc
+    classifier = 'javadoc'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'jdhtuq-dhash'
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            pom {
+                name = 'DHash Service'
+                description = 'Defines the storage service using the DHash algorithm'
+                url = 'https://github.com/estigma88/jdhtuq'
+                licenses {
+                    license {
+                        name = 'GNU GENERAL PUBLIC LICENSE'
+                        url = 'http://www.gnu.org/licenses/'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'estigma88'
+                        name = 'Daniel Andres Pelaez Lopez'
+                        email = 'estigma88@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/estigma88/jdhtuq.git'
+                    developerConnection = 'scm:git:ssh://github.com/estigma88/jdhtuq.git'
+                    url = 'https://github.com/estigma88/jdhtuq'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+            credentials {
+                username sonatypeUsername
+                password sonatypePassword
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
+}
+
+
+javadoc {
+    if(JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html4', true)
+    }
+}
+
+

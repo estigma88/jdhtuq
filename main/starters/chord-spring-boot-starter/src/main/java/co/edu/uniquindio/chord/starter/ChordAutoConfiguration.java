@@ -43,36 +43,43 @@ public class ChordAutoConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public CommunicationManager communicationManagerChord(CommunicationManagerFactory communicationManagerFactory) {
         return communicationManagerFactory.newCommunicationManager("chord");
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public BootStrap bootStrap() {
         return new BootStrap();
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public HashingGenerator hashingGenerator() {
         return new HashingGeneratorImp();
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public SequenceGenerator chordSequenceGenerator() {
         return new SequenceGeneratorImpl();
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public KeyFactory keyFactory(HashingGenerator hashingGenerator) {
         return new ChordKeyFactory(hashingGenerator, chordProperties.getKeyLength());
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public ScheduledExecutorService scheduledStableRing() {
         return Executors.newScheduledThreadPool(chordProperties.getStableRingThreadPool());
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public List<Observer> stableRingObservers() {
         return Arrays.asList(new FixSuccessorsObserver(), new FixFingersObserver(), new CheckPredecessorObserver(), new StabilizeObserver());
     }
