@@ -7,11 +7,15 @@ buildscript {
 	}
 }
 
-apply plugin: 'java'
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'signing'
+}
+
+group = 'com.github.estigma88'
 version = '2.0.0'
 
-group = 'co.edu.uniquindio.utils.communication.transfer.network'
-version = '0.0.1-SNAPSHOT'
 sourceCompatibility = 1.8
 
 repositories {
@@ -20,7 +24,7 @@ repositories {
 
 
 dependencies {
-	compile project(':communication:socket-communication')
+	compile group: 'com.github.estigma88', name: 'jdhtuq-socket-communication', version: '2.0.0'
 
 	// https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
 	compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.4'
@@ -28,4 +32,68 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok:1.16.20'
 	compileOnly "org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}"
 	compile("org.springframework.boot:spring-boot-starter:${springBootVersion}")
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    classifier = 'sources'
+}
+
+task javadocJar(type: Jar) {
+    from javadoc
+    classifier = 'javadoc'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'jdhtuq-socket-communication-spring-boot-starter'
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            pom {
+                name = 'Socket Communication Spring Boot Starter'
+                description = 'Defines a Spring Boot Starter for Socket Communication'
+                url = 'https://github.com/estigma88/jdhtuq'
+                licenses {
+                    license {
+                        name = 'GNU GENERAL PUBLIC LICENSE'
+                        url = 'http://www.gnu.org/licenses/'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'estigma88'
+                        name = 'Daniel Andres Pelaez Lopez'
+                        email = 'estigma88@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/estigma88/jdhtuq.git'
+                    developerConnection = 'scm:git:ssh://github.com/estigma88/jdhtuq.git'
+                    url = 'https://github.com/estigma88/jdhtuq'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+            credentials {
+                username sonatypeUsername
+                password sonatypePassword
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
+}
+
+
+javadoc {
+    if(JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html4', true)
+    }
 }

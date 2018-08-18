@@ -35,26 +35,31 @@ public class DHashAutoConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public CommunicationManager communicationManagerDHash(CommunicationManagerFactory communicationManagerFactory) {
         return communicationManagerFactory.newCommunicationManager("dhash");
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public SerializationHandler serializationHandler() {
         return new ObjectSerializationHandler();
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public ChecksumCalculator checksumeCalculator() {
         return new BytesChecksumCalculator();
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public SequenceGenerator dhashSequenceGenerator() {
         return new SequenceGeneratorImpl();
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public ResourceManagerFactory persistenceHandlerFactory() {
         return new FileResourceManagerFactory(dHashProperties.getResourceDirectory());
     }
