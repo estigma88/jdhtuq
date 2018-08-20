@@ -32,7 +32,7 @@ import java.util.concurrent.Semaphore;
  * @version 1.0, 17/06/2010
  * @since 1.0
  */
-class WaitingResult<T> extends Thread {
+public class WaitingResult<T> extends Thread {
 
     /**
      * Logger

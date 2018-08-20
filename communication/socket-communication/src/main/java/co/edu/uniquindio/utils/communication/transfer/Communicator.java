@@ -20,29 +20,32 @@ package co.edu.uniquindio.utils.communication.transfer;
 
 import co.edu.uniquindio.utils.communication.message.Message;
 
+import java.io.Closeable;
+import java.util.Map;
+
 /**
  * The <code>Communicator</code> interface hava all services for to send and to
  * receiver messages
- * 
+ *
  * @author Daniel Pelaez
  * @version 1.0, 17/06/2010
  * @since 1.0
- * 
  */
-public interface Communicator extends Stoppable {
+public interface Communicator extends Closeable {
 
-	/**
-	 * Send message
-	 * 
-	 * @param message
-	 *            Message to send
-	 */
-	public void send(Message message);
+    /**
+     * Send message
+     *
+     * @param message Message to send
+     */
+    void send(Message message);
 
-	/**
-	 * Reciever message
-	 * 
-	 * @return Message
-	 */
-	public Message receiver();
+    /**
+     * Reciever message
+     *
+     * @return Message
+     */
+    Message receiver();
+
+    void start(Map<String, String> properties);
 }

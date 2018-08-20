@@ -28,6 +28,7 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Map;
 
 /**
  * The <code>UnicastManagerTCP</code> class implemented transfer message based
@@ -39,6 +40,15 @@ import java.net.UnknownHostException;
  */
 public class UnicastManagerTCP implements Communicator {
 
+    /**
+     * The <code>CommunicationManagerTCPProperties</code> enum contains params
+     * required for communication
+     *
+     * @author dpelaez
+     */
+    public enum CommunicationManagerTCPProperties {
+        PORT_TCP_RESOURCE, PORT_TCP
+    }
     /**
      * Logger
      */
@@ -59,18 +69,10 @@ public class UnicastManagerTCP implements Communicator {
     /**
      * Builds a UnicastManagerTCP
      *
-     * @param portTcp              Port TCP number
      * @param messageSerialization
      */
-    public UnicastManagerTCP(int portTcp, MessageSerialization messageSerialization) {
-        this.portTcp = portTcp;
+    public UnicastManagerTCP(MessageSerialization messageSerialization) {
         this.messageSerialization = messageSerialization;
-
-        try {
-            this.serverSocket = new ServerSocket(portTcp);
-        } catch (IOException e) {
-            logger.error("Error creating server socket", e);
-        }
     }
 
     /*
@@ -99,6 +101,31 @@ public class UnicastManagerTCP implements Communicator {
         return message;
     }
 
+    @Override
+    public void start(Map<String, String> properties) {
+        int portTcp;
+        if (properties
+                .containsKey(CommunicationManagerTCPProperties.PORT_TCP.name())) {
+            portTcp = Integer.parseInt(properties
+                    .get(CommunicationManagerTCPProperties.PORT_TCP.name()));
+        } else {
+            IllegalArgumentException illegalArgumentException = new IllegalArgumentException(
+                    "Property PORT_TCP not found");
+
+            logger.error("Property PORT_TCP not found",
+                    illegalArgumentException);
+
+            throw illegalArgumentException;
+        }
+        try {
+            this.serverSocket = new ServerSocket(portTcp);
+        } catch (IOException e) {
+            logger.error("Error creating server socket", e);
+            throw new IllegalStateException("Error creating server socket", e);
+        }
+
+    }
+
     /*
      * (non-Javadoc)
      *
@@ -107,7 +134,7 @@ public class UnicastManagerTCP implements Communicator {
      * .uniquindio.utils.communication.message.Message)
      */
     public void send(Message message) {
-        try(Socket socket = new Socket(message.getAddress().getDestination(), portTcp)) {
+        try (Socket socket = new Socket(message.getAddress().getDestination(), portTcp)) {
 
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(
                     socket.getOutputStream());
@@ -120,24 +147,6 @@ public class UnicastManagerTCP implements Communicator {
             logger.error("Error writting socket", e);
         }
 
-    }
-
-    /**
-     * Gets port TCP
-     *
-     * @return Port TCP
-     */
-    public int getPortTcp() {
-        return portTcp;
-    }
-
-    /**
-     * Sets port TCP
-     *
-     * @param portTcp Port TCP
-     */
-    public void setPortTcp(int portTcp) {
-        this.portTcp = portTcp;
     }
 
     /*

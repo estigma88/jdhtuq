@@ -21,19 +21,18 @@ package co.edu.uniquindio.utils.communication.transfer.network;
 import co.edu.uniquindio.utils.communication.Observable;
 import co.edu.uniquindio.utils.communication.Observer;
 import co.edu.uniquindio.utils.communication.message.Message;
-import co.edu.uniquindio.utils.communication.transfer.*;
+import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
+import co.edu.uniquindio.utils.communication.transfer.Communicator;
+import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
+import co.edu.uniquindio.utils.communication.transfer.response.MessageResponseProcessor;
 import co.edu.uniquindio.utils.communication.transfer.response.MessagesReceiver;
-import co.edu.uniquindio.utils.communication.transfer.response.ResponseReleaser;
 import co.edu.uniquindio.utils.communication.transfer.response.ReturnsManager;
-import co.edu.uniquindio.utils.communication.transfer.response.ReturnsManagerCommunication;
+import co.edu.uniquindio.utils.communication.transfer.response.WaitingResult;
 import org.apache.log4j.Logger;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.io.IOException;
 import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.ExecutorService;
 
 /**
  * The <code>CommunicationManagerTCP</code> class is an
@@ -48,99 +47,34 @@ import java.util.Set;
  * @since 1.0
  */
 public class CommunicationManagerTCP implements
-        CommunicationManager, ResponseReleaser {
+        CommunicationManager {
 
-    /**
-     * The <code>CommunicationManagerTCPProperties</code> enum contains params
-     * required for communication
-     *
-     * @author dpelaez
-     */
-    public enum CommunicationManagerTCPProperties {
-        PORT_TCP_RESOURCE, PORT_TCP
-    }
-
-    /**
-     * Properties for configuration CommunicationManagerNetworkLAN
-     *
-     * @author Daniel Pelaez
-     * @author Hector Hurtado
-     * @author Daniel Lopez
-     * @version 1.0, 17/06/2010
-     * @since 1.0
-     */
-    public enum CommunicationManagerNetworkLANProperties {
-        BUFFER_SIZE_MULTICAST, IP_MULTICAST, PORT_MULTICAST
-    }
 
     private static final Logger logger = Logger
             .getLogger(CommunicationManagerTCP.class);
 
     private static final String RESPONSE_TIME = "RESPONSE_TIME";
 
-    private final MessageSerialization messageSerialization;
+    private final Communicator unicastManager;
+    private final MessagesReceiver unicastMessagesReciever;
+    private final Communicator multicastManager;
+    private final MessagesReceiver multicastMessagesReciever;
+    private final MessageResponseProcessor messageResponseProcessor;
     private final Observable<Message> observableCommunication;
-    private Communicator multicastManager;
-    private Communicator unicastManager;
-    private Map<String, String> communicationProperties;
-    private ReturnsManager<Message> returnsManager;
+    private final ReturnsManager<Message> returnsManager;
+    private final ExecutorService messagesReceiverExecutor;
     private MessageProcessor messageProcessor;
-    private MessagesReceiver messagesReciever;
+    private Map<String, String> communicationProperties;
 
-    public CommunicationManagerTCP(MessageSerialization messageSerialization) {
-        this.returnsManager = new ReturnsManagerCommunication<Message>();
-        this.observableCommunication = new Observable<Message>();
-        this.messageSerialization = messageSerialization;
-    }
-
-    /**
-     * Creates a BytesTransferManagerTCP instance. Required param in
-     * CommunicationProperties called PORT_TCP_RESOURCE
-     */
-    protected Communicator createUnicastBigManager() {
-        int portTcp;
-        if (communicationProperties
-                .containsKey(CommunicationManagerTCPProperties.PORT_TCP_RESOURCE
-                        .name())) {
-            portTcp = Integer.parseInt(communicationProperties
-                    .get(CommunicationManagerTCPProperties.PORT_TCP_RESOURCE
-                            .name()));
-        } else {
-            IllegalArgumentException illegalArgumentException = new IllegalArgumentException(
-                    "Property PORT_TCP_RESOURCE not found");
-
-            logger.error("Property PORT_TCP_RESOURCE not found",
-                    illegalArgumentException);
-
-            throw illegalArgumentException;
-        }
-        unicastBigManager = new UnicastBigManagerTCP(portTcp, messageSerialization);
-
-        return unicastBigManager;
-    }
-
-    /**
-     * Creates a UnicastManagerTCP instance. Required param in
-     * CommunicationProperties called PORT_TCP.
-     */
-    protected Communicator createUnicastManager() {
-        int portTcp;
-        if (communicationProperties
-                .containsKey(CommunicationManagerTCPProperties.PORT_TCP.name())) {
-            portTcp = Integer.parseInt(communicationProperties
-                    .get(CommunicationManagerTCPProperties.PORT_TCP.name()));
-        } else {
-            IllegalArgumentException illegalArgumentException = new IllegalArgumentException(
-                    "Property PORT_TCP not found");
-
-            logger.error("Property PORT_TCP not found",
-                    illegalArgumentException);
-
-            throw illegalArgumentException;
-        }
-        unicastManager = new UnicastManagerTCP(portTcp, messageSerialization);
-
-        return unicastManager;
+    public CommunicationManagerTCP(Communicator unicastManager, MessagesReceiver unicastMessagesReciever, Communicator multicastManager, MessagesReceiver multicastMessagesReciever, MessageResponseProcessor messageResponseProcessor, Observable<Message> observableCommunication, ReturnsManager<Message> returnsManager, ExecutorService messagesReceiverExecutor) {
+        this.unicastManager = unicastManager;
+        this.unicastMessagesReciever = unicastMessagesReciever;
+        this.multicastManager = multicastManager;
+        this.multicastMessagesReciever = multicastMessagesReciever;
+        this.messageResponseProcessor = messageResponseProcessor;
+        this.observableCommunication = observableCommunication;
+        this.returnsManager = returnsManager;
+        this.messagesReceiverExecutor = messagesReceiverExecutor;
     }
 
 
@@ -176,7 +110,7 @@ public class CommunicationManagerTCP implements
         /*
          * Waiting for response
          */
-        return processResponse(messageResponse, typeReturn, null);
+        return messageResponseProcessor.process(messageResponse, typeReturn, null);
     }
 
     /**
@@ -213,7 +147,7 @@ public class CommunicationManagerTCP implements
         /*
          * Waiting for response
          */
-        return processResponse(messageResponse, typeReturn, paramNameResult);
+        return messageResponseProcessor.process(messageResponse, typeReturn, paramNameResult);
     }
 
     /**
@@ -260,7 +194,7 @@ public class CommunicationManagerTCP implements
         /*
          * Waiting for response
          */
-        return processResponse(messageResponse, typeReturn, null);
+        return messageResponseProcessor.process(messageResponse, typeReturn, null);
     }
 
     /**
@@ -299,7 +233,7 @@ public class CommunicationManagerTCP implements
         /*
          * Waiting for response
          */
-        return processResponse(messageResponse, typeReturn, paramNameResult);
+        return messageResponseProcessor.process(messageResponse, typeReturn, paramNameResult);
     }
 
     /**
@@ -317,105 +251,15 @@ public class CommunicationManagerTCP implements
      * Stop all process
      */
     public void stopAll() {
-        messagesReciever.close();
-        multicastManager.close();
-        multicastManager.close();
-        unicastManager.close();
-    }
-
-    /**
-     * Release return in wait.
-     *
-     * @param message Message
-     * @return True if return is release
-     */
-    public boolean release(Message message) {
-        if (message.getSendType().equals(Message.SendType.RESPONSE)) {
-            returnsManager.releaseWaitingResult(message.getSequenceNumber(),
-                    message);
-
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Convert message to return type
-     *
-     * @param <T>     Return type
-     * @param message Message
-     * @param type    Return type
-     * @return Return
-     */
-    @SuppressWarnings("unchecked")
-    private <T> T processResponse(Message message, Class<T> type,
-                                  String paramNameResult) {
-
-        T typeInstance = null;
-
-        if (message == null) {
-            return null;
-        }
-
-        if (type.equals(Message.class)) {
-            return (T) message;
-        }
-
-        if (type.isInterface() || type.isAnnotation() || type.isArray()) {
-            throw new IllegalArgumentException("The type must a class ("
-                    + type.getName() + ")");
-        }
-
-        Set<String> params = message.getParamsKey();
-
-        String paramValue;
-
-        if (paramNameResult == null) {
-
-            if (params.size() != 1) {
-                throw new IllegalArgumentException(
-                        "The message contains more than one parameter, you can not convert to "
-                                + type.getName());
-            }
-
-            String paramName = (String) params.toArray()[0];
-
-            if (paramName == null || paramName.isEmpty()) {
-                throw new IllegalArgumentException(
-                        "The message contains a param name null or empty");
-            }
-
-            paramValue = message.getParam(paramName);
-        } else {
-
-            paramValue = message.getParam(paramNameResult);
-        }
-
-        if (paramValue == null || paramValue.isEmpty()) {
-            return null;
-        }
-
         try {
-            Method valueOf = type
-                    .getMethod("valueOf", String.class);
-
-            typeInstance = (T) valueOf.invoke(null, paramValue);
-        } catch (Exception e) {
-            try {
-
-                Constructor<T> constructorString = type
-                        .getDeclaredConstructor(String.class);
-
-                typeInstance = constructorString.newInstance(paramValue);
-            } catch (Exception e1) {
-                throw new IllegalArgumentException(
-                        "The method valueOf(String) not must to be invoked in class "
-                                + type.getName(), e1);
-            }
+            multicastManager.close();
+            multicastMessagesReciever.close();
+            unicastManager.close();
+            unicastMessagesReciever.close();
+            messagesReceiverExecutor.shutdown();
+        } catch (IOException e) {
+            throw new IllegalStateException("Problem stopping communication", e);
         }
-
-        return typeInstance;
     }
 
     /**
@@ -445,25 +289,6 @@ public class CommunicationManagerTCP implements
         observableCommunication.removeObserver(name);
     }
 
-    /**
-     * Gets properties of communication
-     *
-     * @return CommunicationProperties
-     */
-    public Map<String, String> getCommunicationProperties() {
-        return communicationProperties;
-    }
-
-    /**
-     * Sets properties for communication
-     *
-     * @param communicationProperties Properties
-     */
-    public void setCommunicationProperties(
-            Map<String, String> communicationProperties) {
-        this.communicationProperties = communicationProperties;
-    }
-
     @Override
     public void addMessageProcessor(String name, MessageProcessor messageProcessor) {
         this.messageProcessor = messageProcessor;
@@ -486,87 +311,15 @@ public class CommunicationManagerTCP implements
      * CommunicationManagerWaitingResult#init ()
      */
     public void init() {
-        this.unicastManager = createUnicastManager();
-        this.multicastManager = createMulticastManager();
-        this.messagesReciever = new MessagesReceiver(multicastManager,
-                unicastManager, unicastBigManager, this, this);
-        this.observableCommunication = messagesReciever;
+        this.unicastManager.start(communicationProperties);
+        this.multicastManager.start(communicationProperties);
+
+        messagesReceiverExecutor.execute(unicastMessagesReciever);
+        messagesReceiverExecutor.execute(multicastMessagesReciever);
     }
 
-    /**
-     * Creates a Communicator for multicast manager. Are required of params in
-     * communication properties: PORT_MULTICAST, IP_MULTICAST and
-     * BUFFER_SIZE_MULTICAST
-     */
-    protected Communicator createMulticastManager() {
-
-        int portMulticast;
-        String ipMulticast;
-        long bufferSize;
-
-        if (communicationProperties
-                .containsKey(CommunicationManagerNetworkLAN.CommunicationManagerNetworkLANProperties.PORT_MULTICAST
-                        .name())) {
-            portMulticast = Integer
-                    .parseInt(communicationProperties
-                            .get(CommunicationManagerNetworkLAN.CommunicationManagerNetworkLANProperties.PORT_MULTICAST
-                                    .name()));
-        } else {
-            IllegalArgumentException illegalArgumentException = new IllegalArgumentException(
-                    "Property PORT_MULTICAST not found");
-
-            logger.error("Property PORT_MULTICAST no found",
-                    illegalArgumentException);
-
-            throw illegalArgumentException;
-        }
-
-        if (communicationProperties
-                .containsKey(CommunicationManagerNetworkLAN.CommunicationManagerNetworkLANProperties.IP_MULTICAST
-                        .name())) {
-            ipMulticast = communicationProperties
-                    .get(CommunicationManagerNetworkLAN.CommunicationManagerNetworkLANProperties.IP_MULTICAST
-                            .name());
-        } else {
-            IllegalArgumentException illegalArgumentException = new IllegalArgumentException(
-                    "Property IP_MULTICAST not found");
-
-            logger.error("Property IP_MULTICAST no found",
-                    illegalArgumentException);
-
-            throw illegalArgumentException;
-        }
-
-        if (communicationProperties
-                .containsKey(CommunicationManagerNetworkLAN.CommunicationManagerNetworkLANProperties.BUFFER_SIZE_MULTICAST
-                        .name())) {
-            bufferSize = Long
-                    .parseLong(communicationProperties
-                            .get(CommunicationManagerNetworkLAN.CommunicationManagerNetworkLANProperties.BUFFER_SIZE_MULTICAST
-                                    .name()));
-        } else {
-            IllegalArgumentException illegalArgumentException = new IllegalArgumentException(
-                    "Property BUFFER_SIZE_MULTICAST not found");
-
-            logger.error("Property BUFFER_SIZE_MULTICAST no found",
-                    illegalArgumentException);
-
-            throw illegalArgumentException;
-        }
-
-        try {
-            multicastManager = new MulticastManagerUDP(portMulticast,
-                    InetAddress.getByName(ipMulticast), bufferSize, messageSerialization);
-        } catch (UnknownHostException e) {
-            IllegalArgumentException illegalArgumentException = new IllegalArgumentException(
-                    "Error of ipmulticast", e);
-
-            logger.error("Error of ipmulticast", illegalArgumentException);
-
-            throw illegalArgumentException;
-        }
-
-        return multicastManager;
+    public void init(Map<String, String> communicationProperties){
+        this.communicationProperties = communicationProperties;
+        init();
     }
-
 }

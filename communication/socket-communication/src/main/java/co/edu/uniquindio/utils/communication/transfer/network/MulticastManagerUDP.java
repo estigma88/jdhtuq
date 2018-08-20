@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.util.Map;
 
 /**
  * The <code>MulticastManagerUDP</code> class implemented the transfer
@@ -36,6 +37,19 @@ import java.net.MulticastSocket;
  * @since 1.0
  */
 public class MulticastManagerUDP implements Communicator {
+
+    /**
+     * Properties for configuration CommunicationManagerNetworkLAN
+     *
+     * @author Daniel Pelaez
+     * @author Hector Hurtado
+     * @author Daniel Lopez
+     * @version 1.0, 17/06/2010
+     * @since 1.0
+     */
+    public enum CommunicationManagerNetworkLANProperties {
+        BUFFER_SIZE_MULTICAST, IP_MULTICAST, PORT_MULTICAST
+    }
 
     /**
      * Logger
@@ -73,28 +87,11 @@ public class MulticastManagerUDP implements Communicator {
 
     /**
      * Builds a MulticastManagerUDP and started multicast socket
-     *  @param portMulticast Port multicast
-     * @param group         Internet address multicast
-     * @param bufferSize    Buffer size for to reader
+     *
      * @param messageSerialization
      */
-    public MulticastManagerUDP(int portMulticast, InetAddress group,
-                               long bufferSize, MessageSerialization messageSerialization) {
+    public MulticastManagerUDP(MessageSerialization messageSerialization) {
         this.messageSerialization = messageSerialization;
-
-        try {
-            this.portMulticast = portMulticast;
-
-            this.multicastSocket = new MulticastSocket(portMulticast);
-
-            this.group = group;
-
-            this.multicastSocket.joinGroup(group);
-
-            this.buffer = new byte[(int) bufferSize];
-        } catch (IOException e) {
-            logger.error("Error creating multicast socket", e);
-        }
     }
 
     /*
@@ -126,6 +123,74 @@ public class MulticastManagerUDP implements Communicator {
         return null;
     }
 
+    @Override
+    public void start(Map<String, String> properties) {
+        try {
+            if (properties
+                    .containsKey(CommunicationManagerNetworkLANProperties.PORT_MULTICAST
+                            .name())) {
+                portMulticast = Integer
+                        .parseInt(properties
+                                .get(CommunicationManagerNetworkLANProperties.PORT_MULTICAST
+                                        .name()));
+            } else {
+                IllegalArgumentException illegalArgumentException = new IllegalArgumentException(
+                        "Property PORT_MULTICAST not found");
+
+                logger.error("Property PORT_MULTICAST no found",
+                        illegalArgumentException);
+
+                throw illegalArgumentException;
+            }
+
+            if (properties
+                    .containsKey(CommunicationManagerNetworkLANProperties.IP_MULTICAST
+                            .name())) {
+                group = InetAddress.getByName(properties
+                        .get(CommunicationManagerNetworkLANProperties.IP_MULTICAST
+                                .name()));
+            } else {
+                IllegalArgumentException illegalArgumentException = new IllegalArgumentException(
+                        "Property IP_MULTICAST not found");
+
+                logger.error("Property IP_MULTICAST no found",
+                        illegalArgumentException);
+
+                throw illegalArgumentException;
+            }
+
+            if (properties
+                    .containsKey(CommunicationManagerNetworkLANProperties.BUFFER_SIZE_MULTICAST
+                            .name())) {
+                bufferSize = Long
+                        .parseLong(properties
+                                .get(CommunicationManagerNetworkLANProperties.BUFFER_SIZE_MULTICAST
+                                        .name()));
+            } else {
+                IllegalArgumentException illegalArgumentException = new IllegalArgumentException(
+                        "Property BUFFER_SIZE_MULTICAST not found");
+
+                logger.error("Property BUFFER_SIZE_MULTICAST no found",
+                        illegalArgumentException);
+
+                throw illegalArgumentException;
+            }
+
+            this.portMulticast = portMulticast;
+
+            this.multicastSocket = new MulticastSocket(portMulticast);
+
+            this.group = group;
+
+            this.multicastSocket.joinGroup(group);
+
+            this.buffer = new byte[(int) bufferSize];
+        } catch (IOException e) {
+            logger.error("Error creating multicast socket", e);
+            throw new IllegalStateException("Error creating multicast socket", e);
+        }
+    }
+
     /*
      * (non-Javadoc)
      *
@@ -145,24 +210,6 @@ public class MulticastManagerUDP implements Communicator {
         } catch (IOException e) {
             logger.error("Error writting multicast socket", e);
         }
-    }
-
-    /**
-     * Gets buffer size to reader
-     *
-     * @return Buffer size
-     */
-    public long getBufferSize() {
-        return bufferSize;
-    }
-
-    /**
-     * Sets buffer size to reader
-     *
-     * @param bufferSize Buffer size
-     */
-    public void setBufferSize(long bufferSize) {
-        this.bufferSize = bufferSize;
     }
 
     /*
