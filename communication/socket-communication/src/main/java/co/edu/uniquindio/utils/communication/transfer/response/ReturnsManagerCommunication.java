@@ -16,7 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package co.edu.uniquindio.utils.communication.transfer;
+package co.edu.uniquindio.utils.communication.transfer.response;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,7 +33,7 @@ import java.util.Map;
  * @since 1.0
  * @see WaitingResult
  */
-class ReturnsManagerCommunication<T> implements ReturnsManager<T> {
+public class ReturnsManagerCommunication<T> implements ReturnsManager<T> {
 	/**
 	 * The map of the WaitingResult references with a specific sequence number
 	 */
@@ -43,7 +43,7 @@ class ReturnsManagerCommunication<T> implements ReturnsManager<T> {
 	 * Create a synchronized instance of the class HashMap
 	 */
 
-	ReturnsManagerCommunication() {
+	public ReturnsManagerCommunication() {
 		results = Collections
 				.synchronizedMap(new HashMap<Long, WaitingResult<T>>());
 	}

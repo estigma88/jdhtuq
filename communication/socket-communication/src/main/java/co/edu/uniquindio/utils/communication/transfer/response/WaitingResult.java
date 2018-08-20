@@ -16,7 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package co.edu.uniquindio.utils.communication.transfer;
+package co.edu.uniquindio.utils.communication.transfer.response;
 
 import org.apache.log4j.Logger;
 
@@ -97,7 +97,7 @@ class WaitingResult<T> extends Thread {
     }
 
     /**
-     * Executes the thread while <code>stop==false</code> and
+     * Executes the thread while <code>close==false</code> and
      * <code>timeOut!=0</code>. This is, while the response for the message has
      * not arrived or while the specific amount of time has not finished. If
      * timeOut is -1, waiting until that the response arribe
@@ -149,7 +149,7 @@ class WaitingResult<T> extends Thread {
         try {
             semaphore.acquire();
         } catch (InterruptedException e) {
-            logger.error("Error to stop semaphore", e);
+            logger.error("Error to close semaphore", e);
         }
 
         return result;

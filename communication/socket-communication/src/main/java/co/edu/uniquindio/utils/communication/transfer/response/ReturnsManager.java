@@ -14,29 +14,39 @@
  *
  *  You should have received a copy of the GNU Affero General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *  
  */
 
-package co.edu.uniquindio.utils.command;
+package co.edu.uniquindio.utils.communication.transfer.response;
 
 /**
- * The <code>ThreadCommand</code> class is an implementation of the command
- * pattern that execute the {@code Thread.start()} method
- * 
+ * The <code>ReturnsManager</code> interface have all services for waiting
+ * results
  * 
  * @author Daniel Pelaez
- * @author Hector Hurtado
- * @author Daniel Lopez
  * @version 1.0, 17/06/2010
  * @since 1.0
  * 
  */
-public abstract class ThreadCommand implements Command, Runnable {
+public interface ReturnsManager<T> {
+
 	/**
-	 * Execute an thread
+	 * Creates a waiting result for sequence number and time out
+	 * 
+	 * @param sequence
+	 *            Sequence number
+	 * @param timeOut
+	 *            Time out of waiting
+	 * @return WaitingResult
 	 */
-	public void execute() {
-		Thread thread = new Thread(this);
-		thread.start();
-	}
+	public WaitingResult<T> createWaitingResult(long sequence, long timeOut);
+
+	/**
+	 * Release waiting result by sequence number and response
+	 * 
+	 * @param sequence
+	 *            Sequence number
+	 * @param result
+	 *            Response
+	 */
+	public void releaseWaitingResult(long sequence, T result);
 }

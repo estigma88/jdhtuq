@@ -16,11 +16,11 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package co.edu.uniquindio.utils.communication.transfer;
+package co.edu.uniquindio.utils.communication.transfer.response;
 
-import co.edu.uniquindio.utils.command.ThreadCommand;
 import co.edu.uniquindio.utils.communication.Observable;
 import co.edu.uniquindio.utils.communication.message.Message;
+import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 
 /**
  * The {@code ReceiverMessageCommand} class, is a Command implementation, that is
@@ -31,10 +31,9 @@ import co.edu.uniquindio.utils.communication.message.Message;
  * @author Hector Hurtado
  * @author Daniel Lopez
  * @version 1.0, 17/06/2010
- * @see ThreadCommand
  * @since 1.0
  */
-public class ReceiverMessageCommand extends ThreadCommand {
+public class ReceiverMessageCommand implements Runnable {
     /**
      * The message that has arrived
      */
@@ -45,7 +44,7 @@ public class ReceiverMessageCommand extends ThreadCommand {
      */
     private Observable<Message> observable;
 
-    private final CommunicationManagerWaitingResult communicationManager;
+    private final CommunicationManager communicationManager;
 
     /**
      * The constructor of the class. This creates a {@code
@@ -56,7 +55,7 @@ public class ReceiverMessageCommand extends ThreadCommand {
      * @param communicationManager
      */
     public ReceiverMessageCommand(Message message,
-                                  Observable<Message> observable, CommunicationManagerWaitingResult communicationManager) {
+                                  Observable<Message> observable, CommunicationManager communicationManager) {
         this.message = message;
         this.observable = observable;
         this.communicationManager = communicationManager;

@@ -16,23 +16,24 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package co.edu.uniquindio.utils.communication.transfer;
+package co.edu.uniquindio.utils.communication.transfer.response;
 
 import co.edu.uniquindio.utils.communication.message.Message;
 
 /**
- * The <code>BytesTransfer</code> interfaz have all services to send big
- * messages
- *
+ * The ResponseReleaser interface contains the methods for release response
+ * 
  * @author Daniel Pelaez
- * @version 1.0, 17/06/2010
- * @since 1.0
+ * 
  */
-public interface BytesTransfer extends Communicator {
-    /**
-     * Send big massage
-     *
-     * @param bigMessage Message to send
-     */
-    public void send(Message bigMessage);
+public interface ResponseReleaser {
+
+	/**
+	 * Release response in wait
+	 * 
+	 * @param message
+	 *            Message to response
+	 * @return True if response was release
+	 */
+	boolean release(Message message);
 }

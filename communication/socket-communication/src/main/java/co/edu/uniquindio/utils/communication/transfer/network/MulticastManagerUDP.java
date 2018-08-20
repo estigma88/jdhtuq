@@ -28,20 +28,20 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 
 /**
- * The <code>MulticastManagerNetworkLAN</code> class implemented the transfer
+ * The <code>MulticastManagerUDP</code> class implemented the transfer
  * messages on multicast UDP
  *
  * @author Daniel Pelaez
  * @version 1.0, 17/06/2010
  * @since 1.0
  */
-public class MulticastManagerNetworkLAN implements Communicator {
+public class MulticastManagerUDP implements Communicator {
 
     /**
      * Logger
      */
     private static final Logger logger = Logger
-            .getLogger(MulticastManagerNetworkLAN.class);
+            .getLogger(MulticastManagerUDP.class);
 
     /**
      * Is the size of the buffer used for receiving messages.
@@ -72,14 +72,14 @@ public class MulticastManagerNetworkLAN implements Communicator {
     private final MessageSerialization messageSerialization;
 
     /**
-     * Builds a MulticastManagerNetworkLAN and started multicast socket
+     * Builds a MulticastManagerUDP and started multicast socket
      *  @param portMulticast Port multicast
      * @param group         Internet address multicast
      * @param bufferSize    Buffer size for to reader
      * @param messageSerialization
      */
-    public MulticastManagerNetworkLAN(int portMulticast, InetAddress group,
-                                      long bufferSize, MessageSerialization messageSerialization) {
+    public MulticastManagerUDP(int portMulticast, InetAddress group,
+                               long bufferSize, MessageSerialization messageSerialization) {
         this.messageSerialization = messageSerialization;
 
         try {
@@ -101,9 +101,9 @@ public class MulticastManagerNetworkLAN implements Communicator {
      * (non-Javadoc)
      *
      * @see
-     * co.edu.uniquindio.utils.communication.transfer.Communicator#reciever()
+     * co.edu.uniquindio.utils.communication.transfer.Communicator#receiver()
      */
-    public Message reciever() {
+    public Message receiver() {
         DatagramPacket datagramPacket;
         String string;
         Message message;
@@ -168,9 +168,9 @@ public class MulticastManagerNetworkLAN implements Communicator {
     /*
      * (non-Javadoc)
      *
-     * @see co.edu.uniquindio.utils.communication.transfer.Stoppable#stop()
+     * @see co.edu.uniquindio.utils.communication.transfer.Stoppable#close()
      */
-    public void stop() {
+    public void close() {
         multicastSocket.close();
     }
 

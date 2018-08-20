@@ -22,7 +22,7 @@ import co.edu.uniquindio.utils.communication.message.Message;
 
 /**
  * The <code>Communicator</code> interface hava all services for to send and to
- * reciever messages
+ * receiver messages
  * 
  * @author Daniel Pelaez
  * @version 1.0, 17/06/2010
@@ -44,5 +44,5 @@ public interface Communicator extends Stoppable {
 	 * 
 	 * @return Message
 	 */
-	public Message reciever();
+	public Message receiver();
 }

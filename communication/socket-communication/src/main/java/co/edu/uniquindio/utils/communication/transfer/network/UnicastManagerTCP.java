@@ -77,9 +77,9 @@ public class UnicastManagerTCP implements Communicator {
      * (non-Javadoc)
      *
      * @see
-     * co.edu.uniquindio.utils.communication.transfer.Communicator#reciever()
+     * co.edu.uniquindio.utils.communication.transfer.Communicator#receiver()
      */
-    public Message reciever() {
+    public Message receiver() {
         String stringMessage;
         Message message = null;
         ObjectInputStream objectInputStream;
@@ -143,9 +143,9 @@ public class UnicastManagerTCP implements Communicator {
     /*
      * (non-Javadoc)
      *
-     * @see co.edu.uniquindio.utils.communication.transfer.Stoppable#stop()
+     * @see co.edu.uniquindio.utils.communication.transfer.Stoppable#close()
      */
-    public void stop() {
+    public void close() {
         try {
             serverSocket.close();
         } catch (IOException e) {
