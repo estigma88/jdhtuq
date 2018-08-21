@@ -43,7 +43,7 @@ public class ChordAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean(name = {"communicationManagerChord"})
     public CommunicationManager communicationManagerChord(CommunicationManagerFactory communicationManagerFactory) {
         return communicationManagerFactory.newCommunicationManager("chord");
     }
@@ -73,7 +73,7 @@ public class ChordAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean(name = "scheduledStableRing")
     public ScheduledExecutorService scheduledStableRing() {
         return Executors.newScheduledThreadPool(chordProperties.getStableRingThreadPool());
     }
