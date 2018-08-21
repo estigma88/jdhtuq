@@ -35,7 +35,7 @@ public class DHashAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean(name = {"communicationManagerDHash"})
     public CommunicationManager communicationManagerDHash(CommunicationManagerFactory communicationManagerFactory) {
         return communicationManagerFactory.newCommunicationManager("dhash");
     }
