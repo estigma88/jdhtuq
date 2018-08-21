@@ -21,6 +21,7 @@ package co.edu.uniquindio.utils.communication.transfer.response;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The <code>ReturnsManagerCommunication</code> class is responsible for
@@ -44,8 +45,7 @@ public class ReturnsManagerCommunication<T> implements ReturnsManager<T> {
 	 */
 
 	public ReturnsManagerCommunication() {
-		results = Collections
-				.synchronizedMap(new HashMap<Long, WaitingResult<T>>());
+		results = new ConcurrentHashMap<>();
 	}
 
 	/**

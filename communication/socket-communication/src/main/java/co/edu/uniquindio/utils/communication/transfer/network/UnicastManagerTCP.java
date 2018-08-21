@@ -27,7 +27,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.Map;
 
 /**
@@ -41,14 +40,15 @@ import java.util.Map;
 public class UnicastManagerTCP implements Communicator {
 
     /**
-     * The <code>CommunicationManagerTCPProperties</code> enum contains params
+     * The <code>UnicastManagerTCPProperties</code> enum contains params
      * required for communication
      *
      * @author dpelaez
      */
-    public enum CommunicationManagerTCPProperties {
+    public enum UnicastManagerTCPProperties {
         PORT_TCP_RESOURCE, PORT_TCP
     }
+
     /**
      * Logger
      */
@@ -92,10 +92,9 @@ public class UnicastManagerTCP implements Communicator {
 
             message = messageSerialization.decode(stringMessage);
 
-        } catch (IOException e) {
+        } catch (IOException | ClassNotFoundException e) {
             logger.error("Error reading socket", e);
-        } catch (ClassNotFoundException e) {
-            logger.error("Error reading socket", e);
+            throw new IllegalStateException("Error reading socket", e);
         }
 
         return message;
@@ -103,11 +102,10 @@ public class UnicastManagerTCP implements Communicator {
 
     @Override
     public void start(Map<String, String> properties) {
-        int portTcp;
         if (properties
-                .containsKey(CommunicationManagerTCPProperties.PORT_TCP.name())) {
+                .containsKey(UnicastManagerTCPProperties.PORT_TCP.name())) {
             portTcp = Integer.parseInt(properties
-                    .get(CommunicationManagerTCPProperties.PORT_TCP.name()));
+                    .get(UnicastManagerTCPProperties.PORT_TCP.name()));
         } else {
             IllegalArgumentException illegalArgumentException = new IllegalArgumentException(
                     "Property PORT_TCP not found");
@@ -141,10 +139,9 @@ public class UnicastManagerTCP implements Communicator {
             objectOutputStream.writeObject(messageSerialization.encode(message));
             objectOutputStream.flush();
 
-        } catch (UnknownHostException e) {
-            logger.error("Error writting socket", e);
         } catch (IOException e) {
-            logger.error("Error writting socket", e);
+            logger.error("Error writing socket " + message.getAddress(), e);
+            throw new IllegalStateException("Error writing socket " + message.getAddress(), e);
         }
 
     }
@@ -158,7 +155,8 @@ public class UnicastManagerTCP implements Communicator {
         try {
             serverSocket.close();
         } catch (IOException e) {
-            logger.error("Error closed server socket", e);
+            logger.error("Error closing server socket", e);
+            throw new IllegalStateException("Error closing server socket", e);
         }
     }
 

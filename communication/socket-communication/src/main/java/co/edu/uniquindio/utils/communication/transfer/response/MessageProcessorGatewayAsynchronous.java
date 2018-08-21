@@ -19,7 +19,7 @@ public class MessageProcessorGatewayAsynchronous implements MessageProcessor, Cl
     @Override
     public Message process(Message message) {
         if (!executorService.isShutdown()) {
-            executorService.submit(() -> messageProcessor.process(message));
+            executorService.execute(() -> messageProcessor.process(message));
         }
         return null;
     }

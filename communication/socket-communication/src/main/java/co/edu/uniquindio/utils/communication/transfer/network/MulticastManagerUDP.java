@@ -38,22 +38,10 @@ import java.util.Map;
  */
 public class MulticastManagerUDP implements Communicator {
 
-    /**
-     * Properties for configuration CommunicationManagerNetworkLAN
-     *
-     * @author Daniel Pelaez
-     * @author Hector Hurtado
-     * @author Daniel Lopez
-     * @version 1.0, 17/06/2010
-     * @since 1.0
-     */
-    public enum CommunicationManagerNetworkLANProperties {
+    public enum MulticastManagerUDPProperties {
         BUFFER_SIZE_MULTICAST, IP_MULTICAST, PORT_MULTICAST
     }
 
-    /**
-     * Logger
-     */
     private static final Logger logger = Logger
             .getLogger(MulticastManagerUDP.class);
 
@@ -118,20 +106,19 @@ public class MulticastManagerUDP implements Communicator {
             return message;
         } catch (IOException e) {
             logger.error("Error reading multicast socket", e);
+            throw new IllegalStateException("Error reading multicast socket", e);
         }
-
-        return null;
     }
 
     @Override
     public void start(Map<String, String> properties) {
         try {
             if (properties
-                    .containsKey(CommunicationManagerNetworkLANProperties.PORT_MULTICAST
+                    .containsKey(MulticastManagerUDPProperties.PORT_MULTICAST
                             .name())) {
                 portMulticast = Integer
                         .parseInt(properties
-                                .get(CommunicationManagerNetworkLANProperties.PORT_MULTICAST
+                                .get(MulticastManagerUDPProperties.PORT_MULTICAST
                                         .name()));
             } else {
                 IllegalArgumentException illegalArgumentException = new IllegalArgumentException(
@@ -144,10 +131,10 @@ public class MulticastManagerUDP implements Communicator {
             }
 
             if (properties
-                    .containsKey(CommunicationManagerNetworkLANProperties.IP_MULTICAST
+                    .containsKey(MulticastManagerUDPProperties.IP_MULTICAST
                             .name())) {
                 group = InetAddress.getByName(properties
-                        .get(CommunicationManagerNetworkLANProperties.IP_MULTICAST
+                        .get(MulticastManagerUDPProperties.IP_MULTICAST
                                 .name()));
             } else {
                 IllegalArgumentException illegalArgumentException = new IllegalArgumentException(
@@ -160,11 +147,11 @@ public class MulticastManagerUDP implements Communicator {
             }
 
             if (properties
-                    .containsKey(CommunicationManagerNetworkLANProperties.BUFFER_SIZE_MULTICAST
+                    .containsKey(MulticastManagerUDPProperties.BUFFER_SIZE_MULTICAST
                             .name())) {
                 bufferSize = Long
                         .parseLong(properties
-                                .get(CommunicationManagerNetworkLANProperties.BUFFER_SIZE_MULTICAST
+                                .get(MulticastManagerUDPProperties.BUFFER_SIZE_MULTICAST
                                         .name()));
             } else {
                 IllegalArgumentException illegalArgumentException = new IllegalArgumentException(
@@ -208,7 +195,8 @@ public class MulticastManagerUDP implements Communicator {
         try {
             multicastSocket.send(datagramPacket);
         } catch (IOException e) {
-            logger.error("Error writting multicast socket", e);
+            logger.error("Error writing multicast socket", e);
+            throw new IllegalStateException("Error writing multicast socket", e);
         }
     }
 
