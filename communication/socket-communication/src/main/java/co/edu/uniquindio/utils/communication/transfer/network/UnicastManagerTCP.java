@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Map;
@@ -46,7 +47,7 @@ public class UnicastManagerTCP implements Communicator {
      * @author dpelaez
      */
     public enum UnicastManagerTCPProperties {
-        PORT_TCP_RESOURCE, PORT_TCP
+        TIMEOUT_TCP_CONNECTION, PORT_TCP
     }
 
     /**
@@ -64,6 +65,7 @@ public class UnicastManagerTCP implements Communicator {
      * The value of the port used to create the socket.
      */
     private int portTcp;
+    private int timeoutTcpConnection;
     private final MessageSerialization messageSerialization;
 
     /**
@@ -84,17 +86,15 @@ public class UnicastManagerTCP implements Communicator {
     public Message receiver() {
         String stringMessage;
         Message message = null;
-        ObjectInputStream objectInputStream;
 
-        try (Socket socket = serverSocket.accept()) {
-            objectInputStream = new ObjectInputStream(socket.getInputStream());
+        try (Socket socket = serverSocket.accept();
+             ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream())) {
+
             stringMessage = (String) objectInputStream.readObject();
 
             message = messageSerialization.decode(stringMessage);
-
         } catch (IOException | ClassNotFoundException e) {
             logger.error("Error reading socket", e);
-            throw new IllegalStateException("Error reading socket", e);
         }
 
         return message;
@@ -111,6 +111,19 @@ public class UnicastManagerTCP implements Communicator {
                     "Property PORT_TCP not found");
 
             logger.error("Property PORT_TCP not found",
+                    illegalArgumentException);
+
+            throw illegalArgumentException;
+        }
+        if (properties
+                .containsKey(UnicastManagerTCPProperties.TIMEOUT_TCP_CONNECTION.name())) {
+            timeoutTcpConnection = Integer.parseInt(properties
+                    .get(UnicastManagerTCPProperties.TIMEOUT_TCP_CONNECTION.name()));
+        } else {
+            IllegalArgumentException illegalArgumentException = new IllegalArgumentException(
+                    "Property TIMEOUT_TCP_CONNECTION not found");
+
+            logger.error("Property TIMEOUT_TCP_CONNECTION not found",
                     illegalArgumentException);
 
             throw illegalArgumentException;
@@ -132,16 +145,15 @@ public class UnicastManagerTCP implements Communicator {
      * .uniquindio.utils.communication.message.Message)
      */
     public void send(Message message) {
-        try (Socket socket = new Socket(message.getAddress().getDestination(), portTcp)) {
+        try (Socket socket = new Socket()) {
+            socket.connect(new InetSocketAddress(message.getAddress().getDestination(), portTcp), timeoutTcpConnection);
 
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(
                     socket.getOutputStream());
             objectOutputStream.writeObject(messageSerialization.encode(message));
-            objectOutputStream.flush();
 
         } catch (IOException e) {
             logger.error("Error writing socket " + message.getAddress(), e);
-            throw new IllegalStateException("Error writing socket " + message.getAddress(), e);
         }
 
     }

@@ -91,7 +91,7 @@ public class MulticastManagerUDP implements Communicator {
     public Message receiver() {
         DatagramPacket datagramPacket;
         String string;
-        Message message;
+        Message message = null;
 
         datagramPacket = new DatagramPacket(buffer, buffer.length);
 
@@ -102,12 +102,11 @@ public class MulticastManagerUDP implements Communicator {
                     .getLength());
 
             message = messageSerialization.decode(string);
-
-            return message;
         } catch (IOException e) {
             logger.error("Error reading multicast socket", e);
-            throw new IllegalStateException("Error reading multicast socket", e);
         }
+
+        return message;
     }
 
     @Override
@@ -196,7 +195,6 @@ public class MulticastManagerUDP implements Communicator {
             multicastSocket.send(datagramPacket);
         } catch (IOException e) {
             logger.error("Error writing multicast socket", e);
-            throw new IllegalStateException("Error writing multicast socket", e);
         }
     }
 

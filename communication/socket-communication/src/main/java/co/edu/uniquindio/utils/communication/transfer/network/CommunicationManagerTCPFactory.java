@@ -30,7 +30,7 @@ public class CommunicationManagerTCPFactory implements CommunicationManagerFacto
         this.defaultProperties.put("BUFFER_SIZE_MULTICAST", "1024");
         this.defaultProperties.put("IP_MULTICAST", "224.0.0.2");
         this.defaultProperties.put("PORT_MULTICAST", "2000");
-        this.defaultProperties.put("PORT_TCP_RESOURCE", "2004");
+        this.defaultProperties.put("TIMEOUT_TCP_CONNECTION", "2000");
         this.defaultProperties.put("PORT_TCP", "2005");
         this.defaultProperties.put("PORT_UDP", "2006");
         this.defaultProperties.put("BUFFER_SIZE_UDP", "1024");

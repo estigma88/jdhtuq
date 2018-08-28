@@ -41,6 +41,7 @@ Feature: A node is add to the network
       | resource10.txt | Unpleasant astonished an diminution up partiality. Noisy an their of meant. Death means up civil do an offer wound of. Called square an in afraid direct. Resolution diminution conviction so mr at unpleasing simplicity no. No it as breakfast up conveying earnestly immediate principle. Him son disposed produced humoured overcame she bachelor improved. Studied however out wishing but inhabit fortune windows.  |
     And I use the "172.16.0.43" as a gateway
     And I put resources into the network
+    And I wait for stabilizing after 20 seconds
 
   Scenario: The node "172.16.0.10" is add to the network
     Given The "172.16.0.10" is added to the network
