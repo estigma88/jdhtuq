@@ -16,11 +16,12 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package co.edu.uniquindio.utils.communication.transfer;
+package co.edu.uniquindio.utils.communication.transfer.response;
 
 import org.apache.log4j.Logger;
 
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The {@code WaitingResult} class is responsible for waiting for a response to
@@ -32,7 +33,7 @@ import java.util.concurrent.Semaphore;
  * @version 1.0, 17/06/2010
  * @since 1.0
  */
-class WaitingResult<T> extends Thread {
+public class WaitingResult<T>{
 
     /**
      * Logger
@@ -51,15 +52,10 @@ class WaitingResult<T> extends Thread {
     private T result;
 
     /**
-     * This semaphore is blocked when asked for the response to a certain
+     * This countDownLatch is blocked when asked for the response to a certain
      * message, and is released when the response to the message arrives
      */
-    private Semaphore semaphore;
-
-    /**
-     * This variable is used for Knowing if a response for a message has arrived
-     */
-    private boolean stop;
+    private CountDownLatch countDownLatch;
 
     /**
      * This variable is the specific amount of time that the class waits for a
@@ -78,11 +74,10 @@ class WaitingResult<T> extends Thread {
      *
      * @param sequence                    . The sequence number of the message
      */
-    WaitingResult(long sequence, ReturnsManager<T> returnsManager) {
+    private WaitingResult(long sequence, ReturnsManager<T> returnsManager) {
         this.sequence = sequence;
         this.returnsManager = returnsManager;
-        this.stop = false;
-        this.semaphore = new Semaphore(0);
+        this.countDownLatch = new CountDownLatch(1);
     }
 
     /**
@@ -97,59 +92,25 @@ class WaitingResult<T> extends Thread {
     }
 
     /**
-     * Executes the thread while <code>stop==false</code> and
-     * <code>timeOut!=0</code>. This is, while the response for the message has
-     * not arrived or while the specific amount of time has not finished. If
-     * timeOut is -1, waiting until that the response arribe
-     */
-    public void run() {
-
-        if (timeOut != -1) {
-
-            while (!stop && timeOut != 0) {
-                try {
-                    sleep(1);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                timeOut--;
-            }
-
-        } else {
-
-            while (!stop) {
-                try {
-                    sleep(1);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-        }
-
-        if (!stop) {
-
-            logger
-                    .debug("Timeout waiting for a response for number sequence= '"
-                            + sequence + "'");
-
-            logger.debug("Timeout waiting for a response");
-
-            returnsManager.releaseWaitingResult(sequence, null);
-        }
-    }
-
-    /**
      * This method is used for getting the response of the message
      *
      * @return Returns the response for the message
      */
     public T getResult() {
-        start();
         try {
-            semaphore.acquire();
+            if(countDownLatch.await(timeOut, TimeUnit.MILLISECONDS)){
+                logger
+                        .debug("Response arrives for number sequence= '"
+                                + sequence + "'");
+            }else{
+                logger
+                        .debug("Timeout waiting for a response for number sequence= '"
+                                + sequence + "'");
+
+                returnsManager.releaseWaitingResult(sequence, null);
+            }
         } catch (InterruptedException e) {
-            logger.error("Error to stop semaphore", e);
+            logger.error("Error to close countDownLatch", e);
         }
 
         return result;
@@ -163,9 +124,7 @@ class WaitingResult<T> extends Thread {
     public void setResult(T result) {
         this.result = result;
 
-        semaphore.release();
-
-        stop = true;
+        countDownLatch.countDown();
     }
 
 }

@@ -16,23 +16,37 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package co.edu.uniquindio.utils.communication.transfer;
-
-import co.edu.uniquindio.utils.communication.message.Message;
+package co.edu.uniquindio.utils.communication.transfer.response;
 
 /**
- * The <code>BytesTransfer</code> interfaz have all services to send big
- * messages
- *
+ * The <code>ReturnsManager</code> interface have all services for waiting
+ * results
+ * 
  * @author Daniel Pelaez
  * @version 1.0, 17/06/2010
  * @since 1.0
+ * 
  */
-public interface BytesTransfer extends Communicator {
-    /**
-     * Send big massage
-     *
-     * @param bigMessage Message to send
-     */
-    public void send(Message bigMessage);
+public interface ReturnsManager<T> {
+
+	/**
+	 * Creates a waiting result for sequence number and time out
+	 * 
+	 * @param sequence
+	 *            Sequence number
+	 * @param timeOut
+	 *            Time out of waiting
+	 * @return WaitingResult
+	 */
+	public WaitingResult<T> createWaitingResult(long sequence, long timeOut);
+
+	/**
+	 * Release waiting result by sequence number and response
+	 * 
+	 * @param sequence
+	 *            Sequence number
+	 * @param result
+	 *            Response
+	 */
+	public void releaseWaitingResult(long sequence, T result);
 }

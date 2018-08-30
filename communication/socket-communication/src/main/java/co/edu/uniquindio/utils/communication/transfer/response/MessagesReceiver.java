@@ -14,24 +14,35 @@
  *
  *  You should have received a copy of the GNU Affero General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *  
  */
 
-package co.edu.uniquindio.utils.command;
+package co.edu.uniquindio.utils.communication.transfer.response;
 
-/**
- * The {@code Command} interface defines the basic methods for implementing the
- * Command pattern
- * 
- * @author Daniel Pelaez
- * @author Hector Hurtado
- * @author Daniel Lopez
- * @version 1.0, 17/06/2010
- * @since 1.0
- */
-public interface Command {
-	/**
-	 * Execute the command action
-	 */
-	public void execute();
+import co.edu.uniquindio.utils.communication.transfer.Communicator;
+import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
+
+import java.io.Closeable;
+
+public class MessagesReceiver implements Closeable, Runnable {
+    private boolean run;
+    private Communicator communicator;
+    private MessageProcessor messageProcessor;
+
+    public MessagesReceiver(Communicator communicator,
+                            MessageProcessor messageProcessor) {
+        this.run = true;
+        this.communicator = communicator;
+        this.messageProcessor = messageProcessor;
+    }
+
+    public void close() {
+        run = false;
+    }
+
+    public void run() {
+        while (run) {
+            messageProcessor.process(communicator.receiver());
+        }
+    }
+
 }

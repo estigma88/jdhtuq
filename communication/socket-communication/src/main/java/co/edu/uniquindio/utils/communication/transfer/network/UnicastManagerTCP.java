@@ -25,9 +25,10 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
+import java.util.Map;
 
 /**
  * The <code>UnicastManagerTCP</code> class implemented transfer message based
@@ -38,6 +39,16 @@ import java.net.UnknownHostException;
  * @since 1.0
  */
 public class UnicastManagerTCP implements Communicator {
+
+    /**
+     * The <code>UnicastManagerTCPProperties</code> enum contains params
+     * required for communication
+     *
+     * @author dpelaez
+     */
+    public enum UnicastManagerTCPProperties {
+        TIMEOUT_TCP_CONNECTION, PORT_TCP
+    }
 
     /**
      * Logger
@@ -54,49 +65,76 @@ public class UnicastManagerTCP implements Communicator {
      * The value of the port used to create the socket.
      */
     private int portTcp;
+    private int timeoutTcpConnection;
     private final MessageSerialization messageSerialization;
 
     /**
      * Builds a UnicastManagerTCP
      *
-     * @param portTcp              Port TCP number
      * @param messageSerialization
      */
-    public UnicastManagerTCP(int portTcp, MessageSerialization messageSerialization) {
-        this.portTcp = portTcp;
+    public UnicastManagerTCP(MessageSerialization messageSerialization) {
         this.messageSerialization = messageSerialization;
-
-        try {
-            this.serverSocket = new ServerSocket(portTcp);
-        } catch (IOException e) {
-            logger.error("Error creating server socket", e);
-        }
     }
 
     /*
      * (non-Javadoc)
      *
      * @see
-     * co.edu.uniquindio.utils.communication.transfer.Communicator#reciever()
+     * co.edu.uniquindio.utils.communication.transfer.Communicator#receiver()
      */
-    public Message reciever() {
+    public Message receiver() {
         String stringMessage;
         Message message = null;
-        ObjectInputStream objectInputStream;
 
-        try (Socket socket = serverSocket.accept()) {
-            objectInputStream = new ObjectInputStream(socket.getInputStream());
+        try (Socket socket = serverSocket.accept();
+             ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream())) {
+
             stringMessage = (String) objectInputStream.readObject();
 
             message = messageSerialization.decode(stringMessage);
-
-        } catch (IOException e) {
-            logger.error("Error reading socket", e);
-        } catch (ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             logger.error("Error reading socket", e);
         }
 
         return message;
+    }
+
+    @Override
+    public void start(Map<String, String> properties) {
+        if (properties
+                .containsKey(UnicastManagerTCPProperties.PORT_TCP.name())) {
+            portTcp = Integer.parseInt(properties
+                    .get(UnicastManagerTCPProperties.PORT_TCP.name()));
+        } else {
+            IllegalArgumentException illegalArgumentException = new IllegalArgumentException(
+                    "Property PORT_TCP not found");
+
+            logger.error("Property PORT_TCP not found",
+                    illegalArgumentException);
+
+            throw illegalArgumentException;
+        }
+        if (properties
+                .containsKey(UnicastManagerTCPProperties.TIMEOUT_TCP_CONNECTION.name())) {
+            timeoutTcpConnection = Integer.parseInt(properties
+                    .get(UnicastManagerTCPProperties.TIMEOUT_TCP_CONNECTION.name()));
+        } else {
+            IllegalArgumentException illegalArgumentException = new IllegalArgumentException(
+                    "Property TIMEOUT_TCP_CONNECTION not found");
+
+            logger.error("Property TIMEOUT_TCP_CONNECTION not found",
+                    illegalArgumentException);
+
+            throw illegalArgumentException;
+        }
+        try {
+            this.serverSocket = new ServerSocket(portTcp);
+        } catch (IOException e) {
+            logger.error("Error creating server socket", e);
+            throw new IllegalStateException("Error creating server socket", e);
+        }
+
     }
 
     /*
@@ -107,49 +145,30 @@ public class UnicastManagerTCP implements Communicator {
      * .uniquindio.utils.communication.message.Message)
      */
     public void send(Message message) {
-        try(Socket socket = new Socket(message.getAddress().getDestination(), portTcp)) {
+        try (Socket socket = new Socket()) {
+            socket.connect(new InetSocketAddress(message.getAddress().getDestination(), portTcp), timeoutTcpConnection);
 
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(
                     socket.getOutputStream());
             objectOutputStream.writeObject(messageSerialization.encode(message));
-            objectOutputStream.flush();
 
-        } catch (UnknownHostException e) {
-            logger.error("Error writting socket", e);
         } catch (IOException e) {
-            logger.error("Error writting socket", e);
+            logger.error("Error writing socket " + message.getAddress(), e);
         }
 
-    }
-
-    /**
-     * Gets port TCP
-     *
-     * @return Port TCP
-     */
-    public int getPortTcp() {
-        return portTcp;
-    }
-
-    /**
-     * Sets port TCP
-     *
-     * @param portTcp Port TCP
-     */
-    public void setPortTcp(int portTcp) {
-        this.portTcp = portTcp;
     }
 
     /*
      * (non-Javadoc)
      *
-     * @see co.edu.uniquindio.utils.communication.transfer.Stoppable#stop()
+     * @see co.edu.uniquindio.utils.communication.transfer.Stoppable#close()
      */
-    public void stop() {
+    public void close() {
         try {
             serverSocket.close();
         } catch (IOException e) {
-            logger.error("Error closed server socket", e);
+            logger.error("Error closing server socket", e);
+            throw new IllegalStateException("Error closing server socket", e);
         }
     }
 

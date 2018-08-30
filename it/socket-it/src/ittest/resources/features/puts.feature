@@ -63,7 +63,8 @@ Feature: I put resources into the network
       | resource10.txt | Unpleasant astonished an diminution up partiality. Noisy an their of meant. Death means up civil do an offer wound of. Called square an in afraid direct. Resolution diminution conviction so mr at unpleasing simplicity no. No it as breakfast up conveying earnestly immediate principle. Him son disposed produced humoured overcame she bachelor improved. Studied however out wishing but inhabit fortune windows.  |
     Given I use the "172.16.0.43" as a gateway
     When I put resources into the network
-    Then The resources are put in the following nodes:
+    Then I wait for stabilizing after 20 seconds
+    And The resources are put in the following nodes:
       | resource1.txt | 172.16.0.7,172.16.0.21 |
       | resource2.txt | 172.16.0.10,172.16.0.7 |
       | resource3.txt | 172.16.0.12,172.16.0.43 |

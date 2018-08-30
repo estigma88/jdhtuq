@@ -18,92 +18,308 @@
 
 package co.edu.uniquindio.utils.communication.transfer.network;
 
+import co.edu.uniquindio.utils.communication.Observable;
+import co.edu.uniquindio.utils.communication.Observer;
+import co.edu.uniquindio.utils.communication.message.Message;
+import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.Communicator;
+import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
+import co.edu.uniquindio.utils.communication.transfer.response.MessageResponseProcessor;
+import co.edu.uniquindio.utils.communication.transfer.response.MessagesReceiver;
+import co.edu.uniquindio.utils.communication.transfer.response.ReturnsManager;
+import co.edu.uniquindio.utils.communication.transfer.response.WaitingResult;
 import org.apache.log4j.Logger;
+
+import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 /**
  * The <code>CommunicationManagerTCP</code> class is an
  * <code>CommunicationManagerNetworkLAN</code>. Implemented the creation of
  * transfer object and unicast manager. Required params: PORT_TCP_RESOURCE and
  * PORT_TCP
- * 
+ *
  * @author Daniel Pelaez
  * @author Hector Hurtado
  * @author Daniel Lopez
  * @version 1.0, 17/06/2010
  * @since 1.0
- * 
  */
-public class CommunicationManagerTCP extends CommunicationManagerNetworkLAN {
-	public CommunicationManagerTCP(MessageSerialization messageSerialization) {
-		super(messageSerialization);
-	}
+public class CommunicationManagerTCP implements
+        CommunicationManager {
+
+
+    private static final Logger logger = Logger
+            .getLogger(CommunicationManagerTCP.class);
+
+    private static final String RESPONSE_TIME = "RESPONSE_TIME";
+
+    private final Communicator unicastManager;
+    private final MessagesReceiver unicastMessagesReciever;
+    private final Communicator multicastManager;
+    private final MessagesReceiver multicastMessagesReciever;
+    private final MessageResponseProcessor messageResponseProcessor;
+    private final Observable<Message> observableCommunication;
+    private final ReturnsManager<Message> returnsManager;
+    private final ExecutorService messagesReceiverExecutor;
+    private MessageProcessor messageProcessor;
+    private Map<String, String> communicationProperties;
+
+    public CommunicationManagerTCP(Communicator unicastManager, MessagesReceiver unicastMessagesReciever, Communicator multicastManager, MessagesReceiver multicastMessagesReciever, MessageResponseProcessor messageResponseProcessor, Observable<Message> observableCommunication, ReturnsManager<Message> returnsManager, ExecutorService messagesReceiverExecutor) {
+        this.unicastManager = unicastManager;
+        this.unicastMessagesReciever = unicastMessagesReciever;
+        this.multicastManager = multicastManager;
+        this.multicastMessagesReciever = multicastMessagesReciever;
+        this.messageResponseProcessor = messageResponseProcessor;
+        this.observableCommunication = observableCommunication;
+        this.returnsManager = returnsManager;
+        this.messagesReceiverExecutor = messagesReceiverExecutor;
+    }
+
 
     /**
-	 * The <code>CommunicationManagerTCPProperties</code> enum contains params
-	 * required for communication
-	 * 
-	 * @author dpelaez
-	 * 
-	 */
-	public enum CommunicationManagerTCPProperties {
-		PORT_TCP_RESOURCE, PORT_TCP
-	}
+     * Creates and sends a message specifying its type, the type of the response
+     * and the data. Used <code>sendMessage(message)</code> to send message. The
+     * typeReturn must to have a method by signed <code>T valueOf(String)</code>
+     * and class must to have constructor without parameters, or an constructor
+     * <code>T(String)</code> . If typeReturn is a Message class, the return is
+     * message object. If message response contains several params, you must set
+     * typeReturn like <code>Message</code>
+     *
+     * @param message    The type of the message that will be sent.
+     * @param typeReturn The type of the response
+     * @return An object <T> of the specified type.
+     */
+    public <T> T sendMessageUnicast(Message message, Class<T> typeReturn) {
 
-	/**
-	 * Logger
-	 */
-	private static final Logger logger = Logger
-			.getLogger(CommunicationManagerTCP.class);
+        /*
+         * Created WaitingResult for message sequence number to send
+         */
+        WaitingResult<Message> waitingResult = returnsManager
+                .createWaitingResult(message.getSequenceNumber(), Long
+                        .parseLong(communicationProperties.get(RESPONSE_TIME)));
 
-	/**
-	 * Creates a BytesTransferManagerTCP instance. Required param in
-	 * CommunicationProperties called PORT_TCP_RESOURCE
-	 */
-	protected Communicator createUnicastBigManager() {
-		int portTcp;
-		if (communicationProperties
-				.containsKey(CommunicationManagerTCPProperties.PORT_TCP_RESOURCE
-						.name())) {
-			portTcp = Integer.parseInt(communicationProperties
-					.get(CommunicationManagerTCPProperties.PORT_TCP_RESOURCE
-							.name()));
-		} else {
-			IllegalArgumentException illegalArgumentException = new IllegalArgumentException(
-					"Property PORT_TCP_RESOURCE not found");
+        sendMessageUnicast(message);
 
-			logger.error("Property PORT_TCP_RESOURCE not found",
-					illegalArgumentException);
+        /*
+         * Waiting for response
+         */
+        Message messageResponse = waitingResult.getResult();
 
-			throw illegalArgumentException;
-		}
-		unicastBigManager = new UnicastBigManagerTCP(portTcp, messageSerialization);
+        /*
+         * Waiting for response
+         */
+        return messageResponseProcessor.process(messageResponse, typeReturn, null);
+    }
 
-		return unicastBigManager;
-	}
+    /**
+     * Creates and sends a message specifying its type, the type of the response
+     * and the data. Used <code>sendMessage(message)</code> to send message. The
+     * typeReturn must to have a method by signed <code>T valueOf(String)</code>
+     * and class must to have constructor without parameters, or an constructor
+     * <code>T(String)</code> . If typeReturn is a Message class, the return is
+     * message object. The message response must contains a param called
+     * <code>paramNameResult</code>, the value of this is used for create result
+     *
+     * @param message         The type of the message that will be sent.
+     * @param typeReturn      The type of the response
+     * @param paramNameResult Param name of result
+     * @return An object <T> of the specified type.
+     */
+    public <T> T sendMessageUnicast(Message message, Class<T> typeReturn,
+                                    String paramNameResult) {
 
-	/**
-	 * Creates a UnicastManagerTCP instance. Required param in
-	 * CommunicationProperties called PORT_TCP.
-	 */
-	protected Communicator createUnicastManager() {
-		int portTcp;
-		if (communicationProperties
-				.containsKey(CommunicationManagerTCPProperties.PORT_TCP.name())) {
-			portTcp = Integer.parseInt(communicationProperties
-					.get(CommunicationManagerTCPProperties.PORT_TCP.name()));
-		} else {
-			IllegalArgumentException illegalArgumentException = new IllegalArgumentException(
-					"Property PORT_TCP not found");
+        /*
+         * Created WaitingResult for message sequence number to send
+         */
+        WaitingResult<Message> waitingResult = returnsManager
+                .createWaitingResult(message.getSequenceNumber(), Long
+                        .parseLong(communicationProperties.get(RESPONSE_TIME)));
 
-			logger.error("Property PORT_TCP not found",
-					illegalArgumentException);
+        sendMessageUnicast(message);
 
-			throw illegalArgumentException;
-		}
-		unicastManager = new UnicastManagerTCP(portTcp, messageSerialization);
+        /*
+         * Waiting for response
+         */
+        Message messageResponse = waitingResult.getResult();
 
-		return unicastManager;
-	}
+        /*
+         * Waiting for response
+         */
+        return messageResponseProcessor.process(messageResponse, typeReturn, paramNameResult);
+    }
 
+    /**
+     * Sends a message specifying its type, the type of the response and the
+     * data. Used Communicator instance called unicastManager to send message
+     *
+     * @param message Messages to send
+     */
+    public void sendMessageUnicast(Message message) {
+        unicastManager.send(message);
+    }
+
+    /**
+     * Creates and sends a multicast message specifying its type, the type of
+     * the response and the data. Used
+     * <code>sendMessageMultiCast(message)</code> to send message. The
+     * typeReturn must to have a method by signed <code>T valueOf(String)</code>
+     * and class must to have constructor without parameters, or an constructor
+     * <code>T(String)</code> . If typeReturn is a Message class, the return is
+     * message object. The message response must contains a param called
+     * <code>paramNameResult</code>, the value of this is used for create result
+     *
+     * @param <T>        Type return
+     * @param message    Message
+     * @param typeReturn Type return
+     * @return Response
+     */
+    public <T> T sendMessageMultiCast(Message message, Class<T> typeReturn) {
+
+        /*
+         * Created WaitingResult for message sequence number to send
+         */
+        WaitingResult<Message> waitingResult = returnsManager
+                .createWaitingResult(message.getSequenceNumber(), Long
+                        .parseLong(communicationProperties.get(RESPONSE_TIME)));
+
+        sendMessageMultiCast(message);
+
+        /*
+         * Waiting for response
+         */
+        Message messageResponse = waitingResult.getResult();
+
+        /*
+         * Waiting for response
+         */
+        return messageResponseProcessor.process(messageResponse, typeReturn, null);
+    }
+
+    /**
+     * Creates and sends a multicast message specifying its type, the type of
+     * the response and the data. Used
+     * <code>sendMessageMultiCast(message)</code> to send message. The
+     * typeReturn must to have a method by signed <code>T valueOf(String)</code>
+     * and class must to have constructor without parameters, or an constructor
+     * <code>T(String)</code> . If typeReturn is a Message class, the return is
+     * message object. If message response contains several params, you must set
+     * typeReturn like <code>Message</code>
+     *
+     * @param <T>             Type return
+     * @param message         Message
+     * @param typeReturn      Type return
+     * @param paramNameResult Param name of result
+     * @return Response
+     */
+    public <T> T sendMessageMultiCast(Message message, Class<T> typeReturn,
+                                      String paramNameResult) {
+
+        /*
+         * Created WaitingResult for message sequence number to send
+         */
+        WaitingResult<Message> waitingResult = returnsManager
+                .createWaitingResult(message.getSequenceNumber(), Long
+                        .parseLong(communicationProperties.get(RESPONSE_TIME)));
+
+        sendMessageMultiCast(message);
+
+        /*
+         * Waiting for response
+         */
+        Message messageResponse = waitingResult.getResult();
+
+        /*
+         * Waiting for response
+         */
+        return messageResponseProcessor.process(messageResponse, typeReturn, paramNameResult);
+    }
+
+    /**
+     * Sends a multicast message specifying its type, the type of the response
+     * and the data. Used Communicator instance called multicastManager to send
+     * message
+     *
+     * @param message Messages to send
+     */
+    public void sendMessageMultiCast(Message message) {
+        multicastManager.send(message);
+    }
+
+    /**
+     * Stop all process
+     */
+    public void stopAll() {
+        try {
+            multicastManager.close();
+            multicastMessagesReciever.close();
+            unicastManager.close();
+            unicastMessagesReciever.close();
+            messagesReceiverExecutor.shutdown();
+        } catch (IOException e) {
+            throw new IllegalStateException("Problem stopping communication", e);
+        }
+    }
+
+    /**
+     * Adds observer to communication
+     *
+     * @param observer Observer to add
+     */
+    public void addObserver(Observer<Message> observer) {
+        observableCommunication.addObserver(observer);
+    }
+
+    /**
+     * Remove observer to communication
+     *
+     * @param observer Observer to remove
+     */
+    public void removeObserver(Observer<Message> observer) {
+        observableCommunication.removeObserver(observer);
+    }
+
+    /**
+     * Remove observer by name
+     *
+     * @param name Observer name
+     */
+    public void removeObserver(String name) {
+        observableCommunication.removeObserver(name);
+    }
+
+    @Override
+    public void addMessageProcessor(String name, MessageProcessor messageProcessor) {
+        this.messageProcessor = messageProcessor;
+    }
+
+    @Override
+    public void removeMessageProcessor(String name) {
+        this.messageProcessor = null;
+    }
+
+    public MessageProcessor getMessageProcessor() {
+        return messageProcessor;
+    }
+
+
+    /*
+     * (non-Javadoc)
+     *
+     * @seeco.edu.uniquindio.utils.communication.transfer.
+     * CommunicationManagerWaitingResult#init ()
+     */
+    public void init() {
+        this.unicastManager.start(communicationProperties);
+        this.multicastManager.start(communicationProperties);
+
+        messagesReceiverExecutor.execute(unicastMessagesReciever);
+        messagesReceiverExecutor.execute(multicastMessagesReciever);
+    }
+
+    public void init(Map<String, String> communicationProperties){
+        this.communicationProperties = communicationProperties;
+        init();
+    }
 }
