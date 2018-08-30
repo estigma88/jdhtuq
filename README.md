@@ -38,11 +38,11 @@ Add the following dependencies to your project to use Chord, DHash and Communica
 
 #### Gradle example 
 
-- Chord: `compile group: 'com.github.estigma88', name: 'jdhtuq-chord-spring-boot-starter', version: '2.0.0'`
-- DHash: `compile group: 'com.github.estigma88', name: 'jdhtuq-dhash-spring-boot-starter', version: '2.0.0'`
+- Chord: `compile group: 'com.github.estigma88', name: 'jdhtuq-chord-spring-boot-starter', version: '2.0.1'`
+- DHash: `compile group: 'com.github.estigma88', name: 'jdhtuq-dhash-spring-boot-starter', version: '2.0.1'`
 - Communication: Use one of the following implementations
     - Data Structure: `compile group: 'com.github.estigma88', name: 'jdhtuq-data-structure-communication-spring-boot-starter', version: '2.0.0'`
-    - Sockets: `compile group: 'com.github.estigma88', name: 'jdhtuq-socket-communication-spring-boot-starter', version: '2.0.0'`
+    - Sockets: `compile group: 'com.github.estigma88', name: 'jdhtuq-socket-communication-spring-boot-starter', version: '2.1.0'`
 
 ## More info
 [More Info](https://github.com/estigma88/jdhtuq/wiki) 

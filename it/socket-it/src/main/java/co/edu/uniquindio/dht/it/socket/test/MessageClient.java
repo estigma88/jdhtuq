@@ -33,8 +33,7 @@ public class MessageClient {
             return messageSerialization.decode(stringMessage);
         } catch (IOException | ClassNotFoundException e) {
             logger.error("Error writting socket", e);
+            throw new IllegalStateException("Error writting socket to: " + request.getAddress() + " in port: " + portTcp, e);
         }
-
-        return null;
     }
 }
