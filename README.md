@@ -1,4 +1,5 @@
 # jDHTUQ for peer-to-peer DHT networking
+
 jDHTUQ is a peer-to-peer DHT system based on Chord algorithm, but built to generalize the implementation of peer-to-peer DHT systems. It have two fundamental services, put and get of a resource.
 
 **jDHTUQ is using:**
@@ -10,11 +11,11 @@ jDHTUQ is a peer-to-peer DHT system based on Chord algorithm, but built to gener
 - Peer to peer communication simulation using a data structure
 - Peer to peer network communication using sockets
 
-## Download last examples versions
+## Download last versions
 
-[v2.0.1](https://github.com/estigma88/jdhtuq/releases/tag/v2.0.1) 
+[![Github Releases (by Asset)](https://img.shields.io/github/downloads/estigma88/jdhtuq/latest/desktop-structure-gui-2.0.2.jar.svg)](https://github.com/estigma88/jdhtuq/releases/download/v2.0.4/desktop-structure-gui-2.0.2.jar)     [![Github Releases (by Asset)](https://img.shields.io/github/downloads/estigma88/jdhtuq/latest/desktop-network-gui-2.0.4.jar.svg)](https://github.com/estigma88/jdhtuq/releases/download/v2.0.4/desktop-network-gui-2.0.4.jar)
 
-Data structure and network examples of use.
+Data structure and network applications.
 - Execute with double click or
 - Using the console:
 	`java -jar <jdhash-version>.jar`
@@ -36,13 +37,12 @@ Add the following dependencies to your project to use Chord, DHash and Communica
 
 **Note**: This dependencies are Spring Boot Starters, so, your project must use Spring Boot
 
-#### Gradle example 
-
-- Chord: `compile group: 'com.github.estigma88', name: 'jdhtuq-chord-spring-boot-starter', version: '2.0.1'`
-- DHash: `compile group: 'com.github.estigma88', name: 'jdhtuq-dhash-spring-boot-starter', version: '2.0.1'`
+- Chord: [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.estigma88/jdhtuq-chord-spring-boot-starter/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.estigma88/jdhtuq-chord-spring-boot-starter)
+- DHash: [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.estigma88/jdhtuq-dhash-spring-boot-starter/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.estigma88/jdhtuq-dhash-spring-boot-starter)
 - Communication: Use one of the following implementations
-    - Data Structure: `compile group: 'com.github.estigma88', name: 'jdhtuq-data-structure-communication-spring-boot-starter', version: '2.0.0'`
-    - Sockets: `compile group: 'com.github.estigma88', name: 'jdhtuq-socket-communication-spring-boot-starter', version: '2.1.0'`
+    - Data Structure: [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.estigma88/jdhtuq-data-structure-communication-spring-boot-starter/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.estigma88/jdhtuq-data-structure-communication-spring-boot-starter)
+    - Sockets: [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.estigma88/jdhtuq-socket-communication-spring-boot-starter/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.estigma88/jdhtuq-socket-communication-spring-boot-starter)
+
 
 ## More info
 [More Info](https://github.com/estigma88/jdhtuq/wiki) 
