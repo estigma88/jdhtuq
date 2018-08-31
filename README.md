@@ -1,5 +1,4 @@
 # jDHTUQ for peer-to-peer DHT networking
-[![Github Releases (by Asset)](https://img.shields.io/github/downloads/estigma88/jdhtuq/latest/desktop-structure-gui-2.0.2.jar.svg)](https://github.com/estigma88/jdhtuq/releases/download/v2.0.4/desktop-structure-gui-2.0.2.jar)     [![Github Releases (by Asset)](https://img.shields.io/github/downloads/estigma88/jdhtuq/latest/desktop-network-gui-2.0.4.jar.svg)](https://github.com/estigma88/jdhtuq/releases/download/v2.0.4/desktop-network-gui-2.0.4.jar)
 
 jDHTUQ is a peer-to-peer DHT system based on Chord algorithm, but built to generalize the implementation of peer-to-peer DHT systems. It have two fundamental services, put and get of a resource.
 
