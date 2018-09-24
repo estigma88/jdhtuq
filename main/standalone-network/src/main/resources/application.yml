@@ -1,0 +1,17 @@
+ui-network:
+  resource-directory: build/dhash/
+p2p:
+  dhash:
+    resource-directory: build/dhash/
+communication:
+  socket:
+    instances:
+      dhash:
+        RESPONSE_TIME: 2000
+        BUFFER_SIZE_MULTICAST: 1024
+        IP_MULTICAST: 224.0.0.1
+        PORT_MULTICAST: 2000
+        TIMEOUT_TCP_CONNECTION: 2000
+        PORT_TCP: 2002
+        PORT_UDP: 2003
+        BUFFER_SIZE_UDP: 1024
