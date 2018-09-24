@@ -13,7 +13,7 @@ jDHTUQ is a peer-to-peer DHT system based on Chord algorithm, but built to gener
 
 ## Download last versions
 
-[![Github Releases (by Asset)](https://img.shields.io/github/downloads/estigma88/jdhtuq/latest/desktop-structure-gui-2.0.2.jar.svg)](https://github.com/estigma88/jdhtuq/releases/download/v2.0.4/desktop-structure-gui-2.0.2.jar)     [![Github Releases (by Asset)](https://img.shields.io/github/downloads/estigma88/jdhtuq/latest/desktop-network-gui-2.0.4.jar.svg)](https://github.com/estigma88/jdhtuq/releases/download/v2.0.4/desktop-network-gui-2.0.4.jar)
+[![Github Releases (by Asset)](https://img.shields.io/github/downloads/estigma88/jdhtuq/latest/desktop-structure-gui-2.0.2.jar.svg)](https://github.com/estigma88/jdhtuq/releases/download/v2.0.4/desktop-structure-gui-2.0.2.jar)     [![Github Releases (by Asset)](https://img.shields.io/github/downloads/estigma88/jdhtuq/latest/desktop-network-gui-2.0.4.jar.svg)](https://github.com/estigma88/jdhtuq/releases/download/v2.0.4/desktop-network-gui-2.0.4.jar)     [![Github Releases (by Asset)](https://img.shields.io/github/downloads/estigma88/jdhtuq/latest/standalone-network-2.0.4.jar.svg)](https://github.com/estigma88/jdhtuq/releases/download/standalone-network-v2.0.4/standalone-network-2.0.4.jar)
 
 Data structure and network applications.
 - Execute with double click or
@@ -27,10 +27,12 @@ To get more information about how to use the examples, please refer to
 ### From source code
 - Clone the repository
 - Execute the following command in the root folder
-	- For peer to peer simulation: 
+	- For desktop ui peer to peer simulation: 
 	`gradlew :main:desktop-structure-gui:bootRun`
-	- For peer to peer network with sockets: 
+	- For desktop ui peer to peer network with sockets: 
 	`gradlew :main:desktop-network-gui:bootRun`
+	- For standalone peer to peer network with sockets: 
+	`gradlew :main:standalone-network:bootRun`
 
 ### Using layers as dependencies
 Add the following dependencies to your project to use Chord, DHash and Communication layers in your own project.
