@@ -18,6 +18,7 @@
 
 package co.edu.uniquindio.utils.communication.transfer.network;
 
+import co.edu.uniquindio.utils.communication.transfer.ConnectionHandler;
 import co.edu.uniquindio.utils.communication.transfer.ConnectionListener;
 
 import java.io.Closeable;
@@ -27,10 +28,10 @@ import java.net.Socket;
 public class ConnectionReceiver implements Closeable, Runnable {
     private boolean run;
     private final ConnectionListener connectionListener;
-    private final ConnectionHandlerAsynchronous connectionHandlerAsynchronous;
+    private final ConnectionHandler connectionHandler;
 
-    public ConnectionReceiver(ConnectionListener connectionListener, ConnectionHandlerAsynchronous connectionHandlerAsynchronous) {
-        this.connectionHandlerAsynchronous = connectionHandlerAsynchronous;
+    public ConnectionReceiver(ConnectionListener connectionListener, ConnectionHandler connectionHandler) {
+        this.connectionHandler = connectionHandler;
         this.run = true;
         this.connectionListener = connectionListener;
     }
@@ -44,7 +45,7 @@ public class ConnectionReceiver implements Closeable, Runnable {
             try {
                 Socket socket = connectionListener.listen();
 
-                connectionHandlerAsynchronous.handle(socket);
+                connectionHandler.handle(socket);
             } catch (IOException e) {
                 e.printStackTrace();
             }

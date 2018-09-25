@@ -9,14 +9,14 @@ import java.io.InputStream;
 public class MessageInputStreamProcessorExecution implements MessageInputStreamProcessor {
     private CommunicationManagerTCP communicationManager;
 
-    public void setCommunicationManager(CommunicationManagerTCP communicationManager) {
-        this.communicationManager = communicationManager;
-    }
-
     @Override
     public void process(Message request, InputStream inputStream) {
         if (communicationManager.getMessageInputStreamProcessor() != null) {
             communicationManager.getMessageInputStreamProcessor().process(request, inputStream);
         }
+    }
+
+    public void setCommunicationManager(CommunicationManagerTCP communicationManager) {
+        this.communicationManager = communicationManager;
     }
 }

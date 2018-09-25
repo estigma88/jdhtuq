@@ -4,8 +4,8 @@ import co.edu.uniquindio.utils.communication.Observable;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerFactory;
-import co.edu.uniquindio.utils.communication.transfer.Communicator;
-import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
+import co.edu.uniquindio.utils.communication.transfer.ConnectionHandler;
+import co.edu.uniquindio.utils.communication.transfer.MessageInputStreamProcessor;
 import co.edu.uniquindio.utils.communication.transfer.response.*;
 
 import java.util.HashMap;
@@ -47,15 +47,20 @@ public class CommunicationManagerTCPFactory implements CommunicationManagerFacto
         Observable<Message> observable = new Observable<>();
 
         MessageProcessorExecution messageProcessorExecution = new MessageProcessorExecution(returnsManager, observable);
-        MessageProcessor messageProcessorGatewayAsynchronous = new MessageProcessorGatewayAsynchronous(messageProcessorExecution, messageProcessorExecutor);
 
-        Communicator multicastManager = new MulticastManagerUDP(messageSerialization);
-        Communicator unicastManager = new UnicastManagerTCP(messageSerialization);
-        MessagesReceiver unicastMessagesReceiver = new MessagesReceiver(unicastManager, messageProcessorGatewayAsynchronous);
+        MulticastManagerUDP multicastManager = new MulticastManagerUDP(messageSerialization);
+        MessageProcessorGatewayAsynchronous messageProcessorGatewayAsynchronous = new MessageProcessorGatewayAsynchronous(messageProcessorExecution, messageProcessorExecutor);
         MessagesReceiver multicastMessagesReceiver = new MessagesReceiver(multicastManager, messageProcessorGatewayAsynchronous);
 
-        CommunicationManagerTCP communication = new CommunicationManagerTCP(unicastManager, unicastMessagesReceiver, multicastManager, multicastMessagesReceiver, messageResponseProcessor, observable, returnsManager, messagesReceiverExecutor);
+        UnicastManagerTCP unicastManager = new UnicastManagerTCP(messageSerialization);
+        MessageInputStreamProcessorExecution messageInputStreamProcessorExecution = new MessageInputStreamProcessorExecution();
+        ConnectionHandler connectionHandler = new ConnectionMessageProcessorGateway(messageInputStreamProcessorExecution, messageProcessorExecution, messageSerialization);
+        ConnectionHandler connectionHandlerAsynchronous = new ConnectionHandlerAsynchronous(connectionHandler, messageProcessorExecutor);
+        ConnectionReceiver connectionReceiver = new ConnectionReceiver(unicastManager, connectionHandlerAsynchronous);
 
+        CommunicationManagerTCP communication = new CommunicationManagerTCP(unicastManager, connectionReceiver, multicastManager, multicastMessagesReceiver, messageResponseProcessor, observable, returnsManager, messagesReceiverExecutor);
+
+        messageInputStreamProcessorExecution.setCommunicationManager(communication);
         messageProcessorExecution.setCommunicationManager(communication);
 
         communication.init(communicationProperties);

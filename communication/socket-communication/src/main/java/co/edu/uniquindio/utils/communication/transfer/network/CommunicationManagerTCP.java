@@ -57,7 +57,7 @@ public class CommunicationManagerTCP implements
     private static final String RESPONSE_TIME = "RESPONSE_TIME";
 
     private final Communicator unicastManager;
-    private final MessagesReceiver unicastMessagesReciever;
+    private final ConnectionReceiver unicastConnectionReceiver;
     private final Communicator multicastManager;
     private final MessagesReceiver multicastMessagesReciever;
     private final MessageResponseProcessor messageResponseProcessor;
@@ -68,9 +68,9 @@ public class CommunicationManagerTCP implements
     private MessageInputStreamProcessor messageInputStreamProcessor;
     private Map<String, String> communicationProperties;
 
-    public CommunicationManagerTCP(Communicator unicastManager, MessagesReceiver unicastMessagesReciever, Communicator multicastManager, MessagesReceiver multicastMessagesReciever, MessageResponseProcessor messageResponseProcessor, Observable<Message> observableCommunication, ReturnsManager<Message> returnsManager, ExecutorService messagesReceiverExecutor) {
+    public CommunicationManagerTCP(Communicator unicastManager, ConnectionReceiver unicastConnectionReceiver, Communicator multicastManager, MessagesReceiver multicastMessagesReciever, MessageResponseProcessor messageResponseProcessor, Observable<Message> observableCommunication, ReturnsManager<Message> returnsManager, ExecutorService messagesReceiverExecutor) {
         this.unicastManager = unicastManager;
-        this.unicastMessagesReciever = unicastMessagesReciever;
+        this.unicastConnectionReceiver = unicastConnectionReceiver;
         this.multicastManager = multicastManager;
         this.multicastMessagesReciever = multicastMessagesReciever;
         this.messageResponseProcessor = messageResponseProcessor;
@@ -257,7 +257,7 @@ public class CommunicationManagerTCP implements
             multicastManager.close();
             multicastMessagesReciever.close();
             unicastManager.close();
-            unicastMessagesReciever.close();
+            unicastConnectionReceiver.close();
             messagesReceiverExecutor.shutdown();
         } catch (IOException e) {
             throw new IllegalStateException("Problem stopping communication", e);
@@ -324,7 +324,7 @@ public class CommunicationManagerTCP implements
         this.unicastManager.start(communicationProperties);
         this.multicastManager.start(communicationProperties);
 
-        messagesReceiverExecutor.execute(unicastMessagesReciever);
+        messagesReceiverExecutor.execute(unicastConnectionReceiver);
         messagesReceiverExecutor.execute(multicastMessagesReciever);
     }
 

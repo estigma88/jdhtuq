@@ -9,7 +9,7 @@ repositories {
 }
 
 group = 'com.github.estigma88'
-version = '2.1.0'
+version = '2.2.0'
 
 dependencies {
     compile project(':communication:communication-api')
