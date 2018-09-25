@@ -24,8 +24,12 @@ version = '2.2.0'
 dependencies {
     compile("org.springframework.boot:spring-boot-starter:1.5.10.RELEASE")
 
-    compile project(':main:starters:chord-spring-boot-starter')
-    compile project(':main:starters:dhash-spring-boot-starter')
+    compile (project(':main:starters:chord-spring-boot-starter')){
+        exclude group: 'com.github.estigma88', module: 'jdhtuq-communication-api'
+    }
+    compile (project(':main:starters:dhash-spring-boot-starter')){
+        exclude group: 'com.github.estigma88', module: 'jdhtuq-communication-api'
+    }
     compile project(':main:starters:socket-communication-spring-boot-starter')
 
     testCompile group: 'commons-io', name: 'commons-io', version: '2.6'
