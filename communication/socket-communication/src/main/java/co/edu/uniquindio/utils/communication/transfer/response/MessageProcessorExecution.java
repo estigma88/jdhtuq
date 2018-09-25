@@ -6,12 +6,12 @@ import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
 import co.edu.uniquindio.utils.communication.transfer.network.CommunicationManagerTCP;
 
-public class MessageProcessorGateway implements MessageProcessor {
+public class MessageProcessorExecution implements MessageProcessor {
     private final ReturnsManager<Message> responseReleaser;
     private CommunicationManagerTCP communicationManager;
     private final Observable<Message> observable;
 
-    public MessageProcessorGateway(ReturnsManager<Message> responseReleaser, Observable<Message> observable) {
+    public MessageProcessorExecution(ReturnsManager<Message> responseReleaser, Observable<Message> observable) {
         this.responseReleaser = responseReleaser;
         this.observable = observable;
     }

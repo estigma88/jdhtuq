@@ -82,13 +82,7 @@ public class Message {
      * @return Returns the data that is stored in the given position
      */
     public String getParam(String name) {
-        if (!params.containsKey(name)) {
-            throw new IllegalArgumentException("The message type "
-                    + messageType.getName() + " not contains param '" + name
-                    + "'");
-        } else {
-            return params.get(name);
-        }
+        return params.get(name);
     }
 
 
@@ -99,13 +93,7 @@ public class Message {
      * @return Data
      */
     public byte[] getData(String name) {
-        if (!datas.containsKey(name)) {
-            throw new IllegalArgumentException("The big message type "
-                    + messageType.getName() + " not contains param '" + name
-                    + "'");
-        } else {
-            return datas.get(name);
-        }
+        return datas.get(name);
     }
 
     /**

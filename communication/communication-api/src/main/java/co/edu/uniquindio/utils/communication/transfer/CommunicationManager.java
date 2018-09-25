@@ -133,6 +133,13 @@ public interface CommunicationManager {
     void addMessageProcessor(String name, MessageProcessor messageProcessor);
 
     /**
+     * Add a message processor to handle any kind of message with additional input stream
+     *
+     * @param name             of the message processor
+     */
+    void addMessageInputStreamProcessor(String name, MessageInputStreamProcessor messageInputStreamProcessor);
+
+    /**
      * Remove a message processor
      *
      * @param name of the message processor

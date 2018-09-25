@@ -23,6 +23,7 @@ import co.edu.uniquindio.utils.communication.Observer;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.Communicator;
+import co.edu.uniquindio.utils.communication.transfer.MessageInputStreamProcessor;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
 import co.edu.uniquindio.utils.communication.transfer.response.MessageResponseProcessor;
 import co.edu.uniquindio.utils.communication.transfer.response.MessagesReceiver;
@@ -64,6 +65,7 @@ public class CommunicationManagerTCP implements
     private final ReturnsManager<Message> returnsManager;
     private final ExecutorService messagesReceiverExecutor;
     private MessageProcessor messageProcessor;
+    private MessageInputStreamProcessor messageInputStreamProcessor;
     private Map<String, String> communicationProperties;
 
     public CommunicationManagerTCP(Communicator unicastManager, MessagesReceiver unicastMessagesReciever, Communicator multicastManager, MessagesReceiver multicastMessagesReciever, MessageResponseProcessor messageResponseProcessor, Observable<Message> observableCommunication, ReturnsManager<Message> returnsManager, ExecutorService messagesReceiverExecutor) {
@@ -295,6 +297,11 @@ public class CommunicationManagerTCP implements
     }
 
     @Override
+    public void addMessageInputStreamProcessor(String name, MessageInputStreamProcessor messageInputStreamProcessor) {
+        this.messageInputStreamProcessor = messageInputStreamProcessor;
+    }
+
+    @Override
     public void removeMessageProcessor(String name) {
         this.messageProcessor = null;
     }
@@ -303,13 +310,16 @@ public class CommunicationManagerTCP implements
         return messageProcessor;
     }
 
+    public MessageInputStreamProcessor getMessageInputStreamProcessor() {
+        return messageInputStreamProcessor;
+    }
 
     /*
-     * (non-Javadoc)
-     *
-     * @seeco.edu.uniquindio.utils.communication.transfer.
-     * CommunicationManagerWaitingResult#init ()
-     */
+         * (non-Javadoc)
+         *
+         * @seeco.edu.uniquindio.utils.communication.transfer.
+         * CommunicationManagerWaitingResult#init ()
+         */
     public void init() {
         this.unicastManager.start(communicationProperties);
         this.multicastManager.start(communicationProperties);

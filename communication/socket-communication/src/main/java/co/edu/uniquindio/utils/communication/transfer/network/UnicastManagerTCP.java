@@ -20,6 +20,7 @@ package co.edu.uniquindio.utils.communication.transfer.network;
 
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.Communicator;
+import co.edu.uniquindio.utils.communication.transfer.ConnectionListener;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
@@ -38,7 +39,7 @@ import java.util.Map;
  * @version 1.0, 17/06/2010
  * @since 1.0
  */
-public class UnicastManagerTCP implements Communicator {
+public class UnicastManagerTCP implements Communicator, ConnectionListener {
 
     /**
      * The <code>UnicastManagerTCPProperties</code> enum contains params
@@ -87,7 +88,7 @@ public class UnicastManagerTCP implements Communicator {
         String stringMessage;
         Message message = null;
 
-        try (Socket socket = serverSocket.accept();
+        try (Socket socket = listen();
              ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream())) {
 
             stringMessage = (String) objectInputStream.readObject();
@@ -98,6 +99,11 @@ public class UnicastManagerTCP implements Communicator {
         }
 
         return message;
+    }
+
+    @Override
+    public Socket listen() throws IOException {
+        return serverSocket.accept();
     }
 
     @Override

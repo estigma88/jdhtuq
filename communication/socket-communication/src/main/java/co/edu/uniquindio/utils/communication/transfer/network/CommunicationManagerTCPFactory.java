@@ -46,8 +46,8 @@ public class CommunicationManagerTCPFactory implements CommunicationManagerFacto
         ReturnsManager<Message> returnsManager = new ReturnsManagerCommunication<>();
         Observable<Message> observable = new Observable<>();
 
-        MessageProcessorGateway messageProcessorGateway = new MessageProcessorGateway(returnsManager, observable);
-        MessageProcessor messageProcessorGatewayAsynchronous = new MessageProcessorGatewayAsynchronous(messageProcessorGateway, messageProcessorExecutor);
+        MessageProcessorExecution messageProcessorExecution = new MessageProcessorExecution(returnsManager, observable);
+        MessageProcessor messageProcessorGatewayAsynchronous = new MessageProcessorGatewayAsynchronous(messageProcessorExecution, messageProcessorExecutor);
 
         Communicator multicastManager = new MulticastManagerUDP(messageSerialization);
         Communicator unicastManager = new UnicastManagerTCP(messageSerialization);
@@ -56,7 +56,7 @@ public class CommunicationManagerTCPFactory implements CommunicationManagerFacto
 
         CommunicationManagerTCP communication = new CommunicationManagerTCP(unicastManager, unicastMessagesReceiver, multicastManager, multicastMessagesReceiver, messageResponseProcessor, observable, returnsManager, messagesReceiverExecutor);
 
-        messageProcessorGateway.setCommunicationManager(communication);
+        messageProcessorExecution.setCommunicationManager(communication);
 
         communication.init(communicationProperties);
 
