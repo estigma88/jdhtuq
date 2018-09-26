@@ -22,6 +22,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
 
+import java.io.InputStream;
 import java.util.Map;
 import java.util.Set;
 
@@ -68,7 +69,9 @@ public class Message {
      * Hash map of names with datas
      */
     @Singular
-    private final Map<String, byte[]> datas;
+    private Map<String, byte[]> datas;
+
+    private InputStream inputStream;
 
     /**
      * Sequence number

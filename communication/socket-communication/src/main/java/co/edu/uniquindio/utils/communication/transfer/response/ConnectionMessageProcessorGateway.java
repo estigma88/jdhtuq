@@ -34,7 +34,7 @@ public class ConnectionMessageProcessorGateway implements ConnectionHandler {
                     .orElse(false);
 
             if (sendingInputStream) {
-                messageStreamProcessor.process(message, socket.getInputStream());
+                messageStreamProcessor.process(message, socket.getInputStream(), socket.getOutputStream());
             } else {
                 messageProcessor.process(message);
             }

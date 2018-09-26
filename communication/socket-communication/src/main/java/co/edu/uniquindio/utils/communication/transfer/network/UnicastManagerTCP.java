@@ -124,6 +124,26 @@ public class UnicastManagerTCP implements Communicator, ConnectionListener {
     }
 
     @Override
+    public Message receive(Message message) {
+        try (Socket socket = new Socket()) {
+            message.getParams().put(SENDING_INPUT_STREAM, String.valueOf(true));
+
+            send(message, socket);
+            ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
+
+            String stringMessage = (String) objectInputStream.readObject();
+
+            Message messageResponse = messageSerialization.decode(stringMessage);
+
+            messageResponse.setInputStream(socket.getInputStream());
+        } catch (IOException e) {
+            logger.error("Error writing socket " + message.getAddress(), e);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public void send(Message message, InputStream inputStream) {
         try (Socket socket = new Socket()) {
             message.getParams().put(SENDING_INPUT_STREAM, String.valueOf(true));

@@ -49,6 +49,7 @@ public interface Communicator extends Closeable {
      * @param message Message to send
      * @param inputStream inputStream to send
      */
+    Message receive(Message message);
     void send(Message message, InputStream source);
     void send(Message message, OutputStream destination);
     void send(InputStream source, OutputStream destination) throws IOException;
