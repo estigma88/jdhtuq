@@ -19,17 +19,25 @@
 package co.edu.uniquindio.dhash.resource;
 
 import co.edu.uniquindio.storage.resource.Resource;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 
-public class BytesResource implements Resource, Serializable {
-
+@Builder
+@EqualsAndHashCode
+@ToString
+public class FileResource implements Resource, Serializable {
     private final String id;
-    private final byte[] bytes;
+    private final String path;
 
-    public BytesResource(String id, byte[] bytes) {
+    public FileResource(String id, String path) {
         this.id = id;
-        this.bytes = bytes;
+        this.path = path;
     }
 
     @Override
@@ -37,7 +45,14 @@ public class BytesResource implements Resource, Serializable {
         return id;
     }
 
-    public byte[] getBytes() {
-        return bytes;
+    /**
+     * Creates a new input stream from the file in the path
+     *
+     * @return input stream
+     * @throws IOException
+     */
+    @Override
+    public InputStream getInputStream() throws IOException {
+        return new FileInputStream(path);
     }
 }

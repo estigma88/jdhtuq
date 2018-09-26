@@ -21,6 +21,8 @@ package co.edu.uniquindio.utils.communication.transfer;
 import co.edu.uniquindio.utils.communication.Observer;
 import co.edu.uniquindio.utils.communication.message.Message;
 
+import java.io.InputStream;
+
 /**
  * The {@code CommunicationManager} interface is used to send messages
  * regardless of the implementation of the way in which they are sent.
@@ -62,6 +64,16 @@ public interface CommunicationManager {
      * @param message Messages to send
      */
     void sendMessageUnicast(Message message);
+
+    /**
+     * Sends a message specifying its type, the type of the response and the
+     * data. Used Communicator instance called unicastManager to send message.
+     * Besides, it sends an input stream
+     *
+     * @param message Messages to send
+     * @param inputStream inputStream to send
+     */
+    void sendMessageUnicast(Message message, InputStream inputStream);
 
     /**
      * Creates and sends a multicast message specifying its type, the type of

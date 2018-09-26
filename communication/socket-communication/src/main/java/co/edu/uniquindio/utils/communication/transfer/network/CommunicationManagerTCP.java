@@ -32,6 +32,7 @@ import co.edu.uniquindio.utils.communication.transfer.response.WaitingResult;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
@@ -160,6 +161,19 @@ public class CommunicationManagerTCP implements
      */
     public void sendMessageUnicast(Message message) {
         unicastManager.send(message);
+    }
+
+    /**
+     * Sends a message specifying its type, the type of the response and the
+     * data. Used Communicator instance called unicastManager to send message.
+     * Besides, it sends an input stream
+     *
+     * @param message Messages to send
+     * @param inputStream inputStream to send
+     */
+    @Override
+    public void sendMessageUnicast(Message message, InputStream inputStream) {
+
     }
 
     /**

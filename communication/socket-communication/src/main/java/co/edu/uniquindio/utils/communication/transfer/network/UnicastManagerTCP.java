@@ -23,13 +23,13 @@ import co.edu.uniquindio.utils.communication.transfer.Communicator;
 import co.edu.uniquindio.utils.communication.transfer.ConnectionListener;
 import org.apache.log4j.Logger;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Map;
+
+import static co.edu.uniquindio.utils.communication.transfer.response.ConnectionMessageProcessorGateway.SENDING_INPUT_STREAM;
 
 /**
  * The <code>UnicastManagerTCP</code> class implemented transfer message based
@@ -48,7 +48,7 @@ public class UnicastManagerTCP implements Communicator, ConnectionListener {
      * @author dpelaez
      */
     public enum UnicastManagerTCPProperties {
-        TIMEOUT_TCP_CONNECTION, PORT_TCP
+        TIMEOUT_TCP_CONNECTION, PORT_TCP, SIZE_BUFFER
     }
 
     /**
@@ -67,6 +67,7 @@ public class UnicastManagerTCP implements Communicator, ConnectionListener {
      */
     private int portTcp;
     private int timeoutTcpConnection;
+    private int sizeBuffer;
     private final MessageSerialization messageSerialization;
 
     /**
@@ -106,6 +107,53 @@ public class UnicastManagerTCP implements Communicator, ConnectionListener {
         return serverSocket.accept();
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * co.edu.uniquindio.utils.communication.transfer.Communicator#send(co.edu
+     * .uniquindio.utils.communication.message.Message)
+     */
+    public void send(Message message) {
+        try (Socket socket = new Socket()) {
+            send(message, socket);
+        } catch (IOException e) {
+            logger.error("Error writing socket " + message.getAddress(), e);
+        }
+
+    }
+
+    @Override
+    public void send(Message message, InputStream inputStream) {
+        try (Socket socket = new Socket()) {
+            message.getParams().put(SENDING_INPUT_STREAM, String.valueOf(true));
+
+            send(message, socket);
+            send(inputStream, socket, inputStream);
+        } catch (IOException e) {
+            logger.error("Error writing socket " + message.getAddress(), e);
+        }
+    }
+
+    private void send(Message message, Socket socket) throws IOException {
+        socket.connect(new InetSocketAddress(message.getAddress().getDestination(), portTcp), timeoutTcpConnection);
+
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(
+                socket.getOutputStream());
+        objectOutputStream.writeObject(messageSerialization.encode(message));
+    }
+
+    private void send(InputStream inputStream, Socket socket, InputStream source) throws IOException {
+        OutputStream destination = socket.getOutputStream();
+
+        int count;
+        byte[] buffer = new byte[sizeBuffer];
+        while ((count = source.read(buffer)) > 0)
+        {
+            destination.write(buffer, 0, count);
+        }
+    }
+
     @Override
     public void start(Map<String, String> properties) {
         if (properties
@@ -134,32 +182,25 @@ public class UnicastManagerTCP implements Communicator, ConnectionListener {
 
             throw illegalArgumentException;
         }
+
+        if (properties
+                .containsKey(UnicastManagerTCPProperties.SIZE_BUFFER.name())) {
+            sizeBuffer = Integer.parseInt(properties
+                    .get(UnicastManagerTCPProperties.SIZE_BUFFER.name()));
+        } else {
+            IllegalArgumentException illegalArgumentException = new IllegalArgumentException(
+                    "Property SIZE_BUFFER not found");
+
+            logger.error("Property SIZE_BUFFER not found",
+                    illegalArgumentException);
+
+            throw illegalArgumentException;
+        }
         try {
             this.serverSocket = new ServerSocket(portTcp);
         } catch (IOException e) {
             logger.error("Error creating server socket", e);
             throw new IllegalStateException("Error creating server socket", e);
-        }
-
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * co.edu.uniquindio.utils.communication.transfer.Communicator#send(co.edu
-     * .uniquindio.utils.communication.message.Message)
-     */
-    public void send(Message message) {
-        try (Socket socket = new Socket()) {
-            socket.connect(new InetSocketAddress(message.getAddress().getDestination(), portTcp), timeoutTcpConnection);
-
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(
-                    socket.getOutputStream());
-            objectOutputStream.writeObject(messageSerialization.encode(message));
-
-        } catch (IOException e) {
-            logger.error("Error writing socket " + message.getAddress(), e);
         }
 
     }

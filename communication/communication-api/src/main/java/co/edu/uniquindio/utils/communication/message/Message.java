@@ -62,7 +62,7 @@ public class Message {
      * Params
      */
     @Singular
-    private final Map<String, String> params;
+    private Map<String, String> params;
 
     /**
      * Hash map of names with datas

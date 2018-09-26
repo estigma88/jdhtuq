@@ -24,6 +24,7 @@ import co.edu.uniquindio.dhash.resource.checksum.ChecksumCalculator;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
 import co.edu.uniquindio.overlay.OverlayException;
+import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.resource.Resource;
 import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
@@ -224,7 +225,7 @@ public class DHashEnvironment implements MessageProcessor {
             if (replicate) {
                 dHashNode.replicateData(resource);
             }
-        }catch (OverlayException e) {
+        }catch (OverlayException | StorageException e) {
             logger.error("Error replicating data", e);
         }
 

@@ -18,7 +18,6 @@
 
 package co.edu.uniquindio.dhash.resource.manager;
 
-import co.edu.uniquindio.dhash.resource.BytesResource;
 import co.edu.uniquindio.storage.resource.Resource;
 import org.apache.commons.io.IOUtils;
 

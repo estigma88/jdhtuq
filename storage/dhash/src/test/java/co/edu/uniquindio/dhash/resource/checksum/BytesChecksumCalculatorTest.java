@@ -18,7 +18,6 @@
 
 package co.edu.uniquindio.dhash.resource.checksum;
 
-import co.edu.uniquindio.dhash.resource.BytesResource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -29,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class BytesChecksumCalculatorTest {
     @InjectMocks
-    private BytesChecksumCalculator bytesChecksumCalculator;
+    private ChecksumInputStreamCalculator bytesChecksumCalculator;
 
     @Test
     public void calculate() {

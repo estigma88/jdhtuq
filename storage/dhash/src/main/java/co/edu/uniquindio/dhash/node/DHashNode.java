@@ -37,6 +37,7 @@ import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.apache.log4j.Logger;
 
+import java.io.IOException;
 import java.util.Set;
 
 /**
@@ -175,7 +176,7 @@ public class DHashNode implements StorageNode {
      * @throws OverlayException
      */
     public void replicateData(Resource resource)
-            throws OverlayException {
+            throws OverlayException, StorageException {
         Key[] succesorList = overlayNode.getNeighborsList();
 
         for (int i = 0; i < Math.min(replicationFactor, succesorList.length); i++) {
@@ -197,7 +198,7 @@ public class DHashNode implements StorageNode {
      * @param replicate Determines if the file will be replicated.
      * @return  False if the resource already exists, true if it does not exist
      */
-    boolean put(Resource resource, Key lookupKey, boolean replicate) {
+    boolean put(Resource resource, Key lookupKey, boolean replicate) throws StorageException {
 
         Message resourceCompareMessage;
         Message putMessage;
@@ -231,10 +232,13 @@ public class DHashNode implements StorageNode {
                         .build())
                 .param(PutParams.RESOURCE_KEY.name(), resource.getId())
                 .param(PutParams.REPLICATE.name(), String.valueOf(replicate))
-                .data(PutDatas.RESOURCE.name(), serializationHandler.encode(resource))
                 .build();
 
-        communicationManager.sendMessageUnicast(putMessage);
+        try {
+            communicationManager.sendMessageUnicast(putMessage, resource.getInputStream());
+        } catch (IOException e) {
+            throw new StorageException("Problem reading the input stream to put", e);
+        }
 
         return true;
     }
@@ -244,7 +248,7 @@ public class DHashNode implements StorageNode {
      *
      * @param key The node where the files will be relocated.
      */
-    public void relocateAllResources(Key key) {
+    public void relocateAllResources(Key key) throws StorageException {
 
         Set<String> resourcesNames = resourceManager.getAllKeys();
 

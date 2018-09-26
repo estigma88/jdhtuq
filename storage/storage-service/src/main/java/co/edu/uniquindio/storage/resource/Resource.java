@@ -18,6 +18,9 @@
 
 package co.edu.uniquindio.storage.resource;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 /**
  * Class to handle a Resource
  */
@@ -28,4 +31,10 @@ public interface Resource {
      * @return id of resource
      */
     String getId();
+
+    /**
+     * Get an input stream that represents the resource content
+     * @return resource content
+     */
+    InputStream getInputStream() throws IOException;
 }

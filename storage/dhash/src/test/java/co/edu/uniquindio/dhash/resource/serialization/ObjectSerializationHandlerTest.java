@@ -18,7 +18,6 @@
 
 package co.edu.uniquindio.dhash.resource.serialization;
 
-import co.edu.uniquindio.dhash.resource.BytesResource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
