@@ -3,8 +3,6 @@ package co.edu.uniquindio.dhash.node;
 import co.edu.uniquindio.dhash.protocol.Protocol;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
-import co.edu.uniquindio.overlay.OverlayException;
-import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.resource.Resource;
 import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
@@ -35,37 +33,23 @@ public class ResourceTransferMessageInputStreamProcessor implements MessageStrea
     @Override
     public void process(Message message, InputStream inputStream, OutputStream outputStream) {
         try {
-            Message.MessageBuilder resourceTransferResponseMessage;
+            Resource resource = resourceManager.find(
+                    message
+                            .getParam(Protocol.ResourceTransferParams.RESOURCE_KEY
+                                    .name()));
 
-            resourceTransferResponseMessage = Message.builder()
+            Message resourceTransferResponseMessage = Message.builder()
                     .sequenceNumber(message.getSequenceNumber())
                     .sendType(Message.SendType.RESPONSE)
                     .messageType(Protocol.RESOURCE_TRANSFER_RESPONSE)
+                    .param(Protocol.ResourceTransferResponseData.RESOURCE.name(), serializationHandler.encode(resource))
                     .address(Address.builder()
                             .destination(message.getAddress().getSource())
                             .source(dHashNode.getName())
-                            .build());
+                            .build()).build();
 
-            if (resourceManager.hasResource(
-                    message.getParam(Protocol.ResourceTransferParams.RESOURCE_KEY.name()))) {
-
-                resourceTransferResponseMessage.param(Protocol.ResourceTransferResponseData.RESOURCE_EXIST.name(), String.valueOf(true));
-
-                communicationManager.sendMessageUnicast(message, outputStream);
-
-                Resource resource = resourceManager.find(
-                        message
-                                .getParam(Protocol.ResourceTransferParams.RESOURCE_KEY
-                                        .name()));
-
-                communicationManager.sendMessageUnicast(resource.getInputStream(), outputStream);
-
-            } else {
-                resourceTransferResponseMessage.param(Protocol.ResourceTransferResponseData.RESOURCE_EXIST.name(), String.valueOf(false));
-
-                communicationManager.sendMessageUnicast(message, outputStream);
-
-            }
+            communicationManager.sendMessageUnicast(resourceTransferResponseMessage, outputStream);
+            communicationManager.sendMessageUnicast(resource.getInputStream(), outputStream);
         } catch (IOException e) {
             logger.error("Error replicating data", e);
         }

@@ -59,6 +59,8 @@ public interface CommunicationManager {
     <T> T sendMessageUnicast(Message message, Class<T> typeReturn,
                              String paramNameResult);
 
+    <T> T sendMessageTransferUnicast(Message resourceTransferMessage, Class<T> messageClass);
+
     /**
      * Sends a message specifying its type, the type of the response and the
      * data. Used Communicator instance called unicastManager to send message
@@ -177,4 +179,6 @@ public interface CommunicationManager {
      * Initialize communication manager.
      */
     void init();
+
+
 }

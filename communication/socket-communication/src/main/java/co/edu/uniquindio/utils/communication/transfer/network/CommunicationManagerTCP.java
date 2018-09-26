@@ -154,6 +154,11 @@ public class CommunicationManagerTCP implements
         return messageResponseProcessor.process(messageResponse, typeReturn, paramNameResult);
     }
 
+    @Override
+    public <T> T sendMessageTransferUnicast(Message resourceTransferMessage, Class<T> messageClass) {
+        return null;
+    }
+
     /**
      * Sends a message specifying its type, the type of the response and the
      * data. Used Communicator instance called unicastManager to send message
