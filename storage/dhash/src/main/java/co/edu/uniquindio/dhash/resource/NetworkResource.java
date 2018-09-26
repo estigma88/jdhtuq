@@ -22,15 +22,14 @@ import co.edu.uniquindio.storage.resource.Resource;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 
-@Builder
-@EqualsAndHashCode
-@ToString
+
 public class NetworkResource implements Resource, Serializable {
     private final String id;
     private final InputStream inputStream;

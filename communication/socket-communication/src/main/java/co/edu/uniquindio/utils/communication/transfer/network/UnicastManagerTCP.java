@@ -129,7 +129,18 @@ public class UnicastManagerTCP implements Communicator, ConnectionListener {
             message.getParams().put(SENDING_INPUT_STREAM, String.valueOf(true));
 
             send(message, socket);
-            send(inputStream, socket, inputStream);
+            send(socket, inputStream);
+        } catch (IOException e) {
+            logger.error("Error writing socket " + message.getAddress(), e);
+        }
+    }
+
+    @Override
+    public void send(Message message, OutputStream destination) {
+        try {
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(
+                    destination);
+            objectOutputStream.writeObject(messageSerialization.encode(message));
         } catch (IOException e) {
             logger.error("Error writing socket " + message.getAddress(), e);
         }
@@ -138,18 +149,19 @@ public class UnicastManagerTCP implements Communicator, ConnectionListener {
     private void send(Message message, Socket socket) throws IOException {
         socket.connect(new InetSocketAddress(message.getAddress().getDestination(), portTcp), timeoutTcpConnection);
 
-        ObjectOutputStream objectOutputStream = new ObjectOutputStream(
-                socket.getOutputStream());
-        objectOutputStream.writeObject(messageSerialization.encode(message));
+        send(message, socket.getOutputStream());
     }
 
-    private void send(InputStream inputStream, Socket socket, InputStream source) throws IOException {
+    private void send(Socket socket, InputStream source) throws IOException {
         OutputStream destination = socket.getOutputStream();
 
+        send(source, destination);
+    }
+
+    public void send(InputStream source, OutputStream destination) throws IOException {
         int count;
         byte[] buffer = new byte[sizeBuffer];
-        while ((count = source.read(buffer)) > 0)
-        {
+        while ((count = source.read(buffer)) > 0) {
             destination.write(buffer, 0, count);
         }
     }

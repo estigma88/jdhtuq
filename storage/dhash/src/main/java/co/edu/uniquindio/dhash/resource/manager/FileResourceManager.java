@@ -18,10 +18,13 @@
 
 package co.edu.uniquindio.dhash.resource.manager;
 
+import co.edu.uniquindio.dhash.resource.FileResource;
 import co.edu.uniquindio.storage.resource.Resource;
-import org.apache.commons.io.IOUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
@@ -38,18 +41,12 @@ public class FileResourceManager implements ResourceManager {
     }
 
     @Override
-    public void save(Resource resource) {
+    public Resource save(Resource resource) {
         FileOutputStream fileOutputStream;
         StringBuilder directoryPath;
         File directoryFile;
 
-        BytesResource bytesResource = (BytesResource) resource;
         try {
-            byte[] bytesFile = bytesResource.getBytes();
-            if (bytesFile == null) {
-                return;
-            }
-
             directoryPath = new StringBuilder(directory);
             directoryPath.append(name);
             directoryPath.append("/");
@@ -60,15 +57,19 @@ public class FileResourceManager implements ResourceManager {
             File file = new File(directoryFile, resource.getId());
 
             fileOutputStream = new FileOutputStream(file);
+            InputStream source = resource.getInputStream();
 
-            fileOutputStream.write(bytesFile);
+            int count;
+            byte[] buffer = new byte[2048];
+            while ((count = source.read(buffer)) > 0) {
+                fileOutputStream.write(buffer, 0, count);
+            }
 
             fileOutputStream.close();
 
-            bytesFile = null;
-
             keys.add(resource.getId());
 
+            return new FileResource(resource.getId(), directoryPath.toString() + resource.getId());
         } catch (IOException e) {
             throw new IllegalStateException("Error reading file", e);
         }
@@ -107,19 +108,9 @@ public class FileResourceManager implements ResourceManager {
             StringBuilder directoryPath = new StringBuilder(directory);
             directoryPath.append(name);
             directoryPath.append("/");
+            directoryPath.append(key);
 
-            File directoryFile = new File(directoryPath.toString());
-            directoryFile.mkdirs();
-
-            File file = new File(directoryFile, key);
-
-            try {
-                return new BytesResource(key, IOUtils.toByteArray(new FileInputStream(file)));
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException("", e);
-            } catch (IOException e) {
-                throw new RuntimeException("", e);
-            }
+            return new FileResource(key, directoryPath.toString());
         } else {
             return null;
         }

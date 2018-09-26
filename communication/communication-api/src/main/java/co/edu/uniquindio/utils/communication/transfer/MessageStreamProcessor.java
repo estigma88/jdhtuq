@@ -21,7 +21,8 @@ package co.edu.uniquindio.utils.communication.transfer;
 import co.edu.uniquindio.utils.communication.message.Message;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 
-public interface MessageInputStreamProcessor {
-    void process(Message request, InputStream inputStream);
+public interface MessageStreamProcessor {
+    void process(Message request, InputStream inputStream, OutputStream outputStream);
 }

@@ -23,7 +23,7 @@ import co.edu.uniquindio.utils.communication.Observer;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.Communicator;
-import co.edu.uniquindio.utils.communication.transfer.MessageInputStreamProcessor;
+import co.edu.uniquindio.utils.communication.transfer.MessageStreamProcessor;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
 import co.edu.uniquindio.utils.communication.transfer.response.MessageResponseProcessor;
 import co.edu.uniquindio.utils.communication.transfer.response.MessagesReceiver;
@@ -33,6 +33,7 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
@@ -66,7 +67,7 @@ public class CommunicationManagerTCP implements
     private final ReturnsManager<Message> returnsManager;
     private final ExecutorService messagesReceiverExecutor;
     private MessageProcessor messageProcessor;
-    private MessageInputStreamProcessor messageInputStreamProcessor;
+    private MessageStreamProcessor messageStreamProcessor;
     private Map<String, String> communicationProperties;
 
     public CommunicationManagerTCP(Communicator unicastManager, ConnectionReceiver unicastConnectionReceiver, Communicator multicastManager, MessagesReceiver multicastMessagesReciever, MessageResponseProcessor messageResponseProcessor, Observable<Message> observableCommunication, ReturnsManager<Message> returnsManager, ExecutorService messagesReceiverExecutor) {
@@ -173,7 +174,17 @@ public class CommunicationManagerTCP implements
      */
     @Override
     public void sendMessageUnicast(Message message, InputStream inputStream) {
+        unicastManager.send(message, inputStream);
+    }
 
+    @Override
+    public void sendMessageUnicast(InputStream source, OutputStream destination) throws IOException {
+        unicastManager.send(source, destination);
+    }
+
+    @Override
+    public void sendMessageUnicast(Message message, OutputStream destination) {
+        unicastManager.send(message, destination);
     }
 
     /**
@@ -311,8 +322,8 @@ public class CommunicationManagerTCP implements
     }
 
     @Override
-    public void addMessageInputStreamProcessor(String name, MessageInputStreamProcessor messageInputStreamProcessor) {
-        this.messageInputStreamProcessor = messageInputStreamProcessor;
+    public void addMessageInputStreamProcessor(String name, MessageStreamProcessor messageStreamProcessor) {
+        this.messageStreamProcessor = messageStreamProcessor;
     }
 
     @Override
@@ -324,8 +335,8 @@ public class CommunicationManagerTCP implements
         return messageProcessor;
     }
 
-    public MessageInputStreamProcessor getMessageInputStreamProcessor() {
-        return messageInputStreamProcessor;
+    public MessageStreamProcessor getMessageStreamProcessor() {
+        return messageStreamProcessor;
     }
 
     /*

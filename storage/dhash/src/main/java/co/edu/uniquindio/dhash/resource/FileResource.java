@@ -28,9 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 
-@Builder
-@EqualsAndHashCode
-@ToString
+
 public class FileResource implements Resource, Serializable {
     private final String id;
     private final String path;

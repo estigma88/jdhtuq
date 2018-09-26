@@ -137,7 +137,7 @@ public final class Protocol {
             .build();
 
     public enum ResourceTransferResponseData {
-        RESOURCE
+        RESOURCE, RESOURCE_EXIST
     }
 
     /**

@@ -20,6 +20,7 @@ package co.edu.uniquindio.dhash.resource.manager;
 
 import co.edu.uniquindio.storage.resource.Resource;
 
+import java.io.OutputStream;
 import java.util.Set;
 
 /**
@@ -31,7 +32,7 @@ public interface ResourceManager {
      *
      * @param resource resource
      */
-    void save(Resource resource);
+    Resource save(Resource resource);
 
     /**
      * Delete all resources

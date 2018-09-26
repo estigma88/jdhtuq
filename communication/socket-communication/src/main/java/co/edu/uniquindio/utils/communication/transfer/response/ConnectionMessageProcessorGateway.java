@@ -3,7 +3,7 @@ package co.edu.uniquindio.utils.communication.transfer.response;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.ConnectionHandler;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
-import co.edu.uniquindio.utils.communication.transfer.MessageInputStreamProcessor;
+import co.edu.uniquindio.utils.communication.transfer.MessageStreamProcessor;
 import co.edu.uniquindio.utils.communication.transfer.network.MessageSerialization;
 
 import java.io.IOException;
@@ -14,12 +14,12 @@ import java.util.Optional;
 public class ConnectionMessageProcessorGateway implements ConnectionHandler {
     public static final String SENDING_INPUT_STREAM = ConnectionMessageProcessorGateway.class.getName() + ".sending_input_stream";
 
-    private final MessageInputStreamProcessor messageInputStreamProcessor;
+    private final MessageStreamProcessor messageStreamProcessor;
     private final MessageProcessor messageProcessor;
     private final MessageSerialization messageSerialization;
 
-    public ConnectionMessageProcessorGateway(MessageInputStreamProcessor messageInputStreamProcessor, MessageProcessor messageProcessor, MessageSerialization messageSerialization) {
-        this.messageInputStreamProcessor = messageInputStreamProcessor;
+    public ConnectionMessageProcessorGateway(MessageStreamProcessor messageStreamProcessor, MessageProcessor messageProcessor, MessageSerialization messageSerialization) {
+        this.messageStreamProcessor = messageStreamProcessor;
         this.messageProcessor = messageProcessor;
         this.messageSerialization = messageSerialization;
     }
@@ -34,7 +34,7 @@ public class ConnectionMessageProcessorGateway implements ConnectionHandler {
                     .orElse(false);
 
             if (sendingInputStream) {
-                messageInputStreamProcessor.process(message, socket.getInputStream());
+                messageStreamProcessor.process(message, socket.getInputStream());
             } else {
                 messageProcessor.process(message);
             }

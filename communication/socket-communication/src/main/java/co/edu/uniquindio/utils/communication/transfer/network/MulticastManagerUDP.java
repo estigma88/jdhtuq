@@ -23,6 +23,8 @@ import co.edu.uniquindio.utils.communication.transfer.Communicator;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
@@ -196,6 +198,16 @@ public class MulticastManagerUDP implements Communicator {
         } catch (IOException e) {
             logger.error("Error writing multicast socket", e);
         }
+    }
+
+    @Override
+    public void send(Message message, InputStream source) {
+
+    }
+
+    @Override
+    public void send(Message message, OutputStream destination) {
+
     }
 
     /*

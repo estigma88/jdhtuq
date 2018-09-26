@@ -21,7 +21,9 @@ package co.edu.uniquindio.utils.communication.transfer;
 import co.edu.uniquindio.utils.communication.Observer;
 import co.edu.uniquindio.utils.communication.message.Message;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * The {@code CommunicationManager} interface is used to send messages
@@ -71,9 +73,22 @@ public interface CommunicationManager {
      * Besides, it sends an input stream
      *
      * @param message Messages to send
-     * @param inputStream inputStream to send
+     * @param source inputStream to send
      */
-    void sendMessageUnicast(Message message, InputStream inputStream);
+    void sendMessageUnicast(Message message, InputStream source);
+
+    void sendMessageUnicast(InputStream source, OutputStream destination) throws IOException;
+
+
+    /**
+     * Sends a message specifying its type, the type of the response and the
+     * data. Used Communicator instance called unicastManager to send message.
+     * Besides, it sends an input stream
+     *
+     * @param message Messages to send
+     * @param destination inputStream to send
+     */
+    void sendMessageUnicast(Message message, OutputStream destination);
 
     /**
      * Creates and sends a multicast message specifying its type, the type of
@@ -149,7 +164,7 @@ public interface CommunicationManager {
      *
      * @param name             of the message processor
      */
-    void addMessageInputStreamProcessor(String name, MessageInputStreamProcessor messageInputStreamProcessor);
+    void addMessageInputStreamProcessor(String name, MessageStreamProcessor messageStreamProcessor);
 
     /**
      * Remove a message processor

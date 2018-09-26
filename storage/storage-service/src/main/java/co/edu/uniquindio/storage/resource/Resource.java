@@ -21,6 +21,7 @@ package co.edu.uniquindio.storage.resource;
 import java.io.IOException;
 import java.io.InputStream;
 
+//TODO patron decorator
 /**
  * Class to handle a Resource
  */

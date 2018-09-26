@@ -21,7 +21,9 @@ package co.edu.uniquindio.utils.communication.transfer;
 import co.edu.uniquindio.utils.communication.message.Message;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Map;
 
 /**
@@ -47,7 +49,9 @@ public interface Communicator extends Closeable {
      * @param message Message to send
      * @param inputStream inputStream to send
      */
-    void send(Message message, InputStream inputStream);
+    void send(Message message, InputStream source);
+    void send(Message message, OutputStream destination);
+    void send(InputStream source, OutputStream destination) throws IOException;
 
     /**
      * Reciever message
