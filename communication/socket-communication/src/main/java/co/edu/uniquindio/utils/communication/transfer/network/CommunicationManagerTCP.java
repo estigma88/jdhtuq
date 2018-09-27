@@ -156,8 +156,7 @@ public class CommunicationManagerTCP implements
 
     @Override
     public <T> T sendMessageTransferUnicast(Message resourceTransferMessage, Class<T> messageClass) {
-        Message message = unicastManager.receive(resourceTransferMessage);
-        return messageResponseProcessor.process(resourceTransferMessage, messageClass, );
+        return messageResponseProcessor.process(unicastManager.receive(resourceTransferMessage), messageClass, null);
     }
 
     /**

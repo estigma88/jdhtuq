@@ -63,13 +63,13 @@ public class Message {
      * Params
      */
     @Singular
-    private Map<String, String> params;
+    private final Map<String, String> params;
 
     /**
      * Hash map of names with datas
      */
     @Singular
-    private Map<String, byte[]> datas;
+    private final Map<String, byte[]> datas;
 
     private InputStream inputStream;
 
@@ -99,6 +99,15 @@ public class Message {
         return datas.get(name);
     }
 
+    public static Message.MessageBuilder with(Message message){
+        return Message.builder()
+                .sequenceNumber(message.sequenceNumber)
+                .sendType(message.sendType)
+                .messageType(message.messageType)
+                .address(message.address)
+                .params(message.params)
+                .datas(message.datas);
+    }
     /**
      * This method is used for knowing if the message is the same source and
      * destination node

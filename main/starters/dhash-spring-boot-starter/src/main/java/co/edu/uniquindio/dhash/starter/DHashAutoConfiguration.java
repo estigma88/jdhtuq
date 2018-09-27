@@ -1,12 +1,12 @@
 package co.edu.uniquindio.dhash.starter;
 
 import co.edu.uniquindio.dhash.node.DHashNodeFactory;
-import co.edu.uniquindio.dhash.resource.checksum.BytesChecksumCalculator;
 import co.edu.uniquindio.dhash.resource.checksum.ChecksumCalculator;
+import co.edu.uniquindio.dhash.resource.checksum.ChecksumInputStreamCalculator;
 import co.edu.uniquindio.dhash.resource.manager.FileResourceManagerFactory;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManagerFactory;
-import co.edu.uniquindio.dhash.resource.serialization.ObjectSerializationHandler;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
+import co.edu.uniquindio.dhash.starter.mapper.ObjectMapperSerializationHandler;
 import co.edu.uniquindio.overlay.KeyFactory;
 import co.edu.uniquindio.overlay.OverlayNodeFactory;
 import co.edu.uniquindio.storage.StorageNodeFactory;
@@ -14,6 +14,7 @@ import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
 import co.edu.uniquindio.utils.communication.message.SequenceGeneratorImpl;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -43,13 +44,13 @@ public class DHashAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public SerializationHandler serializationHandler() {
-        return new ObjectSerializationHandler();
+        return new ObjectMapperSerializationHandler(new ObjectMapper());
     }
 
     @Bean
     @ConditionalOnMissingBean
     public ChecksumCalculator checksumeCalculator() {
-        return new BytesChecksumCalculator();
+        return new ChecksumInputStreamCalculator();
     }
 
     @Bean

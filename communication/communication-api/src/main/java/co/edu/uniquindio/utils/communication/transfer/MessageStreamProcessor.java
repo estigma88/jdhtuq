@@ -24,5 +24,5 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public interface MessageStreamProcessor {
-    void process(Message request, InputStream inputStream, OutputStream outputStream);
+    void process(Message message, InputStream inputStream, OutputStream outputStream);
 }

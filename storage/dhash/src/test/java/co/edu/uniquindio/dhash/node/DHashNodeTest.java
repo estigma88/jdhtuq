@@ -125,7 +125,7 @@ public class DHashNodeTest {
 
     @Test
     public void get_nodeHaveResource_exception() throws StorageException, IOException, ClassNotFoundException {
-        when(serializationHandler.decode(new byte[10])).thenReturn(resource1);
+        when(serializationHandler.decode("", null)).thenReturn(resource1);
         when(keyFactory.newKey("resourceKey")).thenReturn(key1);
         when(overlayNode.lookUp(key1)).thenReturn(key);
         when(bigMessage.getData(Protocol.ResourceTransferResponseData.RESOURCE.name())).thenReturn(new byte[10]);
@@ -214,7 +214,7 @@ public class DHashNodeTest {
     }
 
     @Test
-    public void relocateAllResources_put_relocate2() {
+    public void relocateAllResources_put_relocate2() throws StorageException {
         Set<String> resourcesNames = new HashSet<>();
         resourcesNames.add("resource1");
         resourcesNames.add("resource2");
@@ -286,7 +286,7 @@ public class DHashNodeTest {
     }
 
     @Test
-    public void replicateData_neighborsListEqualReplicationFactor_replicateAll() throws OverlayException {
+    public void replicateData_neighborsListEqualReplicationFactor_replicateAll() throws OverlayException, StorageException {
         when(overlayNode.getNeighborsList()).thenReturn(new Key[]{key1, key2, key3});
         doReturn(true).when(dHashNode).put(any(), any(), anyBoolean());
 
@@ -298,7 +298,7 @@ public class DHashNodeTest {
     }
 
     @Test
-    public void replicateData_neighborsListLessThanReplicationFactor_replicate2() throws OverlayException {
+    public void replicateData_neighborsListLessThanReplicationFactor_replicate2() throws OverlayException, StorageException {
         when(overlayNode.getNeighborsList()).thenReturn(new Key[]{key1, key2});
         doReturn(true).when(dHashNode).put(any(), any(), anyBoolean());
 
@@ -309,7 +309,7 @@ public class DHashNodeTest {
     }
 
     @Test
-    public void replicateData_neighborsListGreaterThanReplicationFactor_replicate3() throws OverlayException {
+    public void replicateData_neighborsListGreaterThanReplicationFactor_replicate3() throws OverlayException, StorageException {
         when(overlayNode.getNeighborsList()).thenReturn(new Key[]{key1, key2, key3, key});
         doReturn(true).when(dHashNode).put(any(), any(), anyBoolean());
 

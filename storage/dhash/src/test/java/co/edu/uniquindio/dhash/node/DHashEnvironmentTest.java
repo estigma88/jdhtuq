@@ -23,6 +23,7 @@ import co.edu.uniquindio.dhash.resource.checksum.ChecksumCalculator;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
 import co.edu.uniquindio.overlay.OverlayException;
+import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.resource.Resource;
 import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
@@ -66,11 +67,11 @@ public class DHashEnvironmentTest {
     private ArgumentCaptor<Message> bigMessageCaptor;
 
     @Test
-    public void put_bigMessageNotReplicate_save() throws OverlayException {
+    public void put_bigMessageNotReplicate_save() throws OverlayException, StorageException {
         when(bigMessage.getMessageType()).thenReturn(Protocol.PUT);
         when(bigMessage.getData(Protocol.PutDatas.RESOURCE.name())).thenReturn(new byte[]{1, 2, 3, 5});
         when(bigMessage.getParam(Protocol.PutParams.REPLICATE.name())).thenReturn("false");
-        when(serializationHandler.decode(new byte[]{1, 2, 3, 5})).thenReturn(serializableResource);
+        when(serializationHandler.decode("", null)).thenReturn(serializableResource);
 
         dHashEnvironment.process(bigMessage);
 
@@ -79,11 +80,11 @@ public class DHashEnvironmentTest {
     }
 
     @Test
-    public void put_bigMessageReplicate_replicate() throws OverlayException, IOException, ClassNotFoundException {
+    public void put_bigMessageReplicate_replicate() throws OverlayException, IOException, ClassNotFoundException, StorageException {
         when(bigMessage.getMessageType()).thenReturn(Protocol.PUT);
         when(bigMessage.getData(Protocol.PutDatas.RESOURCE.name())).thenReturn(new byte[]{1, 2, 3, 5});
         when(bigMessage.getParam(Protocol.PutParams.REPLICATE.name())).thenReturn("true");
-        when(serializationHandler.decode(new byte[]{1, 2, 3, 5})).thenReturn(serializableResource);
+        when(serializationHandler.decode("", null)).thenReturn(serializableResource);
 
         dHashEnvironment.process(bigMessage);
 
@@ -195,7 +196,7 @@ public class DHashEnvironmentTest {
         when(dHashNode.getName()).thenReturn("dhash");
         when(resourceManager.hasResource("resource")).thenReturn(true);
         when(resourceManager.find("resource")).thenReturn(serializableResource);
-        when(serializationHandler.encode(serializableResource)).thenReturn(new byte[]{1, 2, 3});
+        when(serializationHandler.encode(serializableResource)).thenReturn("");
 
         Message response = dHashEnvironment.process(message);
 

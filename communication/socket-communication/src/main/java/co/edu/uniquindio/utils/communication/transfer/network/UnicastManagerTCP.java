@@ -125,8 +125,11 @@ public class UnicastManagerTCP implements Communicator, ConnectionListener {
 
     @Override
     public Message receive(Message message) {
-        try (Socket socket = new Socket()) {
-            message.getParams().put(SENDING_INPUT_STREAM, String.valueOf(true));
+        try {
+            Socket socket = new Socket();
+            message = Message.with(message)
+                    .param(SENDING_INPUT_STREAM, String.valueOf(true))
+                    .build();
 
             send(message, socket);
             ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
@@ -136,17 +139,20 @@ public class UnicastManagerTCP implements Communicator, ConnectionListener {
             Message messageResponse = messageSerialization.decode(stringMessage);
 
             messageResponse.setInputStream(socket.getInputStream());
-        } catch (IOException e) {
+
+            return messageResponse;
+        } catch (IOException | ClassNotFoundException e) {
             logger.error("Error writing socket " + message.getAddress(), e);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            return null;
         }
     }
 
     @Override
     public void send(Message message, InputStream inputStream) {
         try (Socket socket = new Socket()) {
-            message.getParams().put(SENDING_INPUT_STREAM, String.valueOf(true));
+            message = Message.with(message)
+                    .param(SENDING_INPUT_STREAM, String.valueOf(true))
+                    .build();
 
             send(message, socket);
             send(socket, inputStream);
@@ -184,6 +190,8 @@ public class UnicastManagerTCP implements Communicator, ConnectionListener {
         while ((count = source.read(buffer)) > 0) {
             destination.write(buffer, 0, count);
         }
+        source.close();
+        destination.close();
     }
 
     @Override
@@ -220,13 +228,14 @@ public class UnicastManagerTCP implements Communicator, ConnectionListener {
             sizeBuffer = Integer.parseInt(properties
                     .get(UnicastManagerTCPProperties.SIZE_BUFFER.name()));
         } else {
-            IllegalArgumentException illegalArgumentException = new IllegalArgumentException(
+            /*IllegalArgumentException illegalArgumentException = new IllegalArgumentException(
                     "Property SIZE_BUFFER not found");
 
             logger.error("Property SIZE_BUFFER not found",
                     illegalArgumentException);
 
-            throw illegalArgumentException;
+            throw illegalArgumentException;*/
+            sizeBuffer = 2048;
         }
         try {
             this.serverSocket = new ServerSocket(portTcp);

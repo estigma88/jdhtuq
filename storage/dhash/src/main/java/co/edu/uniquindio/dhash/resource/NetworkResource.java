@@ -19,24 +19,22 @@
 package co.edu.uniquindio.dhash.resource;
 
 import co.edu.uniquindio.storage.resource.Resource;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
+import lombok.Data;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 
-
 public class NetworkResource implements Resource, Serializable {
-    private final String id;
-    private final InputStream inputStream;
+    private String id;
+    private transient InputStream inputStream;
 
     public NetworkResource(String id, InputStream inputStream) {
         this.id = id;
         this.inputStream = inputStream;
+    }
+
+    public NetworkResource() {
     }
 
     @Override
@@ -53,5 +51,13 @@ public class NetworkResource implements Resource, Serializable {
     @Override
     public InputStream getInputStream() throws IOException {
         return inputStream;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setInputStream(InputStream inputStream) {
+        this.inputStream = inputStream;
     }
 }

@@ -78,10 +78,6 @@ public class DHashEnvironment implements MessageProcessor {
 
         Message response = null;
 
-        if (message.getMessageType().equals(Protocol.PUT)) {
-            response = processPut(message);
-        }
-
         if (message.getMessageType().equals(Protocol.RESOURCE_COMPARE)) {
             response = processResourceCompare(message);
         }
@@ -89,50 +85,8 @@ public class DHashEnvironment implements MessageProcessor {
         if (message.getMessageType().equals(Protocol.GET)) {
             response = processGet(message);
         }
-        if (message.getMessageType().equals(Protocol.RESOURCE_TRANSFER)) {
-            response = processResourceTransfer(message);
-        }
 
         return response;
-    }
-
-    /**
-     * Process message of type is RESOURCE_TRANSFER
-     *
-     * @param message Message RESOURCE_TRANSFER
-     */
-    private Message processResourceTransfer(Message message) {
-
-        Message.MessageBuilder resourceTransferResponseMessage;
-
-        resourceTransferResponseMessage = Message.builder()
-                .sequenceNumber(message.getSequenceNumber())
-                .sendType(SendType.RESPONSE)
-                .messageType(Protocol.RESOURCE_TRANSFER_RESPONSE)
-                .address(Address.builder()
-                        .destination(message.getAddress().getSource())
-                        .source(dHashNode.getName())
-                        .build());
-
-        if (resourceManager.hasResource(
-                message.getParam(ResourceTransferParams.RESOURCE_KEY.name()))) {
-
-            Resource resource = resourceManager.find(
-                    message
-                            .getParam(ResourceTransferParams.RESOURCE_KEY
-                                    .name()));
-
-            resourceTransferResponseMessage.data(
-                    ResourceTransferResponseData.RESOURCE.name(), serializationHandler.encode(resource));
-
-        } else {
-
-            resourceTransferResponseMessage.data(
-                    ResourceTransferResponseData.RESOURCE.name(), new byte[0]);
-
-        }
-
-        return resourceTransferResponseMessage.build();
     }
 
     /**
@@ -205,30 +159,5 @@ public class DHashEnvironment implements MessageProcessor {
                 + "]");
 
         return getResponseMessage.build();
-    }
-
-    /**
-     * Process message of type is PUT
-     *
-     * @param message Message PUT
-     */
-    private Message processPut(Message message) {
-        try {
-            Resource resource = serializationHandler.decode(
-                    message.getData(PutDatas.RESOURCE.name()));
-
-            resourceManager.save(resource);
-
-            Boolean replicate = Boolean.valueOf(message
-                    .getParam(PutParams.REPLICATE.name()));
-
-            if (replicate) {
-                dHashNode.replicateData(resource);
-            }
-        }catch (OverlayException | StorageException e) {
-            logger.error("Error replicating data", e);
-        }
-
-        return null;
     }
 }

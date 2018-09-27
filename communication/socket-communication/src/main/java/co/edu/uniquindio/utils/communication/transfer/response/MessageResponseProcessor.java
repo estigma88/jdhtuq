@@ -11,7 +11,7 @@ public class MessageResponseProcessor {
                          String paramNameResult) {
         T typeInstance;
 
-        if (message == null/* || message.getMessageType().equals(EMPTY_MESSAGE_TYPE)*/) {
+        if (message == null) {
             return null;
         }
 

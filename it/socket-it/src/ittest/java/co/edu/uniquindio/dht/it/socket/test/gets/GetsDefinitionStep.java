@@ -1,12 +1,10 @@
 package co.edu.uniquindio.dht.it.socket.test.gets;
 
-import co.edu.uniquindio.dhash.resource.BytesResource;
 import co.edu.uniquindio.dht.it.socket.Protocol;
 import co.edu.uniquindio.dht.it.socket.test.CucumberRoot;
 import co.edu.uniquindio.dht.it.socket.test.MessageClient;
 import co.edu.uniquindio.dht.it.socket.test.World;
 import co.edu.uniquindio.dht.it.socket.test.put.Content;
-import co.edu.uniquindio.storage.StorageNode;
 import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.SequenceGenerator;

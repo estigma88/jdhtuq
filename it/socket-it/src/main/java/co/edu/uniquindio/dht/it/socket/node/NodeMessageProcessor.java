@@ -3,15 +3,19 @@ package co.edu.uniquindio.dht.it.socket.node;
 import co.edu.uniquindio.chord.ChordKey;
 import co.edu.uniquindio.chord.node.ChordNode;
 import co.edu.uniquindio.dhash.node.DHashNode;
-import co.edu.uniquindio.dhash.resource.BytesResource;
+import co.edu.uniquindio.dhash.resource.FileResource;
+import co.edu.uniquindio.dhash.resource.NetworkResource;
 import co.edu.uniquindio.dht.it.socket.Protocol;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
-import javax.swing.text.html.Option;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.Optional;
 
@@ -58,7 +62,7 @@ public class NodeMessageProcessor implements MessageProcessor {
                             .build())
                     .param(Protocol.LeaveResponseParams.MESSAGE.name(), "OK")
                     .build();
-        } catch (StorageException e) {
+        } catch (Exception e) {
             logger.error("Problem doing put", e);
             return Message.builder()
                     .sendType(Message.SendType.RESPONSE)
@@ -89,12 +93,17 @@ public class NodeMessageProcessor implements MessageProcessor {
     }
 
     private Message processPut(Message request) {
-        BytesResource resource = new BytesResource(request.getParam(Protocol.PutParams.RESOURCE_NAME.name()), request.getData(Protocol.PutDatas.RESOURCE.name()));
-
         try {
+            FileResource resource = new FileResource(request.getParam(Protocol.PutParams.RESOURCE_NAME.name()), ""){
+                @Override
+                public InputStream getInputStream() throws IOException {
+                    return new ByteArrayInputStream(request.getData(Protocol.PutDatas.RESOURCE.name()));
+                }
+            };
+
             boolean success = storageNode.put(resource);
 
-            if (success){
+            if (success) {
                 return Message.builder()
                         .sendType(Message.SendType.RESPONSE)
                         .messageType(Protocol.PUT_RESPONSE)
@@ -104,7 +113,7 @@ public class NodeMessageProcessor implements MessageProcessor {
                                 .build())
                         .param(Protocol.PutResponseParams.MESSAGE.name(), "OK")
                         .build();
-            }else{
+            } else {
                 return Message.builder()
                         .sendType(Message.SendType.RESPONSE)
                         .messageType(Protocol.PUT_RESPONSE)
@@ -115,7 +124,7 @@ public class NodeMessageProcessor implements MessageProcessor {
                         .param(Protocol.PutResponseParams.MESSAGE.name(), "Put unsuccessful")
                         .build();
             }
-        } catch (StorageException e) {
+        } catch (Exception e) {
             logger.error("Problem doing put", e);
             return Message.builder()
                     .sendType(Message.SendType.RESPONSE)
@@ -131,7 +140,7 @@ public class NodeMessageProcessor implements MessageProcessor {
 
     private Message processGet(Message request) {
         try {
-            BytesResource resource = (BytesResource) storageNode.get(request.getParam(Protocol.GetParams.RESOURCE_NAME.name()));
+            NetworkResource resource = (NetworkResource) storageNode.get(request.getParam(Protocol.GetParams.RESOURCE_NAME.name()));
 
             return Message.builder()
                     .sendType(Message.SendType.RESPONSE)
@@ -141,9 +150,9 @@ public class NodeMessageProcessor implements MessageProcessor {
                             .destination(request.getAddress().getSource())
                             .build())
                     .param(Protocol.GetResponseParams.MESSAGE.name(), "OK")
-                    .data(Protocol.GetResponseDatas.RESOURCE.name(), resource.getBytes())
+                    .data(Protocol.GetResponseDatas.RESOURCE.name(), IOUtils.toByteArray(resource.getInputStream()))
                     .build();
-        } catch (StorageException e) {
+        } catch (Exception e) {
             logger.error("Problem doing get", e);
             return Message.builder()
                     .sendType(Message.SendType.RESPONSE)

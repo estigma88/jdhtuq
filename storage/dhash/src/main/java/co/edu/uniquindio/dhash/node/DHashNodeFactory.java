@@ -119,10 +119,15 @@ public class DHashNodeFactory implements StorageNodeFactory {
         dHashEnviroment = getDHashEnviroment(dhashNode, resourceManager);
 
         communicationManager.addMessageProcessor(name, dHashEnviroment);
+        communicationManager.addMessageInputStreamProcessor(name, getMessageStreamProcessor(dhashNode, resourceManager));
 
         logger.debug("DHash Node " + name + " Created");
 
         return dhashNode;
+    }
+
+    MessageStreamProcessorGateway getMessageStreamProcessor(DHashNode dhashNode, ResourceManager resourceManager) {
+        return new MessageStreamProcessorGateway(communicationManager, resourceManager, dhashNode, serializationHandler);
     }
 
     ReAssignObserver getReAssignObserver(DHashNode dhashNode) {

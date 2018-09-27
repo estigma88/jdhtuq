@@ -19,9 +19,10 @@
 package co.edu.uniquindio.dhash.node;
 
 import co.edu.uniquindio.dhash.protocol.Protocol;
-import co.edu.uniquindio.dhash.protocol.Protocol.*;
-import co.edu.uniquindio.dhash.resource.NetworkResource;
-import co.edu.uniquindio.dhash.resource.ResourceNotFoundException;
+import co.edu.uniquindio.dhash.protocol.Protocol.GetParams;
+import co.edu.uniquindio.dhash.protocol.Protocol.PutParams;
+import co.edu.uniquindio.dhash.protocol.Protocol.ResourceCompareParams;
+import co.edu.uniquindio.dhash.protocol.Protocol.ResourceTransferParams;
 import co.edu.uniquindio.dhash.resource.checksum.ChecksumCalculator;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
@@ -111,7 +112,6 @@ public class DHashNode implements StorageNode {
                 Boolean.class);
 
         if (hasResource) {
-
             resourceTransferMessage = Message.builder()
                     .sendType(Message.SendType.REQUEST)
                     .sequenceNumber(sequenceGenerator.getSequenceNumber())
@@ -123,11 +123,13 @@ public class DHashNode implements StorageNode {
                     .param(ResourceTransferParams.RESOURCE_KEY.name(), id)
                     .build();
 
-            NetworkResource resource = communicationManager
-                    .sendMessageTransferUnicast(resourceTransferMessage, NetworkResource.class);
+            Message resource = communicationManager
+                    .sendMessageTransferUnicast(resourceTransferMessage, Message.class);
 
-            return resource;
+            return serializationHandler.decode(resource.getParam(Protocol.ResourceTransferResponseData.RESOURCE.name()), resource.getInputStream());
 
+        } else {
+            return null;
         }
 
     }
@@ -189,7 +191,7 @@ public class DHashNode implements StorageNode {
      * @param resource  The resource to put.
      * @param lookupKey The key where the file will be put.
      * @param replicate Determines if the file will be replicated.
-     * @return  False if the resource already exists, true if it does not exist
+     * @return False if the resource already exists, true if it does not exist
      */
     boolean put(Resource resource, Key lookupKey, boolean replicate) throws StorageException {
 

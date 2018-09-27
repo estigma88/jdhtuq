@@ -201,12 +201,22 @@ public class MulticastManagerUDP implements Communicator {
     }
 
     @Override
+    public Message receive(Message message) {
+        return null;
+    }
+
+    @Override
     public void send(Message message, InputStream source) {
 
     }
 
     @Override
     public void send(Message message, OutputStream destination) {
+
+    }
+
+    @Override
+    public void send(InputStream source, OutputStream destination) throws IOException {
 
     }
 
