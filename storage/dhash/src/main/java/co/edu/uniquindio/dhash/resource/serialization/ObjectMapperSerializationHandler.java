@@ -1,11 +1,10 @@
-package co.edu.uniquindio.dhash.starter.mapper;
+package co.edu.uniquindio.dhash.resource.serialization;
 
 import co.edu.uniquindio.dhash.resource.FileResource;
 import co.edu.uniquindio.dhash.resource.NetworkResource;
-import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
+import co.edu.uniquindio.dhash.resource.serialization.jackson.FileResourceMixin;
 import co.edu.uniquindio.dhash.starter.mapper.jackson.FileResourceMixin;
 import co.edu.uniquindio.storage.resource.Resource;
-import co.edu.uniquindio.utils.communication.message.Message;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

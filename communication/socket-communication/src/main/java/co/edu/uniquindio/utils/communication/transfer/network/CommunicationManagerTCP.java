@@ -21,6 +21,7 @@ package co.edu.uniquindio.utils.communication.transfer.network;
 import co.edu.uniquindio.utils.communication.Observable;
 import co.edu.uniquindio.utils.communication.Observer;
 import co.edu.uniquindio.utils.communication.message.Message;
+import co.edu.uniquindio.utils.communication.message.MessageStream;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.Communicator;
 import co.edu.uniquindio.utils.communication.transfer.MessageStreamProcessor;
@@ -155,8 +156,8 @@ public class CommunicationManagerTCP implements
     }
 
     @Override
-    public <T> T sendMessageTransferUnicast(Message resourceTransferMessage, Class<T> messageClass) {
-        return messageResponseProcessor.process(unicastManager.receive(resourceTransferMessage), messageClass, null);
+    public MessageStream sendMessageTransferUnicast(Message resourceTransferMessage) {
+        return unicastManager.receive(resourceTransferMessage);
     }
 
     /**
@@ -175,11 +176,10 @@ public class CommunicationManagerTCP implements
      * Besides, it sends an input stream
      *
      * @param message Messages to send
-     * @param inputStream inputStream to send
      */
     @Override
-    public void sendMessageUnicast(Message message, InputStream inputStream) {
-        unicastManager.send(message, inputStream);
+    public void sendMessageUnicast(MessageStream message) {
+        unicastManager.send(message.getMessage(), message.getInputStream());
     }
 
     @Override

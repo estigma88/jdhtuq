@@ -19,6 +19,7 @@
 package co.edu.uniquindio.utils.communication.transfer.network;
 
 import co.edu.uniquindio.utils.communication.message.Message;
+import co.edu.uniquindio.utils.communication.message.MessageStream;
 import co.edu.uniquindio.utils.communication.transfer.Communicator;
 import co.edu.uniquindio.utils.communication.transfer.ConnectionListener;
 import org.apache.log4j.Logger;
@@ -124,7 +125,7 @@ public class UnicastManagerTCP implements Communicator, ConnectionListener {
     }
 
     @Override
-    public Message receive(Message message) {
+    public MessageStream receive(Message message) {
         try {
             Socket socket = new Socket();
             message = Message.with(message)
@@ -138,9 +139,10 @@ public class UnicastManagerTCP implements Communicator, ConnectionListener {
 
             Message messageResponse = messageSerialization.decode(stringMessage);
 
-            messageResponse.setInputStream(socket.getInputStream());
-
-            return messageResponse;
+            return MessageStream.builder()
+                    .message(messageResponse)
+                    .inputStream(socket.getInputStream())
+                    .build();
         } catch (IOException | ClassNotFoundException e) {
             logger.error("Error writing socket " + message.getAddress(), e);
             return null;

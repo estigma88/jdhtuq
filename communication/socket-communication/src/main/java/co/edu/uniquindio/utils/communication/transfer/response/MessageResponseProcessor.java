@@ -1,6 +1,7 @@
 package co.edu.uniquindio.utils.communication.transfer.response;
 
 import co.edu.uniquindio.utils.communication.message.Message;
+import co.edu.uniquindio.utils.communication.message.MessageStream;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -16,6 +17,10 @@ public class MessageResponseProcessor {
         }
 
         if (type.equals(Message.class)) {
+            return type.cast(message);
+        }
+
+        if (type.equals(MessageStream.class)) {
             return type.cast(message);
         }
 

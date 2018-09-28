@@ -1,4 +1,4 @@
-package co.edu.uniquindio.dhash.starter.mapper.jackson;
+package co.edu.uniquindio.dhash.resource.serialization.jackson;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

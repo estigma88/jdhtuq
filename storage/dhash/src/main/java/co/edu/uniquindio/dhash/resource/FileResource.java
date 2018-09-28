@@ -18,39 +18,34 @@
 
 package co.edu.uniquindio.dhash.resource;
 
-import co.edu.uniquindio.storage.resource.Resource;
 import lombok.Builder;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 
-
-public class FileResource implements Resource, Serializable {
-    private final String id;
+@Data
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+public class FileResource extends AbstractResource {
     private final String path;
 
+    @Builder
     public FileResource(String id, String path) {
-        this.id = id;
+        super(id);
         this.path = path;
     }
 
     @Override
-    public String getId() {
-        return id;
-    }
-
-    /**
-     * Creates a new input stream from the file in the path
-     *
-     * @return input stream
-     * @throws IOException
-     */
-    @Override
-    public InputStream getInputStream() throws IOException {
-        return new FileInputStream(path);
+    public InputStream getInputStream() {
+        try {
+            return new FileInputStream(path);
+        } catch (FileNotFoundException e) {
+            throw new IllegalArgumentException("Problem access file", e);
+        }
     }
 }

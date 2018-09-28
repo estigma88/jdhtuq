@@ -35,11 +35,11 @@ import co.edu.uniquindio.storage.StorageNode;
 import co.edu.uniquindio.storage.resource.Resource;
 import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
+import co.edu.uniquindio.utils.communication.message.MessageStream;
 import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.apache.log4j.Logger;
 
-import java.io.IOException;
 import java.util.Set;
 
 /**
@@ -123,10 +123,10 @@ public class DHashNode implements StorageNode {
                     .param(ResourceTransferParams.RESOURCE_KEY.name(), id)
                     .build();
 
-            Message resource = communicationManager
-                    .sendMessageTransferUnicast(resourceTransferMessage, Message.class);
+            MessageStream resource = communicationManager
+                    .sendMessageTransferUnicast(resourceTransferMessage);
 
-            return serializationHandler.decode(resource.getParam(Protocol.ResourceTransferResponseData.RESOURCE.name()), resource.getInputStream());
+            return serializationHandler.decode(resource.getMessage().getParam(Protocol.ResourceTransferResponseData.RESOURCE.name()), resource.getInputStream());
 
         } else {
             return null;
@@ -229,11 +229,10 @@ public class DHashNode implements StorageNode {
                 .param(PutParams.REPLICATE.name(), String.valueOf(replicate))
                 .build();
 
-        try {
-            communicationManager.sendMessageUnicast(putMessage, resource.getInputStream());
-        } catch (IOException e) {
-            throw new StorageException("Problem reading the input stream to put", e);
-        }
+        communicationManager.sendMessageUnicast(MessageStream.builder()
+                .message(putMessage)
+                .inputStream(resource.getInputStream())
+                .build());
 
         return true;
     }

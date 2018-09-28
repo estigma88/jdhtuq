@@ -17,6 +17,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.util.Optional;
 
 public class NodeMessageProcessor implements MessageProcessor {
@@ -96,8 +97,8 @@ public class NodeMessageProcessor implements MessageProcessor {
         try {
             FileResource resource = new FileResource(request.getParam(Protocol.PutParams.RESOURCE_NAME.name()), ""){
                 @Override
-                public InputStream getInputStream() throws IOException {
-                    return new ByteArrayInputStream(request.getData(Protocol.PutDatas.RESOURCE.name()));
+                public InputStream getInputStream() {
+                    return new ByteArrayInputStream(request.getParam(Protocol.PutDatas.RESOURCE.name()).getBytes());
                 }
             };
 
@@ -150,7 +151,7 @@ public class NodeMessageProcessor implements MessageProcessor {
                             .destination(request.getAddress().getSource())
                             .build())
                     .param(Protocol.GetResponseParams.MESSAGE.name(), "OK")
-                    .data(Protocol.GetResponseDatas.RESOURCE.name(), IOUtils.toByteArray(resource.getInputStream()))
+                    .param(Protocol.GetResponseDatas.RESOURCE.name(), IOUtils.toString(resource.getInputStream(), Charset.defaultCharset()))
                     .build();
         } catch (Exception e) {
             logger.error("Problem doing get", e);

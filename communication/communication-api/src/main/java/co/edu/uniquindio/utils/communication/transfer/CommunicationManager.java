@@ -20,6 +20,7 @@ package co.edu.uniquindio.utils.communication.transfer;
 
 import co.edu.uniquindio.utils.communication.Observer;
 import co.edu.uniquindio.utils.communication.message.Message;
+import co.edu.uniquindio.utils.communication.message.MessageStream;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,7 +60,7 @@ public interface CommunicationManager {
     <T> T sendMessageUnicast(Message message, Class<T> typeReturn,
                              String paramNameResult);
 
-    <T> T sendMessageTransferUnicast(Message resourceTransferMessage, Class<T> messageClass);
+    MessageStream sendMessageTransferUnicast(Message resourceTransferMessage);
 
     /**
      * Sends a message specifying its type, the type of the response and the
@@ -75,9 +76,8 @@ public interface CommunicationManager {
      * Besides, it sends an input stream
      *
      * @param message Messages to send
-     * @param source inputStream to send
      */
-    void sendMessageUnicast(Message message, InputStream source);
+    void sendMessageUnicast(MessageStream message);
 
     void sendMessageUnicast(InputStream source, OutputStream destination) throws IOException;
 

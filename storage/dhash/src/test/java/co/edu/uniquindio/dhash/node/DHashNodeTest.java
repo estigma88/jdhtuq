@@ -128,7 +128,7 @@ public class DHashNodeTest {
         when(serializationHandler.decode("", null)).thenReturn(resource1);
         when(keyFactory.newKey("resourceKey")).thenReturn(key1);
         when(overlayNode.lookUp(key1)).thenReturn(key);
-        when(bigMessage.getData(Protocol.ResourceTransferResponseData.RESOURCE.name())).thenReturn(new byte[10]);
+        //when(bigMessage.getData(Protocol.ResourceTransferResponseData.RESOURCE.name())).thenReturn(new byte[10]);
         when(communicationManager.sendMessageUnicast(any(), eq(Boolean.class))).thenReturn(true);
         when(communicationManager.sendMessageUnicast(any(), eq(Message.class))).thenReturn(bigMessage);
 

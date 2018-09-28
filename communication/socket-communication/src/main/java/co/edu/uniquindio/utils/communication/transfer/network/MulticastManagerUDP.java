@@ -19,6 +19,7 @@
 package co.edu.uniquindio.utils.communication.transfer.network;
 
 import co.edu.uniquindio.utils.communication.message.Message;
+import co.edu.uniquindio.utils.communication.message.MessageStream;
 import co.edu.uniquindio.utils.communication.transfer.Communicator;
 import org.apache.log4j.Logger;
 
@@ -201,7 +202,7 @@ public class MulticastManagerUDP implements Communicator {
     }
 
     @Override
-    public Message receive(Message message) {
+    public MessageStream receive(Message message) {
         return null;
     }
 

@@ -66,18 +66,18 @@ public class Message {
     private final Map<String, String> params;
 
     /**
-     * Hash map of names with datas
-     */
-    @Singular
-    private final Map<String, byte[]> datas;
-
-    private InputStream inputStream;
-
-    /**
      * Sequence number
      */
     private final long sequenceNumber;
 
+    public static Message.MessageBuilder with(Message message){
+        return Message.builder()
+                .sequenceNumber(message.sequenceNumber)
+                .sendType(message.sendType)
+                .messageType(message.messageType)
+                .address(message.address)
+                .params(message.params);
+    }
 
     /**
      * This method is used for getting a specific data from the message
@@ -88,26 +88,6 @@ public class Message {
         return params.get(name);
     }
 
-
-    /**
-     * Gets data by name
-     *
-     * @param name Data name
-     * @return Data
-     */
-    public byte[] getData(String name) {
-        return datas.get(name);
-    }
-
-    public static Message.MessageBuilder with(Message message){
-        return Message.builder()
-                .sequenceNumber(message.sequenceNumber)
-                .sendType(message.sendType)
-                .messageType(message.messageType)
-                .address(message.address)
-                .params(message.params)
-                .datas(message.datas);
-    }
     /**
      * This method is used for knowing if the message is the same source and
      * destination node

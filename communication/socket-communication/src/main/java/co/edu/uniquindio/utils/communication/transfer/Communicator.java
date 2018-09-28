@@ -19,6 +19,7 @@
 package co.edu.uniquindio.utils.communication.transfer;
 
 import co.edu.uniquindio.utils.communication.message.Message;
+import co.edu.uniquindio.utils.communication.message.MessageStream;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -49,7 +50,7 @@ public interface Communicator extends Closeable {
      * @param message Message to send
      * @param inputStream inputStream to send
      */
-    Message receive(Message message);
+    MessageStream receive(Message message);
     void send(Message message, InputStream source);
     void send(Message message, OutputStream destination);
     void send(InputStream source, OutputStream destination) throws IOException;
