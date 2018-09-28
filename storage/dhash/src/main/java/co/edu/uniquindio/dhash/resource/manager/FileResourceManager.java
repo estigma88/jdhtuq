@@ -21,10 +21,7 @@ package co.edu.uniquindio.dhash.resource.manager;
 import co.edu.uniquindio.dhash.resource.FileResource;
 import co.edu.uniquindio.storage.resource.Resource;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
@@ -110,7 +107,14 @@ public class FileResourceManager implements ResourceManager {
             directoryPath.append("/");
             directoryPath.append(key);
 
-            return new FileResource(key, directoryPath.toString());
+            try {
+                return FileResource.withPath()
+                        .id(key)
+                        .path(directoryPath.toString())
+                        .build();
+            } catch (FileNotFoundException e) {
+                throw new IllegalStateException("Error reading file", e);
+            }
         } else {
             return null;
         }

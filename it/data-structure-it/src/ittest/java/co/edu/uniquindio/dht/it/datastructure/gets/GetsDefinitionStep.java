@@ -18,11 +18,11 @@
 
 package co.edu.uniquindio.dht.it.datastructure.gets;
 
-import co.edu.uniquindio.dhash.resource.NetworkResource;
 import co.edu.uniquindio.dht.it.datastructure.CucumberRoot;
 import co.edu.uniquindio.dht.it.datastructure.World;
 import co.edu.uniquindio.dht.it.datastructure.put.Content;
 import co.edu.uniquindio.storage.StorageNode;
+import co.edu.uniquindio.storage.resource.Resource;
 import cucumber.api.java.en.Then;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +40,7 @@ public class GetsDefinitionStep extends CucumberRoot {
         StorageNode storageNode = world.getRing().getNode(world.getNodeGateway());
 
         for (Content content : contents) {
-            NetworkResource resource = (NetworkResource) storageNode.get(content.getName());
+            Resource resource = storageNode.get(content.getName());
 
             assertThat(resource).isNotNull();
             assertThat(IOUtils.toByteArray(resource.getInputStream())).isEqualTo(content.getContent().getBytes());

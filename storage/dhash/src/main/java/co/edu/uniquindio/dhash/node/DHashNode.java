@@ -198,7 +198,7 @@ public class DHashNode implements StorageNode {
         Message resourceCompareMessage;
         Message putMessage;
 
-        resourceCompareMessage = Message.builder()
+        /*resourceCompareMessage = Message.builder()
                 .sequenceNumber(sequenceGenerator.getSequenceNumber())
                 .sendType(Message.SendType.REQUEST)
                 .messageType(Protocol.RESOURCE_COMPARE)
@@ -215,7 +215,7 @@ public class DHashNode implements StorageNode {
 
         if (existResource) {
             return false;
-        }
+        }*/
 
         putMessage = Message.builder()
                 .sequenceNumber(sequenceGenerator.getSequenceNumber())

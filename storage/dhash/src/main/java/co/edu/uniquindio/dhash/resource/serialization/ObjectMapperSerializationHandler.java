@@ -1,11 +1,12 @@
 package co.edu.uniquindio.dhash.resource.serialization;
 
 import co.edu.uniquindio.dhash.resource.FileResource;
-import co.edu.uniquindio.dhash.resource.NetworkResource;
 import co.edu.uniquindio.dhash.resource.serialization.jackson.FileResourceMixin;
-import co.edu.uniquindio.dhash.starter.mapper.jackson.FileResourceMixin;
 import co.edu.uniquindio.storage.resource.Resource;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -16,6 +17,9 @@ public class ObjectMapperSerializationHandler implements SerializationHandler {
 
     public ObjectMapperSerializationHandler(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
+
+        this.objectMapper.enableDefaultTyping(ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE, JsonTypeInfo.As.WRAPPER_OBJECT);
+        this.objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
         this.objectMapper.addMixIn(FileResource.class, FileResourceMixin.class);
     }
@@ -32,10 +36,12 @@ public class ObjectMapperSerializationHandler implements SerializationHandler {
     @Override
     public Resource decode(String resource, InputStream inputStream) {
         try {
-            NetworkResource networkResource = objectMapper.readValue(resource, NetworkResource.class);
-            networkResource.setInputStream(inputStream);
+            InjectableValues inject = new InjectableValues.Std()
+                    .addValue(InputStream.class, inputStream);
 
-            return networkResource;
+            return objectMapper.reader(inject)
+                    .forType(Resource.class)
+                    .readValue(resource);
         } catch (IOException e) {
             throw new IllegalArgumentException("Problem decoding", e);
         }

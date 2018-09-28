@@ -18,34 +18,28 @@
 
 package co.edu.uniquindio.dhash.resource;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.*;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 
-@Data
+@Getter
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class FileResource extends AbstractResource {
-    private final String path;
+public class FileResource extends BasicResource {
+    private String path;
 
-    @Builder
-    public FileResource(String id, String path) {
-        super(id);
+    @Builder(builderMethodName = "withPath", builderClassName = "WithPathBuilder")
+    public FileResource(String id, String path) throws FileNotFoundException {
+        super(id, new FileInputStream(path));
         this.path = path;
     }
 
-    @Override
-    public InputStream getInputStream() {
-        try {
-            return new FileInputStream(path);
-        } catch (FileNotFoundException e) {
-            throw new IllegalArgumentException("Problem access file", e);
-        }
+    @Builder(builderMethodName = "withInputStream", builderClassName = "WithInputStreamBuilder")
+    public FileResource(String id, InputStream inputStream){
+        super(id, inputStream);
+        this.path = null;
     }
+
 }

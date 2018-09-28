@@ -40,8 +40,8 @@ public class GetsDefinitionStep extends CucumberRoot {
             Message response = messageClient.send(get);
 
             assertThat(response).isNotNull();
-            assertThat(response.getData(Protocol.GetResponseDatas.RESOURCE.name())).isNotNull();
-            assertThat(response.getData(Protocol.GetResponseDatas.RESOURCE.name())).isEqualTo(content.getContent().getBytes());
+            assertThat(response.getParam(Protocol.GetResponseDatas.RESOURCE.name())).isNotNull();
+            assertThat(response.getParam(Protocol.GetResponseDatas.RESOURCE.name())).isEqualTo(content.getContent().getBytes());
         }
     }
 }

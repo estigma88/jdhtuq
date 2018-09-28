@@ -23,13 +23,11 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 
 @RunWith(MockitoJUnitRunner.class)
 public class ObjectSerializationHandlerTest {
     @InjectMocks
-    private ObjectSerializationHandler objectSerializationHandler;
+    private ObjectMapperSerializationHandler objectSerializationHandler;
 
     @Test
     public void encode() {

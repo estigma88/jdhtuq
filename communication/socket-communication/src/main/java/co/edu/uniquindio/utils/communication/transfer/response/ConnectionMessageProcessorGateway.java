@@ -12,7 +12,7 @@ import java.net.Socket;
 import java.util.Optional;
 
 public class ConnectionMessageProcessorGateway implements ConnectionHandler {
-    public static final String SENDING_INPUT_STREAM = ConnectionMessageProcessorGateway.class.getName() + ".sending_input_stream";
+    public static final String HANDLE_STREAMS = ConnectionMessageProcessorGateway.class.getName() + ".handle_streams";
 
     private final MessageStreamProcessor messageStreamProcessor;
     private final MessageProcessor messageProcessor;
@@ -29,7 +29,7 @@ public class ConnectionMessageProcessorGateway implements ConnectionHandler {
         try {
             Message message = readMessage(socket);
 
-            Boolean sendingInputStream = Optional.ofNullable(message.getParam(SENDING_INPUT_STREAM))
+            Boolean sendingInputStream = Optional.ofNullable(message.getParam(HANDLE_STREAMS))
                     .map(Boolean::new)
                     .orElse(false);
 

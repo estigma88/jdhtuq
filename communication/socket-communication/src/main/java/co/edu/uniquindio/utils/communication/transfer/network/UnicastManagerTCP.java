@@ -30,7 +30,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Map;
 
-import static co.edu.uniquindio.utils.communication.transfer.response.ConnectionMessageProcessorGateway.SENDING_INPUT_STREAM;
+import static co.edu.uniquindio.utils.communication.transfer.response.ConnectionMessageProcessorGateway.HANDLE_STREAMS;
 
 /**
  * The <code>UnicastManagerTCP</code> class implemented transfer message based
@@ -128,11 +128,13 @@ public class UnicastManagerTCP implements Communicator, ConnectionListener {
     public MessageStream receive(Message message) {
         try {
             Socket socket = new Socket();
+
             message = Message.with(message)
-                    .param(SENDING_INPUT_STREAM, String.valueOf(true))
+                    .param(HANDLE_STREAMS, String.valueOf(true))
                     .build();
 
             send(message, socket);
+
             ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
 
             String stringMessage = (String) objectInputStream.readObject();
@@ -153,7 +155,7 @@ public class UnicastManagerTCP implements Communicator, ConnectionListener {
     public void send(Message message, InputStream inputStream) {
         try (Socket socket = new Socket()) {
             message = Message.with(message)
-                    .param(SENDING_INPUT_STREAM, String.valueOf(true))
+                    .param(HANDLE_STREAMS, String.valueOf(true))
                     .build();
 
             send(message, socket);

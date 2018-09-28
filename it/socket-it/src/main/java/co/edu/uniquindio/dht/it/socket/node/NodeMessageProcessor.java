@@ -4,9 +4,8 @@ import co.edu.uniquindio.chord.ChordKey;
 import co.edu.uniquindio.chord.node.ChordNode;
 import co.edu.uniquindio.dhash.node.DHashNode;
 import co.edu.uniquindio.dhash.resource.FileResource;
-import co.edu.uniquindio.dhash.resource.NetworkResource;
 import co.edu.uniquindio.dht.it.socket.Protocol;
-import co.edu.uniquindio.storage.StorageException;
+import co.edu.uniquindio.storage.resource.Resource;
 import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
@@ -14,7 +13,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
@@ -95,12 +93,10 @@ public class NodeMessageProcessor implements MessageProcessor {
 
     private Message processPut(Message request) {
         try {
-            FileResource resource = new FileResource(request.getParam(Protocol.PutParams.RESOURCE_NAME.name()), ""){
-                @Override
-                public InputStream getInputStream() {
-                    return new ByteArrayInputStream(request.getParam(Protocol.PutDatas.RESOURCE.name()).getBytes());
-                }
-            };
+            FileResource resource = FileResource.withInputStream()
+                    .id(request.getParam(Protocol.PutParams.RESOURCE_NAME.name()))
+                    .inputStream(new ByteArrayInputStream(request.getParam(Protocol.PutDatas.RESOURCE.name()).getBytes()))
+                    .build();
 
             boolean success = storageNode.put(resource);
 
@@ -141,7 +137,7 @@ public class NodeMessageProcessor implements MessageProcessor {
 
     private Message processGet(Message request) {
         try {
-            NetworkResource resource = (NetworkResource) storageNode.get(request.getParam(Protocol.GetParams.RESOURCE_NAME.name()));
+            Resource resource = storageNode.get(request.getParam(Protocol.GetParams.RESOURCE_NAME.name()));
 
             return Message.builder()
                     .sendType(Message.SendType.RESPONSE)

@@ -60,7 +60,7 @@ public class PutsDefinitionStep extends CucumberRoot {
                             .destination("localhost")
                             .build())
                     .param(Protocol.PutParams.RESOURCE_NAME.name(), contentName)
-                    .data(Protocol.PutDatas.RESOURCE.name(), contents.get(contentName).getContent().getBytes())
+                    .param(Protocol.PutDatas.RESOURCE.name(), contents.get(contentName).getContent())
                     .build();
 
             Message response = messageClient.send(put);
