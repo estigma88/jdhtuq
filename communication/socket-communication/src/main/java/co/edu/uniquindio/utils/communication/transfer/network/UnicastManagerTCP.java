@@ -20,9 +20,8 @@ package co.edu.uniquindio.utils.communication.transfer.network;
 
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.MessageStream;
-import co.edu.uniquindio.utils.communication.transfer.Communicator;
-import co.edu.uniquindio.utils.communication.transfer.ConnectionListener;
 import co.edu.uniquindio.utils.communication.transfer.ProgressStatusTransfer;
+import co.edu.uniquindio.utils.communication.transfer.StreamCommunicator;
 import org.apache.log4j.Logger;
 
 import java.io.*;
@@ -30,6 +29,7 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Map;
+import java.util.Optional;
 
 import static co.edu.uniquindio.utils.communication.transfer.response.ConnectionMessageProcessorGateway.HANDLE_STREAMS;
 
@@ -41,88 +41,32 @@ import static co.edu.uniquindio.utils.communication.transfer.response.Connection
  * @version 1.0, 17/06/2010
  * @since 1.0
  */
-public class UnicastManagerTCP implements Communicator, ConnectionListener {
-
-    /**
-     * The <code>UnicastManagerTCPProperties</code> enum contains params
-     * required for communication
-     *
-     * @author dpelaez
-     */
+public class UnicastManagerTCP implements StreamCommunicator {
     public enum UnicastManagerTCPProperties {
-        TIMEOUT_TCP_CONNECTION, PORT_TCP, SIZE_BUFFER
+        TIMEOUT_TCP_CONNECTION, PORT_TCP, SIZE_TCP_BUFFER
     }
 
-    /**
-     * Logger
-     */
     private static final Logger logger = Logger
             .getLogger(UnicastManagerTCP.class);
-
-    /**
-     * The server socket that will be waiting for connection.
-     */
     private ServerSocket serverSocket;
-
-    /**
-     * The value of the port used to create the socket.
-     */
     private int portTcp;
     private int timeoutTcpConnection;
     private int sizeBuffer;
     private final MessageSerialization messageSerialization;
 
-    /**
-     * Builds a UnicastManagerTCP
-     *
-     * @param messageSerialization
-     */
-    public UnicastManagerTCP(MessageSerialization messageSerialization) {
+    UnicastManagerTCP(MessageSerialization messageSerialization) {
         this.messageSerialization = messageSerialization;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * co.edu.uniquindio.utils.communication.transfer.Communicator#receiver()
-     */
-    public Message receiver() {
-        String stringMessage;
-        Message message = null;
-
-        try (Socket socket = listen();
-             ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream())) {
-
-            stringMessage = (String) objectInputStream.readObject();
-
-            message = messageSerialization.decode(stringMessage);
+    @Override
+    public Message receive() {
+        try (Socket socket = listen()) {
+            return readMessage(socket.getInputStream());
         } catch (IOException | ClassNotFoundException e) {
             logger.error("Error reading socket", e);
         }
 
-        return message;
-    }
-
-    @Override
-    public Socket listen() throws IOException {
-        return serverSocket.accept();
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * co.edu.uniquindio.utils.communication.transfer.Communicator#send(co.edu
-     * .uniquindio.utils.communication.message.Message)
-     */
-    public void send(Message message) {
-        try (Socket socket = new Socket()) {
-            send(message, socket);
-        } catch (IOException e) {
-            logger.error("Error writing socket " + message.getAddress(), e);
-        }
-
+        return null;
     }
 
     @Override
@@ -141,13 +85,9 @@ public class UnicastManagerTCP implements Communicator, ConnectionListener {
             progressStatusTransfer.status("message-starter", 1L, 1L);
             progressStatusTransfer.status("message-ack", 0L, 1L);
 
-            ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
-
-            String stringMessage = (String) objectInputStream.readObject();
+            Message messageResponse = readMessage(socket.getInputStream());
 
             progressStatusTransfer.status("message-ack", 1L, 1L);
-
-            Message messageResponse = messageSerialization.decode(stringMessage);
 
             return MessageStream.builder()
                     .message(messageResponse)
@@ -157,6 +97,21 @@ public class UnicastManagerTCP implements Communicator, ConnectionListener {
             logger.error("Error writing socket " + message.getAddress(), e);
             return null;
         }
+    }
+
+    @Override
+    public Socket listen() throws IOException {
+        return serverSocket.accept();
+    }
+
+    @Override
+    public void send(Message message) {
+        try (Socket socket = new Socket()) {
+            send(message, socket);
+        } catch (IOException e) {
+            logger.error("Error writing socket " + message.getAddress(), e);
+        }
+
     }
 
     @Override
@@ -172,14 +127,14 @@ public class UnicastManagerTCP implements Communicator, ConnectionListener {
 
             progressStatusTransfer.status("message-starter", 1L, 1L);
 
-            send(socket, messageStream.getInputStream(), messageStream.getSize() ,progressStatusTransfer);
+            send(socket, messageStream.getInputStream(), messageStream.getSize(), progressStatusTransfer);
         } catch (IOException e) {
             logger.error("Error writing socket", e);
         }
     }
 
     @Override
-    public void send(Message message, OutputStream destination) {
+    public void sendTo(Message message, OutputStream destination) {
         try {
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(
                     destination);
@@ -189,19 +144,8 @@ public class UnicastManagerTCP implements Communicator, ConnectionListener {
         }
     }
 
-    private void send(Message message, Socket socket) throws IOException {
-        socket.connect(new InetSocketAddress(message.getAddress().getDestination(), portTcp), timeoutTcpConnection);
-
-        send(message, socket.getOutputStream());
-    }
-
-    private void send(Socket socket, InputStream source, Long size, ProgressStatusTransfer progressStatusTransfer) throws IOException {
-        OutputStream destination = socket.getOutputStream();
-
-        send(source, destination, size, progressStatusTransfer);
-    }
-
-    public void send(InputStream source, OutputStream destination, Long size, ProgressStatusTransfer progressStatusTransfer) throws IOException {
+    @Override
+    public void transfer(InputStream source, OutputStream destination, Long size, ProgressStatusTransfer progressStatusTransfer) throws IOException {
         int count;
         long sent = 0L;
         byte[] buffer = new byte[sizeBuffer];
@@ -221,47 +165,18 @@ public class UnicastManagerTCP implements Communicator, ConnectionListener {
 
     @Override
     public void start(Map<String, String> properties) {
-        if (properties
-                .containsKey(UnicastManagerTCPProperties.PORT_TCP.name())) {
-            portTcp = Integer.parseInt(properties
-                    .get(UnicastManagerTCPProperties.PORT_TCP.name()));
-        } else {
-            IllegalArgumentException illegalArgumentException = new IllegalArgumentException(
-                    "Property PORT_TCP not found");
+        portTcp = Optional.ofNullable(properties.get(UnicastManagerTCPProperties.PORT_TCP.name().toLowerCase()))
+                .map(Integer::parseInt)
+                .orElseThrow(() -> new IllegalArgumentException("Property port_tcp not found"));
 
-            logger.error("Property PORT_TCP not found",
-                    illegalArgumentException);
+        timeoutTcpConnection = Optional.ofNullable(properties.get(UnicastManagerTCPProperties.TIMEOUT_TCP_CONNECTION.name().toLowerCase()))
+                .map(Integer::parseInt)
+                .orElseThrow(() -> new IllegalArgumentException("Property timeout_tcp_connection not found"));
 
-            throw illegalArgumentException;
-        }
-        if (properties
-                .containsKey(UnicastManagerTCPProperties.TIMEOUT_TCP_CONNECTION.name())) {
-            timeoutTcpConnection = Integer.parseInt(properties
-                    .get(UnicastManagerTCPProperties.TIMEOUT_TCP_CONNECTION.name()));
-        } else {
-            IllegalArgumentException illegalArgumentException = new IllegalArgumentException(
-                    "Property TIMEOUT_TCP_CONNECTION not found");
+        sizeBuffer = Optional.ofNullable(properties.get(UnicastManagerTCPProperties.SIZE_TCP_BUFFER.name().toLowerCase()))
+                .map(Integer::parseInt)
+                .orElseThrow(() -> new IllegalArgumentException("Property size_tcp_buffer not found"));
 
-            logger.error("Property TIMEOUT_TCP_CONNECTION not found",
-                    illegalArgumentException);
-
-            throw illegalArgumentException;
-        }
-
-        if (properties
-                .containsKey(UnicastManagerTCPProperties.SIZE_BUFFER.name())) {
-            sizeBuffer = Integer.parseInt(properties
-                    .get(UnicastManagerTCPProperties.SIZE_BUFFER.name()));
-        } else {
-            /*IllegalArgumentException illegalArgumentException = new IllegalArgumentException(
-                    "Property SIZE_BUFFER not found");
-
-            logger.error("Property SIZE_BUFFER not found",
-                    illegalArgumentException);
-
-            throw illegalArgumentException;*/
-            sizeBuffer = 2048;
-        }
         try {
             this.serverSocket = new ServerSocket(portTcp);
         } catch (IOException e) {
@@ -271,11 +186,7 @@ public class UnicastManagerTCP implements Communicator, ConnectionListener {
 
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see co.edu.uniquindio.utils.communication.transfer.Stoppable#close()
-     */
+    @Override
     public void close() {
         try {
             serverSocket.close();
@@ -285,4 +196,23 @@ public class UnicastManagerTCP implements Communicator, ConnectionListener {
         }
     }
 
+    private Message readMessage(InputStream inputStream) throws IOException, ClassNotFoundException {
+        ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
+
+        String stringMessage = (String) objectInputStream.readObject();
+
+        return messageSerialization.decode(stringMessage);
+    }
+
+    private void send(Message message, Socket socket) throws IOException {
+        socket.connect(new InetSocketAddress(message.getAddress().getDestination(), portTcp), timeoutTcpConnection);
+
+        sendTo(message, socket.getOutputStream());
+    }
+
+    private void send(Socket socket, InputStream source, Long size, ProgressStatusTransfer progressStatusTransfer) throws IOException {
+        OutputStream destination = socket.getOutputStream();
+
+        transfer(source, destination, size, progressStatusTransfer);
+    }
 }

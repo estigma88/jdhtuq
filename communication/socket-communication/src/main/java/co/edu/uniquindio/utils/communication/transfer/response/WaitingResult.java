@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * The {@code WaitingResult} class is responsible for waiting for a response to
- * a message with a specific sequence number. When a response for a given
+ * a message with a specific id number. When a response for a given
  * message does not arrive in a specific amount of time this class return
  * {@code null} as the response for that message
  *
@@ -42,12 +42,12 @@ public class WaitingResult<T>{
             .getLogger(WaitingResult.class);
 
     /**
-     * The sequence number of the message
+     * The id number of the message
      */
-    private long sequence;
+    private String id;
 
     /**
-     * The response for the message with the specific sequence number
+     * The response for the message with the specific id number
      */
     private T result;
 
@@ -70,24 +70,24 @@ public class WaitingResult<T>{
 
     /**
      * The constructor of the class. Constructs a WaitingResult instance that
-     * wait for the response of the message with the sequence number specified
+     * wait for the response of the message with the id number specified
      *
-     * @param sequence                    . The sequence number of the message
+     * @param id                    . The id number of the message
      */
-    private WaitingResult(long sequence, ReturnsManager<T> returnsManager) {
-        this.sequence = sequence;
+    private WaitingResult(String id, ReturnsManager<T> returnsManager) {
+        this.id = id;
         this.returnsManager = returnsManager;
         this.countDownLatch = new CountDownLatch(1);
     }
 
     /**
      * The constructor of the class. Constructs a WaitingResult instance that
-     * wait for the response of the message with the sequence number specified
+     * wait for the response of the message with the id number specified
      *
-     * @param sequence                    . The sequence number of the message
+     * @param id                    . The id number of the message
      */
-    WaitingResult(long sequence, ReturnsManager<T> returnsManager, long timeOut) {
-        this(sequence, returnsManager);
+    WaitingResult(String id, ReturnsManager<T> returnsManager, long timeOut) {
+        this(id, returnsManager);
         this.timeOut = timeOut;
     }
 
@@ -100,14 +100,14 @@ public class WaitingResult<T>{
         try {
             if(countDownLatch.await(timeOut, TimeUnit.MILLISECONDS)){
                 logger
-                        .debug("Response arrives for number sequence= '"
-                                + sequence + "'");
+                        .debug("Response arrives for number id= '"
+                                + id + "'");
             }else{
                 logger
-                        .debug("Timeout waiting for a response for number sequence= '"
-                                + sequence + "'");
+                        .debug("Timeout waiting for a response for number id= '"
+                                + id + "'");
 
-                returnsManager.releaseWaitingResult(sequence, null);
+                returnsManager.releaseWaitingResult(id, null);
             }
         } catch (InterruptedException e) {
             logger.error("Error to close countDownLatch", e);

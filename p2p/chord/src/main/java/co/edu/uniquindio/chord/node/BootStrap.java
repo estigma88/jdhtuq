@@ -24,7 +24,7 @@ import co.edu.uniquindio.chord.protocol.Protocol;
 import co.edu.uniquindio.overlay.Key;
 import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
-import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
+import co.edu.uniquindio.utils.communication.message.IdGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.apache.log4j.Logger;
 
@@ -61,7 +61,7 @@ public class BootStrap {
      * @param communicationManager Communication manager
      * @param sequenceGenerator    Sequence generator
      */
-    public void boot(ChordNode nodeChord, CommunicationManager communicationManager, SequenceGenerator sequenceGenerator) {
+    public void boot(ChordNode nodeChord, CommunicationManager communicationManager, IdGenerator sequenceGenerator) {
 
         logger.info("Search node...");
 
@@ -77,7 +77,7 @@ public class BootStrap {
                         .build())
                 .build();
 
-        findNode = communicationManager.sendMessageMultiCast(bootStrapMessage,
+        findNode = communicationManager.sendMultiCast(bootStrapMessage,
                 ChordKey.class);
 
         logger.info("Finish search node");

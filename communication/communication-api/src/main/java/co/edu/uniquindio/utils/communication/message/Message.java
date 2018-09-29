@@ -68,7 +68,7 @@ public class Message {
     /**
      * Sequence number
      */
-    private final long sequenceNumber;
+    private final String sequenceNumber;
 
     public static Message.MessageBuilder with(Message message){
         return Message.builder()

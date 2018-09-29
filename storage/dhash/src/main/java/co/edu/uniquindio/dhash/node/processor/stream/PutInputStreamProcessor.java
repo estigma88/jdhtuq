@@ -1,5 +1,6 @@
-package co.edu.uniquindio.dhash.node;
+package co.edu.uniquindio.dhash.node.processor.stream;
 
+import co.edu.uniquindio.dhash.node.DHashNode;
 import co.edu.uniquindio.dhash.protocol.Protocol;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
@@ -13,15 +14,15 @@ import org.apache.log4j.Logger;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class PutMessageInputStreamProcessor implements MessageStreamProcessor {
+public class PutInputStreamProcessor implements MessageStreamProcessor {
     private static final Logger logger = Logger
-            .getLogger(PutMessageInputStreamProcessor.class);
+            .getLogger(PutInputStreamProcessor.class);
 
     private final ResourceManager resourceManager;
     private final DHashNode dHashNode;
     private final SerializationHandler serializationHandler;
 
-    public PutMessageInputStreamProcessor(ResourceManager resourceManager, DHashNode dHashNode, SerializationHandler serializationHandler) {
+    public PutInputStreamProcessor(ResourceManager resourceManager, DHashNode dHashNode, SerializationHandler serializationHandler) {
         this.resourceManager = resourceManager;
         this.dHashNode = dHashNode;
         this.serializationHandler = serializationHandler;

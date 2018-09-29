@@ -32,21 +32,21 @@ public interface ReturnsManager<T> {
 	/**
 	 * Creates a waiting result for sequence number and time out
 	 * 
-	 * @param sequence
-	 *            Sequence number
+	 * @param id
+	 *            id
 	 * @param timeOut
 	 *            Time out of waiting
 	 * @return WaitingResult
 	 */
-	public WaitingResult<T> createWaitingResult(long sequence, long timeOut);
+	public WaitingResult<T> createWaitingResult(String id, long timeOut);
 
 	/**
 	 * Release waiting result by sequence number and response
 	 * 
-	 * @param sequence
-	 *            Sequence number
+	 * @param id
+	 *            id
 	 * @param result
 	 *            Response
 	 */
-	public void releaseWaitingResult(long sequence, T result);
+	public void releaseWaitingResult(String id, T result);
 }

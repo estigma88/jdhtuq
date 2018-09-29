@@ -19,9 +19,9 @@
 package co.edu.uniquindio.dhash.node;
 
 import co.edu.uniquindio.dhash.protocol.Protocol;
-import co.edu.uniquindio.dhash.protocol.Protocol.GetParams;
+import co.edu.uniquindio.dhash.protocol.Protocol.ContainParams;
 import co.edu.uniquindio.dhash.protocol.Protocol.PutParams;
-import co.edu.uniquindio.dhash.protocol.Protocol.ResourceTransferParams;
+import co.edu.uniquindio.dhash.protocol.Protocol.GetParams;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
 import co.edu.uniquindio.overlay.Key;
@@ -35,7 +35,7 @@ import co.edu.uniquindio.storage.resource.Resource;
 import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.MessageStream;
-import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
+import co.edu.uniquindio.utils.communication.message.IdGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.apache.log4j.Logger;
 
@@ -65,10 +65,10 @@ public class DHashNode implements StorageNode {
     private final SerializationHandler serializationHandler;
     private final ResourceManager resourceManager;
     private final KeyFactory keyFactory;
-    private final SequenceGenerator sequenceGenerator;
+    private final IdGenerator sequenceGenerator;
     private final ExecutorService executorService;
 
-    public DHashNode(OverlayNode overlayNode, int replicationFactor, String name, CommunicationManager communicationManager, SerializationHandler serializationHandler, ResourceManager resourceManager, KeyFactory keyFactory, SequenceGenerator sequenceGenerator, ExecutorService executorService) {
+    public DHashNode(OverlayNode overlayNode, int replicationFactor, String name, CommunicationManager communicationManager, SerializationHandler serializationHandler, ResourceManager resourceManager, KeyFactory keyFactory, IdGenerator sequenceGenerator, ExecutorService executorService) {
         this.overlayNode = overlayNode;
         this.replicationFactor = replicationFactor;
         this.name = name;
@@ -121,15 +121,15 @@ public class DHashNode implements StorageNode {
         Message getMessage = Message.builder()
                 .sequenceNumber(sequenceGenerator.getSequenceNumber())
                 .sendType(Message.SendType.REQUEST)
-                .messageType(Protocol.GET)
+                .messageType(Protocol.CONTAIN)
                 .address(Address.builder()
                         .destination(lookupKey.getValue())
                         .source(name)
                         .build())
-                .param(GetParams.RESOURCE_KEY.name(), id)
+                .param(ContainParams.RESOURCE_KEY.name(), id)
                 .build();
 
-        Boolean hasResource = communicationManager.sendMessageUnicast(getMessage,
+        Boolean hasResource = communicationManager.send(getMessage,
                 Boolean.class);
 
         progressStatus.status("dhash-file-validation", 1L, 1L);
@@ -138,18 +138,18 @@ public class DHashNode implements StorageNode {
             Message resourceTransferMessage = Message.builder()
                     .sendType(Message.SendType.REQUEST)
                     .sequenceNumber(sequenceGenerator.getSequenceNumber())
-                    .messageType(Protocol.RESOURCE_TRANSFER)
+                    .messageType(Protocol.GET)
                     .address(Address.builder()
                             .destination(lookupKey.getValue())
                             .source(name)
                             .build())
-                    .param(ResourceTransferParams.RESOURCE_KEY.name(), id)
+                    .param(GetParams.RESOURCE_KEY.name(), id)
                     .build();
 
             MessageStream resource = communicationManager
-                    .sendMessageTransferUnicast(resourceTransferMessage, progressStatus::status);
+                    .receive(resourceTransferMessage, progressStatus::status);
 
-            return serializationHandler.decode(resource.getMessage().getParam(Protocol.ResourceTransferResponseData.RESOURCE.name()), resource.getInputStream());
+            return serializationHandler.decode(resource.getMessage().getParam(Protocol.GetResponseData.RESOURCE.name()), resource.getInputStream());
 
         } else {
             return null;
@@ -229,7 +229,7 @@ public class DHashNode implements StorageNode {
                 .param(PutParams.REPLICATE.name(), String.valueOf(replicate))
                 .build();
 
-        communicationManager.sendMessageUnicast(MessageStream.builder()
+        communicationManager.send(MessageStream.builder()
                 .message(putMessage)
                 .inputStream(resource.getInputStream())
                 .size(resource.getSize())

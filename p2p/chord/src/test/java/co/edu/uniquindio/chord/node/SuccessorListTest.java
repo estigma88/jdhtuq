@@ -25,7 +25,7 @@ import co.edu.uniquindio.chord.protocol.Protocol;
 import co.edu.uniquindio.overlay.KeyFactory;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.overlay.Key;
-import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
+import co.edu.uniquindio.utils.communication.message.IdGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,7 +63,7 @@ public class SuccessorListTest {
     @Mock
     private KeyFactory keyFactory;
     @Mock
-    private SequenceGenerator sequenceGenerator;
+    private IdGenerator sequenceGenerator;
     @Captor
     private ArgumentCaptor<Message> messageCaptor;
     private SuccessorList successorList;
@@ -78,11 +78,11 @@ public class SuccessorListTest {
         when(key1.getValue()).thenReturn("successor");
         when(key.getValue()).thenReturn("key");
         when(chordNode.getKey()).thenReturn(key);
-        when(communicationManager.sendMessageUnicast(any(), eq(String.class))).thenReturn(null);
+        when(communicationManager.send(any(), eq(String.class))).thenReturn(null);
 
         successorList.fixSuccessors();
 
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture(), eq(String.class));
+        verify(communicationManager).send(messageCaptor.capture(), eq(String.class));
 
         assertThat(new Key[]{key1, key2, key3}).isEqualTo(successorList.getKeyList());
         assertThat(messageCaptor.getValue().getSendType()).isEqualTo(Message.SendType.REQUEST);
@@ -103,11 +103,11 @@ public class SuccessorListTest {
         when(keyFactory.newKey("123")).thenReturn(newKey1);
         when(keyFactory.newKey("456")).thenReturn(newKey2);
         when(chordNode.getKey()).thenReturn(key);
-        when(communicationManager.sendMessageUnicast(any(), eq(String.class))).thenReturn("123->456->798->753");
+        when(communicationManager.send(any(), eq(String.class))).thenReturn("123->456->798->753");
 
         successorList.fixSuccessors();
 
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture(), eq(String.class));
+        verify(communicationManager).send(messageCaptor.capture(), eq(String.class));
 
         assertThat(key1).isEqualTo(successorList.getKeyList()[0]);
         assertThat("123").isEqualTo(successorList.getKeyList()[1].getValue());
@@ -130,11 +130,11 @@ public class SuccessorListTest {
         when(keyFactory.newKey("123")).thenReturn(newKey1);
         when(keyFactory.newKey("456")).thenReturn(newKey2);
         when(chordNode.getKey()).thenReturn(key);
-        when(communicationManager.sendMessageUnicast(any(), eq(String.class))).thenReturn("123->456");
+        when(communicationManager.send(any(), eq(String.class))).thenReturn("123->456");
 
         successorList.fixSuccessors();
 
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture(), eq(String.class));
+        verify(communicationManager).send(messageCaptor.capture(), eq(String.class));
 
         assertThat(key1).isEqualTo(successorList.getKeyList()[0]);
         assertThat("123").isEqualTo(successorList.getKeyList()[1].getValue());
@@ -174,11 +174,11 @@ public class SuccessorListTest {
         when(key3.getValue()).thenReturn("key3");
         when(key.getValue()).thenReturn("key");
         when(chordNode.getKey()).thenReturn(key);
-        when(communicationManager.sendMessageUnicast(any(), eq(Boolean.class))).thenReturn(null);
+        when(communicationManager.send(any(), eq(Boolean.class))).thenReturn(null);
 
         Key successor = successorList.getNextSuccessorAvailable();
 
-        verify(communicationManager, times(3)).sendMessageUnicast(messageCaptor.capture(), eq(Boolean.class));
+        verify(communicationManager, times(3)).send(messageCaptor.capture(), eq(Boolean.class));
 
         assertThat(successor).isNull();
         assertThat(messageCaptor.getAllValues().get(0).getSendType()).isEqualTo(Message.SendType.REQUEST);
@@ -204,7 +204,7 @@ public class SuccessorListTest {
         when(key3.getValue()).thenReturn("key3");
         when(key.getValue()).thenReturn("key");
         when(chordNode.getKey()).thenReturn(key);
-        when(communicationManager.sendMessageUnicast(any(), eq(Boolean.class))).thenAnswer(new Answer() {
+        when(communicationManager.send(any(), eq(Boolean.class))).thenAnswer(new Answer() {
             private int count = 0;
 
             public Object answer(InvocationOnMock invocation) {
@@ -217,7 +217,7 @@ public class SuccessorListTest {
 
         Key successor = successorList.getNextSuccessorAvailable();
 
-        verify(communicationManager, times(2)).sendMessageUnicast(messageCaptor.capture(), eq(Boolean.class));
+        verify(communicationManager, times(2)).send(messageCaptor.capture(), eq(Boolean.class));
 
         assertThat(successor).isEqualTo(key2);
         assertThat(messageCaptor.getAllValues().get(0).getSendType()).isEqualTo(Message.SendType.REQUEST);

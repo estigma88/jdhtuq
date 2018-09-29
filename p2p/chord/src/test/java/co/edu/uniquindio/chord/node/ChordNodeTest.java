@@ -24,8 +24,8 @@ import co.edu.uniquindio.chord.protocol.Protocol;
 import co.edu.uniquindio.overlay.Key;
 import co.edu.uniquindio.overlay.OverlayException;
 import co.edu.uniquindio.utils.communication.Observable;
+import co.edu.uniquindio.utils.communication.message.IdGenerator;
 import co.edu.uniquindio.utils.communication.message.Message;
-import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,7 +62,7 @@ public class ChordNodeTest {
     @Captor
     private ArgumentCaptor<Message> messageCaptor;
     @Mock
-    private SequenceGenerator sequenceGenerator;
+    private IdGenerator sequenceGenerator;
     @Mock
     private ScheduledFuture<?> stableRing;
     @Mock
@@ -94,13 +94,13 @@ public class ChordNodeTest {
 
         when(id.isBetweenRightIncluded(key, successor)).thenReturn(false);
         when(fingersTable.findClosestPresedingNode(id)).thenReturn(next);
-        when(communicationManager.sendMessageUnicast(any(),
+        when(communicationManager.send(any(),
                 eq(ChordKey.class), eq(Protocol.LookupResponseParams.NODE_FIND.name()))).thenReturn(lookUpKey);
         when(id.getHashing()).thenReturn(new BigInteger("123565"));
 
         Key result = chordNode.lookUp(id);
 
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture(),
+        verify(communicationManager).send(messageCaptor.capture(),
                 eq(ChordKey.class), eq(Protocol.LookupResponseParams.NODE_FIND.name()));
 
         assertThat(messageCaptor.getValue().getMessageType()).isEqualTo(Protocol.LOOKUP);
@@ -121,13 +121,13 @@ public class ChordNodeTest {
         ChordKey lookUpKey = mock(ChordKey.class);
 
         when(fingersTable.findClosestPresedingNode(id)).thenReturn(next);
-        when(communicationManager.sendMessageUnicast(any(),
+        when(communicationManager.send(any(),
                 eq(ChordKey.class), eq(Protocol.LookupResponseParams.NODE_FIND.name()))).thenReturn(lookUpKey);
         when(id.getHashing()).thenReturn(new BigInteger("123565"));
 
         Key result = chordNode.lookUp(id);
 
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture(),
+        verify(communicationManager).send(messageCaptor.capture(),
                 eq(ChordKey.class), eq(Protocol.LookupResponseParams.NODE_FIND.name()));
 
         assertThat(messageCaptor.getValue().getMessageType()).isEqualTo(Protocol.LOOKUP);
@@ -156,12 +156,12 @@ public class ChordNodeTest {
 
         ChordKey successorResult = mock(ChordKey.class);
 
-        when(communicationManager.sendMessageUnicast(any(),
+        when(communicationManager.send(any(),
                 eq(ChordKey.class), eq(Protocol.LookupResponseParams.NODE_FIND.name()))).thenReturn(successorResult);
 
         chordNode.join(node);
 
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture(),
+        verify(communicationManager).send(messageCaptor.capture(),
                 eq(ChordKey.class), eq(Protocol.LookupResponseParams.NODE_FIND.name()));
 
         assertThat(chordNode.getPredecessor()).isNull();
@@ -260,14 +260,14 @@ public class ChordNodeTest {
 
     @Test
     public void checkPredecessor_pingSuccess_predecessorNotNull() {
-        when(communicationManager.sendMessageUnicast(anyObject(),
+        when(communicationManager.send(anyObject(),
                 eq(Boolean.class))).thenReturn(true);
         when(predecessor.getValue()).thenReturn("hashPredecessor");
         when(key.getValue()).thenReturn("hashKey");
 
         chordNode.checkPredecessor();
 
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture(),
+        verify(communicationManager).send(messageCaptor.capture(),
                 eq(Boolean.class));
 
 
@@ -279,14 +279,14 @@ public class ChordNodeTest {
 
     @Test
     public void checkPredecessor_pingNoSuccess_predecessorNull() {
-        when(communicationManager.sendMessageUnicast(anyObject(),
+        when(communicationManager.send(anyObject(),
                 eq(Boolean.class))).thenReturn(null);
         when(predecessor.getValue()).thenReturn("hashPredecessor");
         when(key.getValue()).thenReturn("hashKey");
 
         chordNode.checkPredecessor();
 
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture(),
+        verify(communicationManager).send(messageCaptor.capture(),
                 eq(Boolean.class));
 
         assertThat(chordNode.getPredecessor()).isNull();
@@ -299,11 +299,11 @@ public class ChordNodeTest {
     public void stabilize_pingSuccessorNotNullNotPredecessor_notifyChange() {
         ChordKey getPredecessor = null;
 
-        when(communicationManager.sendMessageUnicast(anyObject(),
+        when(communicationManager.send(anyObject(),
                 eq(Boolean.class))).thenReturn(true);
         when(successor.getValue()).thenReturn("hashSuccessor");
         when(key.getValue()).thenReturn("hashKey");
-        when(communicationManager.sendMessageUnicast(anyObject(),
+        when(communicationManager.send(anyObject(),
                 eq(ChordKey.class))).thenReturn(getPredecessor);
 
         chordNode.stabilize();
@@ -313,11 +313,11 @@ public class ChordNodeTest {
         verifyZeroInteractions(successorList);
         verifyZeroInteractions(fingersTable);
 
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture(),
+        verify(communicationManager).send(messageCaptor.capture(),
                 eq(Boolean.class));
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture(),
+        verify(communicationManager).send(messageCaptor.capture(),
                 eq(ChordKey.class));
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture());
+        verify(communicationManager).send(messageCaptor.capture());
 
         assertThat(messageCaptor.getAllValues().get(0).getMessageType()).isEqualTo(Protocol.PING);
         assertThat(messageCaptor.getAllValues().get(0).getAddress().getDestination()).isEqualTo("hashSuccessor");
@@ -334,11 +334,11 @@ public class ChordNodeTest {
     public void stabilize_pingSuccessorNotNullGetPredecessorNotBetweenNotKey_notifyChange() {
         ChordKey getPredecessor = mock(ChordKey.class);
 
-        when(communicationManager.sendMessageUnicast(anyObject(),
+        when(communicationManager.send(anyObject(),
                 eq(Boolean.class))).thenReturn(true);
         when(successor.getValue()).thenReturn("hashSuccessor");
         when(key.getValue()).thenReturn("hashKey");
-        when(communicationManager.sendMessageUnicast(anyObject(),
+        when(communicationManager.send(anyObject(),
                 eq(ChordKey.class))).thenReturn(getPredecessor);
 
         chordNode.stabilize();
@@ -348,11 +348,11 @@ public class ChordNodeTest {
         verifyZeroInteractions(successorList);
         verifyZeroInteractions(fingersTable);
 
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture(),
+        verify(communicationManager).send(messageCaptor.capture(),
                 eq(Boolean.class));
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture(),
+        verify(communicationManager).send(messageCaptor.capture(),
                 eq(ChordKey.class));
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture());
+        verify(communicationManager).send(messageCaptor.capture());
 
         assertThat(messageCaptor.getAllValues().get(0).getMessageType()).isEqualTo(Protocol.PING);
         assertThat(messageCaptor.getAllValues().get(0).getAddress().getDestination()).isEqualTo("hashSuccessor");
@@ -370,12 +370,12 @@ public class ChordNodeTest {
         ChordKey getPredecessor = mock(ChordKey.class);
 
         when(getPredecessor.isBetween(key, successor)).thenReturn(true);
-        when(communicationManager.sendMessageUnicast(anyObject(),
+        when(communicationManager.send(anyObject(),
                 eq(Boolean.class))).thenReturn(true);
         when(successor.getValue()).thenReturn("hashSuccessor");
         when(getPredecessor.getValue()).thenReturn("hashGetPredecessor");
         when(key.getValue()).thenReturn("hashKey");
-        when(communicationManager.sendMessageUnicast(anyObject(),
+        when(communicationManager.send(anyObject(),
                 eq(ChordKey.class))).thenReturn(getPredecessor);
 
         chordNode.stabilize();
@@ -384,11 +384,11 @@ public class ChordNodeTest {
 
         verify(successorList).setSuccessor(getPredecessor);
         verify(fingersTable).setSuccessor(getPredecessor);
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture(),
+        verify(communicationManager).send(messageCaptor.capture(),
                 eq(Boolean.class));
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture(),
+        verify(communicationManager).send(messageCaptor.capture(),
                 eq(ChordKey.class));
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture());
+        verify(communicationManager).send(messageCaptor.capture());
 
         assertThat(messageCaptor.getAllValues().get(0).getMessageType()).isEqualTo(Protocol.PING);
         assertThat(messageCaptor.getAllValues().get(0).getAddress().getDestination()).isEqualTo("hashSuccessor");
@@ -407,11 +407,11 @@ public class ChordNodeTest {
 
         chordNode = new ChordNode(communicationManager, successor, predecessor, fingersTable, successorList, successor, sequenceGenerator, stableRing);
 
-        when(communicationManager.sendMessageUnicast(anyObject(),
+        when(communicationManager.send(anyObject(),
                 eq(Boolean.class))).thenReturn(true);
         when(successor.getValue()).thenReturn("hashSuccessor");
         when(getPredecessor.getValue()).thenReturn("hashGetPredecessor");
-        when(communicationManager.sendMessageUnicast(anyObject(),
+        when(communicationManager.send(anyObject(),
                 eq(ChordKey.class))).thenReturn(getPredecessor);
 
         chordNode.stabilize();
@@ -420,11 +420,11 @@ public class ChordNodeTest {
 
         verify(successorList).setSuccessor(getPredecessor);
         verify(fingersTable).setSuccessor(getPredecessor);
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture(),
+        verify(communicationManager).send(messageCaptor.capture(),
                 eq(Boolean.class));
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture(),
+        verify(communicationManager).send(messageCaptor.capture(),
                 eq(ChordKey.class));
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture());
+        verify(communicationManager).send(messageCaptor.capture());
 
         assertThat(messageCaptor.getAllValues().get(0).getMessageType()).isEqualTo(Protocol.PING);
         assertThat(messageCaptor.getAllValues().get(0).getAddress().getDestination()).isEqualTo("hashSuccessor");
@@ -442,7 +442,7 @@ public class ChordNodeTest {
         ChordKey successorNew = mock(ChordKey.class);
 
         when(successorList.getNextSuccessorAvailable()).thenReturn(successorNew);
-        when(communicationManager.sendMessageUnicast(any(),
+        when(communicationManager.send(any(),
                 eq(Boolean.class))).thenReturn(null);
 
         chordNode.stabilize();
@@ -546,7 +546,7 @@ public class ChordNodeTest {
 
         assertThat(keysResult).isEqualTo(keys);
 
-        verify(communicationManager, times(2)).sendMessageUnicast(messageCaptor.capture());
+        verify(communicationManager, times(2)).send(messageCaptor.capture());
         verify(communicationManager).removeMessageProcessor(chordNode.getKey().getValue());
 
         assertThat(messageCaptor.getAllValues().get(0).getSendType()).isEqualTo(Message.SendType.REQUEST);

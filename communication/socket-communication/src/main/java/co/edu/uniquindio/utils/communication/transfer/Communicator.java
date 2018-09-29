@@ -28,8 +28,8 @@ import java.io.OutputStream;
 import java.util.Map;
 
 /**
- * The <code>Communicator</code> interface hava all services for to send and to
- * receiver messages
+ * The <code>Communicator</code> interface hava all services for to transfer and to
+ * receive messages
  *
  * @author Daniel Pelaez
  * @version 1.0, 17/06/2010
@@ -40,28 +40,16 @@ public interface Communicator extends Closeable {
     /**
      * Send message
      *
-     * @param message Message to send
+     * @param message Message to transfer
      */
     void send(Message message);
-
-    /**
-     * Send message plus and input stream
-     *
-     * @param inputStream inputStream to send
-     * @param message Message to send
-     * @param progressStatusTransfer
-     */
-    MessageStream receive(Message message, ProgressStatusTransfer progressStatusTransfer);
-    void send(MessageStream message, ProgressStatusTransfer progressStatusTransfer);
-    void send(Message message, OutputStream destination);
-    void send(InputStream source, OutputStream destination, Long size, ProgressStatusTransfer progressStatusTransfer) throws IOException;
 
     /**
      * Reciever message
      *
      * @return Message
      */
-    Message receiver();
+    Message receive();
 
     void start(Map<String, String> properties);
 }

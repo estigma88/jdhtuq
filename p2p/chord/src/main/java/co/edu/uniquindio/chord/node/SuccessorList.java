@@ -23,9 +23,9 @@ import co.edu.uniquindio.chord.ChordKey;
 import co.edu.uniquindio.chord.protocol.Protocol;
 import co.edu.uniquindio.overlay.KeyFactory;
 import co.edu.uniquindio.utils.communication.message.Address;
+import co.edu.uniquindio.utils.communication.message.IdGenerator;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.overlay.Key;
-import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.apache.log4j.Logger;
 
@@ -74,9 +74,9 @@ public class SuccessorList {
      */
     private ChordNode chordNode;
     private KeyFactory keyFactory;
-    private final SequenceGenerator sequenceGenerator;
+    private final IdGenerator sequenceGenerator;
 
-    SuccessorList(ChordNode chordNode, CommunicationManager communicationManager, int successorListAmount, KeyFactory keyFactory, SequenceGenerator sequenceGenerator) {
+    SuccessorList(ChordNode chordNode, CommunicationManager communicationManager, int successorListAmount, KeyFactory keyFactory, IdGenerator sequenceGenerator) {
         this.size = successorListAmount;
         this.sequenceGenerator = sequenceGenerator;
         this.keyList = new ChordKey[size];
@@ -85,7 +85,7 @@ public class SuccessorList {
         this.keyFactory = keyFactory;
     }
 
-    SuccessorList(CommunicationManager communicationManager, ChordKey[] keyList, int size, ChordNode chordNode, SequenceGenerator sequenceGenerator, KeyFactory keyFactory) {
+    SuccessorList(CommunicationManager communicationManager, ChordKey[] keyList, int size, ChordNode chordNode, IdGenerator sequenceGenerator, KeyFactory keyFactory) {
         this.communicationManager = communicationManager;
         this.keyList = keyList;
         this.size = size;
@@ -114,7 +114,7 @@ public class SuccessorList {
                         .build())
                 .build();
 
-        successorList = communicationManager.sendMessageUnicast(
+        successorList = communicationManager.send(
                 getSuccessorListMesssage, String.class);
 
         if (successorList == null)
@@ -173,7 +173,7 @@ public class SuccessorList {
                             .build())
                     .build();
 
-            success = communicationManager.sendMessageUnicast(pingMessage,
+            success = communicationManager.send(pingMessage,
                     Boolean.class);
 
             if (success != null) {

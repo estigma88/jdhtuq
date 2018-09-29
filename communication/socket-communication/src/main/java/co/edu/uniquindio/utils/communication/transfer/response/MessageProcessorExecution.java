@@ -2,7 +2,6 @@ package co.edu.uniquindio.utils.communication.transfer.response;
 
 import co.edu.uniquindio.utils.communication.Observable;
 import co.edu.uniquindio.utils.communication.message.Message;
-import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
 import co.edu.uniquindio.utils.communication.transfer.network.CommunicationManagerTCP;
 
@@ -24,7 +23,7 @@ public class MessageProcessorExecution implements MessageProcessor {
                 response = communicationManager.getMessageProcessor().process(message);
             }
             if (response != null) {
-                communicationManager.sendMessageUnicast(response);
+                communicationManager.send(response);
                 observable.notifyMessage(message);
             }
         }

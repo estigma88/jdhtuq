@@ -10,14 +10,13 @@ communication:
   socket:
     instances:
       dhash:
-        RESPONSE_TIME: 2000
-        BUFFER_SIZE_MULTICAST: 1024
-        IP_MULTICAST: 224.0.0.1
-        PORT_MULTICAST: 22011
-        TIMEOUT_TCP_CONNECTION: 2000
-        PORT_TCP: 22013
-        PORT_UDP: 22014
-        BUFFER_SIZE_UDP: 1024
+        response_time: 2000
+        buffer_size_multicast: 1024
+        ip_multicast: 224.0.0.1
+        port_multicast: 22011
+        timeout_tcp_connection: 2000
+        port_tcp: 22013
+        size_tcp_buffer: 1024
 socket-it:
   dhash:
     resource-directory: build/dhash/
