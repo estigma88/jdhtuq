@@ -105,7 +105,7 @@ public class SuccessorList {
         Message getSuccessorListMesssage;
 
         getSuccessorListMesssage = Message.builder()
-                .sequenceNumber(sequenceGenerator.getSequenceNumber())
+                .sequenceNumber(sequenceGenerator.newId())
                 .sendType(Message.SendType.REQUEST)
                 .messageType(Protocol.GET_SUCCESSOR_LIST)
                 .address(Address.builder()
@@ -164,7 +164,7 @@ public class SuccessorList {
         for (int i = 0; i < keyList.length; i++) {
 
             pingMessage = Message.builder()
-                    .sequenceNumber(sequenceGenerator.getSequenceNumber())
+                    .sequenceNumber(sequenceGenerator.newId())
                     .sendType(Message.SendType.REQUEST)
                     .messageType(Protocol.PING)
                     .address(Address.builder()

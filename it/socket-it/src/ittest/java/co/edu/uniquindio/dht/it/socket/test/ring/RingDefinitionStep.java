@@ -68,7 +68,7 @@ public class RingDefinitionStep extends CucumberRoot {
         MessageClient messageClient = ring.getNode(node);
 
         Message leave = Message.builder()
-                .sequenceNumber(itSequenceGenerator.getSequenceNumber())
+                .sequenceNumber(itSequenceGenerator.newId())
                 .sendType(Message.SendType.REQUEST)
                 .messageType(Protocol.LEAVE)
                 .address(Address.builder()
@@ -129,7 +129,7 @@ public class RingDefinitionStep extends CucumberRoot {
             MessageClient messageClient = ring.getNode(node);
 
             Message getSuccessor = Message.builder()
-                    .sequenceNumber(itSequenceGenerator.getSequenceNumber())
+                    .sequenceNumber(itSequenceGenerator.newId())
                     .sendType(Message.SendType.REQUEST)
                     .messageType(Protocol.GET_SUCCESSOR)
                     .address(Address.builder()

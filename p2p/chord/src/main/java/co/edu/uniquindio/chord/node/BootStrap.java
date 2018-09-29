@@ -69,7 +69,7 @@ public class BootStrap {
         Message bootStrapMessage;
 
         bootStrapMessage = Message.builder()
-                .sequenceNumber(sequenceGenerator.getSequenceNumber())
+                .sequenceNumber(sequenceGenerator.newId())
                 .sendType(Message.SendType.REQUEST)
                 .messageType(Protocol.BOOTSTRAP)
                 .address(Address.builder()

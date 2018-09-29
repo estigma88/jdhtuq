@@ -203,7 +203,7 @@ class NodeEnvironment implements MessageProcessor {
         if (!chordNode.getSuccessor().equals(chordNode.getKey())) {
 
             setSuccessorMessage = Message.builder()
-                    .sequenceNumber(sequenceGenerator.getSequenceNumber())
+                    .sequenceNumber(sequenceGenerator.newId())
                     .sendType(SendType.REQUEST)
                     .messageType(Protocol.SET_SUCCESSOR)
                     .address(Address.builder()
@@ -216,7 +216,7 @@ class NodeEnvironment implements MessageProcessor {
             communicationManager.send(setSuccessorMessage);
 
             setPredecessorMessage = Message.builder()
-                    .sequenceNumber(sequenceGenerator.getSequenceNumber())
+                    .sequenceNumber(sequenceGenerator.newId())
                     .sendType(SendType.REQUEST)
                     .messageType(Protocol.SET_PREDECESSOR)
                     .address(Address.builder()

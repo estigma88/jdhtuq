@@ -27,5 +27,5 @@ public interface IdGenerator {
      *
      * @return next sequence value
      */
-    String getSequenceNumber();
+    String newId();
 }

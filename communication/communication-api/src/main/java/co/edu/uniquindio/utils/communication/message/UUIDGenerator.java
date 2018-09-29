@@ -25,7 +25,7 @@ import java.util.UUID;
  * numbers for the messages. This create a sequence number between 1 and Long.MAX_VALUE.
  * When the sequence number is bigger than Long.MAX_VALUE the sequence number starts at 0
  * again. The sequence number increments in one every time that {@code
- * IdGenerator.getSequenceNumber()} is called
+ * IdGenerator.newId()} is called
  * 
  * 
  * @author Daniel Pelaez
@@ -42,7 +42,7 @@ public class UUIDGenerator implements IdGenerator {
 	 * @return Returns the next sequence number
 	 */
 	@Override
-	public String getSequenceNumber() {
+	public String newId() {
 		return UUID.randomUUID().toString();
 	}
 }
