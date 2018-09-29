@@ -11,8 +11,8 @@ import co.edu.uniquindio.chord.node.command.FixSuccessorsObserver;
 import co.edu.uniquindio.chord.node.command.StabilizeObserver;
 import co.edu.uniquindio.overlay.KeyFactory;
 import co.edu.uniquindio.overlay.OverlayNodeFactory;
-import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
-import co.edu.uniquindio.utils.communication.message.SequenceGeneratorImpl;
+import co.edu.uniquindio.utils.communication.message.IdGenerator;
+import co.edu.uniquindio.utils.communication.message.UUIDGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +38,7 @@ public class ChordAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public OverlayNodeFactory overlayNodeFactory(CommunicationManager communicationManagerChord, BootStrap bootStrap, ScheduledExecutorService scheduledStableRing, List<Observer> stableRingObservers, KeyFactory keyFactory, SequenceGenerator chordSequenceGenerator) {
+    public OverlayNodeFactory overlayNodeFactory(CommunicationManager communicationManagerChord, BootStrap bootStrap, ScheduledExecutorService scheduledStableRing, List<Observer> stableRingObservers, KeyFactory keyFactory, IdGenerator chordSequenceGenerator) {
         return new ChordNodeFactory(communicationManagerChord, new HashSet<>(), chordProperties.getStableRingTime(), chordProperties.getSuccessorListAmount(), bootStrap, scheduledStableRing, stableRingObservers, keyFactory, chordSequenceGenerator);
     }
 
@@ -62,8 +62,8 @@ public class ChordAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public SequenceGenerator chordSequenceGenerator() {
-        return new SequenceGeneratorImpl();
+    public IdGenerator chordSequenceGenerator() {
+        return new UUIDGenerator();
     }
 
     @Bean

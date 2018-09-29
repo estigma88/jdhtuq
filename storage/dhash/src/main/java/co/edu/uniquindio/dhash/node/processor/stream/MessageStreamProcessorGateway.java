@@ -1,5 +1,6 @@
-package co.edu.uniquindio.dhash.node;
+package co.edu.uniquindio.dhash.node.processor.stream;
 
+import co.edu.uniquindio.dhash.node.DHashNode;
 import co.edu.uniquindio.dhash.protocol.Protocol;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
@@ -19,21 +20,15 @@ public class MessageStreamProcessorGateway implements MessageStreamProcessor {
     private static final Logger logger = Logger
             .getLogger(MessageStreamProcessorGateway.class);
 
-    private final CommunicationManager communicationManager;
-    private final ResourceManager resourceManager;
     private final DHashNode dHashNode;
-    private final SerializationHandler serializationHandler;
     private final Map<MessageType, MessageStreamProcessor> messageStreamProcessorMap;
 
     public MessageStreamProcessorGateway(CommunicationManager communicationManager, ResourceManager resourceManager, DHashNode dHashNode, SerializationHandler serializationHandler) {
-        this.communicationManager = communicationManager;
-        this.resourceManager = resourceManager;
         this.dHashNode = dHashNode;
-        this.serializationHandler = serializationHandler;
 
         this.messageStreamProcessorMap = new HashMap<>();
-        this.messageStreamProcessorMap.put(Protocol.PUT, new PutMessageInputStreamProcessor(resourceManager, dHashNode, serializationHandler));
-        this.messageStreamProcessorMap.put(Protocol.RESOURCE_TRANSFER, new ResourceTransferMessageInputStreamProcessor(communicationManager, resourceManager, dHashNode, serializationHandler));
+        this.messageStreamProcessorMap.put(Protocol.PUT, new PutInputStreamProcessor(resourceManager, dHashNode, serializationHandler));
+        this.messageStreamProcessorMap.put(Protocol.GET, new GetInputStreamProcessor(communicationManager, resourceManager, dHashNode, serializationHandler));
     }
 
     @Override

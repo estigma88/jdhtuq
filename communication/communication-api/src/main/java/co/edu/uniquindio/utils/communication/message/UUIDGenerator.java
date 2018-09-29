@@ -18,12 +18,14 @@
 
 package co.edu.uniquindio.utils.communication.message;
 
+import java.util.UUID;
+
 /**
- * The {@code SequenceGenerator} class is responsible for generating the sequence
+ * The {@code IdGenerator} class is responsible for generating the sequence
  * numbers for the messages. This create a sequence number between 1 and Long.MAX_VALUE.
  * When the sequence number is bigger than Long.MAX_VALUE the sequence number starts at 0
  * again. The sequence number increments in one every time that {@code
- * SequenceGenerator.getSequenceNumber()} is called
+ * IdGenerator.getSequenceNumber()} is called
  * 
  * 
  * @author Daniel Pelaez
@@ -33,27 +35,14 @@ package co.edu.uniquindio.utils.communication.message;
  * @since 1.0
  * 
  */
-public class SequenceGeneratorImpl implements SequenceGenerator{
-	/**
-	 * The next sequence number, star at 0
-	 */
-	private static long number = 0;
-
-	/**
-	 * The max number that SequenceGenerator can generate, its value is Long.MAX_VALUE
-	 */
-	private static long maxNumber = Long.MAX_VALUE;
-
+public class UUIDGenerator implements IdGenerator {
 	/**
 	 * This method return the next sequence number
 	 * 
 	 * @return Returns the next sequence number
 	 */
-	public synchronized long getSequenceNumber() {
-		if (number > maxNumber) {
-			number = 0;
-		}
-
-		return ++number;
+	@Override
+	public String getSequenceNumber() {
+		return UUID.randomUUID().toString();
 	}
 }

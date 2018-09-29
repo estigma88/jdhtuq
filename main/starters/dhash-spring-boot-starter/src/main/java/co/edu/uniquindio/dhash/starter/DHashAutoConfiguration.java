@@ -10,8 +10,8 @@ import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
 import co.edu.uniquindio.overlay.KeyFactory;
 import co.edu.uniquindio.overlay.OverlayNodeFactory;
 import co.edu.uniquindio.storage.StorageNodeFactory;
-import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
-import co.edu.uniquindio.utils.communication.message.SequenceGeneratorImpl;
+import co.edu.uniquindio.utils.communication.message.IdGenerator;
+import co.edu.uniquindio.utils.communication.message.UUIDGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,7 +33,7 @@ public class DHashAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public StorageNodeFactory storageNodeFactory(OverlayNodeFactory overlayNodeFactory, KeyFactory keyFactory, CommunicationManager communicationManagerDHash, SerializationHandler serializationHandler, ChecksumCalculator checksumeCalculator, ResourceManagerFactory resourceManagerFactory, SequenceGenerator dhashSequenceGenerator) {
+    public StorageNodeFactory storageNodeFactory(OverlayNodeFactory overlayNodeFactory, KeyFactory keyFactory, CommunicationManager communicationManagerDHash, SerializationHandler serializationHandler, ChecksumCalculator checksumeCalculator, ResourceManagerFactory resourceManagerFactory, IdGenerator dhashSequenceGenerator) {
         return new DHashNodeFactory(communicationManagerDHash, overlayNodeFactory, serializationHandler, checksumeCalculator, resourceManagerFactory, dHashProperties.getReplicationAmount(), keyFactory, dhashSequenceGenerator, Executors.newCachedThreadPool());
     }
 
@@ -57,13 +57,13 @@ public class DHashAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public SequenceGenerator dhashSequenceGenerator() {
-        return new SequenceGeneratorImpl();
+    public IdGenerator dhashSequenceGenerator() {
+        return new UUIDGenerator();
     }
 
     @Bean
     @ConditionalOnMissingBean
     public ResourceManagerFactory persistenceHandlerFactory() {
-        return new FileResourceManagerFactory(dHashProperties.getResourceDirectory());
+        return new FileResourceManagerFactory(dHashProperties.getResourceDirectory(), dHashProperties.getBufferSize());
     }
 }

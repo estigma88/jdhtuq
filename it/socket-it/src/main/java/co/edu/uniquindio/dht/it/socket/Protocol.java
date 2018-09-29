@@ -59,10 +59,10 @@ public final class Protocol {
      */
 
     /**
-     * GET BEGIN
+     * CONTAIN BEGIN
      */
     public static final MessageType GET = MessageType.builder()
-            .name("GET")
+            .name("CONTAIN")
             .amountParams(GetParams.values().length)
             .build();
 
@@ -71,14 +71,14 @@ public final class Protocol {
     }
 
     /**
-     * GET END
+     * CONTAIN END
      */
 
     /**
-     * GET_RESPONSE BEGIN
+     * CONTAIN_RESPONSE BEGIN
      */
     public static final MessageType GET_RESPONSE = MessageType.builder()
-            .name("GET_RESPONSE")
+            .name("CONTAIN_RESPONSE")
             .amountParams(GetResponseParams.values().length)
             .build();
 
@@ -92,7 +92,7 @@ public final class Protocol {
 
 
     /**
-     * GET SUCCESSOR BEGIN
+     * CONTAIN SUCCESSOR BEGIN
      */
     public static final MessageType GET_SUCCESSOR = MessageType.builder()
             .name("GET_SUCCESSOR")
@@ -103,11 +103,11 @@ public final class Protocol {
     }
 
     /**
-     * GET END
+     * CONTAIN END
      */
 
     /**
-     * GET_RESPONSE BEGIN
+     * CONTAIN_RESPONSE BEGIN
      */
     public static final MessageType GET_SUCCESSOR_RESPONSE = MessageType.builder()
             .name("GET_SUCCESSOR_RESPONSE")
@@ -130,7 +130,7 @@ public final class Protocol {
     }
 
     /**
-     * GET END
+     * CONTAIN END
      */
 
     /**

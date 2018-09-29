@@ -6,8 +6,8 @@ import co.edu.uniquindio.dht.it.socket.test.MessageClient;
 import co.edu.uniquindio.dht.it.socket.test.World;
 import co.edu.uniquindio.dht.it.socket.test.put.Content;
 import co.edu.uniquindio.utils.communication.message.Address;
+import co.edu.uniquindio.utils.communication.message.IdGenerator;
 import co.edu.uniquindio.utils.communication.message.Message;
-import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
 import cucumber.api.java.en.Then;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -19,7 +19,7 @@ public class GetsDefinitionStep extends CucumberRoot {
     @Autowired
     private World world;
     @Autowired
-    private SequenceGenerator itSequenceGenerator;
+    private IdGenerator itSequenceGenerator;
 
     @Then("^I lookup the following resources:$")
     public void i_lookup_the_following_resources(List<Content> contents) throws Throwable {

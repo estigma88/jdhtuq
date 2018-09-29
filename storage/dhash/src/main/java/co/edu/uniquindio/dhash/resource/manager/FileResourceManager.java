@@ -30,11 +30,13 @@ public class FileResourceManager implements ResourceManager {
     private final String directory;
     private final String name;
     private final Set<String> keys;
+    private final Integer bufferSize;
 
-    public FileResourceManager(String directory, String name, Set<String> keys) {
+    public FileResourceManager(String directory, String name, Set<String> keys, Integer bufferSize) {
         this.directory = directory;
         this.name = name;
         this.keys = keys;
+        this.bufferSize = bufferSize;
     }
 
     @Override
@@ -57,7 +59,7 @@ public class FileResourceManager implements ResourceManager {
             InputStream source = resource.getInputStream();
 
             int count;
-            byte[] buffer = new byte[2048];
+            byte[] buffer = new byte[bufferSize];
             while ((count = source.read(buffer)) > 0) {
                 fileOutputStream.write(buffer, 0, count);
             }

@@ -18,6 +18,8 @@
 
 package co.edu.uniquindio.dhash.node;
 
+import co.edu.uniquindio.dhash.node.processor.MessageProcessorGateway;
+import co.edu.uniquindio.dhash.node.processor.stream.MessageStreamProcessorGateway;
 import co.edu.uniquindio.dhash.resource.checksum.ChecksumCalculator;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManagerFactory;
@@ -30,7 +32,7 @@ import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.StorageNode;
 import co.edu.uniquindio.storage.StorageNodeFactory;
 import co.edu.uniquindio.storage.resource.ProgressStatus;
-import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
+import co.edu.uniquindio.utils.communication.message.IdGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.apache.log4j.Logger;
 
@@ -58,10 +60,10 @@ public class DHashNodeFactory implements StorageNodeFactory {
     private final ChecksumCalculator checksumeCalculator;
     private final ResourceManagerFactory resourceManagerFactory;
     private final KeyFactory keyFactory;
-    private final SequenceGenerator sequenceGenerator;
+    private final IdGenerator sequenceGenerator;
     private final ExecutorService executorService;
 
-    public DHashNodeFactory(CommunicationManager communicationManager, OverlayNodeFactory overlayNodeFactory, SerializationHandler serializationHandler, ChecksumCalculator checksumeCalculator, ResourceManagerFactory resourceManagerFactory, int replicationFactor, KeyFactory keyFactory, SequenceGenerator sequenceGenerator, ExecutorService executorService) {
+    public DHashNodeFactory(CommunicationManager communicationManager, OverlayNodeFactory overlayNodeFactory, SerializationHandler serializationHandler, ChecksumCalculator checksumeCalculator, ResourceManagerFactory resourceManagerFactory, int replicationFactor, KeyFactory keyFactory, IdGenerator sequenceGenerator, ExecutorService executorService) {
         this.communicationManager = communicationManager;
         this.overlayNodeFactory = overlayNodeFactory;
         this.serializationHandler = serializationHandler;
@@ -107,20 +109,20 @@ public class DHashNodeFactory implements StorageNodeFactory {
     private DHashNode createNode(String name, OverlayNode overlayNode) {
 
         DHashNode dhashNode;
-        DHashEnvironment dHashEnviroment;
+        MessageProcessorGateway dHashEnviroment;
 
         ResourceManager resourceManager = resourceManagerFactory.of(name);
 
-        dhashNode = getDhashNode(name, overlayNode, resourceManager);
+        dhashNode = getDHashNode(name, overlayNode, resourceManager);
 
         ReAssignObserver reAssignObserver = getReAssignObserver(dhashNode);
 
         overlayNode.getObservable().addObserver(reAssignObserver);
 
-        dHashEnviroment = getDHashEnviroment(dhashNode, resourceManager);
+        dHashEnviroment = getMessageProcessor(dhashNode, resourceManager);
 
         communicationManager.addMessageProcessor(name, dHashEnviroment);
-        communicationManager.addMessageInputStreamProcessor(name, getMessageStreamProcessor(dhashNode, resourceManager));
+        communicationManager.addMessageStreamProcessor(name, getMessageStreamProcessor(dhashNode, resourceManager));
 
         logger.debug("DHash Node " + name + " Created");
 
@@ -135,11 +137,11 @@ public class DHashNodeFactory implements StorageNodeFactory {
         return new ReAssignObserver(dhashNode, keyFactory);
     }
 
-    DHashEnvironment getDHashEnviroment(DHashNode dhashNode, ResourceManager resourceManager) {
-        return new DHashEnvironment(communicationManager, dhashNode, serializationHandler, checksumeCalculator, resourceManager);
+    MessageProcessorGateway getMessageProcessor(DHashNode dhashNode, ResourceManager resourceManager) {
+        return new MessageProcessorGateway(dhashNode, resourceManager);
     }
 
-    DHashNode getDhashNode(String name, OverlayNode overlayNode, ResourceManager resourceManager) {
+    DHashNode getDHashNode(String name, OverlayNode overlayNode, ResourceManager resourceManager) {
         return new DHashNode(overlayNode, replicationFactor, name, communicationManager, serializationHandler, resourceManager, keyFactory, sequenceGenerator, executorService);
     }
 

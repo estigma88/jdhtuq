@@ -50,13 +50,12 @@ import java.util.concurrent.ExecutorService;
 public class CommunicationManagerTCP implements
         CommunicationManager {
 
-
     private static final Logger logger = Logger
             .getLogger(CommunicationManagerTCP.class);
 
-    private static final String RESPONSE_TIME = "RESPONSE_TIME";
+    private static final String RESPONSE_TIME = "response_time";
 
-    private final Communicator unicastManager;
+    private final StreamCommunicator unicastManager;
     private final ConnectionReceiver unicastConnectionReceiver;
     private final Communicator multicastManager;
     private final MessagesReceiver multicastMessagesReciever;
@@ -68,7 +67,7 @@ public class CommunicationManagerTCP implements
     private MessageStreamProcessor messageStreamProcessor;
     private Map<String, String> communicationProperties;
 
-    public CommunicationManagerTCP(Communicator unicastManager, ConnectionReceiver unicastConnectionReceiver, Communicator multicastManager, MessagesReceiver multicastMessagesReciever, MessageResponseProcessor messageResponseProcessor, Observable<Message> observableCommunication, ReturnsManager<Message> returnsManager, ExecutorService messagesReceiverExecutor) {
+    public CommunicationManagerTCP(StreamCommunicator unicastManager, ConnectionReceiver unicastConnectionReceiver, Communicator multicastManager, MessagesReceiver multicastMessagesReciever, MessageResponseProcessor messageResponseProcessor, Observable<Message> observableCommunication, ReturnsManager<Message> returnsManager, ExecutorService messagesReceiverExecutor) {
         this.unicastManager = unicastManager;
         this.unicastConnectionReceiver = unicastConnectionReceiver;
         this.multicastManager = multicastManager;
@@ -82,7 +81,7 @@ public class CommunicationManagerTCP implements
 
     /**
      * Creates and sends a message specifying its type, the type of the response
-     * and the data. Used <code>sendMessage(message)</code> to send message. The
+     * and the data. Used <code>sendMessage(message)</code> to transfer message. The
      * typeReturn must to have a method by signed <code>T valueOf(String)</code>
      * and class must to have constructor without parameters, or an constructor
      * <code>T(String)</code> . If typeReturn is a Message class, the return is
@@ -93,16 +92,17 @@ public class CommunicationManagerTCP implements
      * @param typeReturn The type of the response
      * @return An object <T> of the specified type.
      */
-    public <T> T sendMessageUnicast(Message message, Class<T> typeReturn) {
+    @Override
+    public <T> T send(Message message, Class<T> typeReturn) {
 
         /*
-         * Created WaitingResult for message sequence number to send
+         * Created WaitingResult for message sequence number to transfer
          */
         WaitingResult<Message> waitingResult = returnsManager
                 .createWaitingResult(message.getSequenceNumber(), Long
                         .parseLong(communicationProperties.get(RESPONSE_TIME)));
 
-        sendMessageUnicast(message);
+        send(message);
 
         /*
          * Waiting for response
@@ -117,7 +117,7 @@ public class CommunicationManagerTCP implements
 
     /**
      * Creates and sends a message specifying its type, the type of the response
-     * and the data. Used <code>sendMessage(message)</code> to send message. The
+     * and the data. Used <code>sendMessage(message)</code> to transfer message. The
      * typeReturn must to have a method by signed <code>T valueOf(String)</code>
      * and class must to have constructor without parameters, or an constructor
      * <code>T(String)</code> . If typeReturn is a Message class, the return is
@@ -129,17 +129,18 @@ public class CommunicationManagerTCP implements
      * @param paramNameResult Param name of result
      * @return An object <T> of the specified type.
      */
-    public <T> T sendMessageUnicast(Message message, Class<T> typeReturn,
-                                    String paramNameResult) {
+    @Override
+    public <T> T send(Message message, Class<T> typeReturn,
+                      String paramNameResult) {
 
         /*
-         * Created WaitingResult for message sequence number to send
+         * Created WaitingResult for message sequence number to transfer
          */
         WaitingResult<Message> waitingResult = returnsManager
                 .createWaitingResult(message.getSequenceNumber(), Long
                         .parseLong(communicationProperties.get(RESPONSE_TIME)));
 
-        sendMessageUnicast(message);
+        send(message);
 
         /*
          * Waiting for response
@@ -152,47 +153,21 @@ public class CommunicationManagerTCP implements
         return messageResponseProcessor.process(messageResponse, typeReturn, paramNameResult);
     }
 
-    @Override
-    public MessageStream sendMessageTransferUnicast(Message resourceTransferMessage, ProgressStatusTransfer progressStatusTransfer) {
-        return unicastManager.receive(resourceTransferMessage, progressStatusTransfer);
-    }
-
     /**
      * Sends a message specifying its type, the type of the response and the
-     * data. Used Communicator instance called unicastManager to send message
+     * data. Used Communicator instance called unicastManager to transfer message
      *
-     * @param message Messages to send
+     * @param message Messages to transfer
      */
-    public void sendMessageUnicast(Message message) {
+    @Override
+    public void send(Message message) {
         unicastManager.send(message);
-    }
-
-    /**
-     * Sends a message specifying its type, the type of the response and the
-     * data. Used Communicator instance called unicastManager to send message.
-     * Besides, it sends an input stream
-     *
-     * @param message Messages to send
-     */
-    @Override
-    public void sendMessageUnicast(MessageStream message, ProgressStatusTransfer progressStatusTransfer) {
-        unicastManager.send(message, progressStatusTransfer);
-    }
-
-    @Override
-    public void sendMessageUnicast(InputStream source, OutputStream destination, Long size, ProgressStatusTransfer progressStatusTransfer) throws IOException {
-        unicastManager.send(source, destination, size, progressStatusTransfer);
-    }
-
-    @Override
-    public void sendMessageUnicast(Message message, OutputStream destination) {
-        unicastManager.send(message, destination);
     }
 
     /**
      * Creates and sends a multicast message specifying its type, the type of
      * the response and the data. Used
-     * <code>sendMessageMultiCast(message)</code> to send message. The
+     * <code>sendMultiCast(message)</code> to transfer message. The
      * typeReturn must to have a method by signed <code>T valueOf(String)</code>
      * and class must to have constructor without parameters, or an constructor
      * <code>T(String)</code> . If typeReturn is a Message class, the return is
@@ -204,16 +179,16 @@ public class CommunicationManagerTCP implements
      * @param typeReturn Type return
      * @return Response
      */
-    public <T> T sendMessageMultiCast(Message message, Class<T> typeReturn) {
+    public <T> T sendMultiCast(Message message, Class<T> typeReturn) {
 
         /*
-         * Created WaitingResult for message sequence number to send
+         * Created WaitingResult for message sequence number to transfer
          */
         WaitingResult<Message> waitingResult = returnsManager
                 .createWaitingResult(message.getSequenceNumber(), Long
                         .parseLong(communicationProperties.get(RESPONSE_TIME)));
 
-        sendMessageMultiCast(message);
+        sendMultiCast(message);
 
         /*
          * Waiting for response
@@ -229,7 +204,7 @@ public class CommunicationManagerTCP implements
     /**
      * Creates and sends a multicast message specifying its type, the type of
      * the response and the data. Used
-     * <code>sendMessageMultiCast(message)</code> to send message. The
+     * <code>sendMultiCast(message)</code> to transfer message. The
      * typeReturn must to have a method by signed <code>T valueOf(String)</code>
      * and class must to have constructor without parameters, or an constructor
      * <code>T(String)</code> . If typeReturn is a Message class, the return is
@@ -242,17 +217,17 @@ public class CommunicationManagerTCP implements
      * @param paramNameResult Param name of result
      * @return Response
      */
-    public <T> T sendMessageMultiCast(Message message, Class<T> typeReturn,
-                                      String paramNameResult) {
+    public <T> T sendMultiCast(Message message, Class<T> typeReturn,
+                               String paramNameResult) {
 
         /*
-         * Created WaitingResult for message sequence number to send
+         * Created WaitingResult for message sequence number to transfer
          */
         WaitingResult<Message> waitingResult = returnsManager
                 .createWaitingResult(message.getSequenceNumber(), Long
                         .parseLong(communicationProperties.get(RESPONSE_TIME)));
 
-        sendMessageMultiCast(message);
+        sendMultiCast(message);
 
         /*
          * Waiting for response
@@ -267,13 +242,40 @@ public class CommunicationManagerTCP implements
 
     /**
      * Sends a multicast message specifying its type, the type of the response
-     * and the data. Used Communicator instance called multicastManager to send
+     * and the data. Used Communicator instance called multicastManager to transfer
      * message
      *
-     * @param message Messages to send
+     * @param message Messages to transfer
      */
-    public void sendMessageMultiCast(Message message) {
+    public void sendMultiCast(Message message) {
         multicastManager.send(message);
+    }
+
+    @Override
+    public void sendTo(Message message, OutputStream destination) {
+        unicastManager.sendTo(message, destination);
+    }
+
+    /**
+     * Sends a message specifying its type, the type of the response and the
+     * data. Used Communicator instance called unicastManager to transfer message.
+     * Besides, it sends an input stream
+     *
+     * @param message Messages to transfer
+     */
+    @Override
+    public void send(MessageStream message, ProgressStatusTransfer progressStatusTransfer) {
+        unicastManager.send(message, progressStatusTransfer);
+    }
+
+    @Override
+    public void transfer(InputStream source, OutputStream destination, Long size, ProgressStatusTransfer progressStatusTransfer) throws IOException {
+        unicastManager.transfer(source, destination, size, progressStatusTransfer);
+    }
+
+    @Override
+    public MessageStream receive(Message resourceTransferMessage, ProgressStatusTransfer progressStatusTransfer) {
+        return unicastManager.receive(resourceTransferMessage, progressStatusTransfer);
     }
 
     /**
@@ -324,13 +326,18 @@ public class CommunicationManagerTCP implements
     }
 
     @Override
-    public void addMessageInputStreamProcessor(String name, MessageStreamProcessor messageStreamProcessor) {
+    public void addMessageStreamProcessor(String name, MessageStreamProcessor messageStreamProcessor) {
         this.messageStreamProcessor = messageStreamProcessor;
     }
 
     @Override
     public void removeMessageProcessor(String name) {
         this.messageProcessor = null;
+    }
+
+    @Override
+    public void removeMessageStreamProcessor(String name) {
+        this.messageStreamProcessor = null;
     }
 
     public MessageProcessor getMessageProcessor() {
@@ -342,11 +349,11 @@ public class CommunicationManagerTCP implements
     }
 
     /*
-         * (non-Javadoc)
-         *
-         * @seeco.edu.uniquindio.utils.communication.transfer.
-         * CommunicationManagerWaitingResult#init ()
-         */
+     * (non-Javadoc)
+     *
+     * @seeco.edu.uniquindio.utils.communication.transfer.
+     * CommunicationManagerWaitingResult#init ()
+     */
     public void init() {
         this.unicastManager.start(communicationProperties);
         this.multicastManager.start(communicationProperties);
@@ -355,7 +362,7 @@ public class CommunicationManagerTCP implements
         messagesReceiverExecutor.execute(multicastMessagesReciever);
     }
 
-    public void init(Map<String, String> communicationProperties){
+    public void init(Map<String, String> communicationProperties) {
         this.communicationProperties = communicationProperties;
         init();
     }

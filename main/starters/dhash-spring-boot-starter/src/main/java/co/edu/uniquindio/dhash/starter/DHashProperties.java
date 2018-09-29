@@ -10,4 +10,5 @@ import org.springframework.context.annotation.PropertySource;
 public class DHashProperties {
     private int replicationAmount = 1;
     private String resourceDirectory = "dhash/";
+    private int bufferSize = 1024;
 }

@@ -21,9 +21,8 @@ package co.edu.uniquindio.chord.node;
 
 import co.edu.uniquindio.chord.ChordKey;
 import co.edu.uniquindio.chord.protocol.Protocol;
-import co.edu.uniquindio.overlay.Key;
 import co.edu.uniquindio.utils.communication.message.Message;
-import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
+import co.edu.uniquindio.utils.communication.message.IdGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,7 +55,7 @@ public class BootStrapTest {
     @Captor
     private ArgumentCaptor<Message> messageCaptor;
     @Mock
-    private SequenceGenerator sequenceGenerator;
+    private IdGenerator sequenceGenerator;
     @InjectMocks
     private BootStrap bootStrap;
 
@@ -71,7 +70,7 @@ public class BootStrapTest {
         bootStrap.boot(nodeChord, communicationManager, sequenceGenerator);
 
         verify(nodeChord).createRing();
-        verify(communicationManager).sendMessageMultiCast(messageCaptor.capture(),
+        verify(communicationManager).sendMultiCast(messageCaptor.capture(),
                 eq(ChordKey.class));
 
         assertThat(fingersTable.getFingersTable()[0]).isEqualTo(successor);
@@ -87,12 +86,12 @@ public class BootStrapTest {
         when(nodeChord.getSuccessor()).thenReturn(successor);
         when(nodeChord.getKey()).thenReturn(key);
         when(key.getValue()).thenReturn("keyHash");
-        when(communicationManager.sendMessageMultiCast(any(), eq(ChordKey.class))).thenReturn(foundNode);
+        when(communicationManager.sendMultiCast(any(), eq(ChordKey.class))).thenReturn(foundNode);
 
         bootStrap.boot(nodeChord, communicationManager, sequenceGenerator);
 
         verify(nodeChord).join(foundNode);
-        verify(communicationManager).sendMessageMultiCast(messageCaptor.capture(),
+        verify(communicationManager).sendMultiCast(messageCaptor.capture(),
                 eq(ChordKey.class));
 
         assertThat(fingersTable.getFingersTable()[0]).isEqualTo(successor);

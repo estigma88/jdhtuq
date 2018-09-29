@@ -22,7 +22,7 @@ package co.edu.uniquindio.chord.node;
 import co.edu.uniquindio.chord.Chord;
 import co.edu.uniquindio.chord.ChordKey;
 import co.edu.uniquindio.overlay.*;
-import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
+import co.edu.uniquindio.utils.communication.message.IdGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.apache.log4j.Logger;
 
@@ -66,9 +66,9 @@ public class ChordNodeFactory implements OverlayNodeFactory {
     private final ScheduledExecutorService scheduledStableRing;
     private final List<Observer> stableRingObservers;
     private final KeyFactory keyFactory;
-    private final SequenceGenerator sequenceGenerator;
+    private final IdGenerator sequenceGenerator;
 
-    public ChordNodeFactory(CommunicationManager communicationManager, Set<String> names, int stableRingTime, int successorListAmount, BootStrap bootStrap, ScheduledExecutorService scheduledStableRing, List<Observer> stableRingObservers, KeyFactory keyFactory, SequenceGenerator sequenceGenerator) {
+    public ChordNodeFactory(CommunicationManager communicationManager, Set<String> names, int stableRingTime, int successorListAmount, BootStrap bootStrap, ScheduledExecutorService scheduledStableRing, List<Observer> stableRingObservers, KeyFactory keyFactory, IdGenerator sequenceGenerator) {
         this.communicationManager = communicationManager;
         this.stableRingTime = stableRingTime;
         this.successorListAmount = successorListAmount;

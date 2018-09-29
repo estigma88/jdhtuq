@@ -38,7 +38,7 @@ public class ReturnsManagerCommunication<T> implements ReturnsManager<T> {
 	/**
 	 * The map of the WaitingResult references with a specific sequence number
 	 */
-	private Map<Long, WaitingResult<T>> results;
+	private Map<String, WaitingResult<T>> results;
 
 	/**
 	 * Create a synchronized instance of the class HashMap
@@ -50,33 +50,35 @@ public class ReturnsManagerCommunication<T> implements ReturnsManager<T> {
 
 	/**
 	 * Creates a WaitingResult object for the message with the specified
-	 * sequence number
+	 * id number
 	 * 
-	 * @param sequence
-	 *            . The sequence number of the message
+	 * @param id
+	 *            . The id number of the message
 	 * @return Returns the {@link WaitingResult} created
 	 */
-	public WaitingResult<T> createWaitingResult(long sequence, long timeOut) {
-		WaitingResult<T> resultInWait = new WaitingResult<T>(sequence, this, timeOut);
+	@Override
+	public WaitingResult<T> createWaitingResult(String id, long timeOut) {
+		WaitingResult<T> resultInWait = new WaitingResult<T>(id, this, timeOut);
 
-		results.put(sequence, resultInWait);
+		results.put(id, resultInWait);
 
 		return resultInWait;
 	}
 
 	/**
 	 * This method is responsible for releasing the WaitingResult reference with
-	 * the specified sequence number by set the response for the message.
+	 * the specified id number by set the response for the message.
 	 * 
-	 * @param sequence
-	 *            . The sequence number of the message
+	 * @param id
+	 *            . The id number of the message
 	 * @param result
 	 *            . The response for the message
 	 */
-	public synchronized void releaseWaitingResult(long sequence, T result) {
-		if (results.get(sequence) == null) {
+	@Override
+	public synchronized void releaseWaitingResult(String id, T result) {
+		if (results.get(id) == null) {
 			return;
 		}
-		results.remove(sequence).setResult(result);
+		results.remove(id).setResult(result);
 	}
 }

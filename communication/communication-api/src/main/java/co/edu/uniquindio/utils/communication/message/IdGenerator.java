@@ -21,11 +21,11 @@ package co.edu.uniquindio.utils.communication.message;
 /**
  * Sequence generator
  */
-public interface SequenceGenerator {
+public interface IdGenerator {
     /**
      * Get the next sequence value
      *
      * @return next sequence value
      */
-    long getSequenceNumber();
+    String getSequenceNumber();
 }

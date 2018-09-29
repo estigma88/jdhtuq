@@ -22,12 +22,11 @@ package co.edu.uniquindio.chord.node;
 import co.edu.uniquindio.chord.ChordKey;
 import co.edu.uniquindio.chord.protocol.Protocol;
 import co.edu.uniquindio.chord.protocol.Protocol.*;
-import co.edu.uniquindio.overlay.Key;
 import co.edu.uniquindio.overlay.KeyFactory;
 import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.Message.SendType;
-import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
+import co.edu.uniquindio.utils.communication.message.IdGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
 import org.apache.log4j.Logger;
@@ -74,9 +73,9 @@ class NodeEnvironment implements MessageProcessor {
      * The thread that uses the commands for stabilizing the node.
      */
     private final KeyFactory keyFactory;
-    private final SequenceGenerator sequenceGenerator;
+    private final IdGenerator sequenceGenerator;
 
-    NodeEnvironment(CommunicationManager communicationManager, ChordNode chordNode, KeyFactory keyFactory, SequenceGenerator sequenceGenerator) {
+    NodeEnvironment(CommunicationManager communicationManager, ChordNode chordNode, KeyFactory keyFactory, IdGenerator sequenceGenerator) {
         this.communicationManager = communicationManager;
         this.chordNode = chordNode;
         this.keyFactory = keyFactory;
@@ -214,7 +213,7 @@ class NodeEnvironment implements MessageProcessor {
                     .param(SetSuccessorParams.SUCCESSOR.name(), chordNode.getSuccessor().getValue())
                     .build();
 
-            communicationManager.sendMessageUnicast(setSuccessorMessage);
+            communicationManager.send(setSuccessorMessage);
 
             setPredecessorMessage = Message.builder()
                     .sequenceNumber(sequenceGenerator.getSequenceNumber())
@@ -227,7 +226,7 @@ class NodeEnvironment implements MessageProcessor {
                     .param(SetPredecessorParams.PREDECESSOR.name(), chordNode.getPredecessor().toString())
                     .build();
 
-            communicationManager.sendMessageUnicast(setPredecessorMessage);
+            communicationManager.send(setPredecessorMessage);
         }
 
         communicationManager.removeMessageProcessor(this.chordNode.getKey().getValue());

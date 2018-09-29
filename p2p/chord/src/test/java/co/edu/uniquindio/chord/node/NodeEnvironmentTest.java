@@ -24,7 +24,7 @@ import co.edu.uniquindio.chord.protocol.Protocol;
 import co.edu.uniquindio.overlay.KeyFactory;
 import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
-import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
+import co.edu.uniquindio.utils.communication.message.IdGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,7 +65,7 @@ public class NodeEnvironmentTest {
     @Mock
     private KeyFactory keyFactory;
     @Mock
-    private SequenceGenerator sequenceGenerator;
+    private IdGenerator sequenceGenerator;
 
     @Before
     public void before() {

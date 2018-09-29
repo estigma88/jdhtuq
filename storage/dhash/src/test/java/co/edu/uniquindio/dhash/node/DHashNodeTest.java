@@ -32,7 +32,7 @@ import co.edu.uniquindio.storage.StorageNodeFactory;
 import co.edu.uniquindio.storage.resource.ProgressStatus;
 import co.edu.uniquindio.storage.resource.Resource;
 import co.edu.uniquindio.utils.communication.message.Message;
-import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
+import co.edu.uniquindio.utils.communication.message.IdGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.junit.Before;
 import org.junit.Rule;
@@ -71,7 +71,7 @@ public class DHashNodeTest {
     @Mock
     private KeyFactory keyFactory;
     @Mock
-    private SequenceGenerator sequenceGenerator;
+    private IdGenerator sequenceGenerator;
     @Mock
     private Key key;
     @Mock
@@ -124,7 +124,7 @@ public class DHashNodeTest {
 
         when(keyFactory.newKey("resourceKey")).thenReturn(key1);
         when(overlayNode.lookUp(key1)).thenReturn(key);
-        when(communicationManager.sendMessageUnicast(any(), eq(Boolean.class))).thenReturn(false);
+        when(communicationManager.send(any(), eq(Boolean.class))).thenReturn(false);
 
         dHashNode.getSync("resourceKey", (name, current, size) -> {});
     }
@@ -134,26 +134,26 @@ public class DHashNodeTest {
         when(serializationHandler.decode("", null)).thenReturn(resource1);
         when(keyFactory.newKey("resourceKey")).thenReturn(key1);
         when(overlayNode.lookUp(key1)).thenReturn(key);
-        //when(bigMessage.getData(Protocol.ResourceTransferResponseData.RESOURCE.name())).thenReturn(new byte[10]);
-        when(communicationManager.sendMessageUnicast(any(), eq(Boolean.class))).thenReturn(true);
-        when(communicationManager.sendMessageUnicast(any(), eq(Message.class))).thenReturn(bigMessage);
+        //when(bigMessage.getData(Protocol.GetResponseData.RESOURCE.name())).thenReturn(new byte[10]);
+        when(communicationManager.send(any(), eq(Boolean.class))).thenReturn(true);
+        when(communicationManager.send(any(), eq(Message.class))).thenReturn(bigMessage);
 
         Resource resourceResult = dHashNode.getSync("resourceKey", (name, current, size) -> {});
 
         verify(overlayNode).lookUp(key1);
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture(),
+        verify(communicationManager).send(messageCaptor.capture(),
                 eq(Boolean.class));
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture(), eq(Message.class));
+        verify(communicationManager).send(messageCaptor.capture(), eq(Message.class));
 
         assertThat(resourceResult).isEqualTo(resource1);
-        assertThat(messageCaptor.getAllValues().get(0).getMessageType()).isEqualTo(Protocol.GET);
+        assertThat(messageCaptor.getAllValues().get(0).getMessageType()).isEqualTo(Protocol.CONTAIN);
         assertThat(messageCaptor.getAllValues().get(0).getAddress().getDestination()).isEqualTo("key");
         assertThat(messageCaptor.getAllValues().get(0).getAddress().getSource()).isEqualTo("dhash");
-        assertThat(messageCaptor.getAllValues().get(0).getParam(Protocol.GetParams.RESOURCE_KEY.name())).isEqualTo("resourceKey");
-        assertThat(messageCaptor.getAllValues().get(1).getMessageType()).isEqualTo(Protocol.RESOURCE_TRANSFER);
+        assertThat(messageCaptor.getAllValues().get(0).getParam(Protocol.ContainParams.RESOURCE_KEY.name())).isEqualTo("resourceKey");
+        assertThat(messageCaptor.getAllValues().get(1).getMessageType()).isEqualTo(Protocol.GET);
         assertThat(messageCaptor.getAllValues().get(1).getAddress().getDestination()).isEqualTo("key");
         assertThat(messageCaptor.getAllValues().get(1).getAddress().getSource()).isEqualTo("dhash");
-        assertThat(messageCaptor.getAllValues().get(1).getParam(Protocol.GetParams.RESOURCE_KEY.name())).isEqualTo("resourceKey");
+        assertThat(messageCaptor.getAllValues().get(1).getParam(Protocol.ContainParams.RESOURCE_KEY.name())).isEqualTo("resourceKey");
     }
 
     @Test
@@ -176,11 +176,11 @@ public class DHashNodeTest {
         when(resource1.getId()).thenReturn("resourceKey");
         when(overlayNode.lookUp(key1)).thenReturn(key);
         when(checksumeCalculator.calculate(resource1)).thenReturn("checksum");
-        when(communicationManager.sendMessageUnicast(any(), eq(Boolean.class))).thenReturn(true);
+        when(communicationManager.send(any(), eq(Boolean.class))).thenReturn(true);
 
         boolean result = dHashNode.putSync(resource1, (name, current, size) -> {});
 
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture(), eq(Boolean.class));
+        verify(communicationManager).send(messageCaptor.capture(), eq(Boolean.class));
         verify(overlayNode).lookUp(key1);
 
         assertThat(result).isFalse();
@@ -198,14 +198,14 @@ public class DHashNodeTest {
         when(resource1.getId()).thenReturn("resourceKey");
         when(overlayNode.lookUp(key1)).thenReturn(key);
         when(checksumeCalculator.calculate(resource1)).thenReturn("checksum");
-        when(communicationManager.sendMessageUnicast(any(), eq(Boolean.class))).thenReturn(false);
+        when(communicationManager.send(any(), eq(Boolean.class))).thenReturn(false);
 
         dHashNode.putSync(resource1, (name, current, size) -> {});
 
         verify(overlayNode).lookUp(key1);
-        verify(communicationManager).sendMessageUnicast(messageCaptor.capture(),
+        verify(communicationManager).send(messageCaptor.capture(),
                 eq(Boolean.class));
-        verify(communicationManager).sendMessageUnicast(bigMessageCaptor.capture());
+        verify(communicationManager).send(bigMessageCaptor.capture());
 
         assertThat(messageCaptor.getAllValues().get(0).getMessageType()).isEqualTo(Protocol.RESOURCE_COMPARE);
         assertThat(messageCaptor.getAllValues().get(0).getAddress().getDestination()).isEqualTo("key");

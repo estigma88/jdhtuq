@@ -1,5 +1,6 @@
-package co.edu.uniquindio.dhash.node;
+package co.edu.uniquindio.dhash.node.processor.stream;
 
+import co.edu.uniquindio.dhash.node.DHashNode;
 import co.edu.uniquindio.dhash.protocol.Protocol;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
@@ -14,16 +15,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class ResourceTransferMessageInputStreamProcessor implements MessageStreamProcessor {
+public class GetInputStreamProcessor implements MessageStreamProcessor {
     private static final Logger logger = Logger
-            .getLogger(ResourceTransferMessageInputStreamProcessor.class);
+            .getLogger(GetInputStreamProcessor.class);
 
     private final CommunicationManager communicationManager;
     private final ResourceManager resourceManager;
     private final DHashNode dHashNode;
     private final SerializationHandler serializationHandler;
 
-    public ResourceTransferMessageInputStreamProcessor(CommunicationManager communicationManager, ResourceManager resourceManager, DHashNode dHashNode, SerializationHandler serializationHandler) {
+    public GetInputStreamProcessor(CommunicationManager communicationManager, ResourceManager resourceManager, DHashNode dHashNode, SerializationHandler serializationHandler) {
         this.communicationManager = communicationManager;
         this.resourceManager = resourceManager;
         this.dHashNode = dHashNode;
@@ -35,21 +36,21 @@ public class ResourceTransferMessageInputStreamProcessor implements MessageStrea
         try {
             Resource resource = resourceManager.find(
                     message
-                            .getParam(Protocol.ResourceTransferParams.RESOURCE_KEY
+                            .getParam(Protocol.GetParams.RESOURCE_KEY
                                     .name()));
 
             Message resourceTransferResponseMessage = Message.builder()
                     .sequenceNumber(message.getSequenceNumber())
                     .sendType(Message.SendType.RESPONSE)
-                    .messageType(Protocol.RESOURCE_TRANSFER_RESPONSE)
-                    .param(Protocol.ResourceTransferResponseData.RESOURCE.name(), serializationHandler.encode(resource))
+                    .messageType(Protocol.GET_RESPONSE)
+                    .param(Protocol.GetResponseData.RESOURCE.name(), serializationHandler.encode(resource))
                     .address(Address.builder()
                             .destination(message.getAddress().getSource())
                             .source(dHashNode.getName())
                             .build()).build();
 
-            communicationManager.sendMessageUnicast(resourceTransferResponseMessage, outputStream);
-            communicationManager.sendMessageUnicast(resource.getInputStream(), outputStream, resource.getSize(), (name, current, size) -> {});
+            communicationManager.sendTo(resourceTransferResponseMessage, outputStream);
+            communicationManager.transfer(resource.getInputStream(), outputStream, resource.getSize(), (name, current, size) -> {});
         } catch (IOException e) {
             logger.error("Error replicating data", e);
         }

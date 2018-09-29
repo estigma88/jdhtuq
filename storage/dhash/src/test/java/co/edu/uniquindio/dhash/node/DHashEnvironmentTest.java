@@ -60,7 +60,7 @@ public class DHashEnvironmentTest {
     @Mock
     private Resource serializableResource;
     @InjectMocks
-    private DHashEnvironment dHashEnvironment;
+    private MessageProcessorGateway dHashEnvironment;
     @Captor
     private ArgumentCaptor<Message> messageCaptor;
     @Captor
@@ -154,7 +154,7 @@ public class DHashEnvironmentTest {
 
     @Test
     public void get_hasResource_returnTrue() throws OverlayException {
-        when(message.getMessageType()).thenReturn(Protocol.GET);
+        when(message.getMessageType()).thenReturn(Protocol.CONTAIN);
         when(message.getParam(Protocol.ResourceCompareParams.RESOURCE_KEY.name())).thenReturn("resource");
         when(message.getAddress()).thenReturn(Address.builder().source("source").build());
         when(dHashNode.getName()).thenReturn("dhash");
@@ -166,13 +166,13 @@ public class DHashEnvironmentTest {
         assertThat(response.getMessageType()).isEqualTo(Protocol.RESOURCE_COMPARE_RESPONSE);
         assertThat(response.getAddress().getDestination()).isEqualTo("source");
         assertThat(response.getAddress().getSource()).isEqualTo("dhash");
-        assertThat(response.getParam(Protocol.GetResponseParams.HAS_RESOURCE.name())).isEqualTo("true");
+        assertThat(response.getParam(Protocol.ContainResponseParams.HAS_RESOURCE.name())).isEqualTo("true");
 
     }
 
     @Test
     public void get_notHasResource_returnTrue() throws OverlayException {
-        when(message.getMessageType()).thenReturn(Protocol.GET);
+        when(message.getMessageType()).thenReturn(Protocol.CONTAIN);
         when(message.getParam(Protocol.ResourceCompareParams.RESOURCE_KEY.name())).thenReturn("resource");
         when(message.getAddress()).thenReturn(Address.builder().source("source").build());
         when(dHashNode.getName()).thenReturn("dhash");
@@ -184,13 +184,13 @@ public class DHashEnvironmentTest {
         assertThat(response.getMessageType()).isEqualTo(Protocol.RESOURCE_COMPARE_RESPONSE);
         assertThat(response.getAddress().getDestination()).isEqualTo("source");
         assertThat(response.getAddress().getSource()).isEqualTo("dhash");
-        assertThat(response.getParam(Protocol.GetResponseParams.HAS_RESOURCE.name())).isEqualTo("false");
+        assertThat(response.getParam(Protocol.ContainResponseParams.HAS_RESOURCE.name())).isEqualTo("false");
 
     }
 
     @Test
     public void resourceTransfere_hasResource_returnTrue() throws OverlayException {
-        when(message.getMessageType()).thenReturn(Protocol.RESOURCE_TRANSFER);
+        when(message.getMessageType()).thenReturn(Protocol.GET);
         when(message.getParam(Protocol.ResourceCompareParams.RESOURCE_KEY.name())).thenReturn("resource");
         when(message.getAddress()).thenReturn(Address.builder().source("source").build());
         when(dHashNode.getName()).thenReturn("dhash");
@@ -201,16 +201,16 @@ public class DHashEnvironmentTest {
         Message response = dHashEnvironment.process(message);
 
         assertThat(response.getSendType()).isEqualTo(Message.SendType.RESPONSE);
-        assertThat(response.getMessageType()).isEqualTo(Protocol.RESOURCE_TRANSFER_RESPONSE);
+        assertThat(response.getMessageType()).isEqualTo(Protocol.GET_RESPONSE);
         assertThat(response.getAddress().getDestination()).isEqualTo("source");
         assertThat(response.getAddress().getSource()).isEqualTo("dhash");
-        //assertThat(response.getData(Protocol.ResourceTransferResponseData.RESOURCE.name())).isEqualTo(new byte[]{1, 2, 3});
+        //assertThat(response.getData(Protocol.GetResponseData.RESOURCE.name())).isEqualTo(new byte[]{1, 2, 3});
 
     }
 
     @Test
     public void resourceTransfere_notHasResource_returnTrue() throws OverlayException {
-        when(message.getMessageType()).thenReturn(Protocol.RESOURCE_TRANSFER);
+        when(message.getMessageType()).thenReturn(Protocol.GET);
         when(message.getParam(Protocol.ResourceCompareParams.RESOURCE_KEY.name())).thenReturn("resource");
         when(message.getAddress()).thenReturn(Address.builder().source("source").build());
         when(dHashNode.getName()).thenReturn("dhash");
@@ -219,10 +219,10 @@ public class DHashEnvironmentTest {
         Message response = dHashEnvironment.process(message);
 
         assertThat(response.getSendType()).isEqualTo(Message.SendType.RESPONSE);
-        assertThat(response.getMessageType()).isEqualTo(Protocol.RESOURCE_TRANSFER_RESPONSE);
+        assertThat(response.getMessageType()).isEqualTo(Protocol.GET_RESPONSE);
         assertThat(response.getAddress().getDestination()).isEqualTo("source");
         assertThat(response.getAddress().getSource()).isEqualTo("dhash");
-        //assertThat(response.getData(Protocol.ResourceTransferResponseData.RESOURCE.name())).isEqualTo(new byte[0]);
+        //assertThat(response.getData(Protocol.GetResponseData.RESOURCE.name())).isEqualTo(new byte[0]);
 
     }
 }

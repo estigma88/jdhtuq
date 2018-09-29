@@ -25,7 +25,7 @@ import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
 import co.edu.uniquindio.overlay.*;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.StorageNode;
-import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
+import co.edu.uniquindio.utils.communication.message.IdGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,7 +56,7 @@ public class DHashNodeFactoryTest {
     @Mock
     private KeyFactory keyFactory;
     @Mock
-    private SequenceGenerator sequenceGenerator;
+    private IdGenerator sequenceGenerator;
     @Mock
     private Key key;
     @Mock
@@ -64,7 +64,7 @@ public class DHashNodeFactoryTest {
     @Mock
     private DHashNode dhashNode;
     @Mock
-    private DHashEnvironment dHashEnviroment;
+    private MessageProcessorGateway dHashEnviroment;
     private DHashNodeFactory dHashNodeFactory;
     @Mock
     private Observable observable;
@@ -83,8 +83,8 @@ public class DHashNodeFactoryTest {
         when(overlayNodeFactory.createNode("node")).thenReturn(overlayNode);
         when(overlayNode.getObservable()).thenReturn(observable);
         when(resourceManagerFactory.of("node")).thenReturn(resourceManager);
-        doReturn(dhashNode).when(dHashNodeFactory).getDhashNode("node", overlayNode, resourceManager);
-        doReturn(dHashEnviroment).when(dHashNodeFactory).getDHashEnviroment(dhashNode, resourceManager);
+        doReturn(dhashNode).when(dHashNodeFactory).getDHashNode("node", overlayNode, resourceManager);
+        doReturn(dHashEnviroment).when(dHashNodeFactory).getMessageProcessor(dhashNode, resourceManager);
         doReturn(reAssignObserver).when(dHashNodeFactory).getReAssignObserver(dhashNode);
 
         StorageNode node = dHashNodeFactory.createNode("node");

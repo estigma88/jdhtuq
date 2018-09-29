@@ -22,13 +22,15 @@ import java.util.HashSet;
 
 public class FileResourceManagerFactory implements ResourceManagerFactory {
     private final String directory;
+    private final Integer bufferSize;
 
-    public FileResourceManagerFactory(String directory) {
+    public FileResourceManagerFactory(String directory, Integer bufferSize) {
         this.directory = directory;
+        this.bufferSize = bufferSize;
     }
 
     @Override
     public ResourceManager of(String name) {
-        return new FileResourceManager(directory, name, new HashSet<>());
+        return new FileResourceManager(directory, name, new HashSet<>(), bufferSize);
     }
 }

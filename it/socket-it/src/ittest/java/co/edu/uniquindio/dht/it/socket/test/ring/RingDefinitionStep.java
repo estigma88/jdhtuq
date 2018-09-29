@@ -10,7 +10,7 @@ import co.edu.uniquindio.dht.it.socket.test.World;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
-import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
+import co.edu.uniquindio.utils.communication.message.IdGenerator;
 import co.edu.uniquindio.utils.communication.transfer.network.MessageSerialization;
 import cucumber.api.java.After;
 import cucumber.api.java.en.Given;
@@ -38,7 +38,7 @@ public class RingDefinitionStep extends CucumberRoot {
     @Autowired
     private SocketITProperties socketITProperties;
     @Autowired
-    private SequenceGenerator itSequenceGenerator;
+    private IdGenerator itSequenceGenerator;
     private List<Node> nodes;
 
     @Given("^I use the \\\"([^\\\"]*)\\\" as a gateway$")
