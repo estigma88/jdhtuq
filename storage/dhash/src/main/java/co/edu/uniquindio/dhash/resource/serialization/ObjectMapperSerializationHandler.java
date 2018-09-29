@@ -1,7 +1,8 @@
 package co.edu.uniquindio.dhash.resource.serialization;
 
 import co.edu.uniquindio.dhash.resource.FileResource;
-import co.edu.uniquindio.dhash.resource.serialization.jackson.FileResourceMixin;
+import co.edu.uniquindio.dhash.resource.serialization.jackson.FileResourceBuilderMixIn;
+import co.edu.uniquindio.dhash.resource.serialization.jackson.FileResourceMixIn;
 import co.edu.uniquindio.storage.resource.Resource;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -9,6 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -21,7 +23,8 @@ public class ObjectMapperSerializationHandler implements SerializationHandler {
         this.objectMapper.enableDefaultTyping(ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE, JsonTypeInfo.As.WRAPPER_OBJECT);
         this.objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
-        this.objectMapper.addMixIn(FileResource.class, FileResourceMixin.class);
+        this.objectMapper.addMixIn(FileResource.class, FileResourceMixIn.class)
+                .addMixIn(FileResource.WithInputStreamBuilder.class, FileResourceBuilderMixIn.class);
     }
 
     @Override

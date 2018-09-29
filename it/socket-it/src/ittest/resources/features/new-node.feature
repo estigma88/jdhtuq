@@ -45,7 +45,7 @@ Feature: A node is add to the network
 
   Scenario: The node "172.16.0.10" is add to the network
     Given The "172.16.0.10" is added to the network
-    When I wait for stabilizing after 120 seconds
+    When I wait for stabilizing after 180 seconds
     Then Chord ring is stable with the following successors:
       | 172.16.0.43 | 172.16.0.16 |
       | 172.16.0.4 | 172.16.0.12 |
