@@ -32,7 +32,7 @@ public interface ResourceManager {
      *
      * @param resource resource
      */
-    Resource save(Resource resource);
+    void save(Resource resource);
 
     /**
      * Delete all resources

@@ -29,9 +29,12 @@ import co.edu.uniquindio.overlay.OverlayNodeFactory;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.StorageNode;
 import co.edu.uniquindio.storage.StorageNodeFactory;
+import co.edu.uniquindio.storage.resource.ProgressStatus;
 import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.apache.log4j.Logger;
+
+import java.util.concurrent.ExecutorService;
 
 /**
  * The <code>DHashNodeFactory</code> class creates nodes for storage management
@@ -45,10 +48,6 @@ import org.apache.log4j.Logger;
  * @since 1.0
  */
 public class DHashNodeFactory implements StorageNodeFactory {
-
-    /**
-     * Logger
-     */
     private static final Logger logger = Logger
             .getLogger(DHashNodeFactory.class);
 
@@ -60,8 +59,9 @@ public class DHashNodeFactory implements StorageNodeFactory {
     private final ResourceManagerFactory resourceManagerFactory;
     private final KeyFactory keyFactory;
     private final SequenceGenerator sequenceGenerator;
+    private final ExecutorService executorService;
 
-    public DHashNodeFactory(CommunicationManager communicationManager, OverlayNodeFactory overlayNodeFactory, SerializationHandler serializationHandler, ChecksumCalculator checksumeCalculator, ResourceManagerFactory resourceManagerFactory, int replicationFactor, KeyFactory keyFactory, SequenceGenerator sequenceGenerator) {
+    public DHashNodeFactory(CommunicationManager communicationManager, OverlayNodeFactory overlayNodeFactory, SerializationHandler serializationHandler, ChecksumCalculator checksumeCalculator, ResourceManagerFactory resourceManagerFactory, int replicationFactor, KeyFactory keyFactory, SequenceGenerator sequenceGenerator, ExecutorService executorService) {
         this.communicationManager = communicationManager;
         this.overlayNodeFactory = overlayNodeFactory;
         this.serializationHandler = serializationHandler;
@@ -70,6 +70,7 @@ public class DHashNodeFactory implements StorageNodeFactory {
         this.replicationFactor = replicationFactor;
         this.keyFactory = keyFactory;
         this.sequenceGenerator = sequenceGenerator;
+        this.executorService = executorService;
     }
 
     /*
@@ -139,11 +140,11 @@ public class DHashNodeFactory implements StorageNodeFactory {
     }
 
     DHashNode getDhashNode(String name, OverlayNode overlayNode, ResourceManager resourceManager) {
-        return new DHashNode(overlayNode, replicationFactor, name, communicationManager, serializationHandler, checksumeCalculator, resourceManager, keyFactory, sequenceGenerator);
+        return new DHashNode(overlayNode, replicationFactor, name, communicationManager, serializationHandler, resourceManager, keyFactory, sequenceGenerator, executorService);
     }
 
     @Override
-    public void destroyNode(StorageNode storageNode) throws StorageException {
-        storageNode.leave();
+    public void destroyNode(StorageNode storageNode, ProgressStatus progressStatus) throws StorageException {
+        storageNode.leave(progressStatus);
     }
 }

@@ -49,7 +49,7 @@ public class ResourceTransferMessageInputStreamProcessor implements MessageStrea
                             .build()).build();
 
             communicationManager.sendMessageUnicast(resourceTransferResponseMessage, outputStream);
-            communicationManager.sendMessageUnicast(resource.getInputStream(), outputStream);
+            communicationManager.sendMessageUnicast(resource.getInputStream(), outputStream, resource.getSize(), (name, current, size) -> {});
         } catch (IOException e) {
             logger.error("Error replicating data", e);
         }

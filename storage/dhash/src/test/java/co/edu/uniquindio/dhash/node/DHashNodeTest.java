@@ -29,6 +29,7 @@ import co.edu.uniquindio.overlay.OverlayException;
 import co.edu.uniquindio.overlay.OverlayNode;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.StorageNodeFactory;
+import co.edu.uniquindio.storage.resource.ProgressStatus;
 import co.edu.uniquindio.storage.resource.Resource;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
@@ -46,6 +47,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -88,6 +90,10 @@ public class DHashNodeTest {
     private Resource resource3;
     @Mock
     private StorageNodeFactory dhashNodeFactory;
+    @Mock
+    private ProgressStatus progressStatus;
+    @Mock
+    private ExecutorService executorService;
     @Captor
     private ArgumentCaptor<Key> keyCaptor;
     @Captor
@@ -100,7 +106,7 @@ public class DHashNodeTest {
     public void before() throws IOException, ClassNotFoundException {
         when(key.getValue()).thenReturn("key");
 
-        dHashNode = spy(new DHashNode(overlayNode, 3, "dhash", communicationManager, serializationHandler, checksumeCalculator, resourceManager, keyFactory, sequenceGenerator));
+        dHashNode = spy(new DHashNode(overlayNode, 3, "dhash", communicationManager, serializationHandler, resourceManager, keyFactory, sequenceGenerator, executorService));
     }
 
     @Test
@@ -108,7 +114,7 @@ public class DHashNodeTest {
         thrown.expect(StorageException.class);
         thrown.expectMessage("Imposible to do get to resource, lookup fails");
 
-        dHashNode.get("resourceKey");
+        dHashNode.getSync("resourceKey", (name, current, size) -> {});
     }
 
     @Test
@@ -120,7 +126,7 @@ public class DHashNodeTest {
         when(overlayNode.lookUp(key1)).thenReturn(key);
         when(communicationManager.sendMessageUnicast(any(), eq(Boolean.class))).thenReturn(false);
 
-        dHashNode.get("resourceKey");
+        dHashNode.getSync("resourceKey", (name, current, size) -> {});
     }
 
     @Test
@@ -132,7 +138,7 @@ public class DHashNodeTest {
         when(communicationManager.sendMessageUnicast(any(), eq(Boolean.class))).thenReturn(true);
         when(communicationManager.sendMessageUnicast(any(), eq(Message.class))).thenReturn(bigMessage);
 
-        Resource resourceResult = dHashNode.get("resourceKey");
+        Resource resourceResult = dHashNode.getSync("resourceKey", (name, current, size) -> {});
 
         verify(overlayNode).lookUp(key1);
         verify(communicationManager).sendMessageUnicast(messageCaptor.capture(),
@@ -159,7 +165,7 @@ public class DHashNodeTest {
         when(resource1.getId()).thenReturn("resourceKey");
         when(overlayNode.lookUp(key1)).thenReturn(null);
 
-        dHashNode.put(resource1);
+        dHashNode.putSync(resource1, (name, current, size) -> {});
 
         verify(overlayNode).lookUp(key1);
     }
@@ -172,7 +178,7 @@ public class DHashNodeTest {
         when(checksumeCalculator.calculate(resource1)).thenReturn("checksum");
         when(communicationManager.sendMessageUnicast(any(), eq(Boolean.class))).thenReturn(true);
 
-        boolean result = dHashNode.put(resource1);
+        boolean result = dHashNode.putSync(resource1, (name, current, size) -> {});
 
         verify(communicationManager).sendMessageUnicast(messageCaptor.capture(), eq(Boolean.class));
         verify(overlayNode).lookUp(key1);
@@ -194,7 +200,7 @@ public class DHashNodeTest {
         when(checksumeCalculator.calculate(resource1)).thenReturn("checksum");
         when(communicationManager.sendMessageUnicast(any(), eq(Boolean.class))).thenReturn(false);
 
-        dHashNode.put(resource1);
+        dHashNode.putSync(resource1, (name, current, size) -> {});
 
         verify(overlayNode).lookUp(key1);
         verify(communicationManager).sendMessageUnicast(messageCaptor.capture(),
@@ -233,13 +239,13 @@ public class DHashNodeTest {
         when(key1.isBetween(relocateKey, key)).thenReturn(false);
         when(key2.isBetween(relocateKey, key)).thenReturn(true);
         when(key3.isBetween(relocateKey, key)).thenReturn(false);
-        doReturn(true).when(dHashNode).put(any(), any(), anyBoolean());
+        doReturn(true).when(dHashNode).put(any(), any(), anyBoolean(), progressStatus);
 
-        dHashNode.relocateAllResources(relocateKey);
+        dHashNode.relocateAllResources(relocateKey, (name, current, size) -> {});
 
-        verify(dHashNode).put(resource1, relocateKey, false);
-        verify(dHashNode).put(resource3, relocateKey, false);
-        verify(dHashNode, times(0)).put(resource2, relocateKey, false);
+        verify(dHashNode).put(resource1, relocateKey, false, progressStatus);
+        verify(dHashNode).put(resource3, relocateKey, false, progressStatus);
+        verify(dHashNode, times(0)).put(resource2, relocateKey, false, progressStatus);
     }
 
     @Test
@@ -254,7 +260,7 @@ public class DHashNodeTest {
         when(key.getValue()).thenReturn("key");
         when(resourceManager.getAllKeys()).thenReturn(resourcesNames);
 
-        dHashNode.leave();
+        dHashNode.leave((name, current, size) -> {});
 
         verify(resourceManager).deleteAll();
         verify(communicationManager).removeObserver("key");
@@ -274,13 +280,13 @@ public class DHashNodeTest {
         when(resourceManager.find("resource1")).thenReturn(resource1);
         when(resourceManager.find("resource2")).thenReturn(resource2);
         when(resourceManager.find("resource3")).thenReturn(resource3);
-        doReturn(true).when(dHashNode).put(any(), any(), anyBoolean());
+        doReturn(true).when(dHashNode).put(any(), any(), anyBoolean(), progressStatus);
 
-        dHashNode.leave();
+        dHashNode.leave((name, current, size) -> {});
 
-        verify(dHashNode).put(resource1, key1, false);
-        verify(dHashNode).put(resource2, key1, false);
-        verify(dHashNode).put(resource3, key1, false);
+        verify(dHashNode).put(resource1, key1, false, progressStatus);
+        verify(dHashNode).put(resource2, key1, false, progressStatus);
+        verify(dHashNode).put(resource3, key1, false, progressStatus);
         verify(resourceManager).deleteAll();
         verify(communicationManager).removeObserver("key");
     }
@@ -288,36 +294,36 @@ public class DHashNodeTest {
     @Test
     public void replicateData_neighborsListEqualReplicationFactor_replicateAll() throws OverlayException, StorageException {
         when(overlayNode.getNeighborsList()).thenReturn(new Key[]{key1, key2, key3});
-        doReturn(true).when(dHashNode).put(any(), any(), anyBoolean());
+        doReturn(true).when(dHashNode).put(any(), any(), anyBoolean(), progressStatus);
 
-        dHashNode.replicateData(resource1);
+        dHashNode.replicateData(resource1.getId(), (name, current, size) -> {});
 
-        verify(dHashNode).put(resource1, key1, false);
-        verify(dHashNode).put(resource1, key2, false);
-        verify(dHashNode).put(resource1, key3, false);
+        verify(dHashNode).put(resource1, key1, false, progressStatus);
+        verify(dHashNode).put(resource1, key2, false, progressStatus);
+        verify(dHashNode).put(resource1, key3, false, progressStatus);
     }
 
     @Test
     public void replicateData_neighborsListLessThanReplicationFactor_replicate2() throws OverlayException, StorageException {
         when(overlayNode.getNeighborsList()).thenReturn(new Key[]{key1, key2});
-        doReturn(true).when(dHashNode).put(any(), any(), anyBoolean());
+        doReturn(true).when(dHashNode).put(any(), any(), anyBoolean(), progressStatus);
 
-        dHashNode.replicateData(resource1);
+        dHashNode.replicateData(resource1.getId(), (name, current, size) -> {});
 
-        verify(dHashNode).put(resource1, key1, false);
-        verify(dHashNode).put(resource1, key2, false);
+        verify(dHashNode).put(resource1, key1, false, progressStatus);
+        verify(dHashNode).put(resource1, key2, false, progressStatus);
     }
 
     @Test
     public void replicateData_neighborsListGreaterThanReplicationFactor_replicate3() throws OverlayException, StorageException {
         when(overlayNode.getNeighborsList()).thenReturn(new Key[]{key1, key2, key3, key});
-        doReturn(true).when(dHashNode).put(any(), any(), anyBoolean());
+        doReturn(true).when(dHashNode).put(any(), any(), anyBoolean(), progressStatus);
 
-        dHashNode.replicateData(resource1);
+        dHashNode.replicateData(resource1.getId(), (name, current, size) -> {});
 
-        verify(dHashNode).put(resource1, key1, false);
-        verify(dHashNode).put(resource1, key2, false);
-        verify(dHashNode).put(resource1, key3, false);
-        verify(dHashNode, times(0)).put(resource1, key, false);
+        verify(dHashNode).put(resource1, key1, false, progressStatus);
+        verify(dHashNode).put(resource1, key2, false, progressStatus);
+        verify(dHashNode).put(resource1, key3, false, progressStatus);
+        verify(dHashNode, times(0)).put(resource1, key, false, progressStatus);
     }
 }

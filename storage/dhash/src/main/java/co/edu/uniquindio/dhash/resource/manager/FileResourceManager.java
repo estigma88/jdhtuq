@@ -38,7 +38,7 @@ public class FileResourceManager implements ResourceManager {
     }
 
     @Override
-    public Resource save(Resource resource) {
+    public void save(Resource resource) {
         FileOutputStream fileOutputStream;
         StringBuilder directoryPath;
         File directoryFile;
@@ -65,8 +65,6 @@ public class FileResourceManager implements ResourceManager {
             fileOutputStream.close();
 
             keys.add(resource.getId());
-
-            return new FileResource(resource.getId(), directoryPath.toString() + resource.getId());
         } catch (IOException e) {
             throw new IllegalStateException("Error reading file", e);
         }
@@ -112,7 +110,7 @@ public class FileResourceManager implements ResourceManager {
                         .id(key)
                         .path(directoryPath.toString())
                         .build();
-            } catch (FileNotFoundException e) {
+            } catch (IOException e) {
                 throw new IllegalStateException("Error reading file", e);
             }
         } else {

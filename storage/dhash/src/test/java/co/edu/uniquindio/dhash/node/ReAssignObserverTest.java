@@ -85,6 +85,6 @@ public class ReAssignObserverTest {
 
         reAssignObserver.update(null, message);
 
-        verify(dhashNode).relocateAllResources(key);
+        verify(dhashNode).relocateAllResources(key, (name, current, size) -> {});
     }
 }

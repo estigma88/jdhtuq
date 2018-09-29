@@ -50,7 +50,7 @@ public class NodeMessageProcessor implements MessageProcessor {
 
     private Message processLeave(Message request) {
         try {
-            storageNode.leave();
+            storageNode.leave((name, current, size) -> {});
 
             return Message.builder()
                     .sendType(Message.SendType.RESPONSE)
@@ -98,7 +98,7 @@ public class NodeMessageProcessor implements MessageProcessor {
                     .inputStream(new ByteArrayInputStream(request.getParam(Protocol.PutDatas.RESOURCE.name()).getBytes()))
                     .build();
 
-            boolean success = storageNode.put(resource);
+            boolean success = storageNode.put(resource, (name, current, size) -> {}).get();
 
             if (success) {
                 return Message.builder()
@@ -137,7 +137,7 @@ public class NodeMessageProcessor implements MessageProcessor {
 
     private Message processGet(Message request) {
         try {
-            Resource resource = storageNode.get(request.getParam(Protocol.GetParams.RESOURCE_NAME.name()));
+            Resource resource = storageNode.get(request.getParam(Protocol.GetParams.RESOURCE_NAME.name()), (name, current, size) -> {}).get();
 
             return Message.builder()
                     .sendType(Message.SendType.RESPONSE)

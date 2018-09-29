@@ -18,7 +18,10 @@
 
 package co.edu.uniquindio.storage;
 
+import co.edu.uniquindio.storage.resource.ProgressStatus;
 import co.edu.uniquindio.storage.resource.Resource;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
  * The {@code StorageNode} interface offer the services of {@code put} and {@code
@@ -37,25 +40,23 @@ public interface StorageNode {
      *
      * @param id The name of the required resource.
      * @return The {@link Resource}
-     * @throws StorageException throw when occur an error.
      */
-    Resource get(String id) throws StorageException;
+    CompletableFuture<Resource> get(String id, ProgressStatus progressStatus);
 
     /**
      * Puts the specified resource into the network.
      *
      * @param resource The resource that will be put.
      * @return False if the resource already exists, true if the put was successful
-     * @throws StorageException throw when occur an error.
      */
-    boolean put(Resource resource) throws StorageException;
+    CompletableFuture<Boolean> put(Resource resource, ProgressStatus progressStatus);
 
     /**
      * Allows the node to leave in a regular mode.
      *
      * @throws StorageException throw when occur an error.
      */
-    void leave() throws StorageException;
+    void leave(ProgressStatus progressStatus) throws StorageException;
 
     /**
      * Gets the name of the storage node.

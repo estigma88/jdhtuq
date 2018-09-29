@@ -47,13 +47,14 @@ public interface Communicator extends Closeable {
     /**
      * Send message plus and input stream
      *
-     * @param message Message to send
      * @param inputStream inputStream to send
+     * @param message Message to send
+     * @param progressStatusTransfer
      */
-    MessageStream receive(Message message);
-    void send(Message message, InputStream source);
+    MessageStream receive(Message message, ProgressStatusTransfer progressStatusTransfer);
+    void send(MessageStream message, ProgressStatusTransfer progressStatusTransfer);
     void send(Message message, OutputStream destination);
-    void send(InputStream source, OutputStream destination) throws IOException;
+    void send(InputStream source, OutputStream destination, Long size, ProgressStatusTransfer progressStatusTransfer) throws IOException;
 
     /**
      * Reciever message

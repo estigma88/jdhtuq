@@ -22,6 +22,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.concurrent.Executors;
+
 @Configuration
 @ConditionalOnClass({StorageNodeFactory.class, OverlayNodeFactory.class, DHashNodeFactory.class})
 @EnableConfigurationProperties(DHashProperties.class)
@@ -32,7 +34,7 @@ public class DHashAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public StorageNodeFactory storageNodeFactory(OverlayNodeFactory overlayNodeFactory, KeyFactory keyFactory, CommunicationManager communicationManagerDHash, SerializationHandler serializationHandler, ChecksumCalculator checksumeCalculator, ResourceManagerFactory resourceManagerFactory, SequenceGenerator dhashSequenceGenerator) {
-        return new DHashNodeFactory(communicationManagerDHash, overlayNodeFactory, serializationHandler, checksumeCalculator, resourceManagerFactory, dHashProperties.getReplicationAmount(), keyFactory, dhashSequenceGenerator);
+        return new DHashNodeFactory(communicationManagerDHash, overlayNodeFactory, serializationHandler, checksumeCalculator, resourceManagerFactory, dHashProperties.getReplicationAmount(), keyFactory, dhashSequenceGenerator, Executors.newCachedThreadPool());
     }
 
     @Bean

@@ -22,6 +22,7 @@ import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.MessageStream;
 import co.edu.uniquindio.utils.communication.transfer.Communicator;
 import co.edu.uniquindio.utils.communication.transfer.ConnectionListener;
+import co.edu.uniquindio.utils.communication.transfer.ProgressStatusTransfer;
 import org.apache.log4j.Logger;
 
 import java.io.*;
@@ -125,7 +126,7 @@ public class UnicastManagerTCP implements Communicator, ConnectionListener {
     }
 
     @Override
-    public MessageStream receive(Message message) {
+    public MessageStream receive(Message message, ProgressStatusTransfer progressStatusTransfer) {
         try {
             Socket socket = new Socket();
 
@@ -133,11 +134,18 @@ public class UnicastManagerTCP implements Communicator, ConnectionListener {
                     .param(HANDLE_STREAMS, String.valueOf(true))
                     .build();
 
+            progressStatusTransfer.status("message-starter", 0L, 1L);
+
             send(message, socket);
+
+            progressStatusTransfer.status("message-starter", 1L, 1L);
+            progressStatusTransfer.status("message-ack", 0L, 1L);
 
             ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
 
             String stringMessage = (String) objectInputStream.readObject();
+
+            progressStatusTransfer.status("message-ack", 1L, 1L);
 
             Message messageResponse = messageSerialization.decode(stringMessage);
 
@@ -152,16 +160,21 @@ public class UnicastManagerTCP implements Communicator, ConnectionListener {
     }
 
     @Override
-    public void send(Message message, InputStream inputStream) {
+    public void send(MessageStream messageStream, ProgressStatusTransfer progressStatusTransfer) {
         try (Socket socket = new Socket()) {
-            message = Message.with(message)
+            Message message = Message.with(messageStream.getMessage())
                     .param(HANDLE_STREAMS, String.valueOf(true))
                     .build();
 
+            progressStatusTransfer.status("message-starter", 0L, 1L);
+
             send(message, socket);
-            send(socket, inputStream);
+
+            progressStatusTransfer.status("message-starter", 1L, 1L);
+
+            send(socket, messageStream.getInputStream(), messageStream.getSize() ,progressStatusTransfer);
         } catch (IOException e) {
-            logger.error("Error writing socket " + message.getAddress(), e);
+            logger.error("Error writing socket", e);
         }
     }
 
@@ -182,17 +195,25 @@ public class UnicastManagerTCP implements Communicator, ConnectionListener {
         send(message, socket.getOutputStream());
     }
 
-    private void send(Socket socket, InputStream source) throws IOException {
+    private void send(Socket socket, InputStream source, Long size, ProgressStatusTransfer progressStatusTransfer) throws IOException {
         OutputStream destination = socket.getOutputStream();
 
-        send(source, destination);
+        send(source, destination, size, progressStatusTransfer);
     }
 
-    public void send(InputStream source, OutputStream destination) throws IOException {
+    public void send(InputStream source, OutputStream destination, Long size, ProgressStatusTransfer progressStatusTransfer) throws IOException {
         int count;
+        long sent = 0L;
         byte[] buffer = new byte[sizeBuffer];
+
+        progressStatusTransfer.status("stream-transfer", sent, size);
+
         while ((count = source.read(buffer)) > 0) {
             destination.write(buffer, 0, count);
+
+            sent += count;
+
+            progressStatusTransfer.status("stream-transfer", sent, size);
         }
         source.close();
         destination.close();

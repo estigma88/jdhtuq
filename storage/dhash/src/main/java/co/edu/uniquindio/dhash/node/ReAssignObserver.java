@@ -63,7 +63,7 @@ public class ReAssignObserver implements Observer {
 
             if (message.getMessageType().getName().equals(RE_ASSIGN)) {
                 try {
-                    dHashNode.relocateAllResources(keyFactory.newKey(message.getParam(PREDECESSOR)));
+                    dHashNode.relocateAllResources(keyFactory.newKey(message.getParam(PREDECESSOR)), (name, current, size) -> {});
                 } catch (StorageException e) {
                     logger.error("Problem relocating files", e);
                 }

@@ -75,7 +75,7 @@ public class DHashEnvironmentTest {
 
         dHashEnvironment.process(bigMessage);
 
-        verify(dHashNode, times(0)).replicateData(any());
+        verify(dHashNode, times(0)).replicateData(any(), (name, current, size) -> {});
         verify(resourceManager).save(serializableResource);
     }
 
@@ -88,7 +88,7 @@ public class DHashEnvironmentTest {
 
         dHashEnvironment.process(bigMessage);
 
-        verify(dHashNode).replicateData(serializableResource);
+        verify(dHashNode).replicateData(serializableResource.getId(), (name, current, size) -> {});
         verify(resourceManager).save(serializableResource);
     }
 

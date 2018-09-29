@@ -21,6 +21,7 @@ package co.edu.uniquindio.utils.communication.transfer.network;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.MessageStream;
 import co.edu.uniquindio.utils.communication.transfer.Communicator;
+import co.edu.uniquindio.utils.communication.transfer.ProgressStatusTransfer;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
@@ -202,12 +203,16 @@ public class MulticastManagerUDP implements Communicator {
     }
 
     @Override
-    public MessageStream receive(Message message) {
+    public MessageStream receive(Message message, ProgressStatusTransfer progressStatusTransfer) {
         return null;
     }
 
     @Override
-    public void send(Message message, InputStream source) {
+    public void send(MessageStream message, ProgressStatusTransfer progressStatusTransfer) {
+
+    }
+
+    public void send(Message message, InputStream source, ProgressStatusTransfer progressStatusTransfer) {
 
     }
 
@@ -217,7 +222,7 @@ public class MulticastManagerUDP implements Communicator {
     }
 
     @Override
-    public void send(InputStream source, OutputStream destination) throws IOException {
+    public void send(InputStream source, OutputStream destination, Long size, ProgressStatusTransfer progressStatusTransfer) throws IOException {
 
     }
 

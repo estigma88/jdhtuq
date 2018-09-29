@@ -20,9 +20,9 @@ package co.edu.uniquindio.dhash.resource;
 
 import lombok.*;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 @Getter
 @EqualsAndHashCode(callSuper = true)
@@ -31,14 +31,14 @@ public class FileResource extends BasicResource {
     private String path;
 
     @Builder(builderMethodName = "withPath", builderClassName = "WithPathBuilder")
-    public FileResource(String id, String path) throws FileNotFoundException {
-        super(id, new FileInputStream(path));
+    public FileResource(String id, String path) throws IOException {
+        super(id, Files.newInputStream(Paths.get(path)), Files.size(Paths.get(path)));
         this.path = path;
     }
 
     @Builder(builderMethodName = "withInputStream", builderClassName = "WithInputStreamBuilder")
-    public FileResource(String id, InputStream inputStream){
-        super(id, inputStream);
+    public FileResource(String id, InputStream inputStream, Long size){
+        super(id, inputStream, size);
         this.path = null;
     }
 

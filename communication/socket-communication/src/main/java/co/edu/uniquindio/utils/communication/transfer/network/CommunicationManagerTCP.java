@@ -22,10 +22,7 @@ import co.edu.uniquindio.utils.communication.Observable;
 import co.edu.uniquindio.utils.communication.Observer;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.MessageStream;
-import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
-import co.edu.uniquindio.utils.communication.transfer.Communicator;
-import co.edu.uniquindio.utils.communication.transfer.MessageStreamProcessor;
-import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
+import co.edu.uniquindio.utils.communication.transfer.*;
 import co.edu.uniquindio.utils.communication.transfer.response.MessageResponseProcessor;
 import co.edu.uniquindio.utils.communication.transfer.response.MessagesReceiver;
 import co.edu.uniquindio.utils.communication.transfer.response.ReturnsManager;
@@ -156,8 +153,8 @@ public class CommunicationManagerTCP implements
     }
 
     @Override
-    public MessageStream sendMessageTransferUnicast(Message resourceTransferMessage) {
-        return unicastManager.receive(resourceTransferMessage);
+    public MessageStream sendMessageTransferUnicast(Message resourceTransferMessage, ProgressStatusTransfer progressStatusTransfer) {
+        return unicastManager.receive(resourceTransferMessage, progressStatusTransfer);
     }
 
     /**
@@ -178,13 +175,13 @@ public class CommunicationManagerTCP implements
      * @param message Messages to send
      */
     @Override
-    public void sendMessageUnicast(MessageStream message) {
-        unicastManager.send(message.getMessage(), message.getInputStream());
+    public void sendMessageUnicast(MessageStream message, ProgressStatusTransfer progressStatusTransfer) {
+        unicastManager.send(message, progressStatusTransfer);
     }
 
     @Override
-    public void sendMessageUnicast(InputStream source, OutputStream destination) throws IOException {
-        unicastManager.send(source, destination);
+    public void sendMessageUnicast(InputStream source, OutputStream destination, Long size, ProgressStatusTransfer progressStatusTransfer) throws IOException {
+        unicastManager.send(source, destination, size, progressStatusTransfer);
     }
 
     @Override

@@ -18,6 +18,8 @@
 
 package co.edu.uniquindio.storage;
 
+import co.edu.uniquindio.storage.resource.ProgressStatus;
+
 /**
  * The <code>StorageNodeFactory</code> abstract class defined methods for to create
  * StorageNode nodes. The class is a single instance.
@@ -44,5 +46,5 @@ public interface StorageNodeFactory {
      * @param storageNode node
      * @throws StorageException throw when occur an error
      */
-    void destroyNode(StorageNode storageNode) throws StorageException;
+    void destroyNode(StorageNode storageNode, ProgressStatus progressStatus) throws StorageException;
 }

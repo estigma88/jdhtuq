@@ -10,4 +10,5 @@ import java.io.InputStream;
 public class MessageStream {
     private final Message message;
     private transient final InputStream inputStream;
+    private final Long size;
 }

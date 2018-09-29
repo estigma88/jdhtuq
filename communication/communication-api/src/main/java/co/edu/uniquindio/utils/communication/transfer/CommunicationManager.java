@@ -60,7 +60,7 @@ public interface CommunicationManager {
     <T> T sendMessageUnicast(Message message, Class<T> typeReturn,
                              String paramNameResult);
 
-    MessageStream sendMessageTransferUnicast(Message resourceTransferMessage);
+    MessageStream sendMessageTransferUnicast(Message resourceTransferMessage, ProgressStatusTransfer progressStatusTransfer);
 
     /**
      * Sends a message specifying its type, the type of the response and the
@@ -77,9 +77,9 @@ public interface CommunicationManager {
      *
      * @param message Messages to send
      */
-    void sendMessageUnicast(MessageStream message);
+    void sendMessageUnicast(MessageStream message, ProgressStatusTransfer progressStatusTransfer);
 
-    void sendMessageUnicast(InputStream source, OutputStream destination) throws IOException;
+    void sendMessageUnicast(InputStream source, OutputStream destination, Long size, ProgressStatusTransfer progressStatusTransfer) throws IOException;
 
 
     /**

@@ -34,6 +34,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Observable;
+import java.util.concurrent.ExecutorService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -69,10 +70,12 @@ public class DHashNodeFactoryTest {
     private Observable observable;
     @Mock
     private ReAssignObserver reAssignObserver;
+    @Mock
+    private ExecutorService executorService;
 
     @Before
     public void before() {
-        dHashNodeFactory = spy(new DHashNodeFactory(communicationManager, overlayNodeFactory, serializationHandler, checksumeCalculator, resourceManagerFactory, 2, keyFactory, sequenceGenerator));
+        dHashNodeFactory = spy(new DHashNodeFactory(communicationManager, overlayNodeFactory, serializationHandler, checksumeCalculator, resourceManagerFactory, 2, keyFactory, sequenceGenerator, executorService));
     }
 
     @Test
@@ -94,8 +97,8 @@ public class DHashNodeFactoryTest {
 
     @Test
     public void destroyNode_nodeDestroyed() throws OverlayException, StorageException {
-        dHashNodeFactory.destroyNode(dhashNode);
+        dHashNodeFactory.destroyNode(dhashNode, (name, current, size) -> {});
 
-        verify(dhashNode).leave();
+        verify(dhashNode).leave((name, current, size) -> {});
     }
 }

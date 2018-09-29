@@ -33,13 +33,13 @@ public class PutMessageInputStreamProcessor implements MessageStreamProcessor {
             Resource resource = serializationHandler.decode(
                     message.getParam(Protocol.PutDatas.RESOURCE.name()), inputStream);
 
-            Resource resourceSaved = resourceManager.save(resource);
+            resourceManager.save(resource);
 
             Boolean replicate = Boolean.valueOf(message
                     .getParam(Protocol.PutParams.REPLICATE.name()));
 
             if (replicate) {
-                dHashNode.replicateData(resourceSaved);
+                dHashNode.replicateData(resource.getId(), (name, current, size) -> {});
             }
         }catch (OverlayException | StorageException e) {
             logger.error("Error replicating data", e);
