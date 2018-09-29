@@ -52,7 +52,7 @@ public class PutsDefinitionStep extends CucumberRoot {
 
         for (String contentName : contents.keySet()) {
             Message put = Message.builder()
-                    .sequenceNumber(itSequenceGenerator.newId())
+                    .id(itSequenceGenerator.newId())
                     .sendType(Message.SendType.REQUEST)
                     .messageType(Protocol.PUT)
                     .address(Address.builder()

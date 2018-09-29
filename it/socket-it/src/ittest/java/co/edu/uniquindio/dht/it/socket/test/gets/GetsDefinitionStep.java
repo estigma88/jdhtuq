@@ -27,7 +27,7 @@ public class GetsDefinitionStep extends CucumberRoot {
 
         for (Content content : contents) {
             Message get = Message.builder()
-                    .sequenceNumber(itSequenceGenerator.newId())
+                    .id(itSequenceGenerator.newId())
                     .sendType(Message.SendType.REQUEST)
                     .messageType(Protocol.GET)
                     .address(Address.builder()

@@ -99,7 +99,7 @@ public class CommunicationManagerTCP implements
          * Created WaitingResult for message sequence number to transfer
          */
         WaitingResult<Message> waitingResult = returnsManager
-                .createWaitingResult(message.getSequenceNumber(), Long
+                .createWaitingResult(message.getId(), Long
                         .parseLong(communicationProperties.get(RESPONSE_TIME)));
 
         send(message);
@@ -137,7 +137,7 @@ public class CommunicationManagerTCP implements
          * Created WaitingResult for message sequence number to transfer
          */
         WaitingResult<Message> waitingResult = returnsManager
-                .createWaitingResult(message.getSequenceNumber(), Long
+                .createWaitingResult(message.getId(), Long
                         .parseLong(communicationProperties.get(RESPONSE_TIME)));
 
         send(message);
@@ -185,7 +185,7 @@ public class CommunicationManagerTCP implements
          * Created WaitingResult for message sequence number to transfer
          */
         WaitingResult<Message> waitingResult = returnsManager
-                .createWaitingResult(message.getSequenceNumber(), Long
+                .createWaitingResult(message.getId(), Long
                         .parseLong(communicationProperties.get(RESPONSE_TIME)));
 
         sendMultiCast(message);
@@ -224,7 +224,7 @@ public class CommunicationManagerTCP implements
          * Created WaitingResult for message sequence number to transfer
          */
         WaitingResult<Message> waitingResult = returnsManager
-                .createWaitingResult(message.getSequenceNumber(), Long
+                .createWaitingResult(message.getId(), Long
                         .parseLong(communicationProperties.get(RESPONSE_TIME)));
 
         sendMultiCast(message);

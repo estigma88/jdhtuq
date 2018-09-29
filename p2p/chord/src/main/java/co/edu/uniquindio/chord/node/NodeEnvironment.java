@@ -143,7 +143,7 @@ class NodeEnvironment implements MessageProcessor {
         successorList = chordNode.getSuccessorList().toString();
 
         getSuccesorListResponseMessage = Message.builder()
-                .sequenceNumber(message.getSequenceNumber())
+                .id(message.getId())
                 .sendType(SendType.RESPONSE)
                 .messageType(Protocol.GET_SUCCESSOR_LIST_RESPONSE)
                 .address(Address.builder()
@@ -203,7 +203,7 @@ class NodeEnvironment implements MessageProcessor {
         if (!chordNode.getSuccessor().equals(chordNode.getKey())) {
 
             setSuccessorMessage = Message.builder()
-                    .sequenceNumber(sequenceGenerator.newId())
+                    .id(sequenceGenerator.newId())
                     .sendType(SendType.REQUEST)
                     .messageType(Protocol.SET_SUCCESSOR)
                     .address(Address.builder()
@@ -216,7 +216,7 @@ class NodeEnvironment implements MessageProcessor {
             communicationManager.send(setSuccessorMessage);
 
             setPredecessorMessage = Message.builder()
-                    .sequenceNumber(sequenceGenerator.newId())
+                    .id(sequenceGenerator.newId())
                     .sendType(SendType.REQUEST)
                     .messageType(Protocol.SET_PREDECESSOR)
                     .address(Address.builder()
@@ -248,7 +248,7 @@ class NodeEnvironment implements MessageProcessor {
         }
 
         bootstrapResponseMessage = Message.builder()
-                .sequenceNumber(message.getSequenceNumber())
+                .id(message.getId())
                 .sendType(SendType.RESPONSE)
                 .messageType(Protocol.BOOTSTRAP_RESPONSE)
                 .address(Address.builder()
@@ -271,7 +271,7 @@ class NodeEnvironment implements MessageProcessor {
         Message.MessageBuilder getPredecessorResponseMessage;
 
         getPredecessorResponseMessage = Message.builder()
-                .sequenceNumber(message.getSequenceNumber())
+                .id(message.getId())
                 .sendType(SendType.RESPONSE)
                 .messageType(Protocol.GET_PREDECESSOR_RESPONSE)
                 .address(Address.builder()
@@ -315,7 +315,7 @@ class NodeEnvironment implements MessageProcessor {
         Message pingMessage;
 
         pingMessage = Message.builder()
-                .sequenceNumber(message.getSequenceNumber())
+                .id(message.getId())
                 .sendType(SendType.RESPONSE)
                 .messageType(Protocol.PING_RESPONSE)
                 .address(Address.builder()
@@ -338,7 +338,7 @@ class NodeEnvironment implements MessageProcessor {
         Message.MessageBuilder lookupResponseMessage;
 
         lookupResponseMessage = Message.builder()
-                .sequenceNumber(message.getSequenceNumber())
+                .id(message.getId())
                 .sendType(SendType.RESPONSE)
                 .messageType(Protocol.LOOKUP_RESPONSE)
                 .address(Address.builder()

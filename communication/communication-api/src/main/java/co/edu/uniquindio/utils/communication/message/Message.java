@@ -22,7 +22,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
 
-import java.io.InputStream;
 import java.util.Map;
 import java.util.Set;
 
@@ -68,11 +67,11 @@ public class Message {
     /**
      * Sequence number
      */
-    private final String sequenceNumber;
+    private final String id;
 
     public static Message.MessageBuilder with(Message message){
         return Message.builder()
-                .sequenceNumber(message.sequenceNumber)
+                .id(message.id)
                 .sendType(message.sendType)
                 .messageType(message.messageType)
                 .address(message.address)

@@ -23,7 +23,7 @@ public class ContainProcessor implements MessageProcessor{
     @Override
     public Message process(Message message) {
         Message.MessageBuilder containResponseMessage = Message.builder()
-                .sequenceNumber(message.getSequenceNumber())
+                .id(message.getId())
                 .sendType(Message.SendType.RESPONSE)
                 .messageType(Protocol.CONTAIN_RESPONSE)
                 .address(Address.builder()

@@ -32,7 +32,7 @@ public class MessageProcessorExecution implements MessageProcessor {
 
     public boolean release(Message message) {
         if (message.getSendType().equals(Message.SendType.RESPONSE)) {
-            responseReleaser.releaseWaitingResult(message.getSequenceNumber(),
+            responseReleaser.releaseWaitingResult(message.getId(),
                     message);
 
             return true;

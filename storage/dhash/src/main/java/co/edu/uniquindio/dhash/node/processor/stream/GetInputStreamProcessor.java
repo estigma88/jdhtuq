@@ -40,7 +40,7 @@ public class GetInputStreamProcessor implements MessageStreamProcessor {
                                     .name()));
 
             Message resourceTransferResponseMessage = Message.builder()
-                    .sequenceNumber(message.getSequenceNumber())
+                    .id(message.getId())
                     .sendType(Message.SendType.RESPONSE)
                     .messageType(Protocol.GET_RESPONSE)
                     .param(Protocol.GetResponseData.RESOURCE.name(), serializationHandler.encode(resource))

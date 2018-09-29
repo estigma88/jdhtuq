@@ -65,10 +65,10 @@ public class DHashNode implements StorageNode {
     private final SerializationHandler serializationHandler;
     private final ResourceManager resourceManager;
     private final KeyFactory keyFactory;
-    private final IdGenerator sequenceGenerator;
+    private final IdGenerator idGenerator;
     private final ExecutorService executorService;
 
-    public DHashNode(OverlayNode overlayNode, int replicationFactor, String name, CommunicationManager communicationManager, SerializationHandler serializationHandler, ResourceManager resourceManager, KeyFactory keyFactory, IdGenerator sequenceGenerator, ExecutorService executorService) {
+    public DHashNode(OverlayNode overlayNode, int replicationFactor, String name, CommunicationManager communicationManager, SerializationHandler serializationHandler, ResourceManager resourceManager, KeyFactory keyFactory, IdGenerator idGenerator, ExecutorService executorService) {
         this.overlayNode = overlayNode;
         this.replicationFactor = replicationFactor;
         this.name = name;
@@ -76,7 +76,7 @@ public class DHashNode implements StorageNode {
         this.serializationHandler = serializationHandler;
         this.resourceManager = resourceManager;
         this.keyFactory = keyFactory;
-        this.sequenceGenerator = sequenceGenerator;
+        this.idGenerator = idGenerator;
         this.executorService = executorService;
     }
 
@@ -119,7 +119,7 @@ public class DHashNode implements StorageNode {
         progressStatus.status("dhash-file-validation", 0L, 1L);
 
         Message getMessage = Message.builder()
-                .sequenceNumber(sequenceGenerator.newId())
+                .id(idGenerator.newId())
                 .sendType(Message.SendType.REQUEST)
                 .messageType(Protocol.CONTAIN)
                 .address(Address.builder()
@@ -137,7 +137,7 @@ public class DHashNode implements StorageNode {
         if (hasResource) {
             Message resourceTransferMessage = Message.builder()
                     .sendType(Message.SendType.REQUEST)
-                    .sequenceNumber(sequenceGenerator.newId())
+                    .id(idGenerator.newId())
                     .messageType(Protocol.GET)
                     .address(Address.builder()
                             .destination(lookupKey.getValue())
@@ -218,7 +218,7 @@ public class DHashNode implements StorageNode {
      */
     boolean put(Resource resource, Key lookupKey, boolean replicate, ProgressStatus progressStatus) throws StorageException {
         Message putMessage = Message.builder()
-                .sequenceNumber(sequenceGenerator.newId())
+                .id(idGenerator.newId())
                 .sendType(Message.SendType.REQUEST)
                 .messageType(Protocol.PUT)
                 .address(Address.builder()
