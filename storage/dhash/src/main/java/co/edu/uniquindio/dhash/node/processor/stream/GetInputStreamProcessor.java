@@ -9,16 +9,15 @@ import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.MessageStreamProcessor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+@Slf4j
 public class GetInputStreamProcessor implements MessageStreamProcessor {
-    private static final Logger logger = Logger
-            .getLogger(GetInputStreamProcessor.class);
-
     private final CommunicationManager communicationManager;
     private final ResourceManager resourceManager;
     private final DHashNode dHashNode;
@@ -52,7 +51,7 @@ public class GetInputStreamProcessor implements MessageStreamProcessor {
             communicationManager.sendTo(resourceTransferResponseMessage, outputStream);
             communicationManager.transfer(resource.getInputStream(), outputStream, resource.getSize(), (name, current, size) -> {});
         } catch (IOException e) {
-            logger.error("Error replicating data", e);
+            log.error("Error replicating data", e);
         }
     }
 }

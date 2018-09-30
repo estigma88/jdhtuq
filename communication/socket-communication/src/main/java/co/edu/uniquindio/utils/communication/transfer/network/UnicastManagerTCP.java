@@ -22,6 +22,7 @@ import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.MessageStream;
 import co.edu.uniquindio.utils.communication.transfer.ProgressStatusTransfer;
 import co.edu.uniquindio.utils.communication.transfer.StreamCommunicator;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.log4j.Logger;
 
 import java.io.*;
@@ -41,13 +42,12 @@ import static co.edu.uniquindio.utils.communication.transfer.response.Connection
  * @version 1.0, 17/06/2010
  * @since 1.0
  */
+@Slf4j
 public class UnicastManagerTCP implements StreamCommunicator {
     public enum UnicastManagerTCPProperties {
         TIMEOUT_TCP_CONNECTION, PORT_TCP, SIZE_TCP_BUFFER
     }
 
-    private static final Logger logger = Logger
-            .getLogger(UnicastManagerTCP.class);
     private ServerSocket serverSocket;
     private int portTcp;
     private int timeoutTcpConnection;
@@ -63,7 +63,7 @@ public class UnicastManagerTCP implements StreamCommunicator {
         try (Socket socket = listen()) {
             return readMessage(socket.getInputStream());
         } catch (IOException | ClassNotFoundException e) {
-            logger.error("Error reading socket", e);
+            log.error("Error reading socket", e);
         }
 
         return null;
@@ -94,7 +94,7 @@ public class UnicastManagerTCP implements StreamCommunicator {
                     .inputStream(socket.getInputStream())
                     .build();
         } catch (IOException | ClassNotFoundException e) {
-            logger.error("Error writing socket " + message.getAddress(), e);
+            log.error("Error writing socket " + message.getAddress(), e);
             return null;
         }
     }
@@ -109,7 +109,7 @@ public class UnicastManagerTCP implements StreamCommunicator {
         try (Socket socket = new Socket()) {
             send(message, socket);
         } catch (IOException e) {
-            logger.error("Error writing socket " + message.getAddress(), e);
+            log.error("Error writing socket " + message.getAddress(), e);
         }
 
     }
@@ -129,7 +129,7 @@ public class UnicastManagerTCP implements StreamCommunicator {
 
             send(socket, messageStream.getInputStream(), messageStream.getSize(), progressStatusTransfer);
         } catch (IOException e) {
-            logger.error("Error writing socket", e);
+            log.error("Error writing socket", e);
         }
     }
 
@@ -140,7 +140,7 @@ public class UnicastManagerTCP implements StreamCommunicator {
                     destination);
             objectOutputStream.writeObject(messageSerialization.encode(message));
         } catch (IOException e) {
-            logger.error("Error writing socket " + message.getAddress(), e);
+            log.error("Error writing socket " + message.getAddress(), e);
         }
     }
 
@@ -180,7 +180,7 @@ public class UnicastManagerTCP implements StreamCommunicator {
         try {
             this.serverSocket = new ServerSocket(portTcp);
         } catch (IOException e) {
-            logger.error("Error creating server socket", e);
+            log.error("Error creating server socket", e);
             throw new IllegalStateException("Error creating server socket", e);
         }
 
@@ -191,7 +191,7 @@ public class UnicastManagerTCP implements StreamCommunicator {
         try {
             serverSocket.close();
         } catch (IOException e) {
-            logger.error("Error closing server socket", e);
+            log.error("Error closing server socket", e);
             throw new IllegalStateException("Error closing server socket", e);
         }
     }

@@ -6,12 +6,10 @@ import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
 import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
-public class ContainProcessor implements MessageProcessor{
-    private static final Logger logger = Logger
-            .getLogger(ContainProcessor.class);
-
+@Slf4j
+public class ContainProcessor implements MessageProcessor {
     private final DHashNode dHashNode;
     private final ResourceManager resourceManager;
 
@@ -44,8 +42,8 @@ public class ContainProcessor implements MessageProcessor{
 
         }
 
-        logger.debug("Node " + dHashNode.getName() + ", confirmation for ");
-        logger.debug("Response message: [" + containResponseMessage.toString()
+        log.debug("Node " + dHashNode.getName() + ", confirmation for ");
+        log.debug("Response message: [" + containResponseMessage.toString()
                 + "]");
 
         return containResponseMessage.build();

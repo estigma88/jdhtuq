@@ -29,7 +29,7 @@ import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.IdGenerator;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Observable;
 import java.util.Optional;
@@ -55,13 +55,8 @@ import java.util.concurrent.ScheduledFuture;
  * @see BootStrap
  * @since 1.0
  */
+@Slf4j
 public class ChordNode extends Observable implements Chord {
-
-    /**
-     * Logger
-     */
-    private static final Logger logger = Logger
-            .getLogger(ChordNode.class);
 
     /**
      * Communication manager
@@ -107,7 +102,7 @@ public class ChordNode extends Observable implements Chord {
         this.communicationManager = communicationManager;
         this.bootStrap = bootStrap;
 
-        logger.info("New ChordNode created = " + key);
+        log.info("New ChordNode created = " + key);
     }
 
     ChordNode(CommunicationManager communicationManager, ChordKey successor, ChordKey predecessor, FingersTable fingersTable, SuccessorList successorList, ChordKey key, IdGenerator idGenerator, ScheduledFuture<?> stableRing) {
@@ -242,11 +237,11 @@ public class ChordNode extends Observable implements Chord {
             notifyObservers(message);
             clearChanged();
 
-            logger.debug("Node: '" + key.getValue()
+            log.debug("Node: '" + key.getValue()
                     + "' Predecessor changed for '" + Optional.ofNullable(predecessor).map(p -> p.getValue()).orElse(null));
         }
 
-        logger.info("Notify to node '" + key.getValue() + "', predecessor is '"
+        log.info("Notify to node '" + key.getValue() + "', predecessor is '"
                 + Optional.ofNullable(predecessor).map(p -> p.getValue()).orElse(null) + "'");
     }
 
@@ -316,7 +311,7 @@ public class ChordNode extends Observable implements Chord {
             /* When node's successor fails, then node must find a new successor */
             ChordKey successorNew = successorList.getNextSuccessorAvailable();
 
-            logger.error("Node: " + key.getValue() + ", successor failed");
+            log.error("Node: " + key.getValue() + ", successor failed");
 
             if (successorNew != null) {
                 successor = successorNew;
@@ -329,7 +324,7 @@ public class ChordNode extends Observable implements Chord {
                  * is, find a node to join the network.
                  */
 
-                logger.error("Node: " + key.getValue()
+                log.error("Node: " + key.getValue()
                         + ", successor list failed... new bootstrap");
 
                 fingersTable = newFingersTable();
@@ -363,11 +358,11 @@ public class ChordNode extends Observable implements Chord {
                 }
             }
 
-            logger.info("Node '" + key.getValue()
+            log.info("Node '" + key.getValue()
                     + "' stabilized, its succesor is '" + successor.getValue()
                     + "'");
 
-            logger.debug("Node '" + key.getValue() + "' Succesor list '"
+            log.debug("Node '" + key.getValue() + "' Succesor list '"
                     + successorList + "'");
 
             notifyMessage = Message.builder()

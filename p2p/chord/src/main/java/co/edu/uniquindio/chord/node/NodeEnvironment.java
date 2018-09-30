@@ -24,12 +24,12 @@ import co.edu.uniquindio.chord.protocol.Protocol;
 import co.edu.uniquindio.chord.protocol.Protocol.*;
 import co.edu.uniquindio.overlay.KeyFactory;
 import co.edu.uniquindio.utils.communication.message.Address;
+import co.edu.uniquindio.utils.communication.message.IdGenerator;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.Message.SendType;
-import co.edu.uniquindio.utils.communication.message.IdGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigInteger;
 
@@ -46,14 +46,8 @@ import java.math.BigInteger;
  * @see ChordNode
  * @since 1.0
  */
+@Slf4j
 class NodeEnvironment implements MessageProcessor {
-
-    /**
-     * Logger
-     */
-    private static final Logger logger = Logger
-            .getLogger(NodeEnvironment.class);
-
     /**
      * Communication manager
      */
@@ -90,7 +84,7 @@ class NodeEnvironment implements MessageProcessor {
      */
     public Message process(Message message) {
 
-        logger.debug("Message to '" + chordNode.getKey().getValue() + "', ["
+        log.debug("Message to '" + chordNode.getKey().getValue() + "', ["
                 + message.toString());
 
         Message response = null;

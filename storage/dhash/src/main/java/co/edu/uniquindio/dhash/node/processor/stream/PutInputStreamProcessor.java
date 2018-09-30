@@ -9,15 +9,14 @@ import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.resource.Resource;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.MessageStreamProcessor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.log4j.Logger;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 
+@Slf4j
 public class PutInputStreamProcessor implements MessageStreamProcessor {
-    private static final Logger logger = Logger
-            .getLogger(PutInputStreamProcessor.class);
-
     private final ResourceManager resourceManager;
     private final DHashNode dHashNode;
     private final SerializationHandler serializationHandler;
@@ -43,7 +42,7 @@ public class PutInputStreamProcessor implements MessageStreamProcessor {
                 dHashNode.replicateData(resource.getId(), (name, current, size) -> {});
             }
         }catch (OverlayException | StorageException e) {
-            logger.error("Error replicating data", e);
+            log.error("Error replicating data", e);
         }
 
     }

@@ -6,5 +6,5 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(builder = Address.AddressBuilder.class)
 @JsonIgnoreProperties({"messageFromMySelf"})
-class AddressMixIn {
+interface AddressMixIn {
 }

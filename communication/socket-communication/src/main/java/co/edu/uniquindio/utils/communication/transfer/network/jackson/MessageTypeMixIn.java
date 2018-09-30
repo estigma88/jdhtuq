@@ -4,5 +4,5 @@ import co.edu.uniquindio.utils.communication.message.MessageType;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(builder = MessageType.MessageTypeBuilder.class)
-class MessageTypeMixIn {
+interface MessageTypeMixIn {
 }

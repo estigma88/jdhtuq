@@ -21,13 +21,13 @@ package co.edu.uniquindio.chord.node;
 
 import co.edu.uniquindio.chord.ChordKey;
 import co.edu.uniquindio.chord.protocol.Protocol;
+import co.edu.uniquindio.overlay.Key;
 import co.edu.uniquindio.overlay.KeyFactory;
 import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.IdGenerator;
 import co.edu.uniquindio.utils.communication.message.Message;
-import co.edu.uniquindio.overlay.Key;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The <code>SuccessorList</code> class represents a list of <code>m</code>
@@ -41,13 +41,8 @@ import org.apache.log4j.Logger;
  * @see StableRing
  * @since 1.0
  */
+@Slf4j
 public class SuccessorList {
-
-    /**
-     * Logger
-     */
-    private static final Logger logger = Logger
-            .getLogger(SuccessorList.class);
 
     /**
      * Communication manager
@@ -126,7 +121,7 @@ public class SuccessorList {
             keyList[i] = (ChordKey) keyFactory.newKey(successors[i - 1]);
         }
 
-        logger.debug("Node: " + chordNode.getKey().getValue()
+        log.debug("Node: " + chordNode.getKey().getValue()
                 + " Successors: " + toString());
     }
 
@@ -147,7 +142,7 @@ public class SuccessorList {
     public void setSuccessor(ChordKey successor) {
         keyList[0] = successor;
 
-        logger.debug("Node: " + chordNode.getKey().getValue()
+        log.debug("Node: " + chordNode.getKey().getValue()
                 + " New successor: " + successor);
     }
 

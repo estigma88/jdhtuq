@@ -20,6 +20,7 @@ package co.edu.uniquindio.utils.communication.transfer.network;
 
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.Communicator;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
@@ -38,14 +39,13 @@ import java.util.Optional;
  * @version 1.0, 17/06/2010
  * @since 1.0
  */
+
+@Slf4j
 public class MulticastManagerUDP implements Communicator {
 
     public enum MulticastManagerUDPProperties {
         BUFFER_SIZE_MULTICAST, IP_MULTICAST, PORT_MULTICAST
     }
-
-    private static final Logger logger = Logger
-            .getLogger(MulticastManagerUDP.class);
 
     private MulticastSocket multicastSocket;
     private InetAddress group;
@@ -73,7 +73,7 @@ public class MulticastManagerUDP implements Communicator {
 
             message = messageSerialization.decode(string);
         } catch (IOException e) {
-            logger.error("Error reading multicast socket", e);
+            log.error("Error reading multicast socket", e);
         }
 
         return message;
@@ -90,7 +90,7 @@ public class MulticastManagerUDP implements Communicator {
         try {
             multicastSocket.send(datagramPacket);
         } catch (IOException e) {
-            logger.error("Error writing multicast socket", e);
+            log.error("Error writing multicast socket", e);
         }
     }
 
@@ -121,7 +121,7 @@ public class MulticastManagerUDP implements Communicator {
 
             this.buffer = new byte[bufferSize];
         } catch (IOException e) {
-            logger.error("Error creating multicast socket", e);
+            log.error("Error creating multicast socket", e);
             throw new IllegalStateException("Error creating multicast socket", e);
         }
     }

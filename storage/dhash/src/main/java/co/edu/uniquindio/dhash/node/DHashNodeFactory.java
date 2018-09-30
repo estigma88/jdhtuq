@@ -34,7 +34,7 @@ import co.edu.uniquindio.storage.StorageNodeFactory;
 import co.edu.uniquindio.storage.resource.ProgressStatus;
 import co.edu.uniquindio.utils.communication.message.IdGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.ExecutorService;
 
@@ -49,10 +49,8 @@ import java.util.concurrent.ExecutorService;
  * @see DHashNode
  * @since 1.0
  */
+@Slf4j
 public class DHashNodeFactory implements StorageNodeFactory {
-    private static final Logger logger = Logger
-            .getLogger(DHashNodeFactory.class);
-
     private final int replicationFactor;
     private final CommunicationManager communicationManager;
     private final OverlayNodeFactory overlayNodeFactory;
@@ -124,7 +122,7 @@ public class DHashNodeFactory implements StorageNodeFactory {
         communicationManager.addMessageProcessor(name, dHashEnviroment);
         communicationManager.addMessageStreamProcessor(name, getMessageStreamProcessor(dhashNode, resourceManager));
 
-        logger.debug("DHash Node " + name + " Created");
+        log.debug("DHash Node " + name + " Created");
 
         return dhashNode;
     }

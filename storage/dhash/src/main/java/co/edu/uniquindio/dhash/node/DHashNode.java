@@ -20,8 +20,8 @@ package co.edu.uniquindio.dhash.node;
 
 import co.edu.uniquindio.dhash.protocol.Protocol;
 import co.edu.uniquindio.dhash.protocol.Protocol.ContainParams;
-import co.edu.uniquindio.dhash.protocol.Protocol.PutParams;
 import co.edu.uniquindio.dhash.protocol.Protocol.GetParams;
+import co.edu.uniquindio.dhash.protocol.Protocol.PutParams;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
 import co.edu.uniquindio.overlay.Key;
@@ -33,11 +33,11 @@ import co.edu.uniquindio.storage.StorageNode;
 import co.edu.uniquindio.storage.resource.ProgressStatus;
 import co.edu.uniquindio.storage.resource.Resource;
 import co.edu.uniquindio.utils.communication.message.Address;
+import co.edu.uniquindio.utils.communication.message.IdGenerator;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.MessageStream;
-import co.edu.uniquindio.utils.communication.message.IdGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -54,10 +54,8 @@ import java.util.concurrent.ExecutorService;
  * @version 1.0, 17/06/2010
  * @since 1.0
  */
+@Slf4j
 public class DHashNode implements StorageNode {
-    private static final Logger logger = Logger
-            .getLogger(DHashNode.class);
-
     private final CommunicationManager communicationManager;
     private final OverlayNode overlayNode;
     private final int replicationFactor;
@@ -109,7 +107,7 @@ public class DHashNode implements StorageNode {
         Key lookupKey = overlayNode.lookUp(keyFactory.newKey(id));
 
         if (lookupKey == null) {
-            logger.error("Impossible to do get to resource: " + id
+            log.error("Impossible to do get to resource: " + id
                     + " in this moment");
             throw new StorageException(
                     "Impossible to do get to resource, lookup fails");
@@ -163,7 +161,7 @@ public class DHashNode implements StorageNode {
 
         Key key = keyFactory.newKey(resource.getId());
 
-        logger.debug("Resource to put: [" + resource.getId() + "] Hashing: ["
+        log.debug("Resource to put: [" + resource.getId() + "] Hashing: ["
                 + key.getHashing() + "]");
 
         Key lookupKey = overlayNode.lookUp(key);
@@ -172,13 +170,13 @@ public class DHashNode implements StorageNode {
 
         if (lookupKey == null) {
 
-            logger.error("Imposible to do put to resource: "
+            log.error("Imposible to do put to resource: "
                     + resource.getId() + " in this moment");
             throw new StorageException("Imposible to do put to resource: "
                     + resource.getId() + " in this moment");
         }
 
-        logger.debug("Lookup key for " + key.getHashing() + ": ["
+        log.debug("Lookup key for " + key.getHashing() + ": ["
                 + lookupKey.getValue() + "]");
 
         return put(resource, lookupKey, true, progressStatus);
@@ -197,11 +195,11 @@ public class DHashNode implements StorageNode {
         for (int i = 0; i < Math.min(replicationFactor, succesorList.length); i++) {
             Resource resource = resourceManager.find(resourceId);
 
-            logger
+            log
                     .debug("Replicate File: [" + resource.getId()
                             + "] Hashing: ["
                             + succesorList[i].getHashing() + "]");
-            logger.debug("Replicate to " + succesorList[i].getHashing());
+            log.debug("Replicate to " + succesorList[i].getHashing());
 
             put(resource, succesorList[i], false, progressStatus);
         }
@@ -247,8 +245,8 @@ public class DHashNode implements StorageNode {
 
         Set<String> resourcesNames = resourceManager.getAllKeys();
 
-        logger.info("Relocating Files...");
-        logger.debug("Number of files: [" + resourcesNames.size() + "]");
+        log.info("Relocating Files...");
+        log.debug("Number of files: [" + resourcesNames.size() + "]");
         int filesRelocated = 0;
 
         for (String name : resourcesNames) {
@@ -263,7 +261,7 @@ public class DHashNode implements StorageNode {
             }
         }
 
-        logger.info("Files relocated: [" + filesRelocated + "]");
+        log.info("Files relocated: [" + filesRelocated + "]");
     }
 
     Key getFileKey(String name) {
@@ -276,8 +274,8 @@ public class DHashNode implements StorageNode {
 
             Set<String> resourcesNames = resourceManager.getAllKeys();
 
-            logger.info("Leaving...");
-            logger.debug("Number of files to transfer: ["
+            log.info("Leaving...");
+            log.debug("Number of files to transfer: ["
                     + resourcesNames.size() + "]");
 
             if (!keys[0].equals(overlayNode.getKey())) {
@@ -292,7 +290,7 @@ public class DHashNode implements StorageNode {
 
             communicationManager.removeObserver(overlayNode.getKey().getValue());
         } catch (OverlayException e) {
-            logger.error("Error while leaving dhash node: '"
+            log.error("Error while leaving dhash node: '"
                     + overlayNode.getKey().toString() + "'");
         }
     }

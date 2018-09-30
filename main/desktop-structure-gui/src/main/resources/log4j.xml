@@ -15,7 +15,7 @@
 	</appender>
 
 	<appender name="CH3_DHASH" class="org.apache.log4j.RollingFileAppender">
-		<param name="File" value="c:/logger.log" />
+		<param name="File" value="c:/log.log" />
 		<param name="MaxBackupIndex" value="3" />
 		<param name="MaxFileSize" value="1KB" />
 		<layout class="org.apache.log4j.PatternLayout">
@@ -30,7 +30,7 @@
 	</appender>
 
 	<appender name="CH3_CHORD" class="org.apache.log4j.RollingFileAppender">
-		<param name="File" value="c:/logger.log" />
+		<param name="File" value="c:/log.log" />
 		<param name="MaxBackupIndex" value="3" />
 		<param name="MaxFileSize" value="1KB" />
 		<layout class="org.apache.log4j.PatternLayout">
@@ -45,7 +45,7 @@
 	</appender>
 
 	<appender name="CH3_COMMUNICATION" class="org.apache.log4j.RollingFileAppender">
-		<param name="File" value="c:/logger.log" />
+		<param name="File" value="c:/log.log" />
 		<param name="MaxBackupIndex" value="3" />
 		<param name="MaxFileSize" value="1KB" />
 		<layout class="org.apache.log4j.PatternLayout">
@@ -53,47 +53,47 @@
 		</layout>
 	</appender>
 
-	<logger name="co.edu.uniquindio.chord">
+	<log name="co.edu.uniquindio.chord">
 		<level value="INFO" />
 
 		<!--
-			<level value="FINE" class="co.edu.uniquindio.utils.logger.FineLevel"
+			<level value="FINE" class="co.edu.uniquindio.utils.log.FineLevel"
 			/>
 		-->
 
 		<appender-ref ref="STDOUT_CHORD" />
 		<!--		<appender-ref ref="CH3_CHORD" />-->
-	</logger>
-	<logger name="co.edu.uniquindio.dht">
+	</log>
+	<log name="co.edu.uniquindio.dht">
 		<level value="INFO" />
 
 		<!--
-			<level value="FINE" class="co.edu.uniquindio.utils.logger.FineLevel"
+			<level value="FINE" class="co.edu.uniquindio.utils.log.FineLevel"
 			/>
 		-->
 
 		<appender-ref ref="STDOUT_DHT" />
-	</logger>
+	</log>
 
-	<logger name="co.edu.uniquindio.dhash">
+	<log name="co.edu.uniquindio.dhash">
 		<level value="INFO" />
 		<!--
 			<level value="FINE"
-			class="co.edu.uniquindio.utils.logger.FineLevel"/>
+			class="co.edu.uniquindio.utils.log.FineLevel"/>
 		-->
 		<!--
 			<level value="FINEST"
-			class="co.edu.uniquindio.utils.logger.FinestLevel"/>
+			class="co.edu.uniquindio.utils.log.FinestLevel"/>
 		-->
 		<appender-ref ref="STDOUT_DHASH" />
 		<!--		<appender-ref ref="CH3_DHASH" />-->
-	</logger>
+	</log>
 
-	<logger name="co.edu.uniquindio.utils">
+	<log name="co.edu.uniquindio.utils">
 		<level value="INFO" />
 		<appender-ref ref="STDOUT_COMMUNICATION" />
 		<!--		<appender-ref ref="CH3_UTILS" />-->
-	</logger>
+	</log>
 
 	<root>
 		<level value="debug" />

@@ -20,11 +20,13 @@ package co.edu.uniquindio.utils.communication.transfer.network;
 
 import co.edu.uniquindio.utils.communication.transfer.ConnectionHandler;
 import co.edu.uniquindio.utils.communication.transfer.ConnectionListener;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.Socket;
 
+@Slf4j
 public class ConnectionReceiver implements Closeable, Runnable {
     private boolean run;
     private final ConnectionListener connectionListener;
@@ -47,7 +49,7 @@ public class ConnectionReceiver implements Closeable, Runnable {
 
                 connectionHandler.handle(socket);
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Error processing connection", e);
             }
         }
     }

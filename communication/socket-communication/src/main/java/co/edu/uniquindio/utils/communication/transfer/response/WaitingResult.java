@@ -18,6 +18,7 @@
 
 package co.edu.uniquindio.utils.communication.transfer.response;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.log4j.Logger;
 
 import java.util.concurrent.CountDownLatch;
@@ -33,14 +34,9 @@ import java.util.concurrent.TimeUnit;
  * @version 1.0, 17/06/2010
  * @since 1.0
  */
+
+@Slf4j
 public class WaitingResult<T>{
-
-    /**
-     * Logger
-     */
-    private static final Logger logger = Logger
-            .getLogger(WaitingResult.class);
-
     /**
      * The id number of the message
      */
@@ -99,18 +95,18 @@ public class WaitingResult<T>{
     public T getResult() {
         try {
             if(countDownLatch.await(timeOut, TimeUnit.MILLISECONDS)){
-                logger
+                log
                         .debug("Response arrives for number id= '"
                                 + id + "'");
             }else{
-                logger
+                log
                         .debug("Timeout waiting for a response for number id= '"
                                 + id + "'");
 
                 returnsManager.releaseWaitingResult(id, null);
             }
         } catch (InterruptedException e) {
-            logger.error("Error to close countDownLatch", e);
+            log.error("Error to close countDownLatch", e);
         }
 
         return result;

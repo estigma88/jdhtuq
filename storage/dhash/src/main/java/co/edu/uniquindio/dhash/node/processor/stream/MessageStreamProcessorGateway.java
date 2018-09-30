@@ -8,6 +8,7 @@ import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.MessageType;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.MessageStreamProcessor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.log4j.Logger;
 
 import java.io.InputStream;
@@ -16,10 +17,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+@Slf4j
 public class MessageStreamProcessorGateway implements MessageStreamProcessor {
-    private static final Logger logger = Logger
-            .getLogger(MessageStreamProcessorGateway.class);
-
     private final DHashNode dHashNode;
     private final Map<MessageType, MessageStreamProcessor> messageStreamProcessorMap;
 
@@ -33,9 +32,9 @@ public class MessageStreamProcessorGateway implements MessageStreamProcessor {
 
     @Override
     public void process(Message message, InputStream inputStream, OutputStream outputStream) {
-        logger.debug("Message to: " + dHashNode.getName() + " Message:["
+        log.debug("Message to: " + dHashNode.getName() + " Message:["
                 + message.toString() + "]");
-        logger.debug("Node " + dHashNode.getName() + ", arrived message of "
+        log.debug("Node " + dHashNode.getName() + ", arrived message of "
                 + message.getMessageType());
 
         Optional.ofNullable(messageStreamProcessorMap.get(message.getMessageType()))

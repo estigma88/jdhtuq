@@ -24,7 +24,7 @@ import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.MessageType;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,10 +42,8 @@ import java.util.Optional;
  * @see DHashNode
  * @since 1.0
  */
+@Slf4j
 public class MessageProcessorGateway implements MessageProcessor {
-    private static final Logger logger = Logger
-            .getLogger(MessageProcessorGateway.class);
-
     private final DHashNode dHashNode;
     private final Map<MessageType, MessageProcessor> messageProcessorMap;
 
@@ -59,9 +57,9 @@ public class MessageProcessorGateway implements MessageProcessor {
     @Override
     public Message process(Message message) {
 
-        logger.debug("Message to: " + dHashNode.getName() + " Message:["
+        log.debug("Message to: " + dHashNode.getName() + " Message:["
                 + message.toString() + "]");
-        logger.debug("Node " + dHashNode.getName() + ", arrived message of "
+        log.debug("Node " + dHashNode.getName() + ", arrived message of "
                 + message.getMessageType());
 
         return Optional.ofNullable(messageProcessorMap.get(message.getMessageType()))

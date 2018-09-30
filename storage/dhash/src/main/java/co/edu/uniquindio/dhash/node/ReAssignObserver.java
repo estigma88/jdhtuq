@@ -21,7 +21,7 @@ package co.edu.uniquindio.dhash.node;
 import co.edu.uniquindio.overlay.KeyFactory;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.utils.communication.message.Message;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Observable;
 import java.util.Observer;
@@ -37,12 +37,8 @@ import java.util.Observer;
  * @version 1.0, 17/06/2010
  * @since 1.0
  */
+@Slf4j
 public class ReAssignObserver implements Observer {
-    /**
-     * Logger
-     */
-    private static final Logger logger = Logger
-            .getLogger(ReAssignObserver.class);
     public static final String RE_ASSIGN = "RE_ASSIGN";
     public static final String PREDECESSOR = "PREDECESSOR";
 
@@ -59,13 +55,14 @@ public class ReAssignObserver implements Observer {
         if (object instanceof Message) {
             Message message = (Message) object;
 
-            logger.info("Update: " + message);
+            log.info("Update: " + message);
 
             if (message.getMessageType().getName().equals(RE_ASSIGN)) {
                 try {
-                    dHashNode.relocateAllResources(keyFactory.newKey(message.getParam(PREDECESSOR)), (name, current, size) -> {});
+                    dHashNode.relocateAllResources(keyFactory.newKey(message.getParam(PREDECESSOR)), (name, current, size) -> {
+                    });
                 } catch (StorageException e) {
-                    logger.error("Problem relocating files", e);
+                    log.error("Problem relocating files", e);
                 }
             }
         }

@@ -27,6 +27,7 @@ import co.edu.uniquindio.utils.communication.transfer.response.MessageResponsePr
 import co.edu.uniquindio.utils.communication.transfer.response.MessagesReceiver;
 import co.edu.uniquindio.utils.communication.transfer.response.ReturnsManager;
 import co.edu.uniquindio.utils.communication.transfer.response.WaitingResult;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
@@ -47,12 +48,10 @@ import java.util.concurrent.ExecutorService;
  * @version 1.0, 17/06/2010
  * @since 1.0
  */
+
+@Slf4j
 public class CommunicationManagerTCP implements
         CommunicationManager {
-
-    private static final Logger logger = Logger
-            .getLogger(CommunicationManagerTCP.class);
-
     private static final String RESPONSE_TIME = "response_time";
 
     private final StreamCommunicator unicastManager;
