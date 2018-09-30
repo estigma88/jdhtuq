@@ -62,11 +62,15 @@ public class PutsDefinitionStep extends CucumberRoot {
         StorageNode storageNode = ring.getNode(world.getNodeGateway());
 
         for (String contentName : contents.keySet()) {
-            storageNode.put(FileResource.withInputStream()
+            FileResource resource = FileResource.withInputStream()
                     .id(contentName)
                     .inputStream(new ByteArrayInputStream(contents.get(contentName).getContent().getBytes()))
-                    .build(), (name, count, limit) -> {
+                    .build();
+
+            storageNode.put(resource, (name, count, limit) -> {
             }).get();
+
+            resource.close();
         }
 
     }

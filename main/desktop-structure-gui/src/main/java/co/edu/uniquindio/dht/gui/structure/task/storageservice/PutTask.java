@@ -19,13 +19,12 @@
 
 package co.edu.uniquindio.dht.gui.structure.task.storageservice;
 
-import co.edu.uniquindio.dhash.resource.BytesResource;
+import co.edu.uniquindio.dhash.resource.FileResource;
 import co.edu.uniquindio.storage.StorageNode;
-import org.apache.commons.io.IOUtils;
+import co.edu.uniquindio.storage.resource.Resource;
 
 import javax.swing.*;
 import java.io.File;
-import java.io.FileInputStream;
 
 public class PutTask extends StorageServiceTask {
     private final File file;
@@ -38,11 +37,13 @@ public class PutTask extends StorageServiceTask {
 
     @Override
     protected Void doInBackground() throws Exception {
-        try (FileInputStream fileInputStream = new FileInputStream(file)) {
-            BytesResource fileResource = new BytesResource(file.getName(), IOUtils.toByteArray(fileInputStream));
+        Resource fileResource = FileResource.withPath()
+                .id(file.getName())
+                .path(file.getAbsolutePath())
+                .build();
 
-            storageNode.put(fileResource);
-        }
+        storageNode.put(fileResource, ((name, current, size) -> {}));
+
         return null;
     }
 }

@@ -39,6 +39,7 @@ import co.edu.uniquindio.utils.communication.message.MessageStream;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -283,13 +284,15 @@ public class DHashNode implements StorageNode {
                     Resource resource = resourceManager.find(name);
 
                     put(resource, keys[0], false, progressStatus);
+
+                    resource.close();
                 }
             }
 
             resourceManager.deleteAll();
 
             communicationManager.removeObserver(overlayNode.getKey().getValue());
-        } catch (OverlayException e) {
+        } catch (OverlayException | IOException e) {
             log.error("Error while leaving dhash node: '"
                     + overlayNode.getKey().toString() + "'");
         }

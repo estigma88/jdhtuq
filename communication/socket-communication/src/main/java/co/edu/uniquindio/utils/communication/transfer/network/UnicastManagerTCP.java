@@ -208,8 +208,6 @@ public class UnicastManagerTCP implements StreamCommunicator {
 
             progressStatusTransfer.status("stream-transfer", sent, size);
         }
-        source.close();
-        destination.close();
     }
 
 

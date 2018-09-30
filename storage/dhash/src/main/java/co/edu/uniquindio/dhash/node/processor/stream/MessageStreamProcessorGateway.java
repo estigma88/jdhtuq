@@ -7,7 +7,6 @@ import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.MessageStream;
 import co.edu.uniquindio.utils.communication.message.MessageType;
-import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.MessageStreamProcessor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,12 +19,12 @@ public class MessageStreamProcessorGateway implements MessageStreamProcessor {
     private final DHashNode dHashNode;
     private final Map<MessageType, MessageStreamProcessor> messageStreamProcessorMap;
 
-    public MessageStreamProcessorGateway(CommunicationManager communicationManager, ResourceManager resourceManager, DHashNode dHashNode, SerializationHandler serializationHandler) {
+    public MessageStreamProcessorGateway(ResourceManager resourceManager, DHashNode dHashNode, SerializationHandler serializationHandler) {
         this.dHashNode = dHashNode;
 
         this.messageStreamProcessorMap = new HashMap<>();
         this.messageStreamProcessorMap.put(Protocol.PUT, new PutMessageStreamProcessor(resourceManager, dHashNode, serializationHandler));
-        this.messageStreamProcessorMap.put(Protocol.GET, new GetMessageStreamProcessor(communicationManager, resourceManager, dHashNode, serializationHandler));
+        this.messageStreamProcessorMap.put(Protocol.GET, new GetMessageStreamProcessor(resourceManager, dHashNode, serializationHandler));
     }
 
     @Override

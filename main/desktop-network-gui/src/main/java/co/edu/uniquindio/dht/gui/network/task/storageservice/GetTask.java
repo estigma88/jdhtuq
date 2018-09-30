@@ -22,7 +22,6 @@ import co.edu.uniquindio.storage.StorageNode;
 import co.edu.uniquindio.storage.resource.Resource;
 
 import javax.swing.*;
-import java.io.ByteArrayInputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 

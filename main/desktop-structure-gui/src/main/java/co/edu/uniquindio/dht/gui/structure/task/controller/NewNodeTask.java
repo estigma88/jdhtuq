@@ -19,13 +19,9 @@
 
 package co.edu.uniquindio.dht.gui.structure.task.controller;
 
-import co.edu.uniquindio.dhash.resource.BytesResource;
 import co.edu.uniquindio.dht.gui.structure.controller.Controller;
 
 import javax.swing.*;
-import java.io.ByteArrayInputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 public class NewNodeTask extends ControllerTask {
     private final String nodeName;

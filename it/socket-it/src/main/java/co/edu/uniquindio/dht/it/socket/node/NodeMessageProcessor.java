@@ -99,6 +99,8 @@ public class NodeMessageProcessor implements MessageProcessor {
             boolean success = storageNode.put(resource, (name, current, size) -> {
             }).get();
 
+            resource.close();
+
             if (success) {
                 return Message.builder()
                         .sendType(Message.SendType.RESPONSE)
@@ -135,10 +137,8 @@ public class NodeMessageProcessor implements MessageProcessor {
     }
 
     private Message processGet(Message request) {
-        try {
-            Resource resource = storageNode.get(request.getParam(Protocol.GetParams.RESOURCE_NAME.name()), (name, current, size) -> {
-            }).get();
-
+        try (Resource resource = storageNode.get(request.getParam(Protocol.GetParams.RESOURCE_NAME.name()), (name, current, size) -> {
+        }).get()) {
             return Message.builder()
                     .sendType(Message.SendType.RESPONSE)
                     .messageType(Protocol.GET_RESPONSE)

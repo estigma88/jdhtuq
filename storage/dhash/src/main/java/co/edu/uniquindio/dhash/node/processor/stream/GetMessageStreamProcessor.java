@@ -8,22 +8,16 @@ import co.edu.uniquindio.storage.resource.Resource;
 import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.MessageStream;
-import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.MessageStreamProcessor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-
 @Slf4j
 public class GetMessageStreamProcessor implements MessageStreamProcessor {
-    private final CommunicationManager communicationManager;
     private final ResourceManager resourceManager;
     private final DHashNode dHashNode;
     private final SerializationHandler serializationHandler;
 
-    public GetMessageStreamProcessor(CommunicationManager communicationManager, ResourceManager resourceManager, DHashNode dHashNode, SerializationHandler serializationHandler) {
-        this.communicationManager = communicationManager;
+    public GetMessageStreamProcessor(ResourceManager resourceManager, DHashNode dHashNode, SerializationHandler serializationHandler) {
         this.resourceManager = resourceManager;
         this.dHashNode = dHashNode;
         this.serializationHandler = serializationHandler;

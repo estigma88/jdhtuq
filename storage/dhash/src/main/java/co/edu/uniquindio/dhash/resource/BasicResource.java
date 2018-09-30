@@ -3,6 +3,7 @@ package co.edu.uniquindio.dhash.resource;
 import co.edu.uniquindio.storage.resource.Resource;
 import lombok.Data;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 @Data
@@ -15,5 +16,10 @@ public abstract class BasicResource implements Resource{
         this.id = id;
         this.inputStream = inputStream;
         this.size = size;
+    }
+
+    @Override
+    public void close() throws IOException {
+        this.inputStream.close();
     }
 }

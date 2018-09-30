@@ -44,6 +44,8 @@ public class GetsDefinitionStep extends CucumberRoot {
 
             assertThat(resource).isNotNull();
             assertThat(IOUtils.toByteArray(resource.getInputStream())).isEqualTo(content.getContent().getBytes());
+
+            resource.close();
         }
     }
 }

@@ -128,7 +128,7 @@ public class DHashNodeFactory implements StorageNodeFactory {
     }
 
     MessageStreamProcessorGateway getMessageStreamProcessor(DHashNode dhashNode, ResourceManager resourceManager) {
-        return new MessageStreamProcessorGateway(communicationManager, resourceManager, dhashNode, serializationHandler);
+        return new MessageStreamProcessorGateway(resourceManager, dhashNode, serializationHandler);
     }
 
     ReAssignObserver getReAssignObserver(DHashNode dhashNode) {

@@ -19,18 +19,20 @@
 
 package co.edu.uniquindio.dht.gui;
 
-import co.edu.uniquindio.dhash.resource.BytesResource;
+import co.edu.uniquindio.dhash.resource.FileResource;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.StorageNode;
-import org.apache.commons.io.IOUtils;
+import co.edu.uniquindio.storage.resource.Resource;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.concurrent.ExecutionException;
 
 //TODO Documentar
 @SuppressWarnings("serial")
@@ -117,17 +119,12 @@ public class PanelDhash extends JPanel implements ActionListener {
                         loadingBar.begin();
 
                         File fichero = fileChooser.getSelectedFile();
-                        try {
-                            BytesResource fileResource = new BytesResource(fichero.getName(), IOUtils.toByteArray(new FileInputStream(fichero)));
-                            getDHashNode().put(fileResource);
-                        } catch (StorageException e1) {
-                            loadingBar.end();
-                            JOptionPane.showMessageDialog(frame, e1
-                                    .getMessage());
-                        } catch (FileNotFoundException e1) {
-                            loadingBar.end();
-                            JOptionPane.showMessageDialog(frame, e1
-                                    .getMessage());
+                        try (Resource fileResource = FileResource.withPath()
+                                .id(fichero.getName())
+                                .path(fichero.getAbsolutePath())
+                                .build()) {
+                            getDHashNode().put(fileResource, ((name, current, size) -> {
+                            }));
                         } catch (IOException e1) {
                             loadingBar.end();
                             JOptionPane.showMessageDialog(frame, e1
@@ -161,18 +158,13 @@ public class PanelDhash extends JPanel implements ActionListener {
                         loadingBar.setValue(1, "Doing Get...");
                         loadingBar.begin();
                         try {
-                            BytesResource resource = (BytesResource) getDHashNode().get(a);
+                            Resource resource = getDHashNode().get(a, ((name, current, size) -> {
+                            })).get();
 
                             Files.createDirectories(Paths.get(resourceDirectory + getDHashNode().getName() + "/gets/"));
-                            Files.copy(new ByteArrayInputStream(resource.getBytes()), Paths.get(resourceDirectory + getDHashNode().getName() + "/gets/" + resource.getId()));
+                            Files.copy(resource.getInputStream(), Paths.get(resourceDirectory + getDHashNode().getName() + "/gets/" + resource.getId()));
 
-                        } catch (StorageException e1) {
-                            loadingBar.end();
-                            JOptionPane.showMessageDialog(frame, e1
-                                            .getMessage()
-                                            + "\nPlease try again later", "ERROR",
-                                    JOptionPane.INFORMATION_MESSAGE);
-                        } catch (IOException e1) {
+                        } catch (InterruptedException | ExecutionException | IOException e1) {
                             loadingBar.end();
                             JOptionPane.showMessageDialog(frame, e1
                                             .getMessage()
@@ -232,7 +224,8 @@ public class PanelDhash extends JPanel implements ActionListener {
     public void exit() {
         try {
             if (dHashNode != null)
-                dHashNode.leave();
+                dHashNode.leave(((name, current, size) -> {
+                }));
         } catch (StorageException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
