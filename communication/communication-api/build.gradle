@@ -14,8 +14,6 @@ version = '2.0.1'
 
 dependencies {
     compileOnly 'org.projectlombok:lombok:1.16.20'
-
-    compile group: 'log4j', name: 'log4j', version: '1.2.16'
 }
 
 task sourcesJar(type: Jar) {

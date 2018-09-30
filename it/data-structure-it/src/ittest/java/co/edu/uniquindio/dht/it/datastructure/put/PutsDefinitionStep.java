@@ -65,7 +65,8 @@ public class PutsDefinitionStep extends CucumberRoot {
             storageNode.put(FileResource.withInputStream()
                     .id(contentName)
                     .inputStream(new ByteArrayInputStream(contents.get(contentName).getContent().getBytes()))
-                    .build());
+                    .build(), (name, count, limit) -> {
+            }).get();
         }
 
     }

@@ -8,30 +8,32 @@ import co.edu.uniquindio.overlay.OverlayException;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.resource.Resource;
 import co.edu.uniquindio.utils.communication.message.Message;
+import co.edu.uniquindio.utils.communication.message.MessageStream;
 import co.edu.uniquindio.utils.communication.transfer.MessageStreamProcessor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.log4j.Logger;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 
 @Slf4j
-public class PutInputStreamProcessor implements MessageStreamProcessor {
+public class PutMessageStreamProcessor implements MessageStreamProcessor {
     private final ResourceManager resourceManager;
     private final DHashNode dHashNode;
     private final SerializationHandler serializationHandler;
 
-    public PutInputStreamProcessor(ResourceManager resourceManager, DHashNode dHashNode, SerializationHandler serializationHandler) {
+    public PutMessageStreamProcessor(ResourceManager resourceManager, DHashNode dHashNode, SerializationHandler serializationHandler) {
         this.resourceManager = resourceManager;
         this.dHashNode = dHashNode;
         this.serializationHandler = serializationHandler;
     }
 
     @Override
-    public void process(Message message, InputStream inputStream, OutputStream outputStrea) {
+    public MessageStream process(MessageStream messageStream) {
         try {
+            Message message = messageStream.getMessage();
+
             Resource resource = serializationHandler.decode(
-                    message.getParam(Protocol.PutDatas.RESOURCE.name()), inputStream);
+                    message.getParam(Protocol.PutDatas.RESOURCE.name()), messageStream.getInputStream());
 
             resourceManager.save(resource);
 
@@ -39,10 +41,14 @@ public class PutInputStreamProcessor implements MessageStreamProcessor {
                     .getParam(Protocol.PutParams.REPLICATE.name()));
 
             if (replicate) {
-                dHashNode.replicateData(resource.getId(), (name, current, size) -> {});
+                dHashNode.replicateData(resource.getId(), (name, current, size) -> {
+                });
             }
-        }catch (OverlayException | StorageException e) {
-            log.error("Error replicating data", e);
+
+            return null;
+        } catch (OverlayException | StorageException e) {
+            log.error("Error putting data", e);
+            throw new IllegalStateException("Error putting data", e);
         }
 
     }

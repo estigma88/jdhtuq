@@ -23,7 +23,6 @@ import co.edu.uniquindio.utils.communication.message.MessageStream;
 import co.edu.uniquindio.utils.communication.transfer.ProgressStatusTransfer;
 import co.edu.uniquindio.utils.communication.transfer.StreamCommunicator;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -127,40 +126,25 @@ public class UnicastManagerTCP implements StreamCommunicator {
 
             progressStatusTransfer.status("message-starter", 1L, 1L);
 
-            send(socket, messageStream.getInputStream(), messageStream.getSize(), progressStatusTransfer);
+            send(socket.getOutputStream(), messageStream.getInputStream(), messageStream.getSize(), progressStatusTransfer);
         } catch (IOException e) {
             log.error("Error writing socket", e);
         }
     }
 
     @Override
-    public void sendTo(Message message, OutputStream destination) {
+    public void send(MessageStream messageStream, OutputStream destination, ProgressStatusTransfer progressStatusTransfer) {
+        progressStatusTransfer.status("message-starter", 0L, 1L);
+
+        sendTo(messageStream.getMessage(), destination);
+
+        progressStatusTransfer.status("message-starter", 1L, 1L);
+
         try {
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(
-                    destination);
-            objectOutputStream.writeObject(messageSerialization.encode(message));
+            send(destination, messageStream.getInputStream(), messageStream.getSize(), progressStatusTransfer);
         } catch (IOException e) {
-            log.error("Error writing socket " + message.getAddress(), e);
+            log.error("Error writing socket", e);
         }
-    }
-
-    @Override
-    public void transfer(InputStream source, OutputStream destination, Long size, ProgressStatusTransfer progressStatusTransfer) throws IOException {
-        int count;
-        long sent = 0L;
-        byte[] buffer = new byte[sizeBuffer];
-
-        progressStatusTransfer.status("stream-transfer", sent, size);
-
-        while ((count = source.read(buffer)) > 0) {
-            destination.write(buffer, 0, count);
-
-            sent += count;
-
-            progressStatusTransfer.status("stream-transfer", sent, size);
-        }
-        source.close();
-        destination.close();
     }
 
     @Override
@@ -210,9 +194,32 @@ public class UnicastManagerTCP implements StreamCommunicator {
         sendTo(message, socket.getOutputStream());
     }
 
-    private void send(Socket socket, InputStream source, Long size, ProgressStatusTransfer progressStatusTransfer) throws IOException {
-        OutputStream destination = socket.getOutputStream();
+    private void send(OutputStream destination, InputStream source, Long size, ProgressStatusTransfer progressStatusTransfer) throws IOException {
+        int count;
+        long sent = 0L;
+        byte[] buffer = new byte[sizeBuffer];
 
-        transfer(source, destination, size, progressStatusTransfer);
+        progressStatusTransfer.status("stream-transfer", sent, size);
+
+        while ((count = source.read(buffer)) > 0) {
+            destination.write(buffer, 0, count);
+
+            sent += count;
+
+            progressStatusTransfer.status("stream-transfer", sent, size);
+        }
+        source.close();
+        destination.close();
+    }
+
+
+    private void sendTo(Message message, OutputStream destination) {
+        try {
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(
+                    destination);
+            objectOutputStream.writeObject(messageSerialization.encode(message));
+        } catch (IOException e) {
+            log.error("Error writing socket " + message.getAddress(), e);
+        }
     }
 }

@@ -5,14 +5,12 @@ import co.edu.uniquindio.dhash.protocol.Protocol;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
 import co.edu.uniquindio.utils.communication.message.Message;
+import co.edu.uniquindio.utils.communication.message.MessageStream;
 import co.edu.uniquindio.utils.communication.message.MessageType;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.MessageStreamProcessor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.log4j.Logger;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -26,19 +24,21 @@ public class MessageStreamProcessorGateway implements MessageStreamProcessor {
         this.dHashNode = dHashNode;
 
         this.messageStreamProcessorMap = new HashMap<>();
-        this.messageStreamProcessorMap.put(Protocol.PUT, new PutInputStreamProcessor(resourceManager, dHashNode, serializationHandler));
-        this.messageStreamProcessorMap.put(Protocol.GET, new GetInputStreamProcessor(communicationManager, resourceManager, dHashNode, serializationHandler));
+        this.messageStreamProcessorMap.put(Protocol.PUT, new PutMessageStreamProcessor(resourceManager, dHashNode, serializationHandler));
+        this.messageStreamProcessorMap.put(Protocol.GET, new GetMessageStreamProcessor(communicationManager, resourceManager, dHashNode, serializationHandler));
     }
 
     @Override
-    public void process(Message message, InputStream inputStream, OutputStream outputStream) {
+    public MessageStream process(MessageStream messageStream) {
+        Message message = messageStream.getMessage();
+
         log.debug("Message to: " + dHashNode.getName() + " Message:["
                 + message.toString() + "]");
         log.debug("Node " + dHashNode.getName() + ", arrived message of "
                 + message.getMessageType());
 
-        Optional.ofNullable(messageStreamProcessorMap.get(message.getMessageType()))
+        return Optional.ofNullable(messageStreamProcessorMap.get(message.getMessageType()))
                 .orElseThrow(() -> new IllegalStateException("Message " + message.getMessageType() + " was not found"))
-                .process(message, inputStream, outputStream);
+                .process(messageStream);
     }
 }

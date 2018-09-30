@@ -40,7 +40,7 @@ public class GetsDefinitionStep extends CucumberRoot {
         StorageNode storageNode = world.getRing().getNode(world.getNodeGateway());
 
         for (Content content : contents) {
-            Resource resource = storageNode.get(content.getName());
+            Resource resource = storageNode.get(content.getName(), (name, count, limit) -> {}).get();
 
             assertThat(resource).isNotNull();
             assertThat(IOUtils.toByteArray(resource.getInputStream())).isEqualTo(content.getContent().getBytes());

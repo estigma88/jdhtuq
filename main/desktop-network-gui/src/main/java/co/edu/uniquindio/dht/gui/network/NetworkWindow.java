@@ -19,13 +19,11 @@
 package co.edu.uniquindio.dht.gui.network;
 
 
-import co.edu.uniquindio.chord.node.ChordNode;
 import co.edu.uniquindio.dht.gui.PanelDhash;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.StorageNode;
 import co.edu.uniquindio.storage.StorageNodeFactory;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.log4j.Logger;
 
 import javax.swing.*;
 import java.awt.*;

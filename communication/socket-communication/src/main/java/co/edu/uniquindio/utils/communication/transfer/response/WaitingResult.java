@@ -19,7 +19,6 @@
 package co.edu.uniquindio.utils.communication.transfer.response;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.log4j.Logger;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -36,7 +35,7 @@ import java.util.concurrent.TimeUnit;
  */
 
 @Slf4j
-public class WaitingResult<T>{
+public class WaitingResult<T> {
     /**
      * The id number of the message
      */
@@ -68,7 +67,7 @@ public class WaitingResult<T>{
      * The constructor of the class. Constructs a WaitingResult instance that
      * wait for the response of the message with the id number specified
      *
-     * @param id                    . The id number of the message
+     * @param id . The id number of the message
      */
     private WaitingResult(String id, ReturnsManager<T> returnsManager) {
         this.id = id;
@@ -80,7 +79,7 @@ public class WaitingResult<T>{
      * The constructor of the class. Constructs a WaitingResult instance that
      * wait for the response of the message with the id number specified
      *
-     * @param id                    . The id number of the message
+     * @param id . The id number of the message
      */
     WaitingResult(String id, ReturnsManager<T> returnsManager, long timeOut) {
         this(id, returnsManager);
@@ -94,11 +93,11 @@ public class WaitingResult<T>{
      */
     public T getResult() {
         try {
-            if(countDownLatch.await(timeOut, TimeUnit.MILLISECONDS)){
+            if (countDownLatch.await(timeOut, TimeUnit.MILLISECONDS)) {
                 log
                         .debug("Response arrives for number id= '"
                                 + id + "'");
-            }else{
+            } else {
                 log
                         .debug("Timeout waiting for a response for number id= '"
                                 + id + "'");

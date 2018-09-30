@@ -18,9 +18,7 @@
 
 package co.edu.uniquindio.storage.resource;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigInteger;
 
 /**
  * Class to handle a Resource
@@ -35,12 +33,14 @@ public interface Resource {
 
     /**
      * Get an input stream that represents the resource content
+     *
      * @return resource content
      */
     InputStream getInputStream();
 
     /**
      * Get the resource size in bytes
+     *
      * @return bytes amount
      */
     Long getSize();

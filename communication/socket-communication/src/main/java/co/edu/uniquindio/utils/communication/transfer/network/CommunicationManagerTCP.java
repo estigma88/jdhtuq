@@ -28,10 +28,8 @@ import co.edu.uniquindio.utils.communication.transfer.response.MessagesReceiver;
 import co.edu.uniquindio.utils.communication.transfer.response.ReturnsManager;
 import co.edu.uniquindio.utils.communication.transfer.response.WaitingResult;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.log4j.Logger;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -60,19 +58,21 @@ public class CommunicationManagerTCP implements
     private final MessagesReceiver multicastMessagesReciever;
     private final MessageResponseProcessor messageResponseProcessor;
     private final Observable<Message> observableCommunication;
+    private final Observable<MessageStream> messageStreamObservable;
     private final ReturnsManager<Message> returnsManager;
     private final ExecutorService messagesReceiverExecutor;
     private MessageProcessor messageProcessor;
     private MessageStreamProcessor messageStreamProcessor;
     private Map<String, String> communicationProperties;
 
-    public CommunicationManagerTCP(StreamCommunicator unicastManager, ConnectionReceiver unicastConnectionReceiver, Communicator multicastManager, MessagesReceiver multicastMessagesReciever, MessageResponseProcessor messageResponseProcessor, Observable<Message> observableCommunication, ReturnsManager<Message> returnsManager, ExecutorService messagesReceiverExecutor) {
+    public CommunicationManagerTCP(StreamCommunicator unicastManager, ConnectionReceiver unicastConnectionReceiver, Communicator multicastManager, MessagesReceiver multicastMessagesReciever, MessageResponseProcessor messageResponseProcessor, Observable<Message> observableCommunication, Observable<MessageStream> messageStreamObservable, ReturnsManager<Message> returnsManager, ExecutorService messagesReceiverExecutor) {
         this.unicastManager = unicastManager;
         this.unicastConnectionReceiver = unicastConnectionReceiver;
         this.multicastManager = multicastManager;
         this.multicastMessagesReciever = multicastMessagesReciever;
         this.messageResponseProcessor = messageResponseProcessor;
         this.observableCommunication = observableCommunication;
+        this.messageStreamObservable = messageStreamObservable;
         this.returnsManager = returnsManager;
         this.messagesReceiverExecutor = messagesReceiverExecutor;
     }
@@ -178,6 +178,7 @@ public class CommunicationManagerTCP implements
      * @param typeReturn Type return
      * @return Response
      */
+    @Override
     public <T> T sendMultiCast(Message message, Class<T> typeReturn) {
 
         /*
@@ -216,6 +217,7 @@ public class CommunicationManagerTCP implements
      * @param paramNameResult Param name of result
      * @return Response
      */
+    @Override
     public <T> T sendMultiCast(Message message, Class<T> typeReturn,
                                String paramNameResult) {
 
@@ -246,13 +248,9 @@ public class CommunicationManagerTCP implements
      *
      * @param message Messages to transfer
      */
+    @Override
     public void sendMultiCast(Message message) {
         multicastManager.send(message);
-    }
-
-    @Override
-    public void sendTo(Message message, OutputStream destination) {
-        unicastManager.sendTo(message, destination);
     }
 
     /**
@@ -268,13 +266,12 @@ public class CommunicationManagerTCP implements
     }
 
     @Override
-    public void transfer(InputStream source, OutputStream destination, Long size, ProgressStatusTransfer progressStatusTransfer) throws IOException {
-        unicastManager.transfer(source, destination, size, progressStatusTransfer);
-    }
-
-    @Override
     public MessageStream receive(Message resourceTransferMessage, ProgressStatusTransfer progressStatusTransfer) {
         return unicastManager.receive(resourceTransferMessage, progressStatusTransfer);
+    }
+
+    public void send(MessageStream message, OutputStream destination, ProgressStatusTransfer progressStatusTransfer) {
+        unicastManager.send(message, destination, progressStatusTransfer);
     }
 
     /**
@@ -317,6 +314,21 @@ public class CommunicationManagerTCP implements
      */
     public void removeObserver(String name) {
         observableCommunication.removeObserver(name);
+    }
+
+    @Override
+    public void addStreamObserver(Observer<MessageStream> observer) {
+        messageStreamObservable.addObserver(observer);
+    }
+
+    @Override
+    public void removeStreamObserver(Observer<MessageStream> observer) {
+        messageStreamObservable.removeObserver(observer);
+    }
+
+    @Override
+    public void removeStreamObserver(String name) {
+        messageStreamObservable.removeObserver(name);
     }
 
     @Override

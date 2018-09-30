@@ -27,7 +27,6 @@ import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.IdGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.log4j.Logger;
 
 /**
  * The <code>BootStrap</code> class is responsible for initializing a node
@@ -81,7 +80,7 @@ public class BootStrap {
 
         if (findNode == null) {
             /* When no other node is found */
-            Logger.getLogger(BootStrap.class).debug(
+            log.debug(
                     "Node '" + nodeChord.getKey().getValue() + "' found '"
                             + null + "'");
             nodeChord.createRing();

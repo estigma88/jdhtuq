@@ -18,12 +18,10 @@
 
 package co.edu.uniquindio.dht.gui;
 
-import co.edu.uniquindio.dhash.resource.BytesResource;
 import co.edu.uniquindio.dht.gui.network.task.storageservice.GetTask;
 import co.edu.uniquindio.dht.gui.network.task.storageservice.PutTask;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.StorageNode;
-import org.apache.commons.io.IOUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,9 +29,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.File;
+import java.io.IOException;
 
 //TODO Documentar
 @SuppressWarnings("serial")
@@ -192,7 +189,7 @@ public class PanelDhash extends JPanel implements ActionListener, PropertyChange
     public void exit() {
         try {
             if (dHashNode != null)
-                dHashNode.leave();
+                dHashNode.leave((name, current, limit) -> {});
         } catch (StorageException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

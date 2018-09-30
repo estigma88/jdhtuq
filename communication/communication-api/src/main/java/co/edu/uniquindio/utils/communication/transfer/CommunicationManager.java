@@ -125,6 +125,28 @@ public interface CommunicationManager extends StreamManager{
      */
     void removeObserver(String name);
 
+
+    /**
+     * Adds observer to communication
+     *
+     * @param observer Observer to add
+     */
+    void addStreamObserver(Observer<MessageStream> observer);
+
+    /**
+     * Remove observer to communication
+     *
+     * @param observer Observer to remove
+     */
+    void removeStreamObserver(Observer<MessageStream> observer);
+
+    /**
+     * Remove observer by name
+     *
+     * @param name Observer name
+     */
+    void removeStreamObserver(String name);
+
     /**
      * Add a message processor to handle any kind of message
      *

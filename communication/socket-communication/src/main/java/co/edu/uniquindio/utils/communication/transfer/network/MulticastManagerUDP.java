@@ -21,7 +21,6 @@ package co.edu.uniquindio.utils.communication.transfer.network;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.Communicator;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.net.DatagramPacket;

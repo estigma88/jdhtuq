@@ -1,6 +1,7 @@
 package co.edu.uniquindio.utils.communication.transfer.response;
 
 import co.edu.uniquindio.utils.communication.message.Message;
+import co.edu.uniquindio.utils.communication.message.MessageStream;
 import co.edu.uniquindio.utils.communication.transfer.ConnectionHandler;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
 import co.edu.uniquindio.utils.communication.transfer.MessageStreamProcessor;
@@ -16,12 +17,12 @@ import java.util.Optional;
 public class ConnectionMessageProcessorGateway implements ConnectionHandler {
     public static final String HANDLE_STREAMS = ConnectionMessageProcessorGateway.class.getName() + ".handle_streams";
 
-    private final MessageStreamProcessor messageStreamProcessor;
+    private final MessageStreamProcessorOutput messageStreamProcessorOutput;
     private final MessageProcessor messageProcessor;
     private final MessageSerialization messageSerialization;
 
-    public ConnectionMessageProcessorGateway(MessageStreamProcessor messageStreamProcessor, MessageProcessor messageProcessor, MessageSerialization messageSerialization) {
-        this.messageStreamProcessor = messageStreamProcessor;
+    public ConnectionMessageProcessorGateway(MessageStreamProcessorOutput messageStreamProcessorOutput, MessageProcessor messageProcessor, MessageSerialization messageSerialization) {
+        this.messageStreamProcessorOutput = messageStreamProcessorOutput;
         this.messageProcessor = messageProcessor;
         this.messageSerialization = messageSerialization;
     }
@@ -36,7 +37,10 @@ public class ConnectionMessageProcessorGateway implements ConnectionHandler {
                     .orElse(false);
 
             if (sendingInputStream) {
-                messageStreamProcessor.process(message, socket.getInputStream(), socket.getOutputStream());
+                messageStreamProcessorOutput.process(MessageStream.builder()
+                        .message(message)
+                        .inputStream(socket.getInputStream())
+                        .build(), socket.getOutputStream());
             } else {
                 messageProcessor.process(message);
             }
