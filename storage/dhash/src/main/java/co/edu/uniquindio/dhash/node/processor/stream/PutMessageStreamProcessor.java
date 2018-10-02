@@ -21,7 +21,7 @@ public class PutMessageStreamProcessor implements MessageStreamProcessor {
     private final DHashNode dHashNode;
     private final SerializationHandler serializationHandler;
 
-    public PutMessageStreamProcessor(ResourceManager resourceManager, DHashNode dHashNode, SerializationHandler serializationHandler) {
+    PutMessageStreamProcessor(ResourceManager resourceManager, DHashNode dHashNode, SerializationHandler serializationHandler) {
         this.resourceManager = resourceManager;
         this.dHashNode = dHashNode;
         this.serializationHandler = serializationHandler;

@@ -18,6 +18,7 @@
 
 package co.edu.uniquindio.dhash.node;
 
+import co.edu.uniquindio.dhash.node.processor.MessageProcessorGateway;
 import co.edu.uniquindio.dhash.resource.checksum.ChecksumCalculator;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManagerFactory;

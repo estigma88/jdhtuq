@@ -51,7 +51,7 @@ public class MessageProcessorGateway implements MessageProcessor {
         this.dHashNode = dHashNode;
 
         this.messageProcessorMap = new HashMap<>();
-        this.messageProcessorMap.put(Protocol.CONTAIN, new ContainProcessor(dHashNode, resourceManager));
+        this.messageProcessorMap.put(Protocol.CONTAIN, createContainProcessor(dHashNode, resourceManager));
     }
 
     @Override
@@ -65,5 +65,13 @@ public class MessageProcessorGateway implements MessageProcessor {
         return Optional.ofNullable(messageProcessorMap.get(message.getMessageType()))
                 .orElseThrow(() -> new IllegalStateException("Message " + message.getMessageType() + " was not found"))
                 .process(message);
+    }
+
+    ContainProcessor createContainProcessor(DHashNode dHashNode, ResourceManager resourceManager) {
+        return new ContainProcessor(dHashNode, resourceManager);
+    }
+
+    Map<MessageType, MessageProcessor> getMessageProcessorMap() {
+        return messageProcessorMap;
     }
 }

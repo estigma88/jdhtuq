@@ -40,4 +40,8 @@ public class MessageStreamProcessorGateway implements MessageStreamProcessor {
                 .orElseThrow(() -> new IllegalStateException("Message " + message.getMessageType() + " was not found"))
                 .process(messageStream);
     }
+
+    Map<MessageType, MessageStreamProcessor> getMessageStreamProcessorMap() {
+        return messageStreamProcessorMap;
+    }
 }

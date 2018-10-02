@@ -17,7 +17,7 @@ public class GetMessageStreamProcessor implements MessageStreamProcessor {
     private final DHashNode dHashNode;
     private final SerializationHandler serializationHandler;
 
-    public GetMessageStreamProcessor(ResourceManager resourceManager, DHashNode dHashNode, SerializationHandler serializationHandler) {
+    GetMessageStreamProcessor(ResourceManager resourceManager, DHashNode dHashNode, SerializationHandler serializationHandler) {
         this.resourceManager = resourceManager;
         this.dHashNode = dHashNode;
         this.serializationHandler = serializationHandler;
