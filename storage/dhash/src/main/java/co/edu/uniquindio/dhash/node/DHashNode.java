@@ -117,7 +117,7 @@ public class DHashNode implements StorageNode {
         progressStatus.status("overlay-node-lookup", 1L, 1L);
         progressStatus.status("dhash-file-validation", 0L, 1L);
 
-        Message getMessage = Message.builder()
+        Message containMessage = Message.builder()
                 .id(idGenerator.newId())
                 .sendType(Message.SendType.REQUEST)
                 .messageType(Protocol.CONTAIN)
@@ -128,13 +128,13 @@ public class DHashNode implements StorageNode {
                 .param(ContainParams.RESOURCE_KEY.name(), id)
                 .build();
 
-        Boolean hasResource = communicationManager.send(getMessage,
+        Boolean hasResource = communicationManager.send(containMessage,
                 Boolean.class);
 
         progressStatus.status("dhash-file-validation", 1L, 1L);
 
         if (hasResource) {
-            Message resourceTransferMessage = Message.builder()
+            Message getMessage = Message.builder()
                     .sendType(Message.SendType.REQUEST)
                     .id(idGenerator.newId())
                     .messageType(Protocol.GET)
@@ -146,7 +146,7 @@ public class DHashNode implements StorageNode {
                     .build();
 
             MessageStream resource = communicationManager
-                    .receive(resourceTransferMessage, progressStatus::status);
+                    .receive(getMessage, progressStatus::status);
 
             return serializationHandler.decode(resource.getMessage().getParam(Protocol.GetResponseData.RESOURCE.name()), resource.getInputStream());
 
@@ -170,10 +170,9 @@ public class DHashNode implements StorageNode {
         progressStatus.status("overlay-node-lookup", 1L, 1L);
 
         if (lookupKey == null) {
-
-            log.error("Imposible to do put to resource: "
+            log.error("Impossible to do put the resource: "
                     + resource.getId() + " in this moment");
-            throw new StorageException("Imposible to do put to resource: "
+            throw new StorageException("Impossible to do put the resource: "
                     + resource.getId() + " in this moment");
         }
 
@@ -181,29 +180,6 @@ public class DHashNode implements StorageNode {
                 + lookupKey.getValue() + "]");
 
         return put(resource, lookupKey, true, progressStatus);
-    }
-
-    /**
-     * Replicates the specified file in its successors.
-     *
-     * @param resourceId The specified {@link Resource} to replicate.
-     * @throws OverlayException
-     */
-    public void replicateData(String resourceId, ProgressStatus progressStatus)
-            throws OverlayException, StorageException {
-        Key[] succesorList = overlayNode.getNeighborsList();
-
-        for (int i = 0; i < Math.min(replicationFactor, succesorList.length); i++) {
-            Resource resource = resourceManager.find(resourceId);
-
-            log
-                    .debug("Replicate File: [" + resource.getId()
-                            + "] Hashing: ["
-                            + succesorList[i].getHashing() + "]");
-            log.debug("Replicate to " + succesorList[i].getHashing());
-
-            put(resource, succesorList[i], false, progressStatus);
-        }
     }
 
     /**
@@ -235,6 +211,29 @@ public class DHashNode implements StorageNode {
                 .build(), progressStatus::status);
 
         return true;
+    }
+
+    /**
+     * Replicates the specified file in its successors.
+     *
+     * @param resourceId The specified {@link Resource} to replicate.
+     * @throws OverlayException
+     */
+    public void replicateData(String resourceId, ProgressStatus progressStatus)
+            throws OverlayException, StorageException {
+        Key[] succesorList = overlayNode.getNeighborsList();
+
+        for (int i = 0; i < Math.min(replicationFactor, succesorList.length); i++) {
+            Resource resource = resourceManager.find(resourceId);
+
+            log
+                    .debug("Replicate File: [" + resource.getId()
+                            + "] Hashing: ["
+                            + succesorList[i].getHashing() + "]");
+            log.debug("Replicate to " + succesorList[i].getHashing());
+
+            put(resource, succesorList[i], false, progressStatus);
+        }
     }
 
     /**

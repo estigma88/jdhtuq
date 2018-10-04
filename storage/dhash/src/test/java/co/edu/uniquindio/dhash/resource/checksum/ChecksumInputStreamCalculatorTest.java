@@ -18,24 +18,30 @@
 
 package co.edu.uniquindio.dhash.resource.checksum;
 
+import co.edu.uniquindio.dhash.resource.FileResource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.io.ByteArrayInputStream;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
-public class BytesChecksumCalculatorTest {
+public class ChecksumInputStreamCalculatorTest {
     @InjectMocks
-    private ChecksumInputStreamCalculator bytesChecksumCalculator;
+    private ChecksumInputStreamCalculator checksumInputStreamCalculator;
 
     @Test
     public void calculate() {
-        //BytesResource bytesResource = new BytesResource("resource", new byte[]{1, 2, 3});
+        FileResource fileResource = FileResource.withInputStream()
+                .id("resource")
+                .inputStream(new ByteArrayInputStream(new byte[]{1, 2, 3}))
+                .build();
 
-        //String checksum = bytesChecksumCalculator.calculate(bytesResource);
+        String checksum = checksumInputStreamCalculator.calculate(fileResource);
 
-        //assertThat(checksum).isEqualTo("5289df737df57326fcdd22597afb1fac");
+        assertThat(checksum).isEqualTo("5289df737df57326fcdd22597afb1fac");
     }
 }

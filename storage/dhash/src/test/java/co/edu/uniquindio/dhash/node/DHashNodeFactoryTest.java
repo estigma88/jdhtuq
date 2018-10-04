@@ -19,6 +19,7 @@
 package co.edu.uniquindio.dhash.node;
 
 import co.edu.uniquindio.dhash.node.processor.MessageProcessorGateway;
+import co.edu.uniquindio.dhash.node.processor.stream.MessageStreamProcessorGateway;
 import co.edu.uniquindio.dhash.resource.checksum.ChecksumCalculator;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManagerFactory;
@@ -26,6 +27,7 @@ import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
 import co.edu.uniquindio.overlay.*;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.StorageNode;
+import co.edu.uniquindio.storage.resource.ProgressStatus;
 import co.edu.uniquindio.utils.communication.message.IdGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import org.junit.Before;
@@ -65,7 +67,9 @@ public class DHashNodeFactoryTest {
     @Mock
     private DHashNode dhashNode;
     @Mock
-    private MessageProcessorGateway dHashEnviroment;
+    private MessageProcessorGateway messageProcessorGateway;
+    @Mock
+    private MessageStreamProcessorGateway messageStreamProcessorGateway;
     private DHashNodeFactory dHashNodeFactory;
     @Mock
     private Observable observable;
@@ -85,21 +89,26 @@ public class DHashNodeFactoryTest {
         when(overlayNode.getObservable()).thenReturn(observable);
         when(resourceManagerFactory.of("node")).thenReturn(resourceManager);
         doReturn(dhashNode).when(dHashNodeFactory).getDHashNode("node", overlayNode, resourceManager);
-        doReturn(dHashEnviroment).when(dHashNodeFactory).getMessageProcessor(dhashNode, resourceManager);
+        doReturn(messageProcessorGateway).when(dHashNodeFactory).getMessageProcessor(dhashNode, resourceManager);
         doReturn(reAssignObserver).when(dHashNodeFactory).getReAssignObserver(dhashNode);
+        doReturn(messageStreamProcessorGateway).when(dHashNodeFactory).getMessageStreamProcessor(dhashNode, resourceManager);
 
         StorageNode node = dHashNodeFactory.createNode("node");
 
         assertThat(node).isEqualTo(dhashNode);
 
         verify(observable).addObserver(reAssignObserver);
-        verify(communicationManager).addMessageProcessor("node", dHashEnviroment);
+        verify(communicationManager).addMessageProcessor("node", messageProcessorGateway);
+        verify(communicationManager).addMessageStreamProcessor("node", messageStreamProcessorGateway);
     }
 
     @Test
     public void destroyNode_nodeDestroyed() throws OverlayException, StorageException {
-        dHashNodeFactory.destroyNode(dhashNode, (name, current, size) -> {});
+        ProgressStatus progressStatus = (name, current, size) -> {
+        };
 
-        verify(dhashNode).leave((name, current, size) -> {});
+        dHashNodeFactory.destroyNode(dhashNode, progressStatus);
+
+        verify(dhashNode).leave(progressStatus);
     }
 }

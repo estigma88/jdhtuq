@@ -22,6 +22,7 @@ import java.io.ByteArrayInputStream;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -58,7 +59,6 @@ public class PutMessageStreamProcessorTest {
                 .inputStream(inputStream)
                 .build();
 
-        when(dHashNode.getName()).thenReturn("dhash");
         when(serializationHandler.decode("serializableResource", inputStream)).thenReturn(resource);
 
         MessageStream response = putMessageStreamProcessor.process(message);
@@ -67,6 +67,39 @@ public class PutMessageStreamProcessorTest {
 
         verify(resourceManager).save(resource);
         verify(dHashNode).replicateData(eq("resource"), any());
+
+    }
+
+    @Test
+    public void put_notReplicate_ok() throws OverlayException, StorageException {
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(new byte[5]);
+
+        Resource resource = FileResource.withInputStream()
+                .id("resource")
+                .size(10L)
+                .inputStream(inputStream)
+                .build();
+
+        MessageStream message = MessageStream.builder()
+                .message(Message.builder()
+                        .messageType(Protocol.PUT)
+                        .sendType(Message.SendType.RESPONSE)
+                        .address(Address.builder().destination("source").source("dhash").build())
+                        .param(Protocol.GetResponseData.RESOURCE.name(), "serializableResource")
+                        .param(Protocol.PutParams.REPLICATE.name(), "false")
+                        .build())
+                .size(10L)
+                .inputStream(inputStream)
+                .build();
+
+        when(serializationHandler.decode("serializableResource", inputStream)).thenReturn(resource);
+
+        MessageStream response = putMessageStreamProcessor.process(message);
+
+        assertThat(response).isNull();
+
+        verify(resourceManager).save(resource);
+        verify(dHashNode, times(0)).replicateData(any(), any());
 
     }
 }
