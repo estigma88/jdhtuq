@@ -14,7 +14,7 @@ plugins {
 }
 
 group = 'com.github.estigma88'
-version = '2.2.0'
+version = '3.0.0'
 
 sourceCompatibility = 1.8
 
@@ -24,9 +24,8 @@ repositories {
 
 
 dependencies {
-	compile project(':communication:socket-communication')
+    compile group: 'com.github.estigma88', name: 'jdhtuq-socket-communication', version: '3.0.0'
 
-	// https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
 	compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.4'
 
 	compileOnly 'org.projectlombok:lombok:1.16.20'
