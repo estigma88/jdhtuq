@@ -19,13 +19,16 @@
 
 package co.edu.uniquindio.dht.gui.structure.task.storageservice;
 
+import co.edu.uniquindio.dhash.resource.LocalFileResource;
 import co.edu.uniquindio.storage.StorageNode;
 import co.edu.uniquindio.storage.resource.Resource;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+@Slf4j
 public class GetTask extends StorageServiceTask {
     private final String resourceId;
     private final String resourceDirectory;
@@ -43,7 +46,14 @@ public class GetTask extends StorageServiceTask {
         })).get();
 
         Files.createDirectories(Paths.get(resourceDirectory + storageNode.getName() + "/gets/"));
-        Files.copy(resource.getInputStream(), Paths.get(resourceDirectory + storageNode.getName() + "/gets/" + resource.getId()));
+
+        LocalFileResource localFileResource = LocalFileResource.builder()
+                .resource(resource)
+                .path(resourceDirectory + storageNode.getName() + "/gets/")
+                .sizeBuffer(2048)
+                .build();
+
+        localFileResource.persist(((name, current, size) -> {log.info("{} - {} - {}", name, current, size);}));
 
         return null;
     }

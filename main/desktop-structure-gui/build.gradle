@@ -13,6 +13,9 @@ version = '2.0.2'
 dependencies {
     compile("org.springframework.boot:spring-boot-starter:1.5.10.RELEASE")
 
+    compileOnly 'org.projectlombok:lombok:1.16.20'
+    compile group: 'org.slf4j', name:'slf4j-api', version: '1.7.2'
+    
     compile project(':main:starters:chord-spring-boot-starter')
     compile project(':main:starters:dhash-spring-boot-starter')
     compile project(':main:starters:data-structure-communication-spring-boot-starter')
