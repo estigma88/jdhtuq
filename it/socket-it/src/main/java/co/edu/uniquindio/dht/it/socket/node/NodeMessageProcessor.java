@@ -3,22 +3,22 @@ package co.edu.uniquindio.dht.it.socket.node;
 import co.edu.uniquindio.chord.ChordKey;
 import co.edu.uniquindio.chord.node.ChordNode;
 import co.edu.uniquindio.dhash.node.DHashNode;
-import co.edu.uniquindio.dhash.resource.BytesResource;
+import co.edu.uniquindio.dhash.resource.FileResource;
 import co.edu.uniquindio.dht.it.socket.Protocol;
-import co.edu.uniquindio.storage.StorageException;
+import co.edu.uniquindio.storage.resource.Resource;
 import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 
-import javax.swing.text.html.Option;
+import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.util.Optional;
 
+@Slf4j
 public class NodeMessageProcessor implements MessageProcessor {
-    private static final Logger logger = Logger
-            .getLogger(NodeMessageProcessor.class);
-
     private final DHashNode storageNode;
 
     public NodeMessageProcessor(DHashNode storageNode) {
@@ -47,7 +47,8 @@ public class NodeMessageProcessor implements MessageProcessor {
 
     private Message processLeave(Message request) {
         try {
-            storageNode.leave();
+            storageNode.leave((name, current, size) -> {
+            });
 
             return Message.builder()
                     .sendType(Message.SendType.RESPONSE)
@@ -58,8 +59,8 @@ public class NodeMessageProcessor implements MessageProcessor {
                             .build())
                     .param(Protocol.LeaveResponseParams.MESSAGE.name(), "OK")
                     .build();
-        } catch (StorageException e) {
-            logger.error("Problem doing put", e);
+        } catch (Exception e) {
+            log.error("Problem doing put", e);
             return Message.builder()
                     .sendType(Message.SendType.RESPONSE)
                     .messageType(Protocol.LEAVE_RESPONSE)
@@ -75,7 +76,7 @@ public class NodeMessageProcessor implements MessageProcessor {
     private Message processGetSuccessor(Message request) {
         ChordNode overlayNode = (ChordNode) storageNode.getOverlayNode();
 
-        logger.info("Querying current successor: " + Optional.ofNullable(overlayNode.getSuccessor()).orElse(new ChordKey(BigInteger.ZERO)).getValue());
+        log.info("Querying current successor: " + Optional.ofNullable(overlayNode.getSuccessor()).orElse(new ChordKey(BigInteger.ZERO)).getValue());
 
         return Message.builder()
                 .sendType(Message.SendType.RESPONSE)
@@ -89,12 +90,18 @@ public class NodeMessageProcessor implements MessageProcessor {
     }
 
     private Message processPut(Message request) {
-        BytesResource resource = new BytesResource(request.getParam(Protocol.PutParams.RESOURCE_NAME.name()), request.getData(Protocol.PutDatas.RESOURCE.name()));
-
         try {
-            boolean success = storageNode.put(resource);
+            FileResource resource = FileResource.withInputStream()
+                    .id(request.getParam(Protocol.PutParams.RESOURCE_NAME.name()))
+                    .inputStream(new ByteArrayInputStream(request.getParam(Protocol.PutDatas.RESOURCE.name()).getBytes()))
+                    .build();
 
-            if (success){
+            boolean success = storageNode.put(resource, (name, current, size) -> {
+            }).get();
+
+            resource.close();
+
+            if (success) {
                 return Message.builder()
                         .sendType(Message.SendType.RESPONSE)
                         .messageType(Protocol.PUT_RESPONSE)
@@ -104,7 +111,7 @@ public class NodeMessageProcessor implements MessageProcessor {
                                 .build())
                         .param(Protocol.PutResponseParams.MESSAGE.name(), "OK")
                         .build();
-            }else{
+            } else {
                 return Message.builder()
                         .sendType(Message.SendType.RESPONSE)
                         .messageType(Protocol.PUT_RESPONSE)
@@ -115,8 +122,8 @@ public class NodeMessageProcessor implements MessageProcessor {
                         .param(Protocol.PutResponseParams.MESSAGE.name(), "Put unsuccessful")
                         .build();
             }
-        } catch (StorageException e) {
-            logger.error("Problem doing put", e);
+        } catch (Exception e) {
+            log.error("Problem doing put", e);
             return Message.builder()
                     .sendType(Message.SendType.RESPONSE)
                     .messageType(Protocol.PUT_RESPONSE)
@@ -130,9 +137,8 @@ public class NodeMessageProcessor implements MessageProcessor {
     }
 
     private Message processGet(Message request) {
-        try {
-            BytesResource resource = (BytesResource) storageNode.get(request.getParam(Protocol.GetParams.RESOURCE_NAME.name()));
-
+        try (Resource resource = storageNode.get(request.getParam(Protocol.GetParams.RESOURCE_NAME.name()), (name, current, size) -> {
+        }).get()) {
             return Message.builder()
                     .sendType(Message.SendType.RESPONSE)
                     .messageType(Protocol.GET_RESPONSE)
@@ -141,10 +147,10 @@ public class NodeMessageProcessor implements MessageProcessor {
                             .destination(request.getAddress().getSource())
                             .build())
                     .param(Protocol.GetResponseParams.MESSAGE.name(), "OK")
-                    .data(Protocol.GetResponseDatas.RESOURCE.name(), resource.getBytes())
+                    .param(Protocol.GetResponseDatas.RESOURCE.name(), IOUtils.toString(resource.getInputStream(), Charset.defaultCharset()))
                     .build();
-        } catch (StorageException e) {
-            logger.error("Problem doing get", e);
+        } catch (Exception e) {
+            log.error("Problem doing get", e);
             return Message.builder()
                     .sendType(Message.SendType.RESPONSE)
                     .messageType(Protocol.GET_RESPONSE)

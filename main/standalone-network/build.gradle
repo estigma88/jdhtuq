@@ -8,12 +8,12 @@ repositories {
     mavenCentral()
 }
 
-version = '2.0.4'
+version = '2.0.5'
 
 dependencies {
     compile("org.springframework.boot:spring-boot-starter:1.5.10.RELEASE")
 
-    compile group: 'com.github.estigma88', name: 'jdhtuq-chord-spring-boot-starter', version: '2.0.1'
-    compile group: 'com.github.estigma88', name: 'jdhtuq-dhash-spring-boot-starter', version: '2.0.1'
-    compile group: 'com.github.estigma88', name: 'jdhtuq-socket-communication-spring-boot-starter', version: '2.1.0'
+    compile group: 'com.github.estigma88', name: 'jdhtuq-chord-spring-boot-starter', version: '2.0.2'
+    compile group: 'com.github.estigma88', name: 'jdhtuq-dhash-spring-boot-starter', version: '3.0.0'
+    compile group: 'com.github.estigma88', name: 'jdhtuq-socket-communication-spring-boot-starter', version: '3.0.0'
 }

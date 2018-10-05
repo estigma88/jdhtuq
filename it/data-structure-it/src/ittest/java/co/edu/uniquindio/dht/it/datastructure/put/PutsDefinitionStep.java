@@ -18,7 +18,7 @@
 
 package co.edu.uniquindio.dht.it.datastructure.put;
 
-import co.edu.uniquindio.dhash.resource.BytesResource;
+import co.edu.uniquindio.dhash.resource.FileResource;
 import co.edu.uniquindio.dhash.starter.DHashProperties;
 import co.edu.uniquindio.dht.it.datastructure.CucumberRoot;
 import co.edu.uniquindio.dht.it.datastructure.World;
@@ -29,6 +29,7 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.nio.file.Files;
@@ -61,7 +62,15 @@ public class PutsDefinitionStep extends CucumberRoot {
         StorageNode storageNode = ring.getNode(world.getNodeGateway());
 
         for (String contentName : contents.keySet()) {
-            storageNode.put(new BytesResource(contentName, contents.get(contentName).getContent().getBytes()));
+            FileResource resource = FileResource.withInputStream()
+                    .id(contentName)
+                    .inputStream(new ByteArrayInputStream(contents.get(contentName).getContent().getBytes()))
+                    .build();
+
+            storageNode.put(resource, (name, count, limit) -> {
+            }).get();
+
+            resource.close();
         }
 
     }

@@ -19,13 +19,17 @@
 package co.edu.uniquindio.utils.communication.transfer;
 
 import co.edu.uniquindio.utils.communication.message.Message;
+import co.edu.uniquindio.utils.communication.message.MessageStream;
 
 import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Map;
 
 /**
- * The <code>Communicator</code> interface hava all services for to send and to
- * receiver messages
+ * The <code>Communicator</code> interface hava all services for to transfer and to
+ * receive messages
  *
  * @author Daniel Pelaez
  * @version 1.0, 17/06/2010
@@ -36,7 +40,7 @@ public interface Communicator extends Closeable {
     /**
      * Send message
      *
-     * @param message Message to send
+     * @param message Message to transfer
      */
     void send(Message message);
 
@@ -45,7 +49,7 @@ public interface Communicator extends Closeable {
      *
      * @return Message
      */
-    Message receiver();
+    Message receive();
 
     void start(Map<String, String> properties);
 }

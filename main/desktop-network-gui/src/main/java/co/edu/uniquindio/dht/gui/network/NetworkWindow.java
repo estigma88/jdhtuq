@@ -19,12 +19,11 @@
 package co.edu.uniquindio.dht.gui.network;
 
 
-import co.edu.uniquindio.chord.node.ChordNode;
 import co.edu.uniquindio.dht.gui.PanelDhash;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.StorageNode;
 import co.edu.uniquindio.storage.StorageNodeFactory;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
 import java.awt.*;
@@ -39,6 +38,7 @@ import java.util.Enumeration;
 
 //TODO Documentar
 @SuppressWarnings("serial")
+@Slf4j
 public class NetworkWindow extends JFrame implements WindowListener {
     //TODO Documentar
     private static InetAddress localHost;
@@ -49,9 +49,6 @@ public class NetworkWindow extends JFrame implements WindowListener {
     private InetAddress inetAddress;
     //TODO Documentar
     public static final String DHASH_CLASS = "co.edu.uniquindio.dhash.node.DHashNodeFactory";
-    // TODO Adicionar documentacion
-    private static final Logger logger = Logger
-            .getLogger(ChordNode.class);
 
     //TODO Documentar
     static {
@@ -103,7 +100,7 @@ public class NetworkWindow extends JFrame implements WindowListener {
             panelDhash.setDHashNode(dHashNode);
 
         } catch (UnknownHostException e) {
-            logger.error("Could not initialize the InetAddress", e);
+            log.error("Could not initialize the InetAddress", e);
         } catch (StorageException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -139,7 +136,7 @@ public class NetworkWindow extends JFrame implements WindowListener {
                 }
             }
         } catch (SocketException e) {
-            logger.error("NetworkInteface error", e);
+            log.error("NetworkInteface error", e);
         }
 
         return null;

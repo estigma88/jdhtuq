@@ -4,11 +4,9 @@ import co.edu.uniquindio.dhash.node.DHashNode;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.StorageNode;
 import co.edu.uniquindio.storage.StorageNodeFactory;
-import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
-import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerFactory;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
 import co.edu.uniquindio.utils.communication.transfer.network.MessageSerialization;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
@@ -16,17 +14,12 @@ import org.springframework.context.annotation.Configuration;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 
 @SpringBootApplication
 @Configuration
+@Slf4j
 public class NodeMain {
-    private static final Logger logger = Logger
-            .getLogger(NodeMain.class);
-
     public static void main(String[] args) {
         new SpringApplicationBuilder(NodeMain.class)
                 .headless(false).run(args);
@@ -40,7 +33,7 @@ public class NodeMain {
             InetAddress addr = InetAddress.getLocalHost();
             hostname = addr.getHostAddress();
         } catch (UnknownHostException e) {
-            logger.error("Error getting hostname", e);
+            log.error("Error getting hostname", e);
         }
 
         return storageNodeFactory.createNode(hostname);

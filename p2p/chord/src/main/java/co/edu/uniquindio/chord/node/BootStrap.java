@@ -24,9 +24,9 @@ import co.edu.uniquindio.chord.protocol.Protocol;
 import co.edu.uniquindio.overlay.Key;
 import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
-import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
+import co.edu.uniquindio.utils.communication.message.IdGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The <code>BootStrap</code> class is responsible for initializing a node
@@ -40,13 +40,9 @@ import org.apache.log4j.Logger;
  * @see ChordNode
  * @since 1.0
  */
-public class BootStrap {
 
-    /**
-     * Logger
-     */
-    private static final Logger logger = Logger
-            .getLogger(BootStrap.class);
+@Slf4j
+public class BootStrap {
 
     /**
      * A Chord uses this method when is created to initializes. If there is an
@@ -59,17 +55,17 @@ public class BootStrap {
      *
      * @param nodeChord            node who will be added to the network.
      * @param communicationManager Communication manager
-     * @param sequenceGenerator    Sequence generator
+     * @param idGenerator    Sequence generator
      */
-    public void boot(ChordNode nodeChord, CommunicationManager communicationManager, SequenceGenerator sequenceGenerator) {
+    public void boot(ChordNode nodeChord, CommunicationManager communicationManager, IdGenerator idGenerator) {
 
-        logger.info("Search node...");
+        log.info("Search node...");
 
         Key findNode;
         Message bootStrapMessage;
 
         bootStrapMessage = Message.builder()
-                .sequenceNumber(sequenceGenerator.getSequenceNumber())
+                .id(idGenerator.newId())
                 .sendType(Message.SendType.REQUEST)
                 .messageType(Protocol.BOOTSTRAP)
                 .address(Address.builder()
@@ -77,32 +73,32 @@ public class BootStrap {
                         .build())
                 .build();
 
-        findNode = communicationManager.sendMessageMultiCast(bootStrapMessage,
+        findNode = communicationManager.sendMultiCast(bootStrapMessage,
                 ChordKey.class);
 
-        logger.info("Finish search node");
+        log.info("Finish search node");
 
         if (findNode == null) {
             /* When no other node is found */
-            Logger.getLogger(BootStrap.class).debug(
+            log.debug(
                     "Node '" + nodeChord.getKey().getValue() + "' found '"
                             + null + "'");
             nodeChord.createRing();
         } else {
-            logger.debug("Node '" + nodeChord.getKey().getValue() + "' found '"
+            log.debug("Node '" + nodeChord.getKey().getValue() + "' found '"
                     + findNode.getValue() + "'");
             nodeChord.join(findNode);
 
             if (nodeChord.getSuccessor() == null) {
                 /* If the join fails the boot is done again */
-                boot(nodeChord, communicationManager, sequenceGenerator);
+                boot(nodeChord, communicationManager, idGenerator);
             }
         }
 
         nodeChord.getFingersTable().getFingersTable()[0] = nodeChord
                 .getSuccessor();
 
-        logger.info("Node '" + nodeChord.getKey().getValue()
+        log.info("Node '" + nodeChord.getKey().getValue()
                 + "' have by successor '" + nodeChord.getSuccessor().getValue()
                 + "'");
     }

@@ -19,9 +19,9 @@
 package co.edu.uniquindio.dhash.node;
 
 import co.edu.uniquindio.dhash.protocol.Protocol;
-import co.edu.uniquindio.dhash.protocol.Protocol.*;
-import co.edu.uniquindio.dhash.resource.ResourceNotFoundException;
-import co.edu.uniquindio.dhash.resource.checksum.ChecksumCalculator;
+import co.edu.uniquindio.dhash.protocol.Protocol.ContainParams;
+import co.edu.uniquindio.dhash.protocol.Protocol.GetParams;
+import co.edu.uniquindio.dhash.protocol.Protocol.PutParams;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
 import co.edu.uniquindio.overlay.Key;
@@ -30,14 +30,20 @@ import co.edu.uniquindio.overlay.OverlayException;
 import co.edu.uniquindio.overlay.OverlayNode;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.StorageNode;
+import co.edu.uniquindio.storage.resource.ProgressStatus;
 import co.edu.uniquindio.storage.resource.Resource;
 import co.edu.uniquindio.utils.communication.message.Address;
+import co.edu.uniquindio.utils.communication.message.IdGenerator;
 import co.edu.uniquindio.utils.communication.message.Message;
-import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
+import co.edu.uniquindio.utils.communication.message.MessageStream;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutorService;
 
 /**
  * The {@code DHashNode} class implements the services of {@code put} and
@@ -49,194 +55,185 @@ import java.util.Set;
  * @version 1.0, 17/06/2010
  * @since 1.0
  */
+@Slf4j
 public class DHashNode implements StorageNode {
-    private static final Logger logger = Logger
-            .getLogger(DHashNode.class);
-
     private final CommunicationManager communicationManager;
     private final OverlayNode overlayNode;
     private final int replicationFactor;
     private final String name;
     private final SerializationHandler serializationHandler;
-    private final ChecksumCalculator checksumCalculator;
     private final ResourceManager resourceManager;
     private final KeyFactory keyFactory;
-    private final SequenceGenerator sequenceGenerator;
+    private final IdGenerator idGenerator;
+    private final ExecutorService executorService;
 
-    public DHashNode(OverlayNode overlayNode, int replicationFactor, String name, CommunicationManager communicationManager, SerializationHandler serializationHandler, ChecksumCalculator checksumCalculator, ResourceManager resourceManager, KeyFactory keyFactory, SequenceGenerator sequenceGenerator) {
+    public DHashNode(OverlayNode overlayNode, int replicationFactor, String name, CommunicationManager communicationManager, SerializationHandler serializationHandler, ResourceManager resourceManager, KeyFactory keyFactory, IdGenerator idGenerator, ExecutorService executorService) {
         this.overlayNode = overlayNode;
         this.replicationFactor = replicationFactor;
         this.name = name;
         this.communicationManager = communicationManager;
         this.serializationHandler = serializationHandler;
-        this.checksumCalculator = checksumCalculator;
         this.resourceManager = resourceManager;
         this.keyFactory = keyFactory;
-        this.sequenceGenerator = sequenceGenerator;
+        this.idGenerator = idGenerator;
+        this.executorService = executorService;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see co.edu.uniquindio.storage.StorageNode#get(java.lang.String)
-     */
-    public Resource get(String id) throws StorageException {
+    @Override
+    public CompletableFuture<Resource> get(String id, ProgressStatus progressStatus) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return getSync(id, progressStatus);
+            } catch (StorageException e) {
+                throw new CompletionException("Get failed", e);
+            }
+        }, executorService);
+    }
 
-        Key key = keyFactory.newKey(id);
-        Key lookupKey = overlayNode.lookUp(key);
-        Message getMessage;
-        Message resourceTransferMessage;
+    @Override
+    public CompletableFuture<Boolean> put(Resource resource, ProgressStatus progressStatus) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return putSync(resource, progressStatus);
+            } catch (StorageException e) {
+                throw new CompletionException("Put failed", e);
+            }
+        }, executorService);
+    }
+
+    Resource getSync(String id, ProgressStatus progressStatus) throws StorageException {
+
+        progressStatus.status("overlay-node-lookup", 0L, 1L);
+
+        Key lookupKey = overlayNode.lookUp(keyFactory.newKey(id));
 
         if (lookupKey == null) {
-            logger.error("Imposible to do get to resource: " + id
+            log.error("Impossible to do get to resource: " + id
                     + " in this moment");
             throw new StorageException(
-                    "Imposible to do get to resource, lookup fails");
+                    "Impossible to do get to resource, lookup fails");
         }
 
-        getMessage = Message.builder()
-                .sequenceNumber(sequenceGenerator.getSequenceNumber())
+        progressStatus.status("overlay-node-lookup", 1L, 1L);
+        progressStatus.status("dhash-file-validation", 0L, 1L);
+
+        Message containMessage = Message.builder()
+                .id(idGenerator.newId())
                 .sendType(Message.SendType.REQUEST)
-                .messageType(Protocol.GET)
+                .messageType(Protocol.CONTAIN)
                 .address(Address.builder()
                         .destination(lookupKey.getValue())
                         .source(name)
                         .build())
-                .param(GetParams.RESOURCE_KEY.name(), id)
+                .param(ContainParams.RESOURCE_KEY.name(), id)
                 .build();
 
-        Boolean hasResource = communicationManager.sendMessageUnicast(getMessage,
+        Boolean hasResource = communicationManager.send(containMessage,
                 Boolean.class);
 
-        if (hasResource) {
+        progressStatus.status("dhash-file-validation", 1L, 1L);
 
-            resourceTransferMessage = Message.builder()
+        if (hasResource) {
+            Message getMessage = Message.builder()
                     .sendType(Message.SendType.REQUEST)
-                    .sequenceNumber(sequenceGenerator.getSequenceNumber())
-                    .messageType(Protocol.RESOURCE_TRANSFER)
+                    .id(idGenerator.newId())
+                    .messageType(Protocol.GET)
                     .address(Address.builder()
                             .destination(lookupKey.getValue())
                             .source(name)
                             .build())
-                    .param(ResourceTransferParams.RESOURCE_KEY.name(), id)
+                    .param(GetParams.RESOURCE_KEY.name(), id)
                     .build();
 
-            Message resource = communicationManager
-                    .sendMessageUnicast(resourceTransferMessage, Message.class);
+            MessageStream resource = communicationManager
+                    .receive(getMessage, progressStatus::status);
 
-            return serializationHandler.decode(resource
-                    .getData(ResourceTransferResponseData.RESOURCE.name()));
+            return serializationHandler.decode(resource.getMessage().getParam(Protocol.GetResponseData.RESOURCE.name()), resource.getInputStream());
 
         } else {
-            ResourceNotFoundException resourceNotFoundException = new ResourceNotFoundException(
-                    "Resource '" + id + "' not found");
-
-            logger.warn("The resource '" + id + "' was not found");
-
-            throw resourceNotFoundException;
+            return null;
         }
 
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * co.edu.uniquindio.storage.StorageNode#put(co.edu.uniquindio.storage.resource
-     * .Resource)
-     */
-    public boolean put(Resource resource) throws StorageException {
+    boolean putSync(Resource resource, ProgressStatus progressStatus) throws StorageException {
+
+        progressStatus.status("overlay-node-lookup", 0L, 1L);
 
         Key key = keyFactory.newKey(resource.getId());
 
-        logger.debug("Resource to put: [" + resource.getId() + "] Hashing: ["
+        log.debug("Resource to put: [" + resource.getId() + "] Hashing: ["
                 + key.getHashing() + "]");
 
         Key lookupKey = overlayNode.lookUp(key);
 
-        if (lookupKey == null) {
+        progressStatus.status("overlay-node-lookup", 1L, 1L);
 
-            logger.error("Imposible to do put to resource: "
+        if (lookupKey == null) {
+            log.error("Impossible to do put the resource: "
                     + resource.getId() + " in this moment");
-            throw new StorageException("Imposible to do put to resource: "
+            throw new StorageException("Impossible to do put the resource: "
                     + resource.getId() + " in this moment");
         }
 
-        logger.debug("Lookup key for " + key.getHashing() + ": ["
+        log.debug("Lookup key for " + key.getHashing() + ": ["
                 + lookupKey.getValue() + "]");
 
-        return put(resource, lookupKey, true);
-    }
-
-    /**
-     * Replicates the specified file in its successors.
-     *
-     * @param resource The specified {@link Resource} to replicate.
-     * @throws OverlayException
-     */
-    public void replicateData(Resource resource)
-            throws OverlayException {
-        Key[] succesorList = overlayNode.getNeighborsList();
-
-        for (int i = 0; i < Math.min(replicationFactor, succesorList.length); i++) {
-            logger
-                    .debug("Replicate File: [" + resource.getId()
-                            + "] Hashing: ["
-                            + succesorList[i].getHashing() + "]");
-            logger.debug("Replicate to " + succesorList[i].getHashing());
-
-            put(resource, succesorList[i], false);
-        }
+        return put(resource, lookupKey, true, progressStatus);
     }
 
     /**
      * Puts the specified resource into the network.
      *
-     * @param resource  The resource to put.
-     * @param lookupKey The key where the file will be put.
-     * @param replicate Determines if the file will be replicated.
-     * @return  False if the resource already exists, true if it does not exist
+     * @param resource       The resource to put.
+     * @param lookupKey      The key where the file will be put.
+     * @param replicate      Determines if the file will be replicated.
+     * @param progressStatus
+     * @return False if the resource already exists, true if it does not exist
      */
-    boolean put(Resource resource, Key lookupKey, boolean replicate) {
-
-        Message resourceCompareMessage;
-        Message putMessage;
-
-        resourceCompareMessage = Message.builder()
-                .sequenceNumber(sequenceGenerator.getSequenceNumber())
-                .sendType(Message.SendType.REQUEST)
-                .messageType(Protocol.RESOURCE_COMPARE)
-                .address(Address.builder()
-                        .destination(lookupKey.getValue())
-                        .source(name)
-                        .build())
-                .param(ResourceCompareParams.CHECK_SUM.name(), checksumCalculator.calculate(resource))
-                .param(ResourceCompareParams.RESOURCE_KEY.name(), resource.getId())
-                .build();
-
-        Boolean existResource = communicationManager.sendMessageUnicast(
-                resourceCompareMessage, Boolean.class);
-
-        if (existResource) {
-            return false;
-        }
-
-        putMessage = Message.builder()
-                .sequenceNumber(sequenceGenerator.getSequenceNumber())
+    boolean put(Resource resource, Key lookupKey, boolean replicate, ProgressStatus progressStatus) throws StorageException {
+        Message putMessage = Message.builder()
+                .id(idGenerator.newId())
                 .sendType(Message.SendType.REQUEST)
                 .messageType(Protocol.PUT)
                 .address(Address.builder()
                         .destination(lookupKey.getValue())
                         .source(name)
                         .build())
-                .param(PutParams.RESOURCE_KEY.name(), resource.getId())
+                .param(Protocol.PutDatas.RESOURCE.name(), serializationHandler.encode(resource))
                 .param(PutParams.REPLICATE.name(), String.valueOf(replicate))
-                .data(PutDatas.RESOURCE.name(), serializationHandler.encode(resource))
                 .build();
 
-        communicationManager.sendMessageUnicast(putMessage);
+        communicationManager.send(MessageStream.builder()
+                .message(putMessage)
+                .inputStream(resource.getInputStream())
+                .size(resource.getSize())
+                .build(), progressStatus::status);
 
         return true;
+    }
+
+    /**
+     * Replicates the specified file in its successors.
+     *
+     * @param resourceId The specified {@link Resource} to replicate.
+     * @throws OverlayException
+     */
+    public void replicateData(String resourceId, ProgressStatus progressStatus)
+            throws OverlayException, StorageException {
+        Key[] succesorList = overlayNode.getNeighborsList();
+
+        for (int i = 0; i < Math.min(replicationFactor, succesorList.length); i++) {
+            Resource resource = resourceManager.find(resourceId);
+
+            log
+                    .debug("Replicate File: [" + resource.getId()
+                            + "] Hashing: ["
+                            + succesorList[i].getHashing() + "]");
+            log.debug("Replicate to " + succesorList[i].getHashing());
+
+            put(resource, succesorList[i], false, progressStatus);
+        }
     }
 
     /**
@@ -244,12 +241,12 @@ public class DHashNode implements StorageNode {
      *
      * @param key The node where the files will be relocated.
      */
-    public void relocateAllResources(Key key) {
+    public void relocateAllResources(Key key, ProgressStatus progressStatus) throws StorageException {
 
         Set<String> resourcesNames = resourceManager.getAllKeys();
 
-        logger.info("Relocating Files...");
-        logger.debug("Number of files: [" + resourcesNames.size() + "]");
+        log.info("Relocating Files...");
+        log.debug("Number of files: [" + resourcesNames.size() + "]");
         int filesRelocated = 0;
 
         for (String name : resourcesNames) {
@@ -258,47 +255,44 @@ public class DHashNode implements StorageNode {
             Key fileKey = getFileKey(name);
 
             if (!fileKey.isBetween(key, overlayNode.getKey())) {
-                boolean relocate = put(resource, key, false);
+                boolean relocate = put(resource, key, false, progressStatus);
 
                 filesRelocated++;
             }
         }
 
-        logger.info("Files relocated: [" + filesRelocated + "]");
+        log.info("Files relocated: [" + filesRelocated + "]");
     }
 
     Key getFileKey(String name) {
         return keyFactory.newKey(name);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see co.edu.uniquindio.storage.StorageNode#leave()
-     */
-    public void leave() throws StorageException {
+    public void leave(ProgressStatus progressStatus) throws StorageException {
         try {
             Key[] keys = overlayNode.leave();
 
             Set<String> resourcesNames = resourceManager.getAllKeys();
 
-            logger.info("Leaving...");
-            logger.debug("Number of files to transfer: ["
+            log.info("Leaving...");
+            log.debug("Number of files to transfer: ["
                     + resourcesNames.size() + "]");
 
             if (!keys[0].equals(overlayNode.getKey())) {
                 for (String name : resourcesNames) {
                     Resource resource = resourceManager.find(name);
 
-                    put(resource, keys[0], false);
+                    put(resource, keys[0], false, progressStatus);
+
+                    resource.close();
                 }
             }
 
             resourceManager.deleteAll();
 
             communicationManager.removeObserver(overlayNode.getKey().getValue());
-        } catch (OverlayException e) {
-            logger.error("Error while leaving dhash node: '"
+        } catch (OverlayException | IOException e) {
+            log.error("Error while leaving dhash node: '"
                     + overlayNode.getKey().toString() + "'");
         }
     }

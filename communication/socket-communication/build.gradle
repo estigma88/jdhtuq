@@ -9,15 +9,15 @@ repositories {
 }
 
 group = 'com.github.estigma88'
-version = '2.1.0'
+version = '3.0.0'
 
 dependencies {
-    compile group: 'com.github.estigma88', name: 'jdhtuq-communication-api', version: '2.0.0'
+    compile group: 'com.github.estigma88', name: 'jdhtuq-communication-api', version: '3.0.0'
 
-    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
+    compileOnly 'org.projectlombok:lombok:1.16.20'
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.4'
 
-    compile group: 'log4j', name: 'log4j', version: '1.2.16'
+    compile group: 'org.slf4j', name:'slf4j-api', version: '1.7.2'
 }
 
 task sourcesJar(type: Jar) {

@@ -53,7 +53,39 @@ public final class Protocol {
      */
 
     /**
-     * GET BEGIN
+     * CONTAIN BEGIN
+     */
+    public static final MessageType CONTAIN = MessageType.builder()
+            .name("CONTAIN")
+            .amountParams(ContainParams.values().length)
+            .build();
+
+    public enum ContainParams {
+        RESOURCE_KEY
+    }
+
+    /**
+     * CONTAIN END
+     */
+
+    /**
+     * CONTAIN_RESPONSE BEGIN
+     */
+    public static final MessageType CONTAIN_RESPONSE = MessageType.builder()
+            .name("CONTAIN_RESPONSE")
+            .amountParams(ContainResponseParams.values().length)
+            .build();
+
+    public enum ContainResponseParams {
+        HAS_RESOURCE
+    }
+
+    /**
+     * CONTAIN_RESPONSE END
+     */
+
+    /**
+     * TRANSFER_FILES BEGIN
      */
     public static final MessageType GET = MessageType.builder()
             .name("GET")
@@ -65,79 +97,15 @@ public final class Protocol {
     }
 
     /**
-     * GET END
-     */
-
-    /**
-     * GET_RESPONSE BEGIN
+     * TRANSFER_FILES BEGIN
      */
     public static final MessageType GET_RESPONSE = MessageType.builder()
             .name("GET_RESPONSE")
-            .amountParams(GetResponseParams.values().length)
-            .build();
-
-    public enum GetResponseParams {
-        HAS_RESOURCE
-    }
-
-    /**
-     * GET_RESPONSE END
-     */
-
-    /**
-     * RESOURCE_COMPARE BEGIN
-     */
-    public static final MessageType RESOURCE_COMPARE = MessageType.builder()
-            .name("RESOURCE_COMPARE")
-            .amountParams(ResourceCompareParams.values().length)
-            .build();
-
-    public enum ResourceCompareParams {
-        CHECK_SUM, RESOURCE_KEY
-    }
-
-    /**
-     * RESOURCE_COMPARE END
-     */
-
-    /**
-     * RESOURCE_COMPARE_RESPONSE BEGIN
-     */
-    public static final MessageType RESOURCE_COMPARE_RESPONSE = MessageType.builder()
-            .name("RESOURCE_COMPARE_RESPONSE")
-            .amountParams(ResourceCompareResponseParams.values().length)
-            .build();
-
-    public enum ResourceCompareResponseParams {
-        EXIST_RESOURCE
-    }
-
-    /**
-     * RESOURCE_COMPARE_RESPONSE END
-     */
-
-    /**
-     * TRANSFER_FILES BEGIN
-     */
-    public static final MessageType RESOURCE_TRANSFER = MessageType.builder()
-            .name("RESOURCE_TRANSFER")
-            .amountParams(ResourceTransferParams.values().length)
-            .build();
-
-    public enum ResourceTransferParams {
-        RESOURCE_KEY
-    }
-
-    /**
-     * TRANSFER_FILES BEGIN
-     */
-    public static final MessageType RESOURCE_TRANSFER_RESPONSE = MessageType.builder()
-            .name("RESOURCE_TRANSFER_RESPONSE")
             .amountParams(0)
             .build();
 
-    public enum ResourceTransferResponseData {
-        RESOURCE
+    public enum GetResponseData {
+        RESOURCE, RESOURCE_EXIST
     }
 
     /**

@@ -92,7 +92,7 @@ public class RingDefinitionStep extends CucumberRoot {
 
         DHashNode dHashNode = ring.getNode(node);
 
-        dHashNode.leave();
+        dHashNode.leave((name, count, limit) -> {});
     }
 
     @Given("^The \"([^\"]*)\" is added to the network$")

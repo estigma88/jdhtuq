@@ -9,16 +9,17 @@ repositories {
 }
 
 group = 'com.github.estigma88'
-version = '2.0.0'
+version = '3.0.0'
 
 dependencies {
-    compile group: 'com.github.estigma88', name: 'jdhtuq-communication-api', version: '2.0.0'
+    compile group: 'com.github.estigma88', name: 'jdhtuq-communication-api', version: '3.0.0'
     compile group: 'com.github.estigma88', name: 'jdhtuq-lookup-service', version: '2.0.0'
-    compile group: 'com.github.estigma88', name: 'jdhtuq-storage-service', version: '2.0.0'
+    compile group: 'com.github.estigma88', name: 'jdhtuq-storage-service', version: '3.0.0'
 
-    // https://mvnrepository.com/artifact/commons-io/commons-io
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.4'
+    compileOnly 'org.projectlombok:lombok:1.16.20'
     compile group: 'commons-io', name: 'commons-io', version: '2.6'
-
+    compile group: 'org.slf4j', name:'slf4j-api', version: '1.7.2'
 
     testCompile group: 'junit', name: 'junit', version: '4.4'
     testCompile 'org.mockito:mockito-core:2.8.9'

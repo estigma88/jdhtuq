@@ -22,15 +22,14 @@ package co.edu.uniquindio.chord.node;
 import co.edu.uniquindio.chord.ChordKey;
 import co.edu.uniquindio.chord.protocol.Protocol;
 import co.edu.uniquindio.chord.protocol.Protocol.*;
-import co.edu.uniquindio.overlay.Key;
 import co.edu.uniquindio.overlay.KeyFactory;
 import co.edu.uniquindio.utils.communication.message.Address;
+import co.edu.uniquindio.utils.communication.message.IdGenerator;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.Message.SendType;
-import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigInteger;
 
@@ -47,14 +46,8 @@ import java.math.BigInteger;
  * @see ChordNode
  * @since 1.0
  */
+@Slf4j
 class NodeEnvironment implements MessageProcessor {
-
-    /**
-     * Logger
-     */
-    private static final Logger logger = Logger
-            .getLogger(NodeEnvironment.class);
-
     /**
      * Communication manager
      */
@@ -74,9 +67,9 @@ class NodeEnvironment implements MessageProcessor {
      * The thread that uses the commands for stabilizing the node.
      */
     private final KeyFactory keyFactory;
-    private final SequenceGenerator sequenceGenerator;
+    private final IdGenerator sequenceGenerator;
 
-    NodeEnvironment(CommunicationManager communicationManager, ChordNode chordNode, KeyFactory keyFactory, SequenceGenerator sequenceGenerator) {
+    NodeEnvironment(CommunicationManager communicationManager, ChordNode chordNode, KeyFactory keyFactory, IdGenerator sequenceGenerator) {
         this.communicationManager = communicationManager;
         this.chordNode = chordNode;
         this.keyFactory = keyFactory;
@@ -91,7 +84,7 @@ class NodeEnvironment implements MessageProcessor {
      */
     public Message process(Message message) {
 
-        logger.debug("Message to '" + chordNode.getKey().getValue() + "', ["
+        log.debug("Message to '" + chordNode.getKey().getValue() + "', ["
                 + message.toString());
 
         Message response = null;
@@ -144,7 +137,7 @@ class NodeEnvironment implements MessageProcessor {
         successorList = chordNode.getSuccessorList().toString();
 
         getSuccesorListResponseMessage = Message.builder()
-                .sequenceNumber(message.getSequenceNumber())
+                .id(message.getId())
                 .sendType(SendType.RESPONSE)
                 .messageType(Protocol.GET_SUCCESSOR_LIST_RESPONSE)
                 .address(Address.builder()
@@ -204,7 +197,7 @@ class NodeEnvironment implements MessageProcessor {
         if (!chordNode.getSuccessor().equals(chordNode.getKey())) {
 
             setSuccessorMessage = Message.builder()
-                    .sequenceNumber(sequenceGenerator.getSequenceNumber())
+                    .id(sequenceGenerator.newId())
                     .sendType(SendType.REQUEST)
                     .messageType(Protocol.SET_SUCCESSOR)
                     .address(Address.builder()
@@ -214,10 +207,10 @@ class NodeEnvironment implements MessageProcessor {
                     .param(SetSuccessorParams.SUCCESSOR.name(), chordNode.getSuccessor().getValue())
                     .build();
 
-            communicationManager.sendMessageUnicast(setSuccessorMessage);
+            communicationManager.send(setSuccessorMessage);
 
             setPredecessorMessage = Message.builder()
-                    .sequenceNumber(sequenceGenerator.getSequenceNumber())
+                    .id(sequenceGenerator.newId())
                     .sendType(SendType.REQUEST)
                     .messageType(Protocol.SET_PREDECESSOR)
                     .address(Address.builder()
@@ -227,7 +220,7 @@ class NodeEnvironment implements MessageProcessor {
                     .param(SetPredecessorParams.PREDECESSOR.name(), chordNode.getPredecessor().toString())
                     .build();
 
-            communicationManager.sendMessageUnicast(setPredecessorMessage);
+            communicationManager.send(setPredecessorMessage);
         }
 
         communicationManager.removeMessageProcessor(this.chordNode.getKey().getValue());
@@ -249,7 +242,7 @@ class NodeEnvironment implements MessageProcessor {
         }
 
         bootstrapResponseMessage = Message.builder()
-                .sequenceNumber(message.getSequenceNumber())
+                .id(message.getId())
                 .sendType(SendType.RESPONSE)
                 .messageType(Protocol.BOOTSTRAP_RESPONSE)
                 .address(Address.builder()
@@ -272,7 +265,7 @@ class NodeEnvironment implements MessageProcessor {
         Message.MessageBuilder getPredecessorResponseMessage;
 
         getPredecessorResponseMessage = Message.builder()
-                .sequenceNumber(message.getSequenceNumber())
+                .id(message.getId())
                 .sendType(SendType.RESPONSE)
                 .messageType(Protocol.GET_PREDECESSOR_RESPONSE)
                 .address(Address.builder()
@@ -316,7 +309,7 @@ class NodeEnvironment implements MessageProcessor {
         Message pingMessage;
 
         pingMessage = Message.builder()
-                .sequenceNumber(message.getSequenceNumber())
+                .id(message.getId())
                 .sendType(SendType.RESPONSE)
                 .messageType(Protocol.PING_RESPONSE)
                 .address(Address.builder()
@@ -339,7 +332,7 @@ class NodeEnvironment implements MessageProcessor {
         Message.MessageBuilder lookupResponseMessage;
 
         lookupResponseMessage = Message.builder()
-                .sequenceNumber(message.getSequenceNumber())
+                .id(message.getId())
                 .sendType(SendType.RESPONSE)
                 .messageType(Protocol.LOOKUP_RESPONSE)
                 .address(Address.builder()

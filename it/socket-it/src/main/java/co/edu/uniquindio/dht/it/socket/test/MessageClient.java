@@ -2,16 +2,15 @@ package co.edu.uniquindio.dht.it.socket.test;
 
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.network.MessageSerialization;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+@Slf4j
 public class MessageClient {
-    private static final Logger logger = Logger
-            .getLogger(MessageClient.class);
     private final MessageSerialization messageSerialization;
     private final Integer portTcp;
 
@@ -32,7 +31,7 @@ public class MessageClient {
 
             return messageSerialization.decode(stringMessage);
         } catch (IOException | ClassNotFoundException e) {
-            logger.error("Error writting socket", e);
+            log.error("Error writting socket", e);
             throw new IllegalStateException("Error writting socket to: " + request.getAddress() + " in port: " + portTcp, e);
         }
     }

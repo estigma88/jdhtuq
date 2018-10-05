@@ -1,8 +1,7 @@
 package co.edu.uniquindio.dht.it.socket.test;
 
-import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
-import co.edu.uniquindio.utils.communication.message.SequenceGeneratorImpl;
-import co.edu.uniquindio.utils.communication.transfer.network.MessageSerialization;
+import co.edu.uniquindio.utils.communication.message.IdGenerator;
+import co.edu.uniquindio.utils.communication.message.UUIDGenerator;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
@@ -17,7 +16,7 @@ public class ITMain {
     }
 
     @Bean
-    public SequenceGenerator itSequenceGenerator() {
-        return new SequenceGeneratorImpl();
+    public IdGenerator itSequenceGenerator() {
+        return new UUIDGenerator();
     }
 }

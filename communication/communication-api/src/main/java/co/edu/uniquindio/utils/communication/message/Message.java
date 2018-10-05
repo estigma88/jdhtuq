@@ -65,16 +65,18 @@ public class Message {
     private final Map<String, String> params;
 
     /**
-     * Hash map of names with datas
-     */
-    @Singular
-    private final Map<String, byte[]> datas;
-
-    /**
      * Sequence number
      */
-    private final long sequenceNumber;
+    private final String id;
 
+    public static Message.MessageBuilder with(Message message){
+        return Message.builder()
+                .id(message.id)
+                .sendType(message.sendType)
+                .messageType(message.messageType)
+                .address(message.address)
+                .params(message.params);
+    }
 
     /**
      * This method is used for getting a specific data from the message
@@ -82,30 +84,7 @@ public class Message {
      * @return Returns the data that is stored in the given position
      */
     public String getParam(String name) {
-        if (!params.containsKey(name)) {
-            throw new IllegalArgumentException("The message type "
-                    + messageType.getName() + " not contains param '" + name
-                    + "'");
-        } else {
-            return params.get(name);
-        }
-    }
-
-
-    /**
-     * Gets data by name
-     *
-     * @param name Data name
-     * @return Data
-     */
-    public byte[] getData(String name) {
-        if (!datas.containsKey(name)) {
-            throw new IllegalArgumentException("The big message type "
-                    + messageType.getName() + " not contains param '" + name
-                    + "'");
-        } else {
-            return datas.get(name);
-        }
+        return params.get(name);
     }
 
     /**

@@ -20,13 +20,15 @@ package co.edu.uniquindio.utils.communication.transfer.network;
 
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.Communicator;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.net.UnknownHostException;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * The <code>MulticastManagerUDP</code> class implemented the transfer
@@ -36,59 +38,26 @@ import java.util.Map;
  * @version 1.0, 17/06/2010
  * @since 1.0
  */
+
+@Slf4j
 public class MulticastManagerUDP implements Communicator {
 
     public enum MulticastManagerUDPProperties {
         BUFFER_SIZE_MULTICAST, IP_MULTICAST, PORT_MULTICAST
     }
 
-    private static final Logger logger = Logger
-            .getLogger(MulticastManagerUDP.class);
-
-    /**
-     * Is the size of the buffer used for receiving messages.
-     */
-    private long bufferSize = 1024;
-
-    /**
-     * Is the {@code MulticastSocket} used for sending and receiving messages.
-     */
     private MulticastSocket multicastSocket;
-
-    /**
-     * Is the group that will be communicating by multicast.
-     */
     private InetAddress group;
-
-    /**
-     * Is the buffer used for a DatagramPacket when reading a message.
-     */
     private byte[] buffer;
-
-    /**
-     * Stores the value of the port used for the UDP Multicast communication.
-     */
     private int portMulticast;
-
-
     private final MessageSerialization messageSerialization;
 
-    /**
-     * Builds a MulticastManagerUDP and started multicast socket
-     *
-     * @param messageSerialization
-     */
-    public MulticastManagerUDP(MessageSerialization messageSerialization) {
+    MulticastManagerUDP(MessageSerialization messageSerialization) {
         this.messageSerialization = messageSerialization;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * co.edu.uniquindio.utils.communication.transfer.Communicator#receiver()
-     */
-    public Message receiver() {
+    @Override
+    public Message receive() {
         DatagramPacket datagramPacket;
         String string;
         Message message = null;
@@ -103,87 +72,13 @@ public class MulticastManagerUDP implements Communicator {
 
             message = messageSerialization.decode(string);
         } catch (IOException e) {
-            logger.error("Error reading multicast socket", e);
+            log.error("Error reading multicast socket", e);
         }
 
         return message;
     }
 
     @Override
-    public void start(Map<String, String> properties) {
-        try {
-            if (properties
-                    .containsKey(MulticastManagerUDPProperties.PORT_MULTICAST
-                            .name())) {
-                portMulticast = Integer
-                        .parseInt(properties
-                                .get(MulticastManagerUDPProperties.PORT_MULTICAST
-                                        .name()));
-            } else {
-                IllegalArgumentException illegalArgumentException = new IllegalArgumentException(
-                        "Property PORT_MULTICAST not found");
-
-                logger.error("Property PORT_MULTICAST no found",
-                        illegalArgumentException);
-
-                throw illegalArgumentException;
-            }
-
-            if (properties
-                    .containsKey(MulticastManagerUDPProperties.IP_MULTICAST
-                            .name())) {
-                group = InetAddress.getByName(properties
-                        .get(MulticastManagerUDPProperties.IP_MULTICAST
-                                .name()));
-            } else {
-                IllegalArgumentException illegalArgumentException = new IllegalArgumentException(
-                        "Property IP_MULTICAST not found");
-
-                logger.error("Property IP_MULTICAST no found",
-                        illegalArgumentException);
-
-                throw illegalArgumentException;
-            }
-
-            if (properties
-                    .containsKey(MulticastManagerUDPProperties.BUFFER_SIZE_MULTICAST
-                            .name())) {
-                bufferSize = Long
-                        .parseLong(properties
-                                .get(MulticastManagerUDPProperties.BUFFER_SIZE_MULTICAST
-                                        .name()));
-            } else {
-                IllegalArgumentException illegalArgumentException = new IllegalArgumentException(
-                        "Property BUFFER_SIZE_MULTICAST not found");
-
-                logger.error("Property BUFFER_SIZE_MULTICAST no found",
-                        illegalArgumentException);
-
-                throw illegalArgumentException;
-            }
-
-            this.portMulticast = portMulticast;
-
-            this.multicastSocket = new MulticastSocket(portMulticast);
-
-            this.group = group;
-
-            this.multicastSocket.joinGroup(group);
-
-            this.buffer = new byte[(int) bufferSize];
-        } catch (IOException e) {
-            logger.error("Error creating multicast socket", e);
-            throw new IllegalStateException("Error creating multicast socket", e);
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * co.edu.uniquindio.utils.communication.transfer.Communicator#send(co.edu
-     * .uniquindio.utils.communication.message.Message)
-     */
     public void send(Message message) {
         DatagramPacket datagramPacket;
         String string = messageSerialization.encode(message);
@@ -194,15 +89,43 @@ public class MulticastManagerUDP implements Communicator {
         try {
             multicastSocket.send(datagramPacket);
         } catch (IOException e) {
-            logger.error("Error writing multicast socket", e);
+            log.error("Error writing multicast socket", e);
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see co.edu.uniquindio.utils.communication.transfer.Stoppable#close()
-     */
+    @Override
+    public void start(Map<String, String> properties) {
+        try {
+            portMulticast = Optional.ofNullable(properties.get(MulticastManagerUDPProperties.PORT_MULTICAST.name().toLowerCase()))
+                    .map(Integer::parseInt)
+                    .orElseThrow(() -> new IllegalArgumentException("Property port_multicast not found"));
+
+            group = Optional.ofNullable(properties.get(MulticastManagerUDPProperties.IP_MULTICAST.name().toLowerCase()))
+                    .map(ip -> {
+                        try {
+                            return InetAddress.getByName(ip);
+                        } catch (UnknownHostException e) {
+                            throw new IllegalArgumentException("Problem wih ip_multicast property", e);
+                        }
+                    })
+                    .orElseThrow(() -> new IllegalArgumentException("Property ip_multicast not found"));
+
+            Integer bufferSize = Optional.ofNullable(properties.get(MulticastManagerUDPProperties.BUFFER_SIZE_MULTICAST.name().toLowerCase()))
+                    .map(Integer::parseInt)
+                    .orElseThrow(() -> new IllegalArgumentException("Property buffer_size_multicast not found"));
+
+            this.multicastSocket = new MulticastSocket(portMulticast);
+
+            this.multicastSocket.joinGroup(group);
+
+            this.buffer = new byte[bufferSize];
+        } catch (IOException e) {
+            log.error("Error creating multicast socket", e);
+            throw new IllegalStateException("Error creating multicast socket", e);
+        }
+    }
+
+    @Override
     public void close() {
         multicastSocket.close();
     }

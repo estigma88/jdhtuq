@@ -18,26 +18,28 @@
 
 package co.edu.uniquindio.dhash.resource;
 
-import co.edu.uniquindio.storage.resource.Resource;
+import lombok.*;
 
-import java.io.Serializable;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
-public class BytesResource implements Resource, Serializable {
+@Getter
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+public class FileResource extends BasicResource {
+    private String path;
 
-    private final String id;
-    private final byte[] bytes;
-
-    public BytesResource(String id, byte[] bytes) {
-        this.id = id;
-        this.bytes = bytes;
+    @Builder(builderMethodName = "withPath", builderClassName = "WithPathBuilder")
+    public FileResource(String id, String path) throws IOException {
+        super(id, Files.newInputStream(Paths.get(path)), Files.size(Paths.get(path)));
+        this.path = path;
     }
 
-    @Override
-    public String getId() {
-        return id;
+    @Builder(builderMethodName = "withInputStream", builderClassName = "WithInputStreamBuilder")
+    public FileResource(String id, InputStream inputStream, Long size){
+        super(id, inputStream, size);
+        this.path = null;
     }
 
-    public byte[] getBytes() {
-        return bytes;
-    }
 }

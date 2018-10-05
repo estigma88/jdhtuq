@@ -21,10 +21,13 @@ package co.edu.uniquindio.chord.node;
 
 import co.edu.uniquindio.chord.Chord;
 import co.edu.uniquindio.chord.ChordKey;
-import co.edu.uniquindio.overlay.*;
-import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
+import co.edu.uniquindio.overlay.KeyFactory;
+import co.edu.uniquindio.overlay.OverlayException;
+import co.edu.uniquindio.overlay.OverlayNode;
+import co.edu.uniquindio.overlay.OverlayNodeFactory;
+import co.edu.uniquindio.utils.communication.message.IdGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Observer;
@@ -39,20 +42,12 @@ import java.util.concurrent.TimeUnit;
  * chord_properties/communication.xml and initialized hashing class
  *
  * @author Daniel Pelaez
- * @author Hector Hurtado
- * @author Daniel Lopez
- * @version 1.0, 17/06/2010
  * @see Chord
  * @see ChordNode
  * @since 1.0
  */
+@Slf4j
 public class ChordNodeFactory implements OverlayNodeFactory {
-
-    /**
-     * Logger
-     */
-    private static final Logger logger = Logger
-            .getLogger(ChordNodeFactory.class);
     public static final int START_STABLE_RING = 5000;
 
     private final int stableRingTime;
@@ -66,9 +61,9 @@ public class ChordNodeFactory implements OverlayNodeFactory {
     private final ScheduledExecutorService scheduledStableRing;
     private final List<Observer> stableRingObservers;
     private final KeyFactory keyFactory;
-    private final SequenceGenerator sequenceGenerator;
+    private final IdGenerator sequenceGenerator;
 
-    public ChordNodeFactory(CommunicationManager communicationManager, Set<String> names, int stableRingTime, int successorListAmount, BootStrap bootStrap, ScheduledExecutorService scheduledStableRing, List<Observer> stableRingObservers, KeyFactory keyFactory, SequenceGenerator sequenceGenerator) {
+    public ChordNodeFactory(CommunicationManager communicationManager, Set<String> names, int stableRingTime, int successorListAmount, BootStrap bootStrap, ScheduledExecutorService scheduledStableRing, List<Observer> stableRingObservers, KeyFactory keyFactory, IdGenerator sequenceGenerator) {
         this.communicationManager = communicationManager;
         this.stableRingTime = stableRingTime;
         this.successorListAmount = successorListAmount;
@@ -89,7 +84,7 @@ public class ChordNodeFactory implements OverlayNodeFactory {
         ChordKey key = getKey(name);
         ChordNode chordNode = getNodeChord(key);
 
-        logger.info("Created node with name '" + chordNode.getKey().getValue()
+        log.info("Created node with name '" + chordNode.getKey().getValue()
                 + "' and hashing '" + chordNode.getKey().getHashing()
                 + "'");
 

@@ -18,14 +18,31 @@
 
 package co.edu.uniquindio.storage.resource;
 
+import java.io.Closeable;
+import java.io.InputStream;
+
 /**
  * Class to handle a Resource
  */
-public interface Resource {
+public interface Resource extends Closeable{
     /**
      * Gets id of resource
      *
      * @return id of resource
      */
     String getId();
+
+    /**
+     * Get an input stream that represents the resource content
+     *
+     * @return resource content
+     */
+    InputStream getInputStream();
+
+    /**
+     * Get the resource size in bytes
+     *
+     * @return bytes amount
+     */
+    Long getSize();
 }

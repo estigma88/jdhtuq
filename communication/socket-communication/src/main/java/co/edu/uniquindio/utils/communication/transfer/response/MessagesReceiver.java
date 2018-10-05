@@ -41,7 +41,7 @@ public class MessagesReceiver implements Closeable, Runnable {
 
     public void run() {
         while (run) {
-            messageProcessor.process(communicator.receiver());
+            messageProcessor.process(communicator.receive());
         }
     }
 

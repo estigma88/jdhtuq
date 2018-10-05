@@ -2,16 +2,15 @@ package co.edu.uniquindio.utils.communication.transfer.response;
 
 import co.edu.uniquindio.utils.communication.Observable;
 import co.edu.uniquindio.utils.communication.message.Message;
-import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
 import co.edu.uniquindio.utils.communication.transfer.network.CommunicationManagerTCP;
 
-public class MessageProcessorGateway implements MessageProcessor {
+public class MessageProcessorExecution implements MessageProcessor {
     private final ReturnsManager<Message> responseReleaser;
     private CommunicationManagerTCP communicationManager;
     private final Observable<Message> observable;
 
-    public MessageProcessorGateway(ReturnsManager<Message> responseReleaser, Observable<Message> observable) {
+    public MessageProcessorExecution(ReturnsManager<Message> responseReleaser, Observable<Message> observable) {
         this.responseReleaser = responseReleaser;
         this.observable = observable;
     }
@@ -24,7 +23,7 @@ public class MessageProcessorGateway implements MessageProcessor {
                 response = communicationManager.getMessageProcessor().process(message);
             }
             if (response != null) {
-                communicationManager.sendMessageUnicast(response);
+                communicationManager.send(response);
                 observable.notifyMessage(message);
             }
         }
@@ -33,7 +32,7 @@ public class MessageProcessorGateway implements MessageProcessor {
 
     public boolean release(Message message) {
         if (message.getSendType().equals(Message.SendType.RESPONSE)) {
-            responseReleaser.releaseWaitingResult(message.getSequenceNumber(),
+            responseReleaser.releaseWaitingResult(message.getId(),
                     message);
 
             return true;

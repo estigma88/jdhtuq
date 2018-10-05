@@ -21,13 +21,13 @@ package co.edu.uniquindio.chord.node;
 
 import co.edu.uniquindio.chord.ChordKey;
 import co.edu.uniquindio.chord.protocol.Protocol;
+import co.edu.uniquindio.overlay.Key;
 import co.edu.uniquindio.overlay.KeyFactory;
 import co.edu.uniquindio.utils.communication.message.Address;
+import co.edu.uniquindio.utils.communication.message.IdGenerator;
 import co.edu.uniquindio.utils.communication.message.Message;
-import co.edu.uniquindio.overlay.Key;
-import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The <code>SuccessorList</code> class represents a list of <code>m</code>
@@ -41,13 +41,8 @@ import org.apache.log4j.Logger;
  * @see StableRing
  * @since 1.0
  */
+@Slf4j
 public class SuccessorList {
-
-    /**
-     * Logger
-     */
-    private static final Logger logger = Logger
-            .getLogger(SuccessorList.class);
 
     /**
      * Communication manager
@@ -74,9 +69,9 @@ public class SuccessorList {
      */
     private ChordNode chordNode;
     private KeyFactory keyFactory;
-    private final SequenceGenerator sequenceGenerator;
+    private final IdGenerator sequenceGenerator;
 
-    SuccessorList(ChordNode chordNode, CommunicationManager communicationManager, int successorListAmount, KeyFactory keyFactory, SequenceGenerator sequenceGenerator) {
+    SuccessorList(ChordNode chordNode, CommunicationManager communicationManager, int successorListAmount, KeyFactory keyFactory, IdGenerator sequenceGenerator) {
         this.size = successorListAmount;
         this.sequenceGenerator = sequenceGenerator;
         this.keyList = new ChordKey[size];
@@ -85,7 +80,7 @@ public class SuccessorList {
         this.keyFactory = keyFactory;
     }
 
-    SuccessorList(CommunicationManager communicationManager, ChordKey[] keyList, int size, ChordNode chordNode, SequenceGenerator sequenceGenerator, KeyFactory keyFactory) {
+    SuccessorList(CommunicationManager communicationManager, ChordKey[] keyList, int size, ChordNode chordNode, IdGenerator sequenceGenerator, KeyFactory keyFactory) {
         this.communicationManager = communicationManager;
         this.keyList = keyList;
         this.size = size;
@@ -105,7 +100,7 @@ public class SuccessorList {
         Message getSuccessorListMesssage;
 
         getSuccessorListMesssage = Message.builder()
-                .sequenceNumber(sequenceGenerator.getSequenceNumber())
+                .id(sequenceGenerator.newId())
                 .sendType(Message.SendType.REQUEST)
                 .messageType(Protocol.GET_SUCCESSOR_LIST)
                 .address(Address.builder()
@@ -114,7 +109,7 @@ public class SuccessorList {
                         .build())
                 .build();
 
-        successorList = communicationManager.sendMessageUnicast(
+        successorList = communicationManager.send(
                 getSuccessorListMesssage, String.class);
 
         if (successorList == null)
@@ -126,7 +121,7 @@ public class SuccessorList {
             keyList[i] = (ChordKey) keyFactory.newKey(successors[i - 1]);
         }
 
-        logger.debug("Node: " + chordNode.getKey().getValue()
+        log.debug("Node: " + chordNode.getKey().getValue()
                 + " Successors: " + toString());
     }
 
@@ -147,7 +142,7 @@ public class SuccessorList {
     public void setSuccessor(ChordKey successor) {
         keyList[0] = successor;
 
-        logger.debug("Node: " + chordNode.getKey().getValue()
+        log.debug("Node: " + chordNode.getKey().getValue()
                 + " New successor: " + successor);
     }
 
@@ -164,7 +159,7 @@ public class SuccessorList {
         for (int i = 0; i < keyList.length; i++) {
 
             pingMessage = Message.builder()
-                    .sequenceNumber(sequenceGenerator.getSequenceNumber())
+                    .id(sequenceGenerator.newId())
                     .sendType(Message.SendType.REQUEST)
                     .messageType(Protocol.PING)
                     .address(Address.builder()
@@ -173,7 +168,7 @@ public class SuccessorList {
                             .build())
                     .build();
 
-            success = communicationManager.sendMessageUnicast(pingMessage,
+            success = communicationManager.send(pingMessage,
                     Boolean.class);
 
             if (success != null) {

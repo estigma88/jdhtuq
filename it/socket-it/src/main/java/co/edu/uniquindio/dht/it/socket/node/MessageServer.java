@@ -3,18 +3,16 @@ package co.edu.uniquindio.dht.it.socket.node;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
 import co.edu.uniquindio.utils.communication.transfer.network.MessageSerialization;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+@Slf4j
 public class MessageServer implements Runnable {
-    private static final Logger logger = Logger
-            .getLogger(MessageServer.class);
     private ServerSocket serverSocket;
     private MessageSerialization messageSerialization;
     private MessageProcessor messageProcessor;
@@ -26,7 +24,7 @@ public class MessageServer implements Runnable {
             this.messageSerialization = messageSerialization;
             this.serverSocket = new ServerSocket(portTcp);
         } catch (IOException e) {
-            logger.error("Error creating server socket", e);
+            log.error("Error creating server socket", e);
         }
     }
 
@@ -51,7 +49,7 @@ public class MessageServer implements Runnable {
 
                 objectOutputStream.writeObject(messageSerialization.encode(response));
             } catch (IOException | ClassNotFoundException e) {
-                logger.error("Error reading socket", e);
+                log.error("Error reading socket", e);
             }
         }
     }

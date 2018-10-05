@@ -18,14 +18,31 @@
 
 package co.edu.uniquindio.utils.communication.message;
 
+import java.util.UUID;
+
 /**
- * Sequence generator
+ * The {@code IdGenerator} class is responsible for generating the sequence
+ * numbers for the messages. This create a sequence number between 1 and Long.MAX_VALUE.
+ * When the sequence number is bigger than Long.MAX_VALUE the sequence number starts at 0
+ * again. The sequence number increments in one every time that {@code
+ * IdGenerator.newId()} is called
+ * 
+ * 
+ * @author Daniel Pelaez
+ * @author Hector Hurtado
+ * @author Daniel Lopez
+ * @version 1.0, 17/06/2010
+ * @since 1.0
+ * 
  */
-public interface SequenceGenerator {
-    /**
-     * Get the next sequence value
-     *
-     * @return next sequence value
-     */
-    long getSequenceNumber();
+public class UUIDGenerator implements IdGenerator {
+	/**
+	 * This method return the next sequence number
+	 * 
+	 * @return Returns the next sequence number
+	 */
+	@Override
+	public String newId() {
+		return UUID.randomUUID().toString();
+	}
 }

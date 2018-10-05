@@ -19,10 +19,15 @@
 package co.edu.uniquindio.utils.communication.transfer.structure;
 
 import co.edu.uniquindio.utils.communication.Observable;
+import co.edu.uniquindio.utils.communication.Observer;
 import co.edu.uniquindio.utils.communication.message.Message;
+import co.edu.uniquindio.utils.communication.message.MessageStream;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
+import co.edu.uniquindio.utils.communication.transfer.MessageStreamProcessor;
+import co.edu.uniquindio.utils.communication.transfer.ProgressStatusTransfer;
 
+import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -35,17 +40,27 @@ import java.util.*;
  * @version 1.0, 17/06/2010
  * @since 1.0
  */
-public class CommunicationDataStructure extends Observable<Message> implements CommunicationManager {
+public class CommunicationDataStructure implements CommunicationManager {
     /**
      * Data struture map
      */
-    private Map<String, MessageProcessor> dataStructure;
+    private final Map<String, MessageProcessor> dataStructure;
+    private final Map<String, MessageStreamProcessor> dataStructureStream;
+    private final Observable<Message> observable;
+    private final Observable<MessageStream> observableStream;
 
     /**
      * Builds a CommunicationDataStructure
+     * @param dataStructure
+     * @param dataStructureStream
+     * @param observable
+     * @param observableStream
      */
-    public CommunicationDataStructure() {
-        dataStructure = new HashMap<String, MessageProcessor>();
+    public CommunicationDataStructure(Map<String, MessageProcessor> dataStructure, Map<String, MessageStreamProcessor> dataStructureStream, Observable<Message> observable, Observable<MessageStream> observableStream) {
+        this.dataStructure = dataStructure;
+        this.dataStructureStream = dataStructureStream;
+        this.observable = observable;
+        this.observableStream = observableStream;
     }
 
     public Message notifyUnicast(Message message) {
@@ -53,13 +68,13 @@ public class CommunicationDataStructure extends Observable<Message> implements C
 
         MessageProcessor messageProcessor = dataStructure.get(message.getAddress().getDestination());
 
-        super.notifyMessage(message);
+        observable.notifyMessage(message);
 
         if (messageProcessor != null) {
             response = messageProcessor.process(message);
         }
 
-        super.notifyMessage(response);
+        observable.notifyMessage(response);
 
         return response;
     }
@@ -86,54 +101,88 @@ public class CommunicationDataStructure extends Observable<Message> implements C
 
             MessageProcessor messageProcessor = dataStructure.get(nameDestination);
 
-            super.notifyMessage(message);
+            observable.notifyMessage(message);
 
             if (messageProcessor != null) {
                 response = messageProcessor.process(message);
             }
 
-            super.notifyMessage(response);
+            observable.notifyMessage(response);
         }
 
         return response;
     }
 
     @Override
-    public <T> T sendMessageUnicast(Message message, Class<T> typeReturn) {
+    public <T> T send(Message message, Class<T> typeReturn) {
         Message response = notifyUnicast(message);
 
         return processResponse(response, typeReturn, null);
     }
 
     @Override
-    public <T> T sendMessageUnicast(Message message, Class<T> typeReturn, String paramNameResult) {
+    public <T> T send(Message message, Class<T> typeReturn, String paramNameResult) {
         Message response = notifyUnicast(message);
 
         return processResponse(response, typeReturn, paramNameResult);
     }
 
     @Override
-    public void sendMessageUnicast(Message message) {
+    public void send(Message message) {
         notifyUnicast(message);
     }
 
     @Override
-    public <T> T sendMessageMultiCast(Message message, Class<T> typeReturn) {
+    public <T> T sendMultiCast(Message message, Class<T> typeReturn) {
         Message response = notifyMulticast(message);
 
         return processResponse(response, typeReturn, null);
     }
 
     @Override
-    public <T> T sendMessageMultiCast(Message message, Class<T> typeReturn, String paramNameResult) {
+    public <T> T sendMultiCast(Message message, Class<T> typeReturn, String paramNameResult) {
         Message response = notifyMulticast(message);
 
         return processResponse(response, typeReturn, paramNameResult);
     }
 
     @Override
-    public void sendMessageMultiCast(Message message) {
+    public void sendMultiCast(Message message) {
         notifyMulticast(message);
+    }
+
+    @Override
+    public MessageStream receive(Message message, ProgressStatusTransfer progressStatusTransfer) {
+        MessageStream response = null;
+
+        MessageStreamProcessor messageProcessor = dataStructureStream.get(message.getAddress().getDestination());
+
+        observable.notifyMessage(message);
+
+        if (messageProcessor != null) {
+            response = messageProcessor.process(MessageStream.builder()
+                    .message(message)
+                    .build());
+        }
+
+        observableStream.notifyMessage(response);
+
+        return response;
+    }
+
+    @Override
+    public void send(MessageStream messageStream, ProgressStatusTransfer progressStatusTransfer) {
+        MessageStream response = null;
+
+        MessageStreamProcessor messageProcessor = dataStructureStream.get(messageStream.getMessage().getAddress().getDestination());
+
+        observableStream.notifyMessage(messageStream);
+
+        if (messageProcessor != null) {
+            response = messageProcessor.process(messageStream);
+        }
+
+        observableStream.notifyMessage(response);
     }
 
     @Override
@@ -147,8 +196,49 @@ public class CommunicationDataStructure extends Observable<Message> implements C
     }
 
     @Override
+    public void addMessageStreamProcessor(String name, MessageStreamProcessor messageStreamProcessor) {
+        dataStructureStream.put(name, messageStreamProcessor);
+    }
+
+    @Override
     public void removeMessageProcessor(String name) {
         dataStructure.remove(name);
+    }
+
+    @Override
+    public void removeMessageStreamProcessor(String name) {
+        dataStructureStream.remove(name);
+    }
+
+
+    @Override
+    public void addObserver(Observer<Message> observer) {
+        observable.addObserver(observer);
+    }
+
+    @Override
+    public void removeObserver(Observer<Message> observer) {
+        observable.removeObserver(observer);
+    }
+
+    @Override
+    public void removeObserver(String name) {
+        observable.removeObserver(name);
+    }
+
+    @Override
+    public void addStreamObserver(Observer<MessageStream> observer) {
+        observableStream.addObserver(observer);
+    }
+
+    @Override
+    public void removeStreamObserver(Observer<MessageStream> observer) {
+        observableStream.removeObserver(observer);
+    }
+
+    @Override
+    public void removeStreamObserver(String name) {
+        observableStream.removeObserver(name);
     }
 
     @Override

@@ -2,10 +2,10 @@ package co.edu.uniquindio.utils.communication.transfer.network;
 
 import co.edu.uniquindio.utils.communication.Observable;
 import co.edu.uniquindio.utils.communication.message.Message;
+import co.edu.uniquindio.utils.communication.message.MessageStream;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManager;
 import co.edu.uniquindio.utils.communication.transfer.CommunicationManagerFactory;
-import co.edu.uniquindio.utils.communication.transfer.Communicator;
-import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
+import co.edu.uniquindio.utils.communication.transfer.ConnectionHandler;
 import co.edu.uniquindio.utils.communication.transfer.response.*;
 
 import java.util.HashMap;
@@ -26,14 +26,13 @@ public class CommunicationManagerTCPFactory implements CommunicationManagerFacto
         this.instancesProperties = instancesProperties;
 
         this.defaultProperties = new HashMap<>();
-        this.defaultProperties.put("RESPONSE_TIME", "2000");
-        this.defaultProperties.put("BUFFER_SIZE_MULTICAST", "1024");
-        this.defaultProperties.put("IP_MULTICAST", "224.0.0.2");
-        this.defaultProperties.put("PORT_MULTICAST", "2000");
-        this.defaultProperties.put("TIMEOUT_TCP_CONNECTION", "2000");
-        this.defaultProperties.put("PORT_TCP", "2005");
-        this.defaultProperties.put("PORT_UDP", "2006");
-        this.defaultProperties.put("BUFFER_SIZE_UDP", "1024");
+        this.defaultProperties.put("response_time", "2000");
+        this.defaultProperties.put("buffer_size_multicast", "1024");
+        this.defaultProperties.put("ip_multicast", "224.0.0.2");
+        this.defaultProperties.put("port_multicast", "2000");
+        this.defaultProperties.put("timeout_tcp_connection", "2000");
+        this.defaultProperties.put("port_tcp", "2005");
+        this.defaultProperties.put("size_tcp_buffer", "1024");
     }
 
     @Override
@@ -45,18 +44,24 @@ public class CommunicationManagerTCPFactory implements CommunicationManagerFacto
 
         ReturnsManager<Message> returnsManager = new ReturnsManagerCommunication<>();
         Observable<Message> observable = new Observable<>();
+        Observable<MessageStream> streamObservable = new Observable<>();
 
-        MessageProcessorGateway messageProcessorGateway = new MessageProcessorGateway(returnsManager, observable);
-        MessageProcessor messageProcessorGatewayAsynchronous = new MessageProcessorGatewayAsynchronous(messageProcessorGateway, messageProcessorExecutor);
+        MessageProcessorExecution messageProcessorExecution = new MessageProcessorExecution(returnsManager, observable);
 
-        Communicator multicastManager = new MulticastManagerUDP(messageSerialization);
-        Communicator unicastManager = new UnicastManagerTCP(messageSerialization);
-        MessagesReceiver unicastMessagesReceiver = new MessagesReceiver(unicastManager, messageProcessorGatewayAsynchronous);
+        MulticastManagerUDP multicastManager = new MulticastManagerUDP(messageSerialization);
+        MessageProcessorGatewayAsynchronous messageProcessorGatewayAsynchronous = new MessageProcessorGatewayAsynchronous(messageProcessorExecution, messageProcessorExecutor);
         MessagesReceiver multicastMessagesReceiver = new MessagesReceiver(multicastManager, messageProcessorGatewayAsynchronous);
 
-        CommunicationManagerTCP communication = new CommunicationManagerTCP(unicastManager, unicastMessagesReceiver, multicastManager, multicastMessagesReceiver, messageResponseProcessor, observable, returnsManager, messagesReceiverExecutor);
+        UnicastManagerTCP unicastManager = new UnicastManagerTCP(messageSerialization);
+        MessageStreamProcessorExecution messageInputStreamProcessorExecution = new MessageStreamProcessorExecution(streamObservable);
+        ConnectionHandler connectionHandler = new ConnectionMessageProcessorGateway(messageInputStreamProcessorExecution, messageProcessorExecution, messageSerialization);
+        ConnectionHandler connectionHandlerAsynchronous = new ConnectionHandlerAsynchronous(connectionHandler, messageProcessorExecutor);
+        ConnectionReceiver connectionReceiver = new ConnectionReceiver(unicastManager, connectionHandlerAsynchronous);
 
-        messageProcessorGateway.setCommunicationManager(communication);
+        CommunicationManagerTCP communication = new CommunicationManagerTCP(unicastManager, connectionReceiver, multicastManager, multicastMessagesReceiver, messageResponseProcessor, observable, streamObservable, returnsManager, messagesReceiverExecutor);
+
+        messageInputStreamProcessorExecution.setCommunicationManager(communication);
+        messageProcessorExecution.setCommunicationManager(communication);
 
         communication.init(communicationProperties);
 

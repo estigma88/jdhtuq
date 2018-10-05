@@ -8,8 +8,8 @@ import co.edu.uniquindio.dht.it.socket.test.SocketITProperties;
 import co.edu.uniquindio.dht.it.socket.test.World;
 import co.edu.uniquindio.dht.it.socket.test.ring.Ring;
 import co.edu.uniquindio.utils.communication.message.Address;
+import co.edu.uniquindio.utils.communication.message.IdGenerator;
 import co.edu.uniquindio.utils.communication.message.Message;
-import co.edu.uniquindio.utils.communication.message.SequenceGenerator;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -35,7 +35,7 @@ public class PutsDefinitionStep extends CucumberRoot {
     @Autowired
     private SocketITProperties socketITProperties;
     @Autowired
-    private SequenceGenerator itSequenceGenerator;
+    private IdGenerator itSequenceGenerator;
     private Map<String, Content> contents;
 
     @Given("^I have the resources names and values:$")
@@ -52,7 +52,7 @@ public class PutsDefinitionStep extends CucumberRoot {
 
         for (String contentName : contents.keySet()) {
             Message put = Message.builder()
-                    .sequenceNumber(itSequenceGenerator.getSequenceNumber())
+                    .id(itSequenceGenerator.newId())
                     .sendType(Message.SendType.REQUEST)
                     .messageType(Protocol.PUT)
                     .address(Address.builder()
@@ -60,7 +60,7 @@ public class PutsDefinitionStep extends CucumberRoot {
                             .destination("localhost")
                             .build())
                     .param(Protocol.PutParams.RESOURCE_NAME.name(), contentName)
-                    .data(Protocol.PutDatas.RESOURCE.name(), contents.get(contentName).getContent().getBytes())
+                    .param(Protocol.PutDatas.RESOURCE.name(), contents.get(contentName).getContent())
                     .build();
 
             Message response = messageClient.send(put);

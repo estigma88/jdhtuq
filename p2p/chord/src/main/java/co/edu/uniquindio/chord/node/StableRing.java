@@ -19,7 +19,7 @@
 
 package co.edu.uniquindio.chord.node;
 
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Observable;
 
@@ -34,13 +34,9 @@ import java.util.Observable;
  * @see ChordNode
  * @since 1.0
  */
-public class StableRing extends Observable implements Runnable {
 
-    /**
-     * Logger
-     */
-    private static final Logger logger = Logger
-            .getLogger(StableRing.class);
+@Slf4j
+public class StableRing extends Observable implements Runnable {
 
     /**
      * The reference of the chord node
@@ -62,7 +58,7 @@ public class StableRing extends Observable implements Runnable {
 
             clearChanged();
         } catch (Exception e) {
-            logger.error(" node " + node.getKey() + "could not be stabilized", e);
+            log.error(" node " + node.getKey() + "could not be stabilized", e);
         }
     }
 }

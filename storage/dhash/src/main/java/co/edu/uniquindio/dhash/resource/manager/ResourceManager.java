@@ -20,6 +20,7 @@ package co.edu.uniquindio.dhash.resource.manager;
 
 import co.edu.uniquindio.storage.resource.Resource;
 
+import java.io.OutputStream;
 import java.util.Set;
 
 /**

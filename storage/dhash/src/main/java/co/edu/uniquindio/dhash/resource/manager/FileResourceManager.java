@@ -18,9 +18,8 @@
 
 package co.edu.uniquindio.dhash.resource.manager;
 
-import co.edu.uniquindio.dhash.resource.BytesResource;
+import co.edu.uniquindio.dhash.resource.FileResource;
 import co.edu.uniquindio.storage.resource.Resource;
-import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.util.Arrays;
@@ -31,11 +30,13 @@ public class FileResourceManager implements ResourceManager {
     private final String directory;
     private final String name;
     private final Set<String> keys;
+    private final Integer bufferSize;
 
-    public FileResourceManager(String directory, String name, Set<String> keys) {
+    public FileResourceManager(String directory, String name, Set<String> keys, Integer bufferSize) {
         this.directory = directory;
         this.name = name;
         this.keys = keys;
+        this.bufferSize = bufferSize;
     }
 
     @Override
@@ -44,13 +45,7 @@ public class FileResourceManager implements ResourceManager {
         StringBuilder directoryPath;
         File directoryFile;
 
-        BytesResource bytesResource = (BytesResource) resource;
         try {
-            byte[] bytesFile = bytesResource.getBytes();
-            if (bytesFile == null) {
-                return;
-            }
-
             directoryPath = new StringBuilder(directory);
             directoryPath.append(name);
             directoryPath.append("/");
@@ -61,15 +56,17 @@ public class FileResourceManager implements ResourceManager {
             File file = new File(directoryFile, resource.getId());
 
             fileOutputStream = new FileOutputStream(file);
+            InputStream source = resource.getInputStream();
 
-            fileOutputStream.write(bytesFile);
+            int count;
+            byte[] buffer = new byte[bufferSize];
+            while ((count = source.read(buffer)) > 0) {
+                fileOutputStream.write(buffer, 0, count);
+            }
 
             fileOutputStream.close();
 
-            bytesFile = null;
-
             keys.add(resource.getId());
-
         } catch (IOException e) {
             throw new IllegalStateException("Error reading file", e);
         }
@@ -108,18 +105,15 @@ public class FileResourceManager implements ResourceManager {
             StringBuilder directoryPath = new StringBuilder(directory);
             directoryPath.append(name);
             directoryPath.append("/");
-
-            File directoryFile = new File(directoryPath.toString());
-            directoryFile.mkdirs();
-
-            File file = new File(directoryFile, key);
+            directoryPath.append(key);
 
             try {
-                return new BytesResource(key, IOUtils.toByteArray(new FileInputStream(file)));
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException("", e);
+                return FileResource.withPath()
+                        .id(key)
+                        .path(directoryPath.toString())
+                        .build();
             } catch (IOException e) {
-                throw new RuntimeException("", e);
+                throw new IllegalStateException("Error reading file", e);
             }
         } else {
             return null;
