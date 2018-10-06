@@ -1,5 +1,6 @@
 package co.edu.uniquindio.dhash.resource;
 
+import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.resource.ProgressStatus;
 import co.edu.uniquindio.storage.resource.Resource;
 import lombok.Builder;
@@ -19,26 +20,31 @@ public class LocalFileResource {
     @NonNull
     private final Integer sizeBuffer;
 
-    public boolean persist(ProgressStatus progressStatus) throws IOException {
+    public File persist(ProgressStatus progressStatus) throws StorageException {
         Objects.requireNonNull(progressStatus);
 
-        OutputStream destination = new FileOutputStream(path + "/" + resource.getId());
-        InputStream source = resource.getInputStream();
+        File fileDestination = new File(path + "/" + resource.getId());
 
-        int count;
-        long sent = 0L;
-        byte[] buffer = new byte[sizeBuffer];
+        try (OutputStream destination = new FileOutputStream(fileDestination);
+             InputStream source = resource.getInputStream()) {
 
-        progressStatus.status("resource-persist", sent, resource.getSize());
-
-        while ((count = source.read(buffer)) > 0) {
-            destination.write(buffer, 0, count);
-
-            sent += count;
+            int count;
+            long sent = 0L;
+            byte[] buffer = new byte[sizeBuffer];
 
             progressStatus.status("resource-persist", sent, resource.getSize());
-        }
 
-        return true;
+            while ((count = source.read(buffer)) > 0) {
+                destination.write(buffer, 0, count);
+
+                sent += count;
+
+                progressStatus.status("resource-persist", sent, resource.getSize());
+            }
+
+            return fileDestination;
+        } catch (IOException e) {
+            throw new StorageException("Problem persisting file", e);
+        }
     }
 }
