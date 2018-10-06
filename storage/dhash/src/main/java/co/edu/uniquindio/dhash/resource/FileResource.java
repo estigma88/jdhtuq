@@ -32,13 +32,13 @@ public class FileResource extends BasicResource {
 
     @Builder(builderMethodName = "withPath", builderClassName = "WithPathBuilder")
     public FileResource(String id, String path) throws IOException {
-        super(id, Files.newInputStream(Paths.get(path)), Files.size(Paths.get(path)));
+        super(id, Files.newInputStream(Paths.get(path)), Files.size(Paths.get(path)), checkSum);
         this.path = path;
     }
 
     @Builder(builderMethodName = "withInputStream", builderClassName = "WithInputStreamBuilder")
     public FileResource(String id, InputStream inputStream, Long size){
-        super(id, inputStream, size);
+        super(id, inputStream, size, checkSum);
         this.path = null;
     }
 

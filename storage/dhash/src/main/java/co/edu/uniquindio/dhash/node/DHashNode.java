@@ -200,7 +200,7 @@ public class DHashNode implements StorageNode {
                         .destination(lookupKey.getValue())
                         .source(name)
                         .build())
-                .param(Protocol.PutDatas.RESOURCE.name(), serializationHandler.encode(resource))
+                .param(Protocol.PutParams.RESOURCE.name(), serializationHandler.encode(resource))
                 .param(PutParams.REPLICATE.name(), String.valueOf(replicate))
                 .build();
 

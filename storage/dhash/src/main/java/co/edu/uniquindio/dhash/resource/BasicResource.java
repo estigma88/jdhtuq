@@ -14,11 +14,14 @@ public abstract class BasicResource implements Resource{
     @NonNull
     private final InputStream inputStream;
     private final Long size;
+    @NonNull
+    private final String checkSum;
 
-    protected BasicResource(String id, InputStream inputStream, Long size) {
+    protected BasicResource(String id, InputStream inputStream, Long size, String checkSum) {
         this.id = id;
         this.inputStream = inputStream;
         this.size = size;
+        this.checkSum = checkSum;
     }
 
     @Override

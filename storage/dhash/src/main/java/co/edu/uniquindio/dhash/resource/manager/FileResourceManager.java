@@ -19,14 +19,24 @@
 package co.edu.uniquindio.dhash.resource.manager;
 
 import co.edu.uniquindio.dhash.resource.FileResource;
+import co.edu.uniquindio.storage.StorageException;
+import co.edu.uniquindio.storage.resource.ProgressStatus;
 import co.edu.uniquindio.storage.resource.Resource;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
 
 public class FileResourceManager implements ResourceManager {
+    private static final String CHECKSUM_ALGORITHM = "MD5";
+
     private final String directory;
     private final String name;
     private final Set<String> keys;
@@ -40,35 +50,53 @@ public class FileResourceManager implements ResourceManager {
     }
 
     @Override
-    public void save(Resource resource) {
-        FileOutputStream fileOutputStream;
-        StringBuilder directoryPath;
-        File directoryFile;
-
+    public void save(Resource resource, ProgressStatus progressStatus) throws StorageException {
         try {
-            directoryPath = new StringBuilder(directory);
-            directoryPath.append(name);
-            directoryPath.append("/");
+            MessageDigest digest = MessageDigest.getInstance(CHECKSUM_ALGORITHM);
 
-            directoryFile = new File(directoryPath.toString());
-            directoryFile.mkdirs();
+            Path directory = Paths.get(this.directory, name, resource.getId());
 
-            File file = new File(directoryFile, resource.getId());
+            Files.createDirectories(directory);
 
-            fileOutputStream = new FileOutputStream(file);
+            Path file = Paths.get(this.directory, name, resource.getId(), resource.getId());
+
             InputStream source = resource.getInputStream();
+            OutputStream destination = new FileOutputStream(file.toFile());
 
             int count;
+            long sent = 0L;
             byte[] buffer = new byte[bufferSize];
+
             while ((count = source.read(buffer)) > 0) {
-                fileOutputStream.write(buffer, 0, count);
+                destination.write(buffer, 0, count);
+
+                progressStatus.status("resource-persist", sent, resource.getSize());
+
+                digest.update(buffer, 0, count);
+
+                progressStatus.status("digest-persist", sent, resource.getSize());
+
+                sent += count;
             }
 
-            fileOutputStream.close();
+            destination.close();
+
+            String checksum = DatatypeConverter.printHexBinary(digest.digest());
+
+            if (!checksum.equals(resource.getChecksum())) {
+                Files.delete(file);
+                Files.delete(directory);
+
+                throw new StorageException("Checksum is not valid, " + checksum + " != " + resource.getChecksum());
+            }
+
+            Path checkSumPath = directory.resolve(resource.getId() + "." + CHECKSUM_ALGORITHM);
+
+            Files.write(checkSumPath, checksum.getBytes());
 
             keys.add(resource.getId());
-        } catch (IOException e) {
-            throw new IllegalStateException("Error reading file", e);
+        } catch (IOException | NoSuchAlgorithmException e) {
+            throw new StorageException("Error reading file", e);
         }
     }
 

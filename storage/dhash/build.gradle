@@ -14,7 +14,8 @@ version = '3.0.0'
 dependencies {
     compile group: 'com.github.estigma88', name: 'jdhtuq-communication-api', version: '3.0.0'
     compile group: 'com.github.estigma88', name: 'jdhtuq-lookup-service', version: '2.0.0'
-    compile group: 'com.github.estigma88', name: 'jdhtuq-storage-service', version: '3.0.0'
+    //compile group: 'com.github.estigma88', name: 'jdhtuq-storage-service', version: '3.0.0'
+    compile project(":storage:storage-service")
 
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.4'
     compileOnly 'org.projectlombok:lombok:1.16.20'

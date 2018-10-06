@@ -213,7 +213,7 @@ public class DHashNodeTest {
                         .destination("key")
                         .source("dhash")
                         .build())
-                .param(Protocol.PutDatas.RESOURCE.name(), "resource")
+                .param(Protocol.PutParams.RESOURCE.name(), "resource")
                 .param(Protocol.PutParams.REPLICATE.name(), "true")
                 .build();
 

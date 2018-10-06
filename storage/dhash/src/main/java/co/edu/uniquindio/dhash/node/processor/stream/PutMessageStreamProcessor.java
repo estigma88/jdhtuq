@@ -32,19 +32,23 @@ public class PutMessageStreamProcessor implements MessageStreamProcessor {
             Message message = messageStream.getMessage();
 
             Resource resource = serializationHandler.decode(
-                    message.getParam(Protocol.PutDatas.RESOURCE.name()), messageStream.getInputStream());
+                    message.getParam(Protocol.PutParams.RESOURCE.name()), messageStream.getInputStream());
 
-            resourceManager.save(resource);
+            ProgressStatus progressStatus = LogProgressStatus.builder()
+                    .id(resource.getId())
+                    .build();
+
+            resourceManager.save(resource, progressStatus);
 
             Boolean replicate = Boolean.valueOf(message
                     .getParam(Protocol.PutParams.REPLICATE.name()));
 
             if (replicate) {
-                ProgressStatus progressStatus = LogProgressStatus.builder()
-                        .id(resource.getId())
+                ProgressStatus progressStatusReplication = LogProgressStatus.builder()
+                        .id(resource.getId() + " | replicate")
                         .build();
 
-                dHashNode.replicateData(resource.getId(), progressStatus);
+                dHashNode.replicateData(resource.getId(), progressStatusReplication);
             }
 
             return null;

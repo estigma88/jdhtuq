@@ -41,11 +41,23 @@ public final class Protocol {
             .build();
 
     public enum PutParams {
-        RESOURCE_KEY, REPLICATE
+        RESOURCE_KEY, REPLICATE, RESOURCE
     }
 
-    public enum PutDatas {
-        RESOURCE
+    /**
+     * PUT END
+     */
+
+    /**
+     * PUT_RESPONSE BEGIN
+     */
+    public static final MessageType PUT_RESPONSE = MessageType.builder()
+            .name("PUT_RESPONSE")
+            .amountParams(PutParams.values().length)
+            .build();
+
+    public enum PutResponseParams {
+        TRANSFER_VALID, MESSAGE
     }
 
     /**
@@ -85,7 +97,7 @@ public final class Protocol {
      */
 
     /**
-     * TRANSFER_FILES BEGIN
+     * GET BEGIN
      */
     public static final MessageType GET = MessageType.builder()
             .name("GET")
@@ -97,7 +109,7 @@ public final class Protocol {
     }
 
     /**
-     * TRANSFER_FILES BEGIN
+     * GET_RESPONSE BEGIN
      */
     public static final MessageType GET_RESPONSE = MessageType.builder()
             .name("GET_RESPONSE")
@@ -110,20 +122,5 @@ public final class Protocol {
 
     /**
      * TRANSFER_FILES END
-     */
-
-    /**
-     * TRANSFER_FILES_FINISHED BEGIN
-     */
-    public static final MessageType TRANSFER_FILES_FINISHED = MessageType.builder()
-            .name("TRANSFER_FILES_FINISHED")
-            .amountParams(TransferFilesFinishedParams.values().length)
-            .build();
-
-    public enum TransferFilesFinishedParams {
-
-    }
-    /**
-     * TRANSFER_FILES_FINISHED END
      */
 }
