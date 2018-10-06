@@ -39,7 +39,7 @@ public interface ResourceManager {
     /**
      * Delete all resources
      */
-    void deleteAll();
+    void deleteAll() throws StorageException;
 
     /**
      * Validate if the resource with key exists
@@ -62,5 +62,5 @@ public interface ResourceManager {
      * @param key resource key
      * @return The resource with the key, null if there is not a resource with that key
      */
-    Resource find(String key);
+    Resource find(String key) throws StorageException;
 }

@@ -30,13 +30,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.Optional;
+import java.util.Comparator;
 import java.util.Set;
 
-public class FileResourceManager implements ResourceManager {
-    private static final String CHECKSUM_ALGORITHM = "MD5";
+import static co.edu.uniquindio.dhash.resource.checksum.ChecksumInputStreamCalculator.CHECKSUM_ALGORITHM;
 
+public class FileResourceManager implements ResourceManager {
     private final String directory;
     private final String name;
     private final Set<String> keys;
@@ -58,7 +57,7 @@ public class FileResourceManager implements ResourceManager {
 
             Files.createDirectories(directory);
 
-            Path file = Paths.get(this.directory, name, resource.getId(), resource.getId());
+            Path file = directory.resolve(resource.getId());
 
             InputStream source = resource.getInputStream();
             OutputStream destination = new FileOutputStream(file.toFile());
@@ -68,6 +67,8 @@ public class FileResourceManager implements ResourceManager {
             byte[] buffer = new byte[bufferSize];
 
             while ((count = source.read(buffer)) > 0) {
+                sent += count;
+
                 destination.write(buffer, 0, count);
 
                 progressStatus.status("resource-persist", sent, resource.getSize());
@@ -75,19 +76,17 @@ public class FileResourceManager implements ResourceManager {
                 digest.update(buffer, 0, count);
 
                 progressStatus.status("digest-persist", sent, resource.getSize());
-
-                sent += count;
             }
 
             destination.close();
 
             String checksum = DatatypeConverter.printHexBinary(digest.digest());
 
-            if (!checksum.equals(resource.getChecksum())) {
+            if (!checksum.equals(resource.getCheckSum())) {
                 Files.delete(file);
                 Files.delete(directory);
 
-                throw new StorageException("Checksum is not valid, " + checksum + " != " + resource.getChecksum());
+                throw new StorageException("Checksum is not valid, " + checksum + " != " + resource.getCheckSum());
             }
 
             Path checkSumPath = directory.resolve(resource.getId() + "." + CHECKSUM_ALGORITHM);
@@ -101,20 +100,19 @@ public class FileResourceManager implements ResourceManager {
     }
 
     @Override
-    public void deleteAll() {
-        StringBuilder directoryPath = new StringBuilder(directory);
-        directoryPath.append(name);
-        directoryPath.append("/");
+    public void deleteAll() throws StorageException {
+        try {
+            Path directory = Paths.get(this.directory, name);
 
-        File directory = new File(directoryPath.toString());
+            Files.walk(directory)
+                    .sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
 
-        if (directory.exists()) {
-            Arrays.stream(Optional.ofNullable(directory.listFiles()).orElse(new File[0])).forEach(File::delete);
-
-            directory.delete();
+            keys.clear();
+        } catch (IOException e) {
+            throw new StorageException("Error reading file", e);
         }
-
-        keys.clear();
     }
 
     @Override
@@ -128,17 +126,22 @@ public class FileResourceManager implements ResourceManager {
     }
 
     @Override
-    public Resource find(String key) {
+    public Resource find(String key) throws StorageException {
         if (hasResource(key)) {
-            StringBuilder directoryPath = new StringBuilder(directory);
-            directoryPath.append(name);
-            directoryPath.append("/");
-            directoryPath.append(key);
+            Path directory = Paths.get(this.directory, name, key);
+            Path file = directory.resolve(key);
+            Path checkSumFile = directory.resolve(key + "." + CHECKSUM_ALGORITHM);
 
             try {
-                return FileResource.withPath()
+                String checkSum = Files.lines(checkSumFile)
+                        .findFirst()
+                        .orElseThrow(() -> new StorageException("Checksum doesn't find for " + key));
+
+                return FileResource.withInputStream()
                         .id(key)
-                        .path(directoryPath.toString())
+                        .inputStream(Files.newInputStream(file))
+                        .checkSum(checkSum)
+                        .size(Files.size(file))
                         .build();
             } catch (IOException e) {
                 throw new IllegalStateException("Error reading file", e);

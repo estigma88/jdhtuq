@@ -49,7 +49,7 @@ public interface Resource extends Closeable{
     /**
      * Get the checksum of the resource
      *
-     * @return checksume
+     * @return checkSum
      */
-    String getChecksum();
+    String getCheckSum();
 }

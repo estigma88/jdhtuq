@@ -51,10 +51,26 @@ public class PutMessageStreamProcessor implements MessageStreamProcessor {
                 dHashNode.replicateData(resource.getId(), progressStatusReplication);
             }
 
-            return null;
+            return MessageStream.builder()
+                    .message(Message.builder()
+                            .id(messageStream.getMessage().getId())
+                            .sendType(Message.SendType.RESPONSE)
+                            .messageType(Protocol.PUT_RESPONSE)
+                            .param(Protocol.PutResponseParams.TRANSFER_VALID.name(), "true")
+                            .build())
+                    .build();
         } catch (OverlayException | StorageException e) {
             log.error("Error putting data", e);
-            throw new IllegalStateException("Error putting data", e);
+
+            return MessageStream.builder()
+                    .message(Message.builder()
+                            .id(messageStream.getMessage().getId())
+                            .sendType(Message.SendType.RESPONSE)
+                            .messageType(Protocol.PUT_RESPONSE)
+                            .param(Protocol.PutResponseParams.TRANSFER_VALID.name(), "false")
+                            .param(Protocol.PutResponseParams.MESSAGE.name(), e.getMessage())
+                            .build())
+                    .build();
         }
 
     }

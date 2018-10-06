@@ -204,13 +204,19 @@ public class DHashNode implements StorageNode {
                 .param(PutParams.REPLICATE.name(), String.valueOf(replicate))
                 .build();
 
-        communicationManager.send(MessageStream.builder()
+        Message putResponse = communicationManager.send(MessageStream.builder()
                 .message(putMessage)
                 .inputStream(resource.getInputStream())
                 .size(resource.getSize())
                 .build(), progressStatus::status);
 
-        return true;
+        Boolean transferValid = Boolean.valueOf(putResponse.getParam(Protocol.PutResponseParams.TRANSFER_VALID.name()));
+
+        if (!transferValid){
+            throw new StorageException("Transfer invalid: " + putResponse.getParam(Protocol.PutResponseParams.MESSAGE.name()));
+        }
+
+        return transferValid;
     }
 
     /**

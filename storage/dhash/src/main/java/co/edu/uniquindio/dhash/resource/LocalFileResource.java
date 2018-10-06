@@ -13,11 +13,11 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
+import static co.edu.uniquindio.dhash.resource.checksum.ChecksumInputStreamCalculator.CHECKSUM_ALGORITHM;
+
 @Builder
 @Data
 public class LocalFileResource {
-    private static final String CHECKSUM_ALGORITHM = "MD5";
-
     @NonNull
     private final Resource resource;
     @NonNull
@@ -43,6 +43,8 @@ public class LocalFileResource {
             progressStatus.status("digest-persist", sent, resource.getSize());
 
             while ((count = source.read(buffer)) > 0) {
+                sent += count;
+
                 destination.write(buffer, 0, count);
 
                 progressStatus.status("resource-persist", sent, resource.getSize());
@@ -50,14 +52,12 @@ public class LocalFileResource {
                 digest.update(buffer, 0, count);
 
                 progressStatus.status("digest-persist", sent, resource.getSize());
-
-                sent += count;
             }
 
             String checksum = DatatypeConverter.printHexBinary(digest.digest());
 
-            if (!checksum.equals(resource.getChecksum())) {
-                throw new StorageException("Checksum is not valid, " + checksum + " != " + resource.getChecksum());
+            if (!checksum.equals(resource.getCheckSum())) {
+                throw new StorageException("Checksum is not valid, " + checksum + " != " + resource.getCheckSum());
             }
 
             return fileDestination;

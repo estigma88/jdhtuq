@@ -18,28 +18,66 @@
 
 package co.edu.uniquindio.dhash.resource;
 
-import lombok.*;
+import co.edu.uniquindio.dhash.resource.checksum.ChecksumInputStreamCalculator;
+import co.edu.uniquindio.storage.resource.ProgressStatus;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 @Getter
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class FileResource extends BasicResource {
-    private String path;
-
-    @Builder(builderMethodName = "withPath", builderClassName = "WithPathBuilder")
-    public FileResource(String id, String path) throws IOException {
-        super(id, Files.newInputStream(Paths.get(path)), Files.size(Paths.get(path)), checkSum);
-        this.path = path;
-    }
 
     @Builder(builderMethodName = "withInputStream", builderClassName = "WithInputStreamBuilder")
-    public FileResource(String id, InputStream inputStream, Long size){
+    FileResource(String id, InputStream inputStream, Long size, String checkSum) {
         super(id, inputStream, size, checkSum);
-        this.path = null;
     }
 
+    public static WithPathBuilder withPath() {
+        return new WithPathBuilder();
+    }
+
+    public static class WithPathBuilder {
+        private String id;
+        private String path;
+
+        WithPathBuilder() {
+        }
+
+        public WithPathBuilder id(String id) {
+            this.id = id;
+            return this;
+        }
+
+        public WithPathBuilder path(String path) {
+            this.path = path;
+            return this;
+        }
+
+        public FileResource build(ProgressStatus progressStatus) throws IOException {
+            Objects.requireNonNull(path);
+            Objects.requireNonNull(progressStatus);
+
+            Path filePath = Paths.get(path);
+
+            InputStream inputStream = Files.newInputStream(filePath);
+            Long size = Files.size(filePath);
+            String checkSum = new ChecksumInputStreamCalculator().calculate(Files.newInputStream(filePath), size, progressStatus);
+
+            return new FileResource(id, inputStream, size, checkSum);
+        }
+
+        public String toString() {
+            return "FileResource.WithPathBuilder(id=" + this.id + ", path=" + this.path + ")";
+        }
+    }
 }
