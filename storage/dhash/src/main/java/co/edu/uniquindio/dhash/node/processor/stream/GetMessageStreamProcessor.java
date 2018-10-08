@@ -4,6 +4,7 @@ import co.edu.uniquindio.dhash.node.DHashNode;
 import co.edu.uniquindio.dhash.protocol.Protocol;
 import co.edu.uniquindio.dhash.resource.manager.ResourceManager;
 import co.edu.uniquindio.dhash.resource.serialization.SerializationHandler;
+import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.resource.Resource;
 import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
@@ -27,25 +28,41 @@ public class GetMessageStreamProcessor implements MessageStreamProcessor {
     public MessageStream process(MessageStream messageStream) {
         Message message = messageStream.getMessage();
 
-        Resource resource = resourceManager.find(
-                message
-                        .getParam(Protocol.GetParams.RESOURCE_KEY
-                                .name()));
+        try {
+            Resource resource = resourceManager.find(
+                    message
+                            .getParam(Protocol.GetParams.RESOURCE_KEY
+                                    .name()));
 
-        Message resourceTransferResponseMessage = Message.builder()
-                .id(message.getId())
-                .sendType(Message.SendType.RESPONSE)
-                .messageType(Protocol.GET_RESPONSE)
-                .param(Protocol.GetResponseData.RESOURCE.name(), serializationHandler.encode(resource))
-                .address(Address.builder()
-                        .destination(message.getAddress().getSource())
-                        .source(dHashNode.getName())
-                        .build()).build();
+            Message resourceTransferResponseMessage = Message.builder()
+                    .id(message.getId())
+                    .sendType(Message.SendType.RESPONSE)
+                    .messageType(Protocol.GET_RESPONSE)
+                    .param(Protocol.GetResponseParams.TRANSFER_VALID.name(), "true")
+                    .param(Protocol.GetResponseParams.RESOURCE.name(), serializationHandler.encode(resource))
+                    .address(Address.builder()
+                            .destination(message.getAddress().getSource())
+                            .source(dHashNode.getName())
+                            .build()).build();
 
-        return MessageStream.builder()
-                .message(resourceTransferResponseMessage)
-                .inputStream(resource.getInputStream())
-                .size(resource.getSize())
-                .build();
+            return MessageStream.builder()
+                    .message(resourceTransferResponseMessage)
+                    .inputStream(resource.getInputStream())
+                    .size(resource.getSize())
+                    .build();
+        } catch (StorageException e) {
+            return MessageStream.builder()
+                    .message(Message.builder()
+                            .id(message.getId())
+                            .sendType(Message.SendType.RESPONSE)
+                            .messageType(Protocol.GET_RESPONSE)
+                            .param(Protocol.GetResponseParams.TRANSFER_VALID.name(), "false")
+                            .param(Protocol.GetResponseParams.MESSAGE.name(), e.getMessage())
+                            .address(Address.builder()
+                                    .destination(message.getAddress().getSource())
+                                    .source(dHashNode.getName())
+                                    .build()).build())
+                    .build();
+        }
     }
 }

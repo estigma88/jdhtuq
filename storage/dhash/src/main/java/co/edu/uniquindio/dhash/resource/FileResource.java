@@ -69,11 +69,23 @@ public class FileResource extends BasicResource {
 
             Path filePath = Paths.get(path);
 
-            InputStream inputStream = Files.newInputStream(filePath);
-            Long size = Files.size(filePath);
-            String checkSum = new ChecksumInputStreamCalculator().calculate(Files.newInputStream(filePath), size, progressStatus);
+            InputStream inputStream = newInputStream(filePath);
+            Long size = getFileSize(filePath);
+            String checkSum = getChecksumInputStreamCalculator().calculate(newInputStream(filePath), size, progressStatus);
 
             return new FileResource(id, inputStream, size, checkSum);
+        }
+
+        long getFileSize(Path filePath) throws IOException {
+            return Files.size(filePath);
+        }
+
+        ChecksumInputStreamCalculator getChecksumInputStreamCalculator() {
+            return new ChecksumInputStreamCalculator();
+        }
+
+        InputStream newInputStream(Path filePath) throws IOException {
+            return Files.newInputStream(filePath);
         }
 
         public String toString() {

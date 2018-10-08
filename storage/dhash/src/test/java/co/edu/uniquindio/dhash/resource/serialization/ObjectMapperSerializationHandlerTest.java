@@ -46,11 +46,12 @@ public class ObjectMapperSerializationHandlerTest {
                 .id("resource")
                 .size(10L)
                 .inputStream(new ByteArrayInputStream("data".getBytes()))
+                .checkSum("checkSum")
                 .build();
 
         String result = objectSerializationHandler.encode(resource);
 
-        assertThat(result).isEqualTo("{\"co.edu.uniquindio.dhash.resource.FileResource\":{\"id\":\"resource\",\"size\":10}}");
+        assertThat(result).isEqualTo("{\"co.edu.uniquindio.dhash.resource.FileResource\":{\"id\":\"resource\",\"size\":10,\"checkSum\":\"checkSum\"}}");
     }
 
     @Test
@@ -61,9 +62,10 @@ public class ObjectMapperSerializationHandlerTest {
                 .id("resource")
                 .size(10L)
                 .inputStream(inputStream)
+                .checkSum("checkSum")
                 .build();
 
-        FileResource result = (FileResource) objectSerializationHandler.decode("{\"co.edu.uniquindio.dhash.resource.FileResource\":{\"id\":\"resource\",\"size\":10}}", inputStream);
+        FileResource result = (FileResource) objectSerializationHandler.decode("{\"co.edu.uniquindio.dhash.resource.FileResource\":{\"id\":\"resource\",\"size\":10,\"checkSum\":\"checkSum\"}}", inputStream);
 
         assertThat(result).isEqualTo(resource);
     }

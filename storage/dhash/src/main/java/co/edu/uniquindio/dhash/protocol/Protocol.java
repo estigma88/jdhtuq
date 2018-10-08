@@ -116,8 +116,8 @@ public final class Protocol {
             .amountParams(0)
             .build();
 
-    public enum GetResponseData {
-        RESOURCE, RESOURCE_EXIST
+    public enum GetResponseParams {
+        RESOURCE, TRANSFER_VALID, MESSAGE
     }
 
     /**

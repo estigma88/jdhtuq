@@ -148,7 +148,15 @@ public class DHashNode implements StorageNode {
             MessageStream resource = communicationManager
                     .receive(getMessage, progressStatus::status);
 
-            return serializationHandler.decode(resource.getMessage().getParam(Protocol.GetResponseData.RESOURCE.name()), resource.getInputStream());
+            Message getResponseMessage = resource.getMessage();
+
+            Boolean transferValid = Boolean.valueOf(getResponseMessage.getParam(Protocol.GetResponseParams.TRANSFER_VALID.name()));
+
+            if (!transferValid){
+                throw new StorageException("Transfer invalid: " + getResponseMessage.getParam(Protocol.GetResponseParams.MESSAGE.name()));
+            }
+
+            return serializationHandler.decode(getResponseMessage.getParam(Protocol.GetResponseParams.RESOURCE.name()), resource.getInputStream());
 
         } else {
             return null;
@@ -212,7 +220,7 @@ public class DHashNode implements StorageNode {
 
         Boolean transferValid = Boolean.valueOf(putResponse.getParam(Protocol.PutResponseParams.TRANSFER_VALID.name()));
 
-        if (!transferValid){
+        if (!transferValid) {
             throw new StorageException("Transfer invalid: " + putResponse.getParam(Protocol.PutResponseParams.MESSAGE.name()));
         }
 

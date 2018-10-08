@@ -41,7 +41,7 @@ public class FileResourceManager implements ResourceManager {
     private final Set<String> keys;
     private final Integer bufferSize;
 
-    public FileResourceManager(String directory, String name, Set<String> keys, Integer bufferSize) {
+    FileResourceManager(String directory, String name, Set<String> keys, Integer bufferSize) {
         this.directory = directory;
         this.name = name;
         this.keys = keys;
@@ -65,6 +65,9 @@ public class FileResourceManager implements ResourceManager {
             int count;
             long sent = 0L;
             byte[] buffer = new byte[bufferSize];
+
+            progressStatus.status("resource-persist", sent, resource.getSize());
+            progressStatus.status("digest-persist", sent, resource.getSize());
 
             while ((count = source.read(buffer)) > 0) {
                 sent += count;
@@ -144,7 +147,7 @@ public class FileResourceManager implements ResourceManager {
                         .size(Files.size(file))
                         .build();
             } catch (IOException e) {
-                throw new IllegalStateException("Error reading file", e);
+                throw new StorageException("Error reading file", e);
             }
         } else {
             return null;
