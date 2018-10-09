@@ -122,7 +122,8 @@ public class PanelDhash extends JPanel implements ActionListener {
                         try (Resource fileResource = FileResource.withPath()
                                 .id(fichero.getName())
                                 .path(fichero.getAbsolutePath())
-                                .build()) {
+                                .build((name, current, size) -> {
+                                })) {
                             getDHashNode().put(fileResource, ((name, current, size) -> {
                             }));
                         } catch (IOException e1) {

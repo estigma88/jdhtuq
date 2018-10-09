@@ -40,7 +40,7 @@ public class PutTask extends StorageServiceTask {
         Resource fileResource = FileResource.withPath()
                 .id(file.getName())
                 .path(file.getAbsolutePath())
-                .build();
+                .build((name, current, size) -> {});
 
         storageNode.put(fileResource, ((name, current, size) -> {}));
 

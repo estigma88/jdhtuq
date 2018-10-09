@@ -24,7 +24,8 @@ repositories {
 
 
 dependencies {
-	compile group: 'com.github.estigma88', name: 'jdhtuq-chord', version: '2.0.1'
+	compile project(":p2p:chord")
+	//compile group: 'com.github.estigma88', name: 'jdhtuq-chord', version: '2.0.1'
 	compileOnly 'org.projectlombok:lombok:1.16.20'
 	compileOnly "org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}"
 	compile("org.springframework.boot:spring-boot-starter:${springBootVersion}")

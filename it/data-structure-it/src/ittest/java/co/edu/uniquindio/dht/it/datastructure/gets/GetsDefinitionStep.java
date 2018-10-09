@@ -18,6 +18,8 @@
 
 package co.edu.uniquindio.dht.it.datastructure.gets;
 
+import co.edu.uniquindio.dhash.resource.LocalFileResource;
+import co.edu.uniquindio.dhash.starter.DHashProperties;
 import co.edu.uniquindio.dht.it.datastructure.CucumberRoot;
 import co.edu.uniquindio.dht.it.datastructure.World;
 import co.edu.uniquindio.dht.it.datastructure.put.Content;
@@ -27,6 +29,9 @@ import cucumber.api.java.en.Then;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,16 +39,35 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class GetsDefinitionStep extends CucumberRoot {
     @Autowired
     private World world;
+    @Autowired
+    private DHashProperties dHashProperties;
 
     @Then("^I lookup the following resources:$")
     public void i_lookup_the_following_resources(List<Content> contents) throws Throwable {
         StorageNode storageNode = world.getRing().getNode(world.getNodeGateway());
 
+        Path pathGets = Paths.get(dHashProperties.getResourceDirectory(), "gets", world.getNodeGateway());
+
+        Files.createDirectories(pathGets);
+
         for (Content content : contents) {
             Resource resource = storageNode.get(content.getName(), (name, count, limit) -> {}).get();
 
             assertThat(resource).isNotNull();
-            assertThat(IOUtils.toByteArray(resource.getInputStream())).isEqualTo(content.getContent().getBytes());
+
+            Path resourcePath = pathGets.resolve(resource.getId());
+
+            LocalFileResource localFileResource = LocalFileResource.builder()
+                    .resource(resource)
+                    .path(pathGets.toString())
+                    .bufferSize(1024)
+                    .build();
+
+            localFileResource.persist((name, count, limit) -> {});
+
+            assertThat(Files.exists(resourcePath)).isTrue();
+
+            assertThat(Files.readAllLines(Paths.get(content.getPath()))).isEqualTo(Files.readAllLines(resourcePath));
 
             resource.close();
         }

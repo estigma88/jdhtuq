@@ -171,7 +171,7 @@ public class CommunicationDataStructure implements CommunicationManager {
     }
 
     @Override
-    public void send(MessageStream messageStream, ProgressStatusTransfer progressStatusTransfer) {
+    public Message send(MessageStream messageStream, ProgressStatusTransfer progressStatusTransfer) {
         MessageStream response = null;
 
         MessageStreamProcessor messageProcessor = dataStructureStream.get(messageStream.getMessage().getAddress().getDestination());
@@ -183,6 +183,8 @@ public class CommunicationDataStructure implements CommunicationManager {
         }
 
         observableStream.notifyMessage(response);
+
+        return response.getMessage();
     }
 
     @Override

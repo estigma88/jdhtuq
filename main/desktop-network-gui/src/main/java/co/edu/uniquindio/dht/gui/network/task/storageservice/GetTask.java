@@ -49,7 +49,7 @@ public class GetTask extends StorageServiceTask {
         LocalFileResource localFileResource = LocalFileResource.builder()
                 .resource(resource)
                 .path(resourceDirectory + storageNode.getName() + "/gets/")
-                .sizeBuffer(2048)
+                .bufferSize(2048)
                 .build();
 
         localFileResource.persist(((name, current, size) -> {log.info("{} - {} - {}", name, current, size);}));

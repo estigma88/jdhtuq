@@ -24,6 +24,7 @@ import co.edu.uniquindio.dht.it.datastructure.CucumberRoot;
 import co.edu.uniquindio.dht.it.datastructure.World;
 import co.edu.uniquindio.dht.it.datastructure.ring.Ring;
 import co.edu.uniquindio.storage.StorageNode;
+import co.edu.uniquindio.storage.resource.ProgressStatus;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -57,18 +58,20 @@ public class PutsDefinitionStep extends CucumberRoot {
 
     @When("^I put resources into the network$")
     public void i_put_resources_into_the_network() throws Throwable {
+        ProgressStatus progressStatus = (name, count, limit) -> {
+        };
+
         Ring ring = world.getRing();
 
         StorageNode storageNode = ring.getNode(world.getNodeGateway());
 
         for (String contentName : contents.keySet()) {
-            FileResource resource = FileResource.withInputStream()
+            FileResource resource = FileResource.withPath()
                     .id(contentName)
-                    .inputStream(new ByteArrayInputStream(contents.get(contentName).getContent().getBytes()))
-                    .build();
+                    .path(contents.get(contentName).getPath())
+                    .build(progressStatus);
 
-            storageNode.put(resource, (name, count, limit) -> {
-            }).get();
+            storageNode.put(resource, progressStatus).get();
 
             resource.close();
         }
@@ -81,17 +84,11 @@ public class PutsDefinitionStep extends CucumberRoot {
             String[] nodes = nodesByResource.get(contentName).split(",");
 
             for (String node : nodes) {
-                Path resourcePath = Paths.get(dHashProperties.getResourceDirectory() + node + "/" + contentName);
+                Path resourcePath = Paths.get(dHashProperties.getResourceDirectory(), node, contentName, contentName);
 
-                File resource = resourcePath.toFile();
+                assertThat(Files.exists(resourcePath)).isTrue();
 
-                assertThat(resource.exists()).isTrue();
-
-                ByteArrayOutputStream os = new ByteArrayOutputStream();
-
-                Files.copy(resourcePath, os);
-
-                assertThat(contents.get(contentName).getContent()).isEqualTo(os.toString());
+                assertThat(Files.readAllLines(Paths.get(contents.get(contentName).getPath()))).isEqualTo(Files.readAllLines(resourcePath));
             }
         }
     }

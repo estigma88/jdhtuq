@@ -32,10 +32,7 @@ public class FileResourceManagerTest {
 
     @Before
     public void before() {
-        HashSet<String> keys = new HashSet<>();
-        keys.add("resource1.txt");
-
-        fileResourceManager = new FileResourceManager("src/test/resources", "10.20.10.10", keys, 1024);
+        fileResourceManager = new FileResourceManager("src/test/resources", "10.20.10.10", 1024);
     }
 
     @After
@@ -46,7 +43,7 @@ public class FileResourceManagerTest {
     }
 
     @Test
-    public void getAllKeys() {
+    public void getAllKeys() throws StorageException {
         HashSet<String> keys = new HashSet<>();
         keys.add("resource1.txt");
 

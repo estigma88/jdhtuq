@@ -54,7 +54,7 @@ public interface ResourceManager {
      *
      * @return keys resources
      */
-    Set<String> getAllKeys();
+    Set<String> getAllKeys() throws StorageException;
 
     /**
      * Find a resource by key

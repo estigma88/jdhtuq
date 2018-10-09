@@ -24,7 +24,8 @@ repositories {
 
 
 dependencies {
-	compile group: 'com.github.estigma88', name: 'jdhtuq-data-structure-communication', version: '3.0.0'
+	compile project(":communication:data-structure-communication")
+	//compile group: 'com.github.estigma88', name: 'jdhtuq-data-structure-communication', version: '3.0.0'
 
 	compileOnly 'org.projectlombok:lombok:1.16.20'
 	compileOnly "org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}"

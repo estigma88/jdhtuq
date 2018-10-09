@@ -9,12 +9,13 @@ repositories {
 }
 
 group = 'com.github.estigma88'
-version = '3.0.0'
+version = '3.0.1'
 
 dependencies {
     compile project(":communication:communication-api")
     //compile group: 'com.github.estigma88', name: 'jdhtuq-communication-api', version: '3.0.0'
-    compile group: 'com.github.estigma88', name: 'jdhtuq-lookup-service', version: '2.0.0'
+    compile project(":p2p:lookup-service")
+    //compile group: 'com.github.estigma88', name: 'jdhtuq-lookup-service', version: '2.0.0'
     //compile group: 'com.github.estigma88', name: 'jdhtuq-storage-service', version: '3.0.0'
     compile project(":storage:storage-service")
 

@@ -24,7 +24,8 @@ repositories {
 
 
 dependencies {
-    compile group: 'com.github.estigma88', name: 'jdhtuq-socket-communication', version: '3.0.0'
+    compile project(":communication:socket-communication")
+    //compile group: 'com.github.estigma88', name: 'jdhtuq-socket-communication', version: '3.0.0'
 
 	compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.4'
 

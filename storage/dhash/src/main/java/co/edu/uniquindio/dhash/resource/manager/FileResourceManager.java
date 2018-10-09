@@ -31,21 +31,23 @@ import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static co.edu.uniquindio.dhash.resource.checksum.ChecksumInputStreamCalculator.CHECKSUM_ALGORITHM;
 
 public class FileResourceManager implements ResourceManager {
     private final String directory;
     private final String name;
-    private final Set<String> keys;
     private final Integer bufferSize;
+    private final Path baseDirectory;
 
-    FileResourceManager(String directory, String name, Set<String> keys, Integer bufferSize) {
+    FileResourceManager(String directory, String name, Integer bufferSize) {
         this.directory = directory;
         this.name = name;
-        this.keys = keys;
         this.bufferSize = bufferSize;
+        this.baseDirectory = Paths.get(this.directory, name);
     }
 
     @Override
@@ -53,7 +55,7 @@ public class FileResourceManager implements ResourceManager {
         try {
             MessageDigest digest = MessageDigest.getInstance(CHECKSUM_ALGORITHM);
 
-            Path directory = Paths.get(this.directory, name, resource.getId());
+            Path directory = baseDirectory.resolve(resource.getId());
 
             Files.createDirectories(directory);
 
@@ -95,8 +97,6 @@ public class FileResourceManager implements ResourceManager {
             Path checkSumPath = directory.resolve(resource.getId() + "." + CHECKSUM_ALGORITHM);
 
             Files.write(checkSumPath, checksum.getBytes());
-
-            keys.add(resource.getId());
         } catch (IOException | NoSuchAlgorithmException e) {
             throw new StorageException("Error reading file", e);
         }
@@ -105,14 +105,12 @@ public class FileResourceManager implements ResourceManager {
     @Override
     public void deleteAll() throws StorageException {
         try {
-            Path directory = Paths.get(this.directory, name);
-
-            Files.walk(directory)
-                    .sorted(Comparator.reverseOrder())
-                    .map(Path::toFile)
-                    .forEach(File::delete);
-
-            keys.clear();
+            if (Files.exists(baseDirectory)) {
+                Files.walk(baseDirectory)
+                        .sorted(Comparator.reverseOrder())
+                        .map(Path::toFile)
+                        .forEach(File::delete);
+            }
         } catch (IOException e) {
             throw new StorageException("Error reading file", e);
         }
@@ -120,12 +118,22 @@ public class FileResourceManager implements ResourceManager {
 
     @Override
     public boolean hasResource(String key) {
-        return keys.contains(key);
+        return Files.exists(baseDirectory.resolve(key));
     }
 
     @Override
-    public Set<String> getAllKeys() {
-        return keys;
+    public Set<String> getAllKeys() throws StorageException {
+        try {
+            if (Files.exists(baseDirectory)) {
+                return Files.list(baseDirectory)
+                        .map(s -> s.getFileName().toString())
+                        .collect(Collectors.toSet());
+            }else{
+                return new HashSet<>();
+            }
+        } catch (IOException e) {
+            throw new StorageException("Error reading resources", e);
+        }
     }
 
     @Override
