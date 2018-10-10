@@ -9,8 +9,11 @@ import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.IdGenerator;
 import co.edu.uniquindio.utils.communication.message.Message;
 import cucumber.api.java.en.Then;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.FileInputStream;
+import java.nio.charset.Charset;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,7 +44,7 @@ public class GetsDefinitionStep extends CucumberRoot {
 
             assertThat(response).isNotNull();
             assertThat(response.getParam(Protocol.GetResponseDatas.RESOURCE.name())).isNotNull();
-            assertThat(response.getParam(Protocol.GetResponseDatas.RESOURCE.name())).isEqualTo(content.getContent());
+            assertThat(response.getParam(Protocol.GetResponseDatas.RESOURCE.name())).isEqualTo(IOUtils.toString(new FileInputStream(content.getPath()), Charset.defaultCharset()));
         }
     }
 }

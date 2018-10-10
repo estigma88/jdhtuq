@@ -41,7 +41,7 @@ public class NodeMain {
 
     @Bean
     public MessageProcessor messageProcessorSocketIT(StorageNode storageNode) {
-        return new NodeMessageProcessor((DHashNode) storageNode);
+        return new NodeMessageProcessor((DHashNode) storageNode, dHashProperties);
     }
 
     @Bean

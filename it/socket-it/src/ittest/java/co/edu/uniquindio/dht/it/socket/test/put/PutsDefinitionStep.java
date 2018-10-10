@@ -60,7 +60,7 @@ public class PutsDefinitionStep extends CucumberRoot {
                             .destination("localhost")
                             .build())
                     .param(Protocol.PutParams.RESOURCE_NAME.name(), contentName)
-                    .param(Protocol.PutDatas.RESOURCE.name(), contents.get(contentName).getContent())
+                    .param(Protocol.PutDatas.RESOURCE.name(), contents.get(contentName).getPath())
                     .build();
 
             Message response = messageClient.send(put);
@@ -77,17 +77,11 @@ public class PutsDefinitionStep extends CucumberRoot {
             String[] nodes = nodesByResource.get(contentName).split(",");
 
             for (String node : nodes) {
-                Path resourcePath = Paths.get(socketITProperties.getDhash().getResourceDirectory() + node + "/" + contentName);
+                Path resourcePath = Paths.get(dHashProperties.getResourceDirectory(), node, contentName, contentName);
 
-                File resource = resourcePath.toFile();
+                assertThat(Files.exists(resourcePath)).isTrue();
 
-                assertThat(resource.exists()).isTrue();
-
-                ByteArrayOutputStream os = new ByteArrayOutputStream();
-
-                Files.copy(resourcePath, os);
-
-                assertThat(contents.get(contentName).getContent()).isEqualTo(os.toString());
+                assertThat(Files.readAllLines(Paths.get(contents.get(contentName).getPath()))).isEqualTo(Files.readAllLines(resourcePath));
             }
         }
     }
