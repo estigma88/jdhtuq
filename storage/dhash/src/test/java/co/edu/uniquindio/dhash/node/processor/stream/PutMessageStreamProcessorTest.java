@@ -157,7 +157,7 @@ public class PutMessageStreamProcessorTest {
                         .sendType(Message.SendType.RESPONSE)
                         .messageType(Protocol.PUT_RESPONSE)
                         .param(Protocol.PutResponseParams.TRANSFER_VALID.name(), "false")
-                        .param(Protocol.PutResponseParams.MESSAGE.name(), "access file failed")
+                        .param(Protocol.PutResponseParams.MESSAGE.name(), "co.edu.uniquindio.storage.StorageException: access file failed")
                         .build())
                 .build();
 

@@ -13,6 +13,7 @@ import co.edu.uniquindio.utils.communication.message.Message;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.ByteArrayOutputStream;
@@ -77,9 +78,11 @@ public class PutsDefinitionStep extends CucumberRoot {
             String[] nodes = nodesByResource.get(contentName).split(",");
 
             for (String node : nodes) {
-                Path resourcePath = Paths.get(dHashProperties.getResourceDirectory(), node, contentName, contentName);
+                Path resourcePath = Paths.get(socketITProperties.getDhash().getResourceDirectory(), node, contentName, contentName);
 
-                assertThat(Files.exists(resourcePath)).isTrue();
+                assertThat(Files.exists(resourcePath))
+                        .as("Validating if file %s exists in %s", contentName, resourcePath)
+                        .isTrue();
 
                 assertThat(Files.readAllLines(Paths.get(contents.get(contentName).getPath()))).isEqualTo(Files.readAllLines(resourcePath));
             }

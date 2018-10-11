@@ -128,7 +128,13 @@ public class UnicastManagerTCP implements StreamCommunicator {
 
             send(socket.getOutputStream(), messageStream.getInputStream(), messageStream.getSize(), progressStatusTransfer);
 
-            return readMessage(socket.getInputStream());
+            progressStatusTransfer.status("message-confirmation", 0L, 1L);
+
+            Message response = readMessage(socket.getInputStream());
+
+            progressStatusTransfer.status("message-confirmation", 1L, 1L);
+
+            return response;
         } catch (IOException | ClassNotFoundException e) {
             log.error("Error writing socket", e);
             return null;

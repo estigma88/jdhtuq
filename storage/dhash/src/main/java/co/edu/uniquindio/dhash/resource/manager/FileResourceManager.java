@@ -22,6 +22,7 @@ import co.edu.uniquindio.dhash.resource.FileResource;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.resource.ProgressStatus;
 import co.edu.uniquindio.storage.resource.Resource;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.*;
@@ -37,6 +38,7 @@ import java.util.stream.Collectors;
 
 import static co.edu.uniquindio.dhash.resource.checksum.ChecksumInputStreamCalculator.CHECKSUM_ALGORITHM;
 
+@Slf4j
 public class FileResourceManager implements ResourceManager {
     private final String directory;
     private final String name;
@@ -65,22 +67,22 @@ public class FileResourceManager implements ResourceManager {
             OutputStream destination = new FileOutputStream(file.toFile());
 
             int count;
-            long sent = 0L;
+            long received = 0L;
             byte[] buffer = new byte[bufferSize];
 
-            progressStatus.status("resource-persist", sent, resource.getSize());
-            progressStatus.status("digest-persist", sent, resource.getSize());
+            progressStatus.status("resource-persist", received, resource.getSize());
+            progressStatus.status("digest-persist", received, resource.getSize());
 
-            while ((count = source.read(buffer)) > 0) {
-                sent += count;
+            while (received != resource.getSize() && (count = source.read(buffer)) > 0) {
+                received += count;
 
                 destination.write(buffer, 0, count);
 
-                progressStatus.status("resource-persist", sent, resource.getSize());
+                progressStatus.status("resource-persist", received, resource.getSize());
 
                 digest.update(buffer, 0, count);
 
-                progressStatus.status("digest-persist", sent, resource.getSize());
+                progressStatus.status("digest-persist", received, resource.getSize());
             }
 
             destination.close();

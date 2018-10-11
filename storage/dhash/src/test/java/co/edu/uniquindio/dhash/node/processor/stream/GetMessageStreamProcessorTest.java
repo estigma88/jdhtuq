@@ -94,7 +94,7 @@ public class GetMessageStreamProcessorTest {
                         .sendType(Message.SendType.RESPONSE)
                         .address(Address.builder().destination("source").source("dhash").build())
                         .param(Protocol.GetResponseParams.TRANSFER_VALID.name(), "false")
-                        .param(Protocol.GetResponseParams.MESSAGE.name(), "file access failed")
+                        .param(Protocol.GetResponseParams.MESSAGE.name(), "co.edu.uniquindio.storage.StorageException: file access failed")
                         .build())
                 .build();
 

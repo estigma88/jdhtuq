@@ -5,12 +5,14 @@ import co.edu.uniquindio.chord.node.ChordNode;
 import co.edu.uniquindio.dhash.node.DHashNode;
 import co.edu.uniquindio.dhash.resource.FileResource;
 import co.edu.uniquindio.dhash.resource.LocalFileResource;
+import co.edu.uniquindio.dhash.resource.LogProgressStatus;
 import co.edu.uniquindio.dhash.starter.DHashProperties;
 import co.edu.uniquindio.dht.it.socket.Protocol;
 import co.edu.uniquindio.storage.resource.Resource;
 import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
+import co.edu.uniquindio.utils.communication.transfer.ProgressStatusTransfer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 
@@ -76,7 +78,7 @@ public class NodeMessageProcessor implements MessageProcessor {
                             .source(request.getAddress().getDestination())
                             .destination(request.getAddress().getSource())
                             .build())
-                    .param(Protocol.LeaveResponseParams.MESSAGE.name(), e.getMessage())
+                    .param(Protocol.LeaveResponseParams.MESSAGE.name(), e.toString())
                     .build();
         }
     }
@@ -142,7 +144,7 @@ public class NodeMessageProcessor implements MessageProcessor {
                             .source(request.getAddress().getDestination())
                             .destination(request.getAddress().getSource())
                             .build())
-                    .param(Protocol.PutResponseParams.MESSAGE.name(), e.getMessage())
+                    .param(Protocol.PutResponseParams.MESSAGE.name(), e.toString())
                     .build();
         }
     }
@@ -184,7 +186,7 @@ public class NodeMessageProcessor implements MessageProcessor {
                             .source(request.getAddress().getDestination())
                             .destination(request.getAddress().getSource())
                             .build())
-                    .param(Protocol.GetResponseParams.MESSAGE.name(), e.getMessage())
+                    .param(Protocol.GetResponseParams.MESSAGE.name(), e.toString())
                     .build();
         }
     }

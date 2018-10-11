@@ -68,7 +68,7 @@ public class PutMessageStreamProcessor implements MessageStreamProcessor {
                             .sendType(Message.SendType.RESPONSE)
                             .messageType(Protocol.PUT_RESPONSE)
                             .param(Protocol.PutResponseParams.TRANSFER_VALID.name(), "false")
-                            .param(Protocol.PutResponseParams.MESSAGE.name(), e.getMessage())
+                            .param(Protocol.PutResponseParams.MESSAGE.name(), e.toString())
                             .build())
                     .build();
         }

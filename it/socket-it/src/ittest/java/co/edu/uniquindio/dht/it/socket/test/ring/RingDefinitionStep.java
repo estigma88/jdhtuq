@@ -112,6 +112,8 @@ public class RingDefinitionStep extends CucumberRoot {
 
         new ProcessBuilder("docker-compose", "build").inheritIO().start().waitFor();
         new ProcessBuilder("docker-compose", "up").inheritIO().start();
+
+        copyResources();
     }
 
     private void addNode(Ring ring, String node) {
@@ -152,12 +154,11 @@ public class RingDefinitionStep extends CucumberRoot {
 
     }
 
-    @Before
     public void copyResources() throws IOException {
         Path resourcesSource = Paths.get("src/ittest/resources/resources");
         Path resourcesDestination = Paths.get(socketITProperties.getDhash().getResourceDirectory(), "resources");
 
-        Files.copy(resourcesSource, resourcesDestination);
+        FileUtils.copyDirectory(resourcesSource.toFile(), resourcesDestination.toFile());
     }
 
     @After

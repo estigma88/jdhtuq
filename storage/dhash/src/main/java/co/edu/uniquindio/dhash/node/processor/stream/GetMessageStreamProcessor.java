@@ -57,7 +57,7 @@ public class GetMessageStreamProcessor implements MessageStreamProcessor {
                             .sendType(Message.SendType.RESPONSE)
                             .messageType(Protocol.GET_RESPONSE)
                             .param(Protocol.GetResponseParams.TRANSFER_VALID.name(), "false")
-                            .param(Protocol.GetResponseParams.MESSAGE.name(), e.getMessage())
+                            .param(Protocol.GetResponseParams.MESSAGE.name(), e.toString())
                             .address(Address.builder()
                                     .destination(message.getAddress().getSource())
                                     .source(dHashNode.getName())
