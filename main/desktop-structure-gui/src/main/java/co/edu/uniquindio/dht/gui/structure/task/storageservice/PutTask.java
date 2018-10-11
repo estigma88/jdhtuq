@@ -21,6 +21,7 @@ package co.edu.uniquindio.dht.gui.structure.task.storageservice;
 
 import co.edu.uniquindio.dhash.resource.FileResource;
 import co.edu.uniquindio.storage.StorageNode;
+import co.edu.uniquindio.storage.resource.ProgressStatus;
 import co.edu.uniquindio.storage.resource.Resource;
 
 import javax.swing.*;
@@ -29,20 +30,23 @@ import java.io.File;
 public class PutTask extends StorageServiceTask {
     private final File file;
 
-    public PutTask(JFrame jFrame, StorageNode storageNode, File file) {
-        super(jFrame, storageNode);
+    public PutTask(JFrame jFrame, StorageNode storageNode, File file, ProgressStatus progressStatus) {
+        super(jFrame, storageNode, progressStatus);
         this.file = file;
     }
 
 
     @Override
     protected Void doInBackground() throws Exception {
-        Resource fileResource = FileResource.withPath()
+        try(Resource fileResource = FileResource.withPath()
                 .id(file.getName())
                 .path(file.getAbsolutePath())
-                .build((name, current, size) -> {});
+                .build(progressStatus)) {
 
-        storageNode.put(fileResource, ((name, current, size) -> {}));
+            storageNode.put(fileResource, progressStatus).get();
+        }catch (Exception e){
+            throw e;
+        }
 
         return null;
     }

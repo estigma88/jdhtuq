@@ -21,13 +21,16 @@ package co.edu.uniquindio.dht.gui.structure.task.storageservice;
 
 import co.edu.uniquindio.dht.gui.structure.task.GeneralTask;
 import co.edu.uniquindio.storage.StorageNode;
+import co.edu.uniquindio.storage.resource.ProgressStatus;
 
 import javax.swing.*;
 
 public abstract class StorageServiceTask extends GeneralTask{
     protected final StorageNode storageNode;
-    protected StorageServiceTask(JFrame jFrame, StorageNode storageNode) {
+    protected final ProgressStatus progressStatus;
+    protected StorageServiceTask(JFrame jFrame, StorageNode storageNode, ProgressStatus progressStatus) {
         super(jFrame);
         this.storageNode = storageNode;
+        this.progressStatus = progressStatus;
     }
 }

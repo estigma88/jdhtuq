@@ -20,12 +20,14 @@
 package co.edu.uniquindio.dht.gui.structure.manager;
 
 
+import co.edu.uniquindio.dhash.resource.LogProgressStatus;
 import co.edu.uniquindio.dht.gui.LoadingBar;
 import co.edu.uniquindio.dht.gui.PanelDhash;
 import co.edu.uniquindio.dht.gui.structure.StructureWindow;
 import co.edu.uniquindio.dht.gui.structure.controller.Controller;
 import co.edu.uniquindio.dht.gui.structure.task.storageservice.GetTask;
 import co.edu.uniquindio.dht.gui.structure.task.storageservice.PutTask;
+import co.edu.uniquindio.storage.resource.ProgressStatus;
 
 import javax.swing.*;
 import java.awt.*;
@@ -62,7 +64,11 @@ public class PanelDhashStructure extends PanelDhash implements PropertyChangeLis
 
                 File file = fileChooser.getSelectedFile();
 
-                PutTask putTask = new PutTask(structureWindow, getDHashNode(), file);
+                ProgressStatus progressStatus = LogProgressStatus.builder()
+                        .id(file.getAbsolutePath())
+                        .build();
+
+                PutTask putTask = new PutTask(structureWindow, getDHashNode(), file, progressStatus);
                 putTask.addPropertyChangeListener(this);
                 putTask.execute();
             }
@@ -88,7 +94,11 @@ public class PanelDhashStructure extends PanelDhash implements PropertyChangeLis
                 loadingBar.setValue(1, "Doing Get...");
                 loadingBar.begin();
 
-                GetTask getTask = new GetTask(structureWindow, getDHashNode(), resourceId, resourceDirectory);
+                ProgressStatus progressStatus = LogProgressStatus.builder()
+                        .id(resourceId)
+                        .build();
+
+                GetTask getTask = new GetTask(structureWindow, getDHashNode(), resourceId, resourceDirectory, progressStatus);
                 getTask.addPropertyChangeListener(this);
                 getTask.execute();
             } else {

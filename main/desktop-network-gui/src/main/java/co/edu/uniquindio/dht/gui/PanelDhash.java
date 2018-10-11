@@ -18,10 +18,12 @@
 
 package co.edu.uniquindio.dht.gui;
 
+import co.edu.uniquindio.dhash.resource.LogProgressStatus;
 import co.edu.uniquindio.dht.gui.network.task.storageservice.GetTask;
 import co.edu.uniquindio.dht.gui.network.task.storageservice.PutTask;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.StorageNode;
+import co.edu.uniquindio.storage.resource.ProgressStatus;
 
 import javax.swing.*;
 import java.awt.*;
@@ -116,7 +118,11 @@ public class PanelDhash extends JPanel implements ActionListener, PropertyChange
 
                 File file = fileChooser.getSelectedFile();
 
-                PutTask putTask = new PutTask(frame, getDHashNode(), file);
+                ProgressStatus progressStatus = LogProgressStatus.builder()
+                        .id(file.getAbsolutePath())
+                        .build();
+
+                PutTask putTask = new PutTask(frame, getDHashNode(), file, progressStatus);
                 putTask.addPropertyChangeListener(this);
                 putTask.execute();
             }
@@ -139,7 +145,11 @@ public class PanelDhash extends JPanel implements ActionListener, PropertyChange
                 loadingBar.setValue(1, "Doing Get...");
                 loadingBar.begin();
 
-                GetTask getTask = new GetTask(frame, getDHashNode(), resourceId, resourceDirectory);
+                ProgressStatus progressStatus = LogProgressStatus.builder()
+                        .id(resourceId)
+                        .build();
+
+                GetTask getTask = new GetTask(frame, getDHashNode(), resourceId, resourceDirectory, progressStatus);
                 getTask.addPropertyChangeListener(this);
                 getTask.execute();
             } else {

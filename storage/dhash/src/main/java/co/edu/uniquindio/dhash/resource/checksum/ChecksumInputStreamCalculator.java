@@ -38,16 +38,18 @@ public class ChecksumInputStreamCalculator implements ChecksumCalculator {
             MessageDigest digest = MessageDigest.getInstance(CHECKSUM_ALGORITHM);
 
             int count;
-            long process = 0L;
+            long progress = 0L;
             byte[] buffer = new byte[2048];
 
-            progressStatus.status("digest-calc", process, size);
+            progressStatus.status("digest-calc", progress, size);
 
             while ((count = source.read(buffer)) > 0)
             {
                 digest.update(buffer, 0, count);
 
-                progressStatus.status("digest-calc", process, size);
+                progress += count;
+
+                progressStatus.status("digest-calc", progress, size);
             }
 
             return DatatypeConverter.printHexBinary(digest.digest());

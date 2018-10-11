@@ -102,6 +102,7 @@ public class DHashNode implements StorageNode {
     }
 
     Resource getSync(String id, ProgressStatus progressStatus) throws StorageException {
+        progressStatus.status("get", 0L, 1L);
 
         progressStatus.status("overlay-node-lookup", 0L, 1L);
 
@@ -156,6 +157,8 @@ public class DHashNode implements StorageNode {
                 throw new StorageException("Transfer invalid: " + getResponseMessage.getParam(Protocol.GetResponseParams.MESSAGE.name()));
             }
 
+            progressStatus.status("get", 1L, 1L);
+
             return serializationHandler.decode(getResponseMessage.getParam(Protocol.GetResponseParams.RESOURCE.name()), resource.getInputStream());
 
         } else {
@@ -165,6 +168,7 @@ public class DHashNode implements StorageNode {
     }
 
     boolean putSync(Resource resource, ProgressStatus progressStatus) throws StorageException {
+        progressStatus.status("put", 0L, 1L);
 
         progressStatus.status("overlay-node-lookup", 0L, 1L);
 
@@ -187,7 +191,11 @@ public class DHashNode implements StorageNode {
         log.debug("Lookup key for " + key.getHashing() + ": ["
                 + lookupKey.getValue() + "]");
 
-        return put(resource, lookupKey, true, progressStatus);
+        boolean success = put(resource, lookupKey, true, progressStatus);
+
+        progressStatus.status("put", 1L, 1L);
+
+        return success;
     }
 
     /**
