@@ -19,7 +19,10 @@
 package co.edu.uniquindio.dht;
 
 import co.edu.uniquindio.dht.gui.network.NetworkWindow;
+import co.edu.uniquindio.storage.StorageException;
+import co.edu.uniquindio.storage.StorageNode;
 import co.edu.uniquindio.storage.StorageNodeFactory;
+import co.edu.uniquindio.utils.communication.transfer.network.HostNameUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -28,6 +31,8 @@ import org.springframework.context.annotation.Bean;
 
 import javax.swing.*;
 import java.awt.*;
+import java.net.UnknownHostException;
+import java.util.Optional;
 
 @SpringBootApplication
 public class Main {
@@ -43,8 +48,16 @@ public class Main {
     }
 
     @Bean
-    public NetworkWindow networkWindow(StorageNodeFactory storageNodeFactory, @Value("${ui-network.resource-directory}") String resourceDirectory) {
-        return new NetworkWindow(storageNodeFactory, resourceDirectory);
+    public StorageNode storageNode(StorageNodeFactory storageNodeFactory, @Value("${ui-network.node-name:#{null}}") String nodeName) throws UnknownHostException, StorageException {
+        nodeName = Optional.ofNullable(nodeName)
+                .orElse(HostNameUtil.getLocalHostAddress());
+
+        return storageNodeFactory.createNode(nodeName);
+    }
+
+    @Bean
+    public NetworkWindow networkWindow(StorageNode storageNode, @Value("${ui-network.resource-directory}") String resourceDirectory) {
+        return new NetworkWindow(storageNode, resourceDirectory);
     }
 }
 
