@@ -48,7 +48,7 @@ Feature: A node left the network
       | 172.16.0.21 | 172.16.0.13 |
       | 172.16.0.22 | 172.16.0.8 |
     And I have the resources names and values:
-      | name | path |
+      | name | dockerPath |
       | resource1.txt | /resources/resource1.txt |
       | resource2.txt | /resources/resource2.txt |
       | resource3.txt | /resources/resource3.txt |

@@ -50,17 +50,17 @@ Feature: I put resources into the network
 
   Scenario: I put resources into the network
     Given I have the resources names and values:
-      | name | path |
-      | resource1.txt | /resources/resource1.txt |
-      | resource2.txt | /resources/resource2.txt |
-      | resource3.txt | /resources/resource3.txt |
-      | resource4.txt | /resources/resource4.txt |
-      | resource5.txt | /resources/resource5.txt |
-      | resource6.txt | /resources/resource6.txt |
-      | resource7.txt | /resources/resource7.txt |
-      | resource8.txt | /resources/resource8.txt |
-      | resource9.txt | /resources/resource9.txt |
-      | resource10.txt | /resources/resource10.txt |
+      | name | dockerPath | localPath |
+      | resource1.txt | /resources/resource1.txt | src/ittest/resources/resources/resource1.txt |
+      | resource2.txt | /resources/resource2.txt | src/ittest/resources/resources/resource2.txt |
+      | resource3.txt | /resources/resource3.txt | src/ittest/resources/resources/resource3.txt |
+      | resource4.txt | /resources/resource4.txt | src/ittest/resources/resources/resource4.txt |
+      | resource5.txt | /resources/resource5.txt | src/ittest/resources/resources/resource5.txt |
+      | resource6.txt | /resources/resource6.txt | src/ittest/resources/resources/resource6.txt |
+      | resource7.txt | /resources/resource7.txt | src/ittest/resources/resources/resource7.txt |
+      | resource8.txt | /resources/resource8.txt | src/ittest/resources/resources/resource8.txt |
+      | resource9.txt | /resources/resource9.txt | src/ittest/resources/resources/resource9.txt |
+      | resource10.txt | /resources/resource10.txt | src/ittest/resources/resources/resource10.txt |
     Given I use the "172.16.0.43" as a gateway
     When I put resources into the network
     Then I wait for stabilizing after 20 seconds

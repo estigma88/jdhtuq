@@ -19,6 +19,7 @@
 package co.edu.uniquindio.dht.it.datastructure.put;
 
 import co.edu.uniquindio.dhash.resource.FileResource;
+import co.edu.uniquindio.dhash.resource.checksum.ChecksumInputStreamCalculator;
 import co.edu.uniquindio.dhash.starter.DHashProperties;
 import co.edu.uniquindio.dht.it.datastructure.CucumberRoot;
 import co.edu.uniquindio.dht.it.datastructure.World;
@@ -80,15 +81,30 @@ public class PutsDefinitionStep extends CucumberRoot {
 
     @Then("^The resources are put in the following nodes:$")
     public void the_resources_are_put_in_the_following_nodes(Map<String, String> nodesByResource) throws Throwable {
+        ChecksumInputStreamCalculator checkSumCalculator = new ChecksumInputStreamCalculator();
+
         for (String contentName : nodesByResource.keySet()) {
             String[] nodes = nodesByResource.get(contentName).split(",");
 
             for (String node : nodes) {
                 Path resourcePath = Paths.get(dHashProperties.getResourceDirectory(), node, contentName, contentName);
+                Path checkSumPath = Paths.get(dHashProperties.getResourceDirectory(), node, contentName, contentName + ".MD5");
 
-                assertThat(Files.exists(resourcePath)).isTrue();
+                assertThat(Files.exists(resourcePath))
+                        .as("Validating if file %s exists in %s", contentName, resourcePath)
+                        .isTrue();
+                assertThat(Files.exists(checkSumPath))
+                        .as("Validating if checkSume file %s exists in %s", contentName, checkSumPath)
+                        .isTrue();
 
-                assertThat(Files.readAllLines(Paths.get(contents.get(contentName).getPath()))).isEqualTo(Files.readAllLines(resourcePath));
+                Path path = Paths.get(contents.get(contentName).getPath());
+
+                assertThat(Files.readAllLines(path)).isEqualTo(Files.readAllLines(resourcePath));
+
+                String checkSum = checkSumCalculator.calculate(Files.newInputStream(path), Files.size(path), (name, current, limit) -> {
+                });
+
+                assertThat(checkSum).isEqualTo(Files.readAllLines(checkSumPath).get(0));
             }
         }
     }

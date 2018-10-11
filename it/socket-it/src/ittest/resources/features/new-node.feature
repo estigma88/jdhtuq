@@ -28,7 +28,7 @@ Feature: A node is add to the network
     And The "172.16.0.10" is not started
     And I wait for stabilizing after 120 seconds
     And I have the resources names and values:
-      | name | path |
+      | name | dockerPath |
       | resource1.txt | /resources/resource1.txt |
       | resource2.txt | /resources/resource2.txt |
       | resource3.txt | /resources/resource3.txt |

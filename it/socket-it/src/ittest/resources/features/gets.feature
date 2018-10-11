@@ -48,7 +48,7 @@ Feature: A node requested all the resources
       | 172.16.0.21 | 172.16.0.13 |
       | 172.16.0.22 | 172.16.0.8 |
     And I have the resources names and values:
-      | name | path |
+      | name | dockerPath |
       | resource1.txt | /resources/resource1.txt |
       | resource2.txt | /resources/resource2.txt |
       | resource3.txt | /resources/resource3.txt |
@@ -66,7 +66,7 @@ Feature: A node requested all the resources
   Scenario: The node "172.16.0.43" requested all the resources
     Given I use the "172.16.0.43" as a gateway
     Then I lookup the following resources:
-      | name | path |
+      | name | localPath |
       | resource1.txt | src/ittest/resources/resources/resource1.txt |
       | resource2.txt | src/ittest/resources/resources/resource2.txt |
       | resource3.txt | src/ittest/resources/resources/resource3.txt |

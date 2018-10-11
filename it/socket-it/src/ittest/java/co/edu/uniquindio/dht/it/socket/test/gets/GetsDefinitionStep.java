@@ -44,7 +44,7 @@ public class GetsDefinitionStep extends CucumberRoot {
 
             assertThat(response).isNotNull();
             assertThat(response.getParam(Protocol.GetResponseDatas.RESOURCE.name())).isNotNull();
-            assertThat(response.getParam(Protocol.GetResponseDatas.RESOURCE.name())).isEqualTo(IOUtils.toString(new FileInputStream(content.getPath()), Charset.defaultCharset()));
+            assertThat(response.getParam(Protocol.GetResponseDatas.RESOURCE.name())).isEqualTo(IOUtils.toString(new FileInputStream(content.getLocalPath()), Charset.defaultCharset()));
         }
     }
 }
