@@ -102,6 +102,7 @@ public class DHashNode implements StorageNode {
     }
 
     Resource getSync(String id, ProgressStatus progressStatus) throws StorageException {
+        progressStatus.status("get", 0L, 1L);
 
         progressStatus.status("overlay-node-lookup", 0L, 1L);
 
@@ -148,7 +149,17 @@ public class DHashNode implements StorageNode {
             MessageStream resource = communicationManager
                     .receive(getMessage, progressStatus::status);
 
-            return serializationHandler.decode(resource.getMessage().getParam(Protocol.GetResponseData.RESOURCE.name()), resource.getInputStream());
+            Message getResponseMessage = resource.getMessage();
+
+            Boolean transferValid = Boolean.valueOf(getResponseMessage.getParam(Protocol.GetResponseParams.TRANSFER_VALID.name()));
+
+            if (!transferValid){
+                throw new StorageException("Transfer invalid: " + getResponseMessage.getParam(Protocol.GetResponseParams.MESSAGE.name()));
+            }
+
+            progressStatus.status("get", 1L, 1L);
+
+            return serializationHandler.decode(getResponseMessage.getParam(Protocol.GetResponseParams.RESOURCE.name()), resource.getInputStream());
 
         } else {
             return null;
@@ -157,6 +168,7 @@ public class DHashNode implements StorageNode {
     }
 
     boolean putSync(Resource resource, ProgressStatus progressStatus) throws StorageException {
+        progressStatus.status("put", 0L, 1L);
 
         progressStatus.status("overlay-node-lookup", 0L, 1L);
 
@@ -179,7 +191,11 @@ public class DHashNode implements StorageNode {
         log.debug("Lookup key for " + key.getHashing() + ": ["
                 + lookupKey.getValue() + "]");
 
-        return put(resource, lookupKey, true, progressStatus);
+        boolean success = put(resource, lookupKey, true, progressStatus);
+
+        progressStatus.status("put", 1L, 1L);
+
+        return success;
     }
 
     /**
@@ -200,17 +216,23 @@ public class DHashNode implements StorageNode {
                         .destination(lookupKey.getValue())
                         .source(name)
                         .build())
-                .param(Protocol.PutDatas.RESOURCE.name(), serializationHandler.encode(resource))
+                .param(Protocol.PutParams.RESOURCE.name(), serializationHandler.encode(resource))
                 .param(PutParams.REPLICATE.name(), String.valueOf(replicate))
                 .build();
 
-        communicationManager.send(MessageStream.builder()
+        Message putResponse = communicationManager.send(MessageStream.builder()
                 .message(putMessage)
                 .inputStream(resource.getInputStream())
                 .size(resource.getSize())
                 .build(), progressStatus::status);
 
-        return true;
+        Boolean transferValid = Boolean.valueOf(putResponse.getParam(Protocol.PutResponseParams.TRANSFER_VALID.name()));
+
+        if (!transferValid) {
+            throw new StorageException("Transfer invalid: " + putResponse.getParam(Protocol.PutResponseParams.MESSAGE.name()));
+        }
+
+        return transferValid;
     }
 
     /**

@@ -13,6 +13,7 @@ import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.message.IdGenerator;
 import co.edu.uniquindio.utils.communication.transfer.network.MessageSerialization;
 import cucumber.api.java.After;
+import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -21,6 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
@@ -108,6 +112,8 @@ public class RingDefinitionStep extends CucumberRoot {
 
         new ProcessBuilder("docker-compose", "build").inheritIO().start().waitFor();
         new ProcessBuilder("docker-compose", "up").inheritIO().start();
+
+        copyResources();
     }
 
     private void addNode(Ring ring, String node) {
@@ -146,6 +152,13 @@ public class RingDefinitionStep extends CucumberRoot {
             assertThat(successor).isEqualTo(nodeSuccessors.get(node));
         }
 
+    }
+
+    public void copyResources() throws IOException {
+        Path resourcesSource = Paths.get("src/ittest/resources/resources");
+        Path resourcesDestination = Paths.get(socketITProperties.getDhash().getResourceDirectory(), "resources");
+
+        FileUtils.copyDirectory(resourcesSource.toFile(), resourcesDestination.toFile());
     }
 
     @After

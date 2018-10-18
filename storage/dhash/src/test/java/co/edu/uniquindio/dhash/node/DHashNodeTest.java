@@ -147,7 +147,7 @@ public class DHashNodeTest {
     }
 
     @Test
-    public void get_nodeHaveResource_exception() throws StorageException, IOException, ClassNotFoundException {
+    public void get_nodeHaveResource_resource() throws StorageException, IOException, ClassNotFoundException {
         Message getMessage = Message.builder()
                 .id("id")
                 .sendType(Message.SendType.REQUEST)
@@ -173,7 +173,8 @@ public class DHashNodeTest {
         ByteArrayInputStream inputStream = new ByteArrayInputStream(new byte[8]);
         MessageStream messageStream = MessageStream.builder()
                 .message(Message.builder()
-                        .param(Protocol.GetResponseData.RESOURCE.name(), "resource")
+                        .param(Protocol.GetResponseParams.RESOURCE.name(), "resource")
+                        .param(Protocol.GetResponseParams.TRANSFER_VALID.name(), "true")
                         .build())
                 .inputStream(inputStream)
                 .build();
@@ -185,10 +186,54 @@ public class DHashNodeTest {
         when(communicationManager.receive(eq(resourceTransferMessage), any())).thenReturn(messageStream);
         when(serializationHandler.decode("resource", inputStream)).thenReturn(resource1);
 
-        Resource result = dHashNode.getSync("resourceKey", (name, current, size) -> {
-        });
+        Resource result = dHashNode.getSync("resourceKey", progressStatus);
 
         assertThat(result).isEqualTo(resource1);
+    }
+
+    @Test
+    public void get_nodeHaveResourceErrorTransfering_exception() throws StorageException, IOException, ClassNotFoundException {
+        thrown.expect(StorageException.class);
+        thrown.expectMessage("file access failed");
+
+        Message getMessage = Message.builder()
+                .id("id")
+                .sendType(Message.SendType.REQUEST)
+                .messageType(Protocol.CONTAIN)
+                .address(Address.builder()
+                        .destination("key")
+                        .source("dhash")
+                        .build())
+                .param(Protocol.ContainParams.RESOURCE_KEY.name(), "resourceKey")
+                .build();
+
+        Message resourceTransferMessage = Message.builder()
+                .sendType(Message.SendType.REQUEST)
+                .id("id")
+                .messageType(Protocol.GET)
+                .address(Address.builder()
+                        .destination("key")
+                        .source("dhash")
+                        .build())
+                .param(Protocol.GetParams.RESOURCE_KEY.name(), "resourceKey")
+                .build();
+
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(new byte[8]);
+        MessageStream messageStream = MessageStream.builder()
+                .message(Message.builder()
+                        .param(Protocol.GetResponseParams.MESSAGE.name(), "file access failed")
+                        .param(Protocol.GetResponseParams.TRANSFER_VALID.name(), "false")
+                        .build())
+                .inputStream(inputStream)
+                .build();
+
+        when(idGenerator.newId()).thenReturn("id");
+        when(keyFactory.newKey("resourceKey")).thenReturn(key1);
+        when(overlayNode.lookUp(key1)).thenReturn(key);
+        when(communicationManager.send(getMessage, Boolean.class)).thenReturn(true);
+        when(communicationManager.receive(eq(resourceTransferMessage), any())).thenReturn(messageStream);
+
+        dHashNode.getSync("resourceKey", progressStatus);
     }
 
     @Test
@@ -213,7 +258,7 @@ public class DHashNodeTest {
                         .destination("key")
                         .source("dhash")
                         .build())
-                .param(Protocol.PutDatas.RESOURCE.name(), "resource")
+                .param(Protocol.PutParams.RESOURCE.name(), "resource")
                 .param(Protocol.PutParams.REPLICATE.name(), "true")
                 .build();
 
@@ -224,17 +269,63 @@ public class DHashNodeTest {
                 .size(8L)
                 .build();
 
+        Message putResponse = Message.builder()
+                .param(Protocol.PutResponseParams.TRANSFER_VALID.name(), "true")
+                .build();
+
         when(idGenerator.newId()).thenReturn("id");
         when(keyFactory.newKey("resourceKey")).thenReturn(key1);
         when(resource1.getId()).thenReturn("resourceKey");
         when(overlayNode.lookUp(key1)).thenReturn(key);
+        when(communicationManager.send(eq(messageStream), any())).thenReturn(putResponse);
         when(serializationHandler.encode(resource1)).thenReturn("resource");
         when(resource1.getInputStream()).thenReturn(inputStream);
         when(resource1.getSize()).thenReturn(8L);
 
-        dHashNode.putSync(resource1, (name, current, size) -> {});
+        dHashNode.putSync(resource1, progressStatus);
 
         verify(communicationManager).send(eq(messageStream), any());
+    }
+
+    @Test
+    public void put_sendTransferError_exception() throws StorageException, IOException, ClassNotFoundException {
+        thrown.expect(StorageException.class);
+        thrown.expectMessage("file access failed");
+
+        Message putMessage = Message.builder()
+                .id("id")
+                .sendType(Message.SendType.REQUEST)
+                .messageType(Protocol.PUT)
+                .address(Address.builder()
+                        .destination("key")
+                        .source("dhash")
+                        .build())
+                .param(Protocol.PutParams.RESOURCE.name(), "resource")
+                .param(Protocol.PutParams.REPLICATE.name(), "true")
+                .build();
+
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(new byte[8]);
+        MessageStream messageStream = MessageStream.builder()
+                .message(putMessage)
+                .inputStream(inputStream)
+                .size(8L)
+                .build();
+
+        Message putResponse = Message.builder()
+                .param(Protocol.PutResponseParams.MESSAGE.name(), "file access failed")
+                .param(Protocol.PutResponseParams.TRANSFER_VALID.name(), "false")
+                .build();
+
+        when(idGenerator.newId()).thenReturn("id");
+        when(keyFactory.newKey("resourceKey")).thenReturn(key1);
+        when(resource1.getId()).thenReturn("resourceKey");
+        when(overlayNode.lookUp(key1)).thenReturn(key);
+        when(communicationManager.send(eq(messageStream), any())).thenReturn(putResponse);
+        when(serializationHandler.encode(resource1)).thenReturn("resource");
+        when(resource1.getInputStream()).thenReturn(inputStream);
+        when(resource1.getSize()).thenReturn(8L);
+
+        dHashNode.putSync(resource1, progressStatus);
     }
 
     @Test

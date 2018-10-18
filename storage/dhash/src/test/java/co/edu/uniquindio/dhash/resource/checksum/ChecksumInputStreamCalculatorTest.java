@@ -19,29 +19,31 @@
 package co.edu.uniquindio.dhash.resource.checksum;
 
 import co.edu.uniquindio.dhash.resource.FileResource;
+import co.edu.uniquindio.storage.resource.ProgressStatus;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.ByteArrayInputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.in;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ChecksumInputStreamCalculatorTest {
+    @Mock
+    private ProgressStatus progressStatus;
     @InjectMocks
     private ChecksumInputStreamCalculator checksumInputStreamCalculator;
 
     @Test
     public void calculate() {
-        FileResource fileResource = FileResource.withInputStream()
-                .id("resource")
-                .inputStream(new ByteArrayInputStream(new byte[]{1, 2, 3}))
-                .build();
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(new byte[]{1, 2, 3});
 
-        String checksum = checksumInputStreamCalculator.calculate(fileResource);
+        String checksum = checksumInputStreamCalculator.calculate(inputStream, 10L, progressStatus);
 
-        assertThat(checksum).isEqualTo("5289df737df57326fcdd22597afb1fac");
+        assertThat(checksum).isEqualTo("5289DF737DF57326FCDD22597AFB1FAC");
     }
 }

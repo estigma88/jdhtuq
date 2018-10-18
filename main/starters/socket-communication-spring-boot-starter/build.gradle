@@ -14,7 +14,7 @@ plugins {
 }
 
 group = 'com.github.estigma88'
-version = '3.0.0'
+version = '3.0.1'
 
 sourceCompatibility = 1.8
 
@@ -24,7 +24,7 @@ repositories {
 
 
 dependencies {
-    compile group: 'com.github.estigma88', name: 'jdhtuq-socket-communication', version: '3.0.0'
+    compile group: 'com.github.estigma88', name: 'jdhtuq-socket-communication', version: '3.0.1'
 
 	compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.4'
 

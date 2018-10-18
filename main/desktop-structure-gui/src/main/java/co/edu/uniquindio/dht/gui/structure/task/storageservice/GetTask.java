@@ -21,6 +21,7 @@ package co.edu.uniquindio.dht.gui.structure.task.storageservice;
 
 import co.edu.uniquindio.dhash.resource.LocalFileResource;
 import co.edu.uniquindio.storage.StorageNode;
+import co.edu.uniquindio.storage.resource.ProgressStatus;
 import co.edu.uniquindio.storage.resource.Resource;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,8 +34,8 @@ public class GetTask extends StorageServiceTask {
     private final String resourceId;
     private final String resourceDirectory;
 
-    public GetTask(JFrame jFrame, StorageNode storageNode, String resourceId, String resourceDirectory) {
-        super(jFrame, storageNode);
+    public GetTask(JFrame jFrame, StorageNode storageNode, String resourceId, String resourceDirectory, ProgressStatus progressStatus) {
+        super(jFrame, storageNode, progressStatus);
         this.resourceId = resourceId;
         this.resourceDirectory = resourceDirectory;
     }
@@ -42,18 +43,17 @@ public class GetTask extends StorageServiceTask {
 
     @Override
     protected Void doInBackground() throws Exception {
-        Resource resource = storageNode.get(resourceId, ((name, current, size) -> {
-        })).get();
+        Resource resource = storageNode.get(resourceId, progressStatus).get();
 
         Files.createDirectories(Paths.get(resourceDirectory + storageNode.getName() + "/gets/"));
 
         LocalFileResource localFileResource = LocalFileResource.builder()
                 .resource(resource)
                 .path(resourceDirectory + storageNode.getName() + "/gets/")
-                .sizeBuffer(2048)
+                .bufferSize(2048)
                 .build();
 
-        localFileResource.persist(((name, current, size) -> {log.info("{} - {} - {}", name, current, size);}));
+        localFileResource.persist(progressStatus);
 
         return null;
     }

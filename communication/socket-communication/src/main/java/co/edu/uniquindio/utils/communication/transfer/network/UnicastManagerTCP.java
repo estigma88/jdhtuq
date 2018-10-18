@@ -114,7 +114,7 @@ public class UnicastManagerTCP implements StreamCommunicator {
     }
 
     @Override
-    public void send(MessageStream messageStream, ProgressStatusTransfer progressStatusTransfer) {
+    public Message send(MessageStream messageStream, ProgressStatusTransfer progressStatusTransfer) {
         try (Socket socket = new Socket()) {
             Message message = Message.with(messageStream.getMessage())
                     .param(HANDLE_STREAMS, String.valueOf(true))
@@ -127,8 +127,17 @@ public class UnicastManagerTCP implements StreamCommunicator {
             progressStatusTransfer.status("message-starter", 1L, 1L);
 
             send(socket.getOutputStream(), messageStream.getInputStream(), messageStream.getSize(), progressStatusTransfer);
-        } catch (IOException e) {
+
+            progressStatusTransfer.status("message-confirmation", 0L, 1L);
+
+            Message response = readMessage(socket.getInputStream());
+
+            progressStatusTransfer.status("message-confirmation", 1L, 1L);
+
+            return response;
+        } catch (IOException | ClassNotFoundException e) {
             log.error("Error writing socket", e);
+            return null;
         }
     }
 
@@ -140,10 +149,12 @@ public class UnicastManagerTCP implements StreamCommunicator {
 
         progressStatusTransfer.status("message-starter", 1L, 1L);
 
-        try {
-            send(destination, messageStream.getInputStream(), messageStream.getSize(), progressStatusTransfer);
-        } catch (IOException e) {
-            log.error("Error writing socket", e);
+        if (messageStream.getInputStream() != null) {
+            try {
+                send(destination, messageStream.getInputStream(), messageStream.getSize(), progressStatusTransfer);
+            } catch (IOException e) {
+                log.error("Error writing socket", e);
+            }
         }
     }
 

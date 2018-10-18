@@ -261,8 +261,8 @@ public class CommunicationManagerTCP implements
      * @param message Messages to transfer
      */
     @Override
-    public void send(MessageStream message, ProgressStatusTransfer progressStatusTransfer) {
-        unicastManager.send(message, progressStatusTransfer);
+    public Message send(MessageStream message, ProgressStatusTransfer progressStatusTransfer) {
+        return unicastManager.send(message, progressStatusTransfer);
     }
 
     @Override

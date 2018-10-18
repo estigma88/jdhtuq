@@ -4,25 +4,35 @@ import co.edu.uniquindio.chord.ChordKey;
 import co.edu.uniquindio.chord.node.ChordNode;
 import co.edu.uniquindio.dhash.node.DHashNode;
 import co.edu.uniquindio.dhash.resource.FileResource;
+import co.edu.uniquindio.dhash.resource.LocalFileResource;
+import co.edu.uniquindio.dhash.resource.LogProgressStatus;
+import co.edu.uniquindio.dhash.starter.DHashProperties;
 import co.edu.uniquindio.dht.it.socket.Protocol;
 import co.edu.uniquindio.storage.resource.Resource;
 import co.edu.uniquindio.utils.communication.message.Address;
 import co.edu.uniquindio.utils.communication.message.Message;
 import co.edu.uniquindio.utils.communication.transfer.MessageProcessor;
+import co.edu.uniquindio.utils.communication.transfer.ProgressStatusTransfer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 
-import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 @Slf4j
 public class NodeMessageProcessor implements MessageProcessor {
     private final DHashNode storageNode;
+    private final DHashProperties dHashProperties;
 
-    public NodeMessageProcessor(DHashNode storageNode) {
+    public NodeMessageProcessor(DHashNode storageNode, DHashProperties dHashProperties) {
         this.storageNode = storageNode;
+        this.dHashProperties = dHashProperties;
     }
 
     @Override
@@ -68,7 +78,7 @@ public class NodeMessageProcessor implements MessageProcessor {
                             .source(request.getAddress().getDestination())
                             .destination(request.getAddress().getSource())
                             .build())
-                    .param(Protocol.LeaveResponseParams.MESSAGE.name(), e.getMessage())
+                    .param(Protocol.LeaveResponseParams.MESSAGE.name(), e.toString())
                     .build();
         }
     }
@@ -91,10 +101,13 @@ public class NodeMessageProcessor implements MessageProcessor {
 
     private Message processPut(Message request) {
         try {
-            FileResource resource = FileResource.withInputStream()
+            Path path = Paths.get(dHashProperties.getResourceDirectory(), request.getParam(Protocol.PutDatas.RESOURCE.name()));
+
+            FileResource resource = FileResource.withPath()
                     .id(request.getParam(Protocol.PutParams.RESOURCE_NAME.name()))
-                    .inputStream(new ByteArrayInputStream(request.getParam(Protocol.PutDatas.RESOURCE.name()).getBytes()))
-                    .build();
+                    .path(path.toString())
+                    .build((name, current, size) -> {
+                    });
 
             boolean success = storageNode.put(resource, (name, current, size) -> {
             }).get();
@@ -131,14 +144,29 @@ public class NodeMessageProcessor implements MessageProcessor {
                             .source(request.getAddress().getDestination())
                             .destination(request.getAddress().getSource())
                             .build())
-                    .param(Protocol.PutResponseParams.MESSAGE.name(), e.getMessage())
+                    .param(Protocol.PutResponseParams.MESSAGE.name(), e.toString())
                     .build();
         }
     }
 
     private Message processGet(Message request) {
+
         try (Resource resource = storageNode.get(request.getParam(Protocol.GetParams.RESOURCE_NAME.name()), (name, current, size) -> {
         }).get()) {
+
+            Path path = Paths.get(dHashProperties.getResourceDirectory(), "gets", storageNode.getName());
+
+            Files.createDirectories(path);
+
+            LocalFileResource localFileResource = LocalFileResource.builder()
+                    .resource(resource)
+                    .path(path.toString())
+                    .bufferSize(1024)
+                    .build();
+
+            File file = localFileResource.persist((name, current, size) -> {
+            });
+
             return Message.builder()
                     .sendType(Message.SendType.RESPONSE)
                     .messageType(Protocol.GET_RESPONSE)
@@ -147,7 +175,7 @@ public class NodeMessageProcessor implements MessageProcessor {
                             .destination(request.getAddress().getSource())
                             .build())
                     .param(Protocol.GetResponseParams.MESSAGE.name(), "OK")
-                    .param(Protocol.GetResponseDatas.RESOURCE.name(), IOUtils.toString(resource.getInputStream(), Charset.defaultCharset()))
+                    .param(Protocol.GetResponseDatas.RESOURCE.name(), IOUtils.toString(new FileInputStream(file), Charset.defaultCharset()))
                     .build();
         } catch (Exception e) {
             log.error("Problem doing get", e);
@@ -158,7 +186,7 @@ public class NodeMessageProcessor implements MessageProcessor {
                             .source(request.getAddress().getDestination())
                             .destination(request.getAddress().getSource())
                             .build())
-                    .param(Protocol.GetResponseParams.MESSAGE.name(), e.getMessage())
+                    .param(Protocol.GetResponseParams.MESSAGE.name(), e.toString())
                     .build();
         }
     }

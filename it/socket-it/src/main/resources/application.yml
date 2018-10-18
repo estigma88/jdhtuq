@@ -41,3 +41,8 @@ socket-it:
     172-16-0-20: 23018
     172-16-0-21: 23019
     172-16-0-22: 23020
+
+logging.level.co.edu.uniquindio.chord.node.ChordNode: OFF
+logging.level.co.edu.uniquindio.dhash.node.DHashNode: OFF
+logging.level.co.edu.uniquindio.dhash.resource.LogProgressStatus: DEBUG
+logging.level.co.edu.uniquindio.dhash.resource.manager.FileResourceManager: DEBUG

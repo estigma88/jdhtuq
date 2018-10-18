@@ -1,5 +1,6 @@
 package co.edu.uniquindio.dht.it.socket.test.put;
 
+import co.edu.uniquindio.dhash.resource.checksum.ChecksumInputStreamCalculator;
 import co.edu.uniquindio.dhash.starter.DHashProperties;
 import co.edu.uniquindio.dht.it.socket.Protocol;
 import co.edu.uniquindio.dht.it.socket.test.CucumberRoot;
@@ -15,8 +16,6 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -60,7 +59,7 @@ public class PutsDefinitionStep extends CucumberRoot {
                             .destination("localhost")
                             .build())
                     .param(Protocol.PutParams.RESOURCE_NAME.name(), contentName)
-                    .param(Protocol.PutDatas.RESOURCE.name(), contents.get(contentName).getContent())
+                    .param(Protocol.PutDatas.RESOURCE.name(), contents.get(contentName).getDockerPath())
                     .build();
 
             Message response = messageClient.send(put);
@@ -73,21 +72,30 @@ public class PutsDefinitionStep extends CucumberRoot {
 
     @Then("^The resources are put in the following nodes:$")
     public void the_resources_are_put_in_the_following_nodes(Map<String, String> nodesByResource) throws Throwable {
+        ChecksumInputStreamCalculator checkSumCalculator = new ChecksumInputStreamCalculator();
+
         for (String contentName : nodesByResource.keySet()) {
             String[] nodes = nodesByResource.get(contentName).split(",");
 
             for (String node : nodes) {
-                Path resourcePath = Paths.get(socketITProperties.getDhash().getResourceDirectory() + node + "/" + contentName);
+                Path resourcePath = Paths.get(socketITProperties.getDhash().getResourceDirectory(), node, contentName, contentName);
+                Path checkSumPath = Paths.get(socketITProperties.getDhash().getResourceDirectory(), node, contentName, contentName + ".MD5");
 
-                File resource = resourcePath.toFile();
+                assertThat(Files.exists(resourcePath))
+                        .as("Validating if file %s exists in %s", contentName, resourcePath)
+                        .isTrue();
+                assertThat(Files.exists(checkSumPath))
+                        .as("Validating if checkSume file %s exists in %s", contentName, checkSumPath)
+                        .isTrue();
 
-                assertThat(resource.exists()).isTrue();
+                Path path = Paths.get(contents.get(contentName).getLocalPath());
 
-                ByteArrayOutputStream os = new ByteArrayOutputStream();
+                assertThat(Files.readAllLines(path)).isEqualTo(Files.readAllLines(resourcePath));
 
-                Files.copy(resourcePath, os);
+                String checkSum = checkSumCalculator.calculate(Files.newInputStream(path), Files.size(path), (name, current, limit) -> {
+                });
 
-                assertThat(contents.get(contentName).getContent()).isEqualTo(os.toString());
+                assertThat(checkSum).isEqualTo(Files.readAllLines(checkSumPath).get(0));
             }
         }
     }

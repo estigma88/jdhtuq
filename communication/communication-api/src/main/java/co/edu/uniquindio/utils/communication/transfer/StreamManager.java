@@ -6,5 +6,5 @@ import co.edu.uniquindio.utils.communication.message.MessageStream;
 public interface StreamManager {
     MessageStream receive(Message message, ProgressStatusTransfer progressStatusTransfer);
 
-    void send(MessageStream messageStream, ProgressStatusTransfer progressStatusTransfer);
+    Message send(MessageStream messageStream, ProgressStatusTransfer progressStatusTransfer);
 }

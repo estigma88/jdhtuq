@@ -1,5 +1,3 @@
-ui-network:
-  resource-directory: build/dhash/
 p2p:
   dhash:
     resource-directory: build/dhash/

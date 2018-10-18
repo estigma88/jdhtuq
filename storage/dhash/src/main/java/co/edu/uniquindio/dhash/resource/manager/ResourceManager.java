@@ -18,6 +18,8 @@
 
 package co.edu.uniquindio.dhash.resource.manager;
 
+import co.edu.uniquindio.storage.StorageException;
+import co.edu.uniquindio.storage.resource.ProgressStatus;
 import co.edu.uniquindio.storage.resource.Resource;
 
 import java.io.OutputStream;
@@ -32,12 +34,12 @@ public interface ResourceManager {
      *
      * @param resource resource
      */
-    void save(Resource resource);
+    void save(Resource resource, ProgressStatus progressStatus) throws StorageException;
 
     /**
      * Delete all resources
      */
-    void deleteAll();
+    void deleteAll() throws StorageException;
 
     /**
      * Validate if the resource with key exists
@@ -52,7 +54,7 @@ public interface ResourceManager {
      *
      * @return keys resources
      */
-    Set<String> getAllKeys();
+    Set<String> getAllKeys() throws StorageException;
 
     /**
      * Find a resource by key
@@ -60,5 +62,5 @@ public interface ResourceManager {
      * @param key resource key
      * @return The resource with the key, null if there is not a resource with that key
      */
-    Resource find(String key);
+    Resource find(String key) throws StorageException;
 }

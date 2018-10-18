@@ -21,6 +21,8 @@ package co.edu.uniquindio.dht;
 import co.edu.uniquindio.storage.StorageException;
 import co.edu.uniquindio.storage.StorageNode;
 import co.edu.uniquindio.storage.StorageNodeFactory;
+import co.edu.uniquindio.utils.communication.transfer.network.HostNameUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
@@ -28,14 +30,18 @@ import org.springframework.context.annotation.Configuration;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Optional;
 
 @SpringBootApplication
 @Configuration
 public class Main {
 
     @Bean
-    public StorageNode storageNode(StorageNodeFactory storageNodeFactory) throws UnknownHostException, StorageException {
-        return storageNodeFactory.createNode(InetAddress.getLocalHost().getHostAddress());
+    public StorageNode storageNode(StorageNodeFactory storageNodeFactory, @Value("${standalone-network.node-name:#{null}}") String nodeName) throws UnknownHostException, StorageException {
+        nodeName = Optional.ofNullable(nodeName)
+                .orElse(HostNameUtil.getLocalHostAddress());
+
+        return storageNodeFactory.createNode(nodeName);
     }
 
     public static void main(String[] args) {

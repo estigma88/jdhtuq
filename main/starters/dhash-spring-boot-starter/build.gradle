@@ -14,7 +14,7 @@ plugins {
 }
 
 group = 'com.github.estigma88'
-version = '3.0.0'
+version = '3.0.1'
 
 sourceCompatibility = 1.8
 
@@ -24,7 +24,7 @@ repositories {
 
 
 dependencies {
-    compile group: 'com.github.estigma88', name: 'jdhtuq-dhash', version: '3.0.0'
+    compile group: 'com.github.estigma88', name: 'jdhtuq-dhash', version: '3.0.1'
 
 	compileOnly 'org.projectlombok:lombok:1.16.20'
 	compileOnly "org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}"

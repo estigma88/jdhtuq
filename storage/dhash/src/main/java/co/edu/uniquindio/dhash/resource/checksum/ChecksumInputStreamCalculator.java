@@ -18,8 +18,10 @@
 
 package co.edu.uniquindio.dhash.resource.checksum;
 
+import co.edu.uniquindio.storage.resource.ProgressStatus;
 import co.edu.uniquindio.storage.resource.Resource;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -28,25 +30,29 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class ChecksumInputStreamCalculator implements ChecksumCalculator {
-    private final String algorithm = "MD5";
+    public static final String CHECKSUM_ALGORITHM = "MD5";
 
     @Override
-    public String calculate(Resource resource) {
-        try (InputStream source = resource.getInputStream()){
-            MessageDigest digest = MessageDigest.getInstance(algorithm);
+    public String calculate(InputStream inputStream, Long size, ProgressStatus progressStatus) {
+        try (InputStream source = inputStream){
+            MessageDigest digest = MessageDigest.getInstance(CHECKSUM_ALGORITHM);
 
             int count;
+            long progress = 0L;
             byte[] buffer = new byte[2048];
+
+            progressStatus.status("digest-calc", progress, size);
+
             while ((count = source.read(buffer)) > 0)
             {
                 digest.update(buffer, 0, count);
+
+                progress += count;
+
+                progressStatus.status("digest-calc", progress, size);
             }
 
-            byte[] md5sum = digest.digest();
-
-            BigInteger bigInt = new BigInteger(1, md5sum);
-
-            return bigInt.toString(16);
+            return DatatypeConverter.printHexBinary(digest.digest());
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalArgumentException("Error with algorithm", e);
         } catch (IOException e) {

@@ -154,7 +154,7 @@ public class RingDefinitionStep extends CucumberRoot {
             chordNode.stopStabilizing();
 
             communicationManagerChord.removeMessageProcessor(nodeName);
-            communicationManagerDHash.removeMessageProcessor(nodeName);
+            communicationManagerDHash.removeMessageStreamProcessor(nodeName);
         }
 
         world.setRing(null);

@@ -45,4 +45,11 @@ public interface Resource extends Closeable{
      * @return bytes amount
      */
     Long getSize();
+
+    /**
+     * Get the checksum of the resource
+     *
+     * @return checkSum
+     */
+    String getCheckSum();
 }

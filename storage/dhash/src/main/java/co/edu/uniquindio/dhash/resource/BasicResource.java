@@ -13,13 +13,10 @@ public abstract class BasicResource implements Resource{
     private final String id;
     @NonNull
     private final InputStream inputStream;
+    @NonNull
     private final Long size;
-
-    protected BasicResource(String id, InputStream inputStream, Long size) {
-        this.id = id;
-        this.inputStream = inputStream;
-        this.size = size;
-    }
+    @NonNull
+    private final String checkSum;
 
     @Override
     public void close() throws IOException {

@@ -31,6 +31,6 @@ public class FileResourceManagerFactory implements ResourceManagerFactory {
 
     @Override
     public ResourceManager of(String name) {
-        return new FileResourceManager(directory, name, new HashSet<>(), bufferSize);
+        return new FileResourceManager(directory, name, bufferSize);
     }
 }
