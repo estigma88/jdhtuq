@@ -8,7 +8,7 @@ repositories {
     mavenCentral()
 }
 
-version = '2.0.3'
+version = '2.0.4'
 
 dependencies {
     compile("org.springframework.boot:spring-boot-starter:1.5.10.RELEASE")
@@ -16,10 +16,7 @@ dependencies {
     compileOnly 'org.projectlombok:lombok:1.16.20'
     compile group: 'org.slf4j', name:'slf4j-api', version: '1.7.2'
 
-    compile project(":main:starters:chord-spring-boot-starter")
-    //compile group: 'com.github.estigma88', name: 'jdhtuq-chord-spring-boot-starter', version: '2.0.2'
-    compile project(":main:starters:dhash-spring-boot-starter")
-    //compile group: 'com.github.estigma88', name: 'jdhtuq-dhash-spring-boot-starter', version: '3.0.0'
-    compile project(":main:starters:data-structure-communication-spring-boot-starter")
-    //compile group: 'com.github.estigma88', name: 'jdhtuq-data-structure-communication-spring-boot-starter', version: '3.0.0'
+    compile group: 'com.github.estigma88', name: 'jdhtuq-chord-spring-boot-starter', version: '2.0.3'
+    compile group: 'com.github.estigma88', name: 'jdhtuq-dhash-spring-boot-starter', version: '3.0.1'
+    compile group: 'com.github.estigma88', name: 'jdhtuq-data-structure-communication-spring-boot-starter', version: '3.0.1'
 }

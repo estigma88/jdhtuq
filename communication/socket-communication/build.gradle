@@ -12,8 +12,7 @@ group = 'com.github.estigma88'
 version = '3.0.1'
 
 dependencies {
-    compile project(":communication:communication-api")
-    //compile group: 'com.github.estigma88', name: 'jdhtuq-communication-api', version: '3.0.0'
+    compile group: 'com.github.estigma88', name: 'jdhtuq-communication-api', version: '3.0.1'
 
     compileOnly 'org.projectlombok:lombok:1.16.20'
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.4'
