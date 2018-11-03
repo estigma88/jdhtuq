@@ -1,4 +1,4 @@
-@enable
+
 Feature: I put resources into the network
   Background: I create a stable ring
     Given I set the key length to 16
@@ -25,7 +25,27 @@ Feature: I put resources into the network
       | 172.16.0.21 | 32272 |
       | 172.16.0.22 | 64158 |
     And I create the Chord ring
-    And I wait for stabilizing after 60 seconds
+    And Chord ring is stable with the following successors (check 10 times, each 20 seconds):
+      | 172.16.0.43 | 172.16.0.16 |
+      | 172.16.0.4 | 172.16.0.12 |
+      | 172.16.0.5 | 172.16.0.15 |
+      | 172.16.0.6 | 172.16.0.17 |
+      | 172.16.0.7 | 172.16.0.21 |
+      | 172.16.0.8 | 172.16.0.9 |
+      | 172.16.0.9 | 172.16.0.19 |
+      | 172.16.0.10 | 172.16.0.7 |
+      | 172.16.0.11 | 172.16.0.14 |
+      | 172.16.0.12 | 172.16.0.43 |
+      | 172.16.0.13 | 172.16.0.6 |
+      | 172.16.0.14 | 172.16.0.5 |
+      | 172.16.0.15 | 172.16.0.22 |
+      | 172.16.0.16 | 172.16.0.20 |
+      | 172.16.0.17 | 172.16.0.18 |
+      | 172.16.0.18 | 172.16.0.11 |
+      | 172.16.0.19 | 172.16.0.4 |
+      | 172.16.0.20 | 172.16.0.10 |
+      | 172.16.0.21 | 172.16.0.13 |
+      | 172.16.0.22 | 172.16.0.8 |
 
   Scenario: I put resources into the network
     Given I have the resources names and values:

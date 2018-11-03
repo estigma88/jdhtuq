@@ -1,4 +1,4 @@
-@enable
+
 Feature: A node is offline
   Background: I create a stable ring
     Given I set the key length to 16
@@ -25,7 +25,27 @@ Feature: A node is offline
       | 172.16.0.21 | 32272 |
       | 172.16.0.22 | 64158 |
     And I create the Chord ring
-    And I wait for stabilizing after 60 seconds
+    And Chord ring is stable with the following successors (check 10 times, each 20 seconds):
+      | 172.16.0.43 | 172.16.0.16 |
+      | 172.16.0.4 | 172.16.0.12 |
+      | 172.16.0.5 | 172.16.0.15 |
+      | 172.16.0.6 | 172.16.0.17 |
+      | 172.16.0.7 | 172.16.0.21 |
+      | 172.16.0.8 | 172.16.0.9 |
+      | 172.16.0.9 | 172.16.0.19 |
+      | 172.16.0.10 | 172.16.0.7 |
+      | 172.16.0.11 | 172.16.0.14 |
+      | 172.16.0.12 | 172.16.0.43 |
+      | 172.16.0.13 | 172.16.0.6 |
+      | 172.16.0.14 | 172.16.0.5 |
+      | 172.16.0.15 | 172.16.0.22 |
+      | 172.16.0.16 | 172.16.0.20 |
+      | 172.16.0.17 | 172.16.0.18 |
+      | 172.16.0.18 | 172.16.0.11 |
+      | 172.16.0.19 | 172.16.0.4 |
+      | 172.16.0.20 | 172.16.0.10 |
+      | 172.16.0.21 | 172.16.0.13 |
+      | 172.16.0.22 | 172.16.0.8 |
     And I have the resources names and values:
       | name | path |
       | resource1.txt | src/ittest/resources/resources/resource1.txt |
@@ -43,8 +63,7 @@ Feature: A node is offline
 
   Scenario: The node "172.16.0.10" is offline
     Given The "172.16.0.10" is offline
-    When I wait for stabilizing after 10 seconds
-    Then Chord ring is stable with the following successors:
+    When Chord ring is stable with the following successors (check 10 times, each 20 seconds):
       | 172.16.0.43 | 172.16.0.16 |
       | 172.16.0.4 | 172.16.0.12 |
       | 172.16.0.5 | 172.16.0.15 |
