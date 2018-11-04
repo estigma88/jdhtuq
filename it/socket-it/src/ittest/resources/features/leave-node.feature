@@ -25,8 +25,7 @@ Feature: A node left the network
       | 172.16.0.21 | 32272 |
       | 172.16.0.22 | 64158 |
     And I create the Chord ring
-    And I wait for stabilizing after 120 seconds
-    And Chord ring is stable with the following successors:
+    And Chord ring is stable with the following successors (check 10 times, each 20 seconds):
       | 172.16.0.43 | 172.16.0.16 |
       | 172.16.0.4 | 172.16.0.12 |
       | 172.16.0.5 | 172.16.0.15 |
@@ -64,9 +63,8 @@ Feature: A node left the network
     And I wait for stabilizing after 20 seconds
 
   Scenario: The node "172.16.0.10" left the network
-    Given The "172.16.0.10" left the network
-    When I wait for stabilizing after 10 seconds
-    Then Chord ring is stable with the following successors:
+    When The "172.16.0.10" left the network
+    Then Chord ring is stable with the following successors (check 10 times, each 20 seconds):
       | 172.16.0.43 | 172.16.0.16 |
       | 172.16.0.4 | 172.16.0.12 |
       | 172.16.0.5 | 172.16.0.15 |
@@ -86,7 +84,7 @@ Feature: A node left the network
       | 172.16.0.20 | 172.16.0.7 |
       | 172.16.0.21 | 172.16.0.13 |
       | 172.16.0.22 | 172.16.0.8 |
-    Then The resources are put in the following nodes:
+    And The resources are put in the following nodes:
       | resource1.txt | 172.16.0.7,172.16.0.21 |
       | resource2.txt | 172.16.0.7 |
       | resource3.txt | 172.16.0.12,172.16.0.43 |

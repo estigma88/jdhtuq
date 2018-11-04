@@ -25,8 +25,7 @@ Feature: I create a stable ring
       | 172.16.0.21 | 32272 |
       | 172.16.0.22 | 64158 |
     When I create the Chord ring
-    And I wait for stabilizing after 120 seconds
-    Then Chord ring is stable with the following successors:
+    Then Chord ring is stable with the following successors (check 10 times, each 20 seconds):
       | 172.16.0.43 | 172.16.0.16 |
       | 172.16.0.4 | 172.16.0.12 |
       | 172.16.0.5 | 172.16.0.15 |

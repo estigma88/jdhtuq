@@ -25,8 +25,7 @@ Feature: Every node left the network one by one
       | 172.16.0.21 | 32272 |
       | 172.16.0.22 | 64158 |
     And I create the Chord ring
-    And I wait for stabilizing after 120 seconds
-    And Chord ring is stable with the following successors:
+    And Chord ring is stable with the following successors (check 10 times, each 20 seconds):
       | 172.16.0.43 | 172.16.0.16 |
       | 172.16.0.4 | 172.16.0.12 |
       | 172.16.0.5 | 172.16.0.15 |

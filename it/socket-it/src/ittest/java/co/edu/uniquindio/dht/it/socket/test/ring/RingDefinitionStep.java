@@ -1,6 +1,8 @@
 package co.edu.uniquindio.dht.it.socket.test.ring;
 
+import co.edu.uniquindio.chord.node.ChordNode;
 import co.edu.uniquindio.chord.starter.ChordProperties;
+import co.edu.uniquindio.dhash.node.DHashNode;
 import co.edu.uniquindio.dhash.starter.DHashProperties;
 import co.edu.uniquindio.dht.it.socket.Protocol;
 import co.edu.uniquindio.dht.it.socket.test.CucumberRoot;
@@ -17,6 +19,7 @@ import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -30,6 +33,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Slf4j
 public class RingDefinitionStep extends CucumberRoot {
     @Autowired
     private World world;
@@ -152,6 +156,54 @@ public class RingDefinitionStep extends CucumberRoot {
             assertThat(successor).isEqualTo(nodeSuccessors.get(node));
         }
 
+    }
+    @Then("^Chord ring is stable with the following successors \\(check (\\d+) times, each (\\d+) seconds\\):$")
+    public void chord_ring_is_stable_with_the_following_successors_check_times_each_seconds(int times, int timeToStabilize, Map<String, String> nodeSuccessors) throws Throwable {
+        Ring ring = world.getRing();
+
+        int count = 0;
+        while (times > count) {
+            boolean success = true;
+            try {
+                log.info("Try {}", count + 1);
+                log.info("Waiting for {} seconds", timeToStabilize);
+
+                wating_for_stabilizing_after_seconds(timeToStabilize);
+
+                log.info("Checking try {}", count + 1);
+
+                for (String node : nodeSuccessors.keySet()) {
+                    MessageClient messageClient = ring.getNode(node);
+
+                    Message getSuccessor = Message.builder()
+                            .id(itSequenceGenerator.newId())
+                            .sendType(Message.SendType.REQUEST)
+                            .messageType(Protocol.GET_SUCCESSOR)
+                            .address(Address.builder()
+                                    .source("localhost")
+                                    .destination("localhost")
+                                    .build())
+                            .build();
+
+                    Message response = messageClient.send(getSuccessor);
+
+                    String successor = response.getParam(Protocol.GetSuccessorResponseParams.SUCCESSOR.name());
+
+                    assertThat(successor).isNotNull();
+                    assertThat(successor).isEqualTo(nodeSuccessors.get(node));
+                }
+            }catch (Throwable e){
+                log.info("Try {} failed, {}", count + 1, e.getMessage());
+                if(times <= count + 1){
+                    throw e;
+                }
+                success = false;
+            }
+            if(success){
+                break;
+            }
+            count++;
+        }
     }
 
     public void copyResources() throws IOException {
