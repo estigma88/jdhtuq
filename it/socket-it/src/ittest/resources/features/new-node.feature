@@ -26,7 +26,26 @@ Feature: A node is add to the network
     And I create the Chord ring
     And I wait for stabilizing after 15 seconds
     And The "172.16.0.10" is not started
-    And I wait for stabilizing after 120 seconds
+    And Chord ring is stable with the following successors (check 10 times, each 20 seconds):
+      | 172.16.0.43 | 172.16.0.16 |
+      | 172.16.0.4 | 172.16.0.12 |
+      | 172.16.0.5 | 172.16.0.15 |
+      | 172.16.0.6 | 172.16.0.17 |
+      | 172.16.0.7 | 172.16.0.21 |
+      | 172.16.0.8 | 172.16.0.9 |
+      | 172.16.0.9 | 172.16.0.19 |
+      | 172.16.0.11 | 172.16.0.14 |
+      | 172.16.0.12 | 172.16.0.43 |
+      | 172.16.0.13 | 172.16.0.6 |
+      | 172.16.0.14 | 172.16.0.5 |
+      | 172.16.0.15 | 172.16.0.22 |
+      | 172.16.0.16 | 172.16.0.20 |
+      | 172.16.0.17 | 172.16.0.18 |
+      | 172.16.0.18 | 172.16.0.11 |
+      | 172.16.0.19 | 172.16.0.4 |
+      | 172.16.0.20 | 172.16.0.7 |
+      | 172.16.0.21 | 172.16.0.13 |
+      | 172.16.0.22 | 172.16.0.8 |
     And I have the resources names and values:
       | name | dockerPath | localPath |
       | resource1.txt | /resources/resource1.txt | src/ittest/resources/resources/resource1.txt |
@@ -44,9 +63,8 @@ Feature: A node is add to the network
     And I wait for stabilizing after 20 seconds
 
   Scenario: The node "172.16.0.10" is add to the network
-    Given The "172.16.0.10" is added to the network
-    When I wait for stabilizing after 180 seconds
-    Then Chord ring is stable with the following successors:
+    When The "172.16.0.10" is added to the network
+    Then Chord ring is stable with the following successors (check 10 times, each 20 seconds):
       | 172.16.0.43 | 172.16.0.16 |
       | 172.16.0.4 | 172.16.0.12 |
       | 172.16.0.5 | 172.16.0.15 |
@@ -67,7 +85,7 @@ Feature: A node is add to the network
       | 172.16.0.20 | 172.16.0.10 |
       | 172.16.0.21 | 172.16.0.13 |
       | 172.16.0.22 | 172.16.0.8 |
-    Then The resources are put in the following nodes:
+    And The resources are put in the following nodes:
       | resource1.txt | 172.16.0.7,172.16.0.21 |
       | resource2.txt | 172.16.0.7,172.16.0.21,172.16.0.10 |
       | resource3.txt | 172.16.0.12,172.16.0.43 |
